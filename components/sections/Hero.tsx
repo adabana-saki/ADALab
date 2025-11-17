@@ -5,6 +5,8 @@ import { ChevronDown } from 'lucide-react';
 import { Button } from '../ui/button';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
+import { GlitchText } from '../effects/GlitchText';
+import { HolographicText } from '../effects/HolographicText';
 
 // 3D背景を動的インポート（パフォーマンス最適化）
 const ParticleField = dynamic(
@@ -42,9 +44,10 @@ export function Hero() {
       {/* Animated Grid */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f12_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f12_1px,transparent_1px)] bg-[size:4rem_4rem]" />
 
-      {/* Glow Effects */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[100px] animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/20 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
+      {/* Cyberpunk Glow Effects */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-cyan/20 rounded-full blur-[120px] animate-pulse-glow" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-fuchsia/20 rounded-full blur-[120px] animate-pulse-glow" style={{ animationDelay: '1s' }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-neon-purple/10 rounded-full blur-[150px] animate-pulse" style={{ animationDelay: '0.5s' }} />
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 text-center">
@@ -53,27 +56,34 @@ export function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          {/* Main Heading */}
+          {/* Main Heading with Glitch Effect */}
           <motion.h1
             className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <span className="gradient-text">ADA Lab</span>
+            <GlitchText className="text-5xl md:text-7xl lg:text-8xl">
+              <HolographicText className="text-5xl md:text-7xl lg:text-8xl font-bold">
+                ADA Lab
+              </HolographicText>
+            </GlitchText>
           </motion.h1>
 
-          {/* Divider */}
+          {/* Neon Divider */}
           <motion.div
-            className="w-24 h-1 bg-gradient-to-r from-primary via-secondary to-accent mx-auto mb-6"
+            className="relative w-24 h-1 mx-auto mb-6"
             initial={{ width: 0 }}
             animate={{ width: 96 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-          />
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan via-neon-fuchsia to-neon-purple" />
+            <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan via-neon-fuchsia to-neon-purple blur-md opacity-75" />
+          </motion.div>
 
-          {/* Subtitle */}
+          {/* Subtitle with Neon Glow */}
           <motion.p
-            className="text-xl md:text-3xl lg:text-4xl text-foreground/90 mb-4 font-light"
+            className="text-xl md:text-3xl lg:text-4xl text-foreground/90 mb-4 font-light neon-cyan"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
@@ -82,7 +92,7 @@ export function Hero() {
           </motion.p>
 
           <motion.p
-            className="text-lg md:text-2xl text-muted-foreground mb-12"
+            className="text-lg md:text-2xl text-muted-foreground mb-12 neon-purple"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
@@ -90,7 +100,7 @@ export function Hero() {
             ソフトウェア開発の新次元へ
           </motion.p>
 
-          {/* CTA Buttons */}
+          {/* CTA Buttons with Neon Borders */}
           <motion.div
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
             initial={{ opacity: 0, y: 30 }}
@@ -100,17 +110,19 @@ export function Hero() {
             <Button
               size="lg"
               onClick={() => scrollToSection('#projects')}
-              className="min-w-[200px]"
+              className="min-w-[200px] border-2 neon-border-cyan relative overflow-hidden group"
             >
-              View Our Work
+              <span className="relative z-10">View Our Work</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             </Button>
             <Button
               size="lg"
               variant="outline"
               onClick={() => scrollToSection('#contact')}
-              className="min-w-[200px]"
+              className="min-w-[200px] border-2 neon-border-fuchsia relative overflow-hidden group"
             >
-              Get in Touch
+              <span className="relative z-10">Get in Touch</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-neon-fuchsia/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             </Button>
           </motion.div>
 

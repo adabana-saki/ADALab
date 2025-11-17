@@ -39,6 +39,15 @@ const config: Config = {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
+        // Neon Cyberpunk Colors
+        neon: {
+          cyan: '#06b6d4',
+          blue: '#3b82f6',
+          purple: '#8b5cf6',
+          fuchsia: '#d946ef',
+          pink: '#ec4899',
+          yellow: '#eab308',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -52,6 +61,11 @@ const config: Config = {
         'scale-in': 'scale-in 0.4s ease-out',
         'float': 'float 3s ease-in-out infinite',
         'glow': 'glow 2s ease-in-out infinite alternate',
+        'glitch': 'glitch 0.3s ease-in-out',
+        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+        'scan': 'scan 8s linear infinite',
+        'neon-flicker': 'neon-flicker 1.5s infinite',
+        'cyber-slide': 'cyber-slide 20s linear infinite',
       },
       keyframes: {
         'fade-in': {
@@ -77,6 +91,41 @@ const config: Config = {
         'glow': {
           '0%': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.5)' },
           '100%': { boxShadow: '0 0 30px rgba(59, 130, 246, 0.8)' },
+        },
+        'glitch': {
+          '0%': { transform: 'translate(0)' },
+          '20%': { transform: 'translate(-2px, 2px)' },
+          '40%': { transform: 'translate(-2px, -2px)' },
+          '60%': { transform: 'translate(2px, 2px)' },
+          '80%': { transform: 'translate(2px, -2px)' },
+          '100%': { transform: 'translate(0)' },
+        },
+        'pulse-glow': {
+          '0%, 100%': {
+            boxShadow: '0 0 20px rgba(6, 182, 212, 0.5), 0 0 40px rgba(6, 182, 212, 0.3)',
+          },
+          '50%': {
+            boxShadow: '0 0 30px rgba(6, 182, 212, 0.8), 0 0 60px rgba(6, 182, 212, 0.5)',
+          },
+        },
+        'scan': {
+          '0%': { transform: 'translateY(-100%)' },
+          '100%': { transform: 'translateY(100vh)' },
+        },
+        'neon-flicker': {
+          '0%, 19%, 21%, 23%, 25%, 54%, 56%, 100%': {
+            opacity: '1',
+            textShadow: '0 0 10px rgba(6, 182, 212, 0.8), 0 0 20px rgba(6, 182, 212, 0.6)',
+          },
+          '20%, 24%, 55%': {
+            opacity: '0.8',
+            textShadow: '0 0 5px rgba(6, 182, 212, 0.4)',
+          },
+        },
+        'cyber-slide': {
+          '0%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+          '100%': { backgroundPosition: '0% 50%' },
         },
       },
     },

@@ -7,6 +7,10 @@ import { ScrollProgress } from '@/components/ScrollProgress';
 import { ScrollToTop } from '@/components/ScrollToTop';
 import { SkipToContent } from '@/components/SkipToContent';
 import { KeyboardShortcutsHelper } from '@/components/KeyboardShortcutsHelper';
+import { CyberGrid } from '@/components/effects/CyberGrid';
+import { ScanLines } from '@/components/effects/ScanLines';
+import { FloatingElements } from '@/components/effects/FloatingElements';
+import { MouseGlow } from '@/components/effects/MouseGlow';
 import { Hero } from '@/components/sections/Hero';
 import { About } from '@/components/sections/About';
 import { Services } from '@/components/sections/Services';
@@ -70,10 +74,16 @@ export default function Home() {
 
   return (
     <>
+      {/* Cyberpunk Effects */}
+      <CyberGrid />
+      <ScanLines />
+      <FloatingElements />
+      <MouseGlow />
+
       <SkipToContent />
       <ScrollProgress />
       <Navigation />
-      <main id="main-content" tabIndex={-1} className="focus:outline-none">
+      <main id="main-content" tabIndex={-1} className="focus:outline-none relative z-10">
         <Hero />
         <About />
         <Services />

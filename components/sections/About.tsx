@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Code2, Sparkles, Rocket, Shield } from 'lucide-react';
+import { CounterAnimation } from '../effects/CounterAnimation';
 
 const features = [
   {
@@ -31,10 +32,10 @@ const features = [
 ];
 
 const stats = [
-  { value: '50+', label: 'Projects Completed' },
-  { value: '5+', label: 'Years Experience' },
-  { value: '100%', label: 'Client Satisfaction' },
-  { value: '24/7', label: 'Support' },
+  { value: 50, suffix: '+', label: 'Projects Completed' },
+  { value: 5, suffix: '+', label: 'Years Experience' },
+  { value: 100, suffix: '%', label: 'Client Satisfaction' },
+  { value: 24, suffix: '/7', label: 'Support' },
 ];
 
 export function About() {
@@ -78,10 +79,17 @@ export function About() {
               transition={{ duration: 0.6, delay: 0.1 * index }}
               className="text-center"
             >
-              <div className="text-4xl md:text-5xl font-bold gradient-text mb-2">
-                {stat.value}
+              <div className="text-4xl md:text-5xl font-bold mb-2">
+                <span className="holographic-text">
+                  <CounterAnimation
+                    end={stat.value}
+                    suffix={stat.suffix}
+                    duration={2.5}
+                    className="text-4xl md:text-5xl"
+                  />
+                </span>
               </div>
-              <div className="text-sm text-muted-foreground">{stat.label}</div>
+              <div className="text-sm text-muted-foreground neon-cyan/50">{stat.label}</div>
             </motion.div>
           ))}
         </motion.div>
