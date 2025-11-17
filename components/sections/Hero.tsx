@@ -3,8 +3,24 @@
 import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { Button } from '../ui/button';
+import dynamic from 'next/dynamic';
+import { useEffect, useState } from 'react';
+
+// 3D背景を動的インポート（パフォーマンス最適化）
+const ParticleField = dynamic(
+  () => import('../3d/ParticleField').then((mod) => mod.ParticleField),
+  { ssr: false }
+);
 
 export function Hero() {
+  const [showParticles, setShowParticles] = useState(false);
+
+  useEffect(() => {
+    // モバイルではパーティクルを無効化（パフォーマンス考慮）
+    const isMobile = window.innerWidth < 768;
+    setShowParticles(!isMobile);
+  }, []);
+
   const scrollToSection = (href: string) => {
     const element = document.querySelector(href);
     if (element) {
@@ -17,6 +33,9 @@ export function Hero() {
       id="home"
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
+      {/* 3D Particle Background */}
+      {showParticles && <ParticleField />}
+
       {/* Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/10" />
 
@@ -24,8 +43,8 @@ export function Hero() {
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f12_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f12_1px,transparent_1px)] bg-[size:4rem_4rem]" />
 
       {/* Glow Effects */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[100px]" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/20 rounded-full blur-[100px]" />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[100px] animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/20 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 text-center">
