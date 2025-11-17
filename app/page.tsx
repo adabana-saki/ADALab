@@ -11,6 +11,8 @@ import { CyberGrid } from '@/components/effects/CyberGrid';
 import { ScanLines } from '@/components/effects/ScanLines';
 import { FloatingElements } from '@/components/effects/FloatingElements';
 import { MouseGlow } from '@/components/effects/MouseGlow';
+import { AnimatedBackground } from '@/components/effects/AnimatedBackground';
+import { DataStream } from '@/components/effects/DataStream';
 import { Hero } from '@/components/sections/Hero';
 import { About } from '@/components/sections/About';
 import { Services } from '@/components/sections/Services';
@@ -75,6 +77,8 @@ export default function Home() {
   return (
     <>
       {/* Cyberpunk Effects */}
+      <AnimatedBackground />
+      <DataStream />
       <CyberGrid />
       <ScanLines />
       <FloatingElements />

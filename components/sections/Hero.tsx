@@ -7,6 +7,8 @@ import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { GlitchText } from '../effects/GlitchText';
 import { HolographicText } from '../effects/HolographicText';
+import { TypingAnimation } from '../effects/TypingAnimation';
+import { MagneticButton } from '../effects/MagneticButton';
 
 // 3D背景を動的インポート（パフォーマンス最適化）
 const ParticleField = dynamic(
@@ -91,39 +93,51 @@ export function Hero() {
             Crafting Digital Excellence
           </motion.p>
 
-          <motion.p
-            className="text-lg md:text-2xl text-muted-foreground mb-12 neon-purple"
+          <motion.div
+            className="text-lg md:text-2xl text-muted-foreground mb-12 h-16 flex items-center justify-center"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
           >
-            ソフトウェア開発の新次元へ
-          </motion.p>
+            <TypingAnimation
+              texts={[
+                'ソフトウェア開発の新次元へ',
+                'Building the Future, Today',
+                '革新的なソリューションを提供',
+                'Powered by Cutting-Edge Tech',
+              ]}
+              className="neon-purple font-medium"
+            />
+          </motion.div>
 
-          {/* CTA Buttons with Neon Borders */}
+          {/* CTA Buttons with Neon Borders & Magnetic Effect */}
           <motion.div
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1 }}
           >
-            <Button
-              size="lg"
-              onClick={() => scrollToSection('#projects')}
-              className="min-w-[200px] border-2 neon-border-cyan relative overflow-hidden group"
-            >
-              <span className="relative z-10">View Our Work</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => scrollToSection('#contact')}
-              className="min-w-[200px] border-2 neon-border-fuchsia relative overflow-hidden group"
-            >
-              <span className="relative z-10">Get in Touch</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-neon-fuchsia/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            </Button>
+            <MagneticButton strength={0.2}>
+              <Button
+                size="lg"
+                onClick={() => scrollToSection('#projects')}
+                className="min-w-[200px] border-2 neon-border-cyan relative overflow-hidden group transition-all hover:scale-110"
+              >
+                <span className="relative z-10">View Our Work</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              </Button>
+            </MagneticButton>
+            <MagneticButton strength={0.2}>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => scrollToSection('#contact')}
+                className="min-w-[200px] border-2 neon-border-fuchsia relative overflow-hidden group transition-all hover:scale-110"
+              >
+                <span className="relative z-10">Get in Touch</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-neon-fuchsia/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              </Button>
+            </MagneticButton>
           </motion.div>
 
           {/* Tech Stack Preview */}

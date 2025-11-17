@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { Globe, Smartphone, Palette, Lightbulb, Database, Cloud } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { TiltCard } from '../effects/TiltCard';
 
 const services = [
   {
@@ -82,30 +83,40 @@ export function Services() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.1 * index }}
             >
-              <Card className="h-full group hover:scale-105 transition-all duration-300 cursor-pointer border-border/50 hover:border-primary/50">
-                <CardHeader>
-                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <service.icon className="text-white" size={28} />
-                  </div>
-                  <CardTitle className="text-xl">{service.title}</CardTitle>
-                  <CardDescription className="text-base">
-                    {service.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2">
-                    {service.features.map((feature) => (
-                      <li
-                        key={feature}
-                        className="flex items-center text-sm text-muted-foreground"
-                      >
-                        <div className="w-1.5 h-1.5 rounded-full bg-primary mr-2" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+              <TiltCard
+                glowColor={
+                  index % 3 === 0
+                    ? 'rgba(6, 182, 212, 0.5)'
+                    : index % 3 === 1
+                      ? 'rgba(217, 70, 239, 0.5)'
+                      : 'rgba(168, 85, 247, 0.5)'
+                }
+              >
+                <Card className="h-full group cursor-pointer border-border/50 hover:border-primary/50 transition-all">
+                  <CardHeader>
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all">
+                      <service.icon className="text-white" size={28} />
+                    </div>
+                    <CardTitle className="text-xl">{service.title}</CardTitle>
+                    <CardDescription className="text-base">
+                      {service.description}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2">
+                      {service.features.map((feature) => (
+                        <li
+                          key={feature}
+                          className="flex items-center text-sm text-muted-foreground"
+                        >
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary mr-2 group-hover:animate-pulse" />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </TiltCard>
             </motion.div>
           ))}
         </div>
