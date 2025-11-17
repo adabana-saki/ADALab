@@ -1,5 +1,7 @@
 import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
+import { ScrollProgress } from '@/components/ScrollProgress';
+import { ScrollToTop } from '@/components/ScrollToTop';
 import { Hero } from '@/components/sections/Hero';
 import { About } from '@/components/sections/About';
 import { Services } from '@/components/sections/Services';
@@ -11,6 +13,7 @@ import { Contact } from '@/components/sections/Contact';
 export default function Home() {
   return (
     <>
+      <ScrollProgress />
       <Navigation />
       <main>
         <Hero />
@@ -22,6 +25,7 @@ export default function Home() {
         <Contact />
       </main>
       <Footer />
+      <ScrollToTop />
     </>
   );
 }

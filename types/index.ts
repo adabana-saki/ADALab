@@ -19,10 +19,21 @@ export interface Project {
   id: string;
   title: string;
   description: string;
+  longDescription?: string;
+  category: 'web' | 'mobile' | 'design' | 'ai';
   image: string;
+  images?: string[];
   technologies: string[];
+  features?: string[];
   link?: string;
   github?: string;
+  demoUrl?: string;
+  duration?: string;
+  teamSize?: string;
+  role?: string;
+  challenges?: string[];
+  results?: string[];
+  gradient: string;
 }
 
 export interface ContactFormData {

@@ -1,68 +1,39 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 import { ExternalLink, Github } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
+import { ProjectModal } from '../ProjectModal';
+import { PROJECTS } from '@/lib/projects';
+import type { Project } from '@/types';
 
-// ダミープロジェクトデータ（後で実際のデータに置き換え可能）
-const projects = [
-  {
-    id: '1',
-    title: 'E-Commerce Platform',
-    description:
-      '最新のNext.js 14とStripeを使用した、モダンなECプラットフォーム。管理画面、在庫管理、決済機能を実装。',
-    image: '/images/project-placeholder.jpg',
-    technologies: ['Next.js', 'TypeScript', 'Stripe', 'PostgreSQL'],
-    gradient: 'from-blue-500 to-cyan-500',
-  },
-  {
-    id: '2',
-    title: 'Task Management App',
-    description:
-      'リアルタイム同期機能を持つタスク管理アプリ。Drag & Drop、通知機能、チーム協業機能を搭載。',
-    image: '/images/project-placeholder.jpg',
-    technologies: ['React', 'Firebase', 'Tailwind CSS', 'Framer Motion'],
-    gradient: 'from-purple-500 to-pink-500',
-  },
-  {
-    id: '3',
-    title: 'Healthcare Dashboard',
-    description:
-      '医療機関向けダッシュボード。患者データの可視化、予約管理、レポート生成機能を提供。',
-    image: '/images/project-placeholder.jpg',
-    technologies: ['Vue.js', 'Node.js', 'MongoDB', 'Chart.js'],
-    gradient: 'from-green-500 to-teal-500',
-  },
-  {
-    id: '4',
-    title: 'AI Chat Application',
-    description:
-      'OpenAI APIを活用したAIチャットアプリケーション。マルチモーダル対応、会話履歴管理機能付き。',
-    image: '/images/project-placeholder.jpg',
-    technologies: ['Next.js', 'OpenAI API', 'Vercel AI SDK', 'Prisma'],
-    gradient: 'from-orange-500 to-red-500',
-  },
-  {
-    id: '5',
-    title: 'Portfolio Website',
-    description:
-      '3Dエフェクトとアニメーションを活用したポートフォリオサイト。CMSと連携し、コンテンツ管理が容易。',
-    image: '/images/project-placeholder.jpg',
-    technologies: ['Next.js', 'Three.js', 'Sanity CMS', 'GSAP'],
-    gradient: 'from-violet-500 to-purple-500',
-  },
-  {
-    id: '6',
-    title: 'Fitness Tracking App',
-    description:
-      'モバイルファーストのフィットネストラッキングアプリ。運動記録、栄養管理、進捗可視化機能。',
-    image: '/images/project-placeholder.jpg',
-    technologies: ['React Native', 'Expo', 'Supabase', 'TypeScript'],
-    gradient: 'from-yellow-500 to-orange-500',
-  },
+type FilterCategory = 'all' | Project['category'];
+
+const categories = [
+  { id: 'all' as FilterCategory, name: 'すべて' },
+  { id: 'web' as FilterCategory, name: 'Web' },
+  { id: 'mobile' as FilterCategory, name: 'Mobile' },
+  { id: 'design' as FilterCategory, name: 'Design' },
+  { id: 'ai' as FilterCategory, name: 'AI' },
 ];
 
 export function Projects() {
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [filter, setFilter] = useState<FilterCategory>('all');
+
+  const filteredProjects =
+    filter === 'all'
+      ? PROJECTS
+      : PROJECTS.filter((project) => project.category === filter);
+
+  const handleProjectClick = (project: Project) => {
+    setSelectedProject(project);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedProject(null);
+  };
   return (
     <section id="projects" className="py-20 md:py-32 bg-muted/20 relative overflow-hidden">
       {/* Background decoration */}
@@ -85,15 +56,44 @@ export function Projects() {
           </p>
         </motion.div>
 
+        {/* Category Filter */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="flex flex-wrap justify-center gap-3 mb-12"
+        >
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              onClick={() => setFilter(category.id)}
+              className={`px-6 py-2 rounded-full font-medium transition-all ${
+                filter === category.id
+                  ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-lg scale-105'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+            >
+              {category.name}
+            </button>
+          ))}
+        </motion.div>
+
         {/* Projects Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project, index) => (
+        <motion.div
+          key={filter}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          {filteredProjects.map((project, index) => (
             <motion.div
               key={project.id}
               initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.1 * index }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.05 * index }}
+              onClick={() => handleProjectClick(project)}
             >
               <Card className="h-full group hover:scale-105 transition-all duration-300 cursor-pointer overflow-hidden border-border/50 hover:border-primary/50">
                 {/* Project Image Placeholder */}
@@ -113,9 +113,11 @@ export function Projects() {
                     <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
                       <ExternalLink size={16} className="text-white" />
                     </div>
-                    <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
-                      <Github size={16} className="text-white" />
-                    </div>
+                    {project.github && (
+                      <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
+                        <Github size={16} className="text-white" />
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -126,7 +128,7 @@ export function Projects() {
 
                   {/* Technologies */}
                   <div className="flex flex-wrap gap-2">
-                    {project.technologies.map((tech) => (
+                    {project.technologies.slice(0, 4).map((tech) => (
                       <span
                         key={tech}
                         className="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full"
@@ -134,25 +136,37 @@ export function Projects() {
                         {tech}
                       </span>
                     ))}
+                    {project.technologies.length > 4 && (
+                      <span className="px-3 py-1 bg-muted text-muted-foreground text-xs rounded-full">
+                        +{project.technologies.length - 4}
+                      </span>
+                    )}
                   </div>
                 </CardContent>
               </Card>
             </motion.div>
           ))}
-        </div>
-
-        {/* Note */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="text-center mt-12"
-        >
-          <p className="text-muted-foreground">
-            ※ 実際のプロジェクト画像とリンクは後ほど追加できます
-          </p>
         </motion.div>
+
+        {/* Project Modal */}
+        <ProjectModal
+          project={selectedProject}
+          open={!!selectedProject}
+          onClose={handleCloseModal}
+        />
+
+        {/* Empty State */}
+        {filteredProjects.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-12"
+          >
+            <p className="text-muted-foreground">
+              このカテゴリーのプロジェクトはまだありません
+            </p>
+          </motion.div>
+        )}
       </div>
     </section>
   );
