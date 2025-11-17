@@ -13,6 +13,13 @@ import { FloatingElements } from '@/components/effects/FloatingElements';
 import { MouseGlow } from '@/components/effects/MouseGlow';
 import { AnimatedBackground } from '@/components/effects/AnimatedBackground';
 import { DataStream } from '@/components/effects/DataStream';
+import { LiquidCursor } from '@/components/effects/LiquidCursor';
+import { ParticleBurst } from '@/components/effects/ParticleBurst';
+import { CinematicIntro } from '@/components/effects/CinematicIntro';
+import { KonamiCode } from '@/components/effects/KonamiCode';
+import { RealtimeMetrics } from '@/components/effects/RealtimeMetrics';
+import { WaveShader } from '@/components/effects/WaveShader';
+import { SoundEffects } from '@/components/effects/SoundEffects';
 import { Hero } from '@/components/sections/Hero';
 import { About } from '@/components/sections/About';
 import { Services } from '@/components/sections/Services';
@@ -78,11 +85,20 @@ export default function Home() {
     <>
       {/* Cyberpunk Effects */}
       <AnimatedBackground />
+      <WaveShader />
       <DataStream />
       <CyberGrid />
       <ScanLines />
       <FloatingElements />
+      <ParticleBurst />
       <MouseGlow />
+      <LiquidCursor />
+
+      {/* Ultimate Features */}
+      <CinematicIntro />
+      <KonamiCode />
+      <RealtimeMetrics />
+      <SoundEffects />
 
       <SkipToContent />
       <ScrollProgress />
