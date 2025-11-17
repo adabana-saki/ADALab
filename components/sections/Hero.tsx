@@ -16,6 +16,11 @@ const ParticleField = dynamic(
   { ssr: false }
 );
 
+const FloatingLogo3D = dynamic(
+  () => import('../effects/FloatingLogo3D').then((mod) => mod.FloatingLogo3D),
+  { ssr: false }
+);
+
 export function Hero() {
   const [showParticles, setShowParticles] = useState(false);
 
@@ -39,6 +44,9 @@ export function Hero() {
     >
       {/* 3D Particle Background */}
       {showParticles && <ParticleField />}
+
+      {/* 3D Floating Logo */}
+      {showParticles && <FloatingLogo3D />}
 
       {/* Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/10" />
