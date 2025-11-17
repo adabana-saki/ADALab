@@ -38,6 +38,9 @@ export function KonamiCode() {
 
           // Enable matrix mode
           document.body.classList.add('konami-active');
+
+          // Fire achievement event
+          window.dispatchEvent(new Event('konami-unlocked'));
         }
       } else {
         position = 0;

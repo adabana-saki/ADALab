@@ -66,7 +66,11 @@ export function RealtimeMetrics() {
 
   useEffect(() => {
     // Show metrics panel after 2 seconds
-    const showTimer = setTimeout(() => setIsVisible(true), 2000);
+    const showTimer = setTimeout(() => {
+      setIsVisible(true);
+      // Fire achievement event
+      window.dispatchEvent(new Event('metrics-opened'));
+    }, 2000);
 
     // Auto-hide after 8 seconds
     const hideTimer = setTimeout(() => setIsVisible(false), 10000);

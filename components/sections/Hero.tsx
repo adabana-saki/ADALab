@@ -72,6 +72,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
+            data-easter-egg="true"
           >
             <GlitchText className="text-5xl md:text-7xl lg:text-8xl">
               <HolographicText className="text-5xl md:text-7xl lg:text-8xl font-bold">
@@ -155,15 +156,15 @@ export function Hero() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 1.2 }}
           >
-            <span>React</span>
+            <span data-tech-stack="react" className="cursor-pointer hover:text-neon-cyan transition-colors">React</span>
             <span className="text-primary">•</span>
-            <span>Next.js</span>
+            <span data-tech-stack="nextjs" className="cursor-pointer hover:text-neon-cyan transition-colors">Next.js</span>
             <span className="text-primary">•</span>
-            <span>TypeScript</span>
+            <span data-tech-stack="typescript" className="cursor-pointer hover:text-neon-cyan transition-colors">TypeScript</span>
             <span className="text-primary">•</span>
-            <span>Node.js</span>
+            <span data-tech-stack="nodejs" className="cursor-pointer hover:text-neon-cyan transition-colors">Node.js</span>
             <span className="text-primary">•</span>
-            <span>Python</span>
+            <span data-tech-stack="python" className="cursor-pointer hover:text-neon-cyan transition-colors">Python</span>
           </motion.div>
         </motion.div>
       </div>

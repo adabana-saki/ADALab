@@ -21,6 +21,7 @@ import { RealtimeMetrics } from '@/components/effects/RealtimeMetrics';
 import { WaveShader } from '@/components/effects/WaveShader';
 import { SoundEffects } from '@/components/effects/SoundEffects';
 import { HolographicScene } from '@/components/effects/HolographicScene';
+import { AchievementSystem } from '@/components/achievements/AchievementSystem';
 import { Hero } from '@/components/sections/Hero';
 import { About } from '@/components/sections/About';
 import { Services } from '@/components/sections/Services';
@@ -103,6 +104,7 @@ export default function Home() {
       <KonamiCode />
       <RealtimeMetrics />
       <SoundEffects />
+      <AchievementSystem />
 
       <SkipToContent />
       <ScrollProgress />
