@@ -7,6 +7,7 @@ export function MagneticElements() {
   useEffect(() => {
     // Find all elements with data-magnetic attribute
     const magneticElements = document.querySelectorAll('[data-magnetic]');
+    const cleanupFunctions: Array<() => void> = [];
 
     magneticElements.forEach((element) => {
       const el = element as HTMLElement;
@@ -42,15 +43,15 @@ export function MagneticElements() {
       el.addEventListener('mousemove', handleMouseMove);
       el.addEventListener('mouseleave', handleMouseLeave);
       window.addEventListener('resize', updateRect);
-      window.addEventListener('scroll', updateRect);
+      window.addEventListener('scroll', updateRect, { passive: true });
 
-      // Cleanup stored in array for proper removal
-      return () => {
+      // Store cleanup function
+      cleanupFunctions.push(() => {
         el.removeEventListener('mousemove', handleMouseMove);
         el.removeEventListener('mouseleave', handleMouseLeave);
         window.removeEventListener('resize', updateRect);
         window.removeEventListener('scroll', updateRect);
-      };
+      });
     });
 
     // Apply magnetic effect to buttons automatically
@@ -70,6 +71,8 @@ export function MagneticElements() {
     observer.observe(document.body, { childList: true, subtree: true });
 
     return () => {
+      // Cleanup all event listeners
+      cleanupFunctions.forEach((cleanup) => cleanup());
       observer.disconnect();
     };
   }, []);

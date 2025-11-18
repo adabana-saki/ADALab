@@ -6,6 +6,23 @@ export function BloomEffect() {
   const [intensity, setIntensity] = useState(1);
 
   useEffect(() => {
+    // Intensity variation based on time of day
+    const updateIntensity = () => {
+      const hour = new Date().getHours();
+      // Stronger bloom at night (18:00-06:00)
+      const nightBloom = (hour >= 18 || hour < 6) ? 1.2 : 0.8;
+      setIntensity(nightBloom);
+    };
+
+    updateIntensity();
+    const interval = setInterval(updateIntensity, 60000); // Update every minute
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []); // Empty dependency array - only run once
+
+  useEffect(() => {
     // Apply bloom effect to neon elements
     const style = document.createElement('style');
     style.id = 'bloom-effect-style';
@@ -97,27 +114,22 @@ export function BloomEffect() {
         border-radius: inherit;
       }
     `;
+
+    // Remove old style if exists
+    const oldStyle = document.getElementById('bloom-effect-style');
+    if (oldStyle) {
+      oldStyle.remove();
+    }
+
     document.head.appendChild(style);
-
-    // Intensity variation based on time of day
-    const updateIntensity = () => {
-      const hour = new Date().getHours();
-      // Stronger bloom at night (18:00-06:00)
-      const nightBloom = (hour >= 18 || hour < 6) ? 1.2 : 0.8;
-      setIntensity(nightBloom);
-    };
-
-    updateIntensity();
-    const interval = setInterval(updateIntensity, 60000); // Update every minute
 
     return () => {
       const styleElement = document.getElementById('bloom-effect-style');
       if (styleElement) {
         styleElement.remove();
       }
-      clearInterval(interval);
     };
-  }, [intensity]);
+  }, [intensity]); // Update styles when intensity changes
 
   return null;
 }

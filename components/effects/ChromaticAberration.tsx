@@ -8,6 +8,85 @@ export function ChromaticAberration() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>();
 
+  // Separate effect for mouse tracking
+  useEffect(() => {
+    // Mouse move effect - increase aberration near edges
+    const handleMouseMove = (e: MouseEvent) => {
+      const x = e.clientX / window.innerWidth;
+      const y = e.clientY / window.innerHeight;
+
+      // Calculate distance from center
+      const centerX = 0.5;
+      const centerY = 0.5;
+      const distance = Math.sqrt(
+        Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
+      );
+
+      // Increase intensity at edges
+      setIntensity(distance * 2);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+
+  // Separate effect for canvas animation
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resizeCanvas();
+
+    const drawChromaticNoise = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw subtle chromatic noise
+      const imageData = ctx.createImageData(canvas.width, canvas.height);
+      const data = imageData.data;
+
+      for (let i = 0; i < data.length; i += 4) {
+        if (Math.random() > 0.99) {
+          const color = Math.random() > 0.5 ? 1 : 0;
+          if (color) {
+            data[i] = 255;     // R
+            data[i + 1] = 0;   // G
+            data[i + 2] = 0;   // B
+          } else {
+            data[i] = 0;       // R
+            data[i + 1] = 255; // G
+            data[i + 2] = 255; // B
+          }
+          data[i + 3] = 30 * intensity; // A
+        }
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+      rafRef.current = requestAnimationFrame(drawChromaticNoise);
+    };
+
+    drawChromaticNoise();
+
+    window.addEventListener('resize', resizeCanvas);
+
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, [intensity]);
+
+  // Separate effect for CSS injection
   useEffect(() => {
     // Inject chromatic aberration CSS
     const style = document.createElement('style');
@@ -196,87 +275,22 @@ export function ChromaticAberration() {
         }
       }
     `;
-    document.head.appendChild(style);
 
-    // Mouse move effect - increase aberration near edges
-    const handleMouseMove = (e: MouseEvent) => {
-      const x = e.clientX / window.innerWidth;
-      const y = e.clientY / window.innerHeight;
-
-      // Calculate distance from center
-      const centerX = 0.5;
-      const centerY = 0.5;
-      const distance = Math.sqrt(
-        Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2)
-      );
-
-      // Increase intensity at edges
-      setIntensity(distance * 2);
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-
-    // Canvas-based chromatic aberration overlay
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        const resizeCanvas = () => {
-          canvas.width = window.innerWidth;
-          canvas.height = window.innerHeight;
-        };
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-
-        const drawChromaticNoise = () => {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-          // Draw subtle chromatic noise
-          const imageData = ctx.createImageData(canvas.width, canvas.height);
-          const data = imageData.data;
-
-          for (let i = 0; i < data.length; i += 4) {
-            if (Math.random() > 0.99) {
-              const color = Math.random() > 0.5 ? 1 : 0;
-              if (color) {
-                data[i] = 255;     // R
-                data[i + 1] = 0;   // G
-                data[i + 2] = 0;   // B
-              } else {
-                data[i] = 0;       // R
-                data[i + 1] = 255; // G
-                data[i + 2] = 255; // B
-              }
-              data[i + 3] = 30 * intensity; // A
-            }
-          }
-
-          ctx.putImageData(imageData, 0, 0);
-          rafRef.current = requestAnimationFrame(drawChromaticNoise);
-        };
-
-        drawChromaticNoise();
-
-        return () => {
-          window.removeEventListener('resize', resizeCanvas);
-          if (rafRef.current) {
-            cancelAnimationFrame(rafRef.current);
-          }
-        };
-      }
+    // Remove old style if exists
+    const oldStyle = document.getElementById('chromatic-aberration-style');
+    if (oldStyle) {
+      oldStyle.remove();
     }
+
+    document.head.appendChild(style);
 
     return () => {
       const styleElement = document.getElementById('chromatic-aberration-style');
       if (styleElement) {
         styleElement.remove();
       }
-      window.removeEventListener('mousemove', handleMouseMove);
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-      }
     };
-  }, [intensity]);
+  }, []);
 
   return (
     <>
