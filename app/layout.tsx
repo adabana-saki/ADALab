@@ -2,11 +2,14 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { StructuredData } from '@/components/StructuredData';
 import { WebVitals } from '@/components/WebVitals';
+import { PWAProvider } from '@/components/pwa/PWAProvider';
+import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
+  themeColor: '#06b6d4',
 };
 
 export const metadata: Metadata = {
@@ -74,6 +77,12 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'ADA Lab',
+  },
 };
 
 export default function RootLayout({
@@ -87,8 +96,11 @@ export default function RootLayout({
         <StructuredData />
       </head>
       <body className="font-sans antialiased">
-        <WebVitals />
-        {children}
+        <GoogleAnalytics />
+        <PWAProvider>
+          <WebVitals />
+          {children}
+        </PWAProvider>
       </body>
     </html>
   );

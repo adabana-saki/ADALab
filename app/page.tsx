@@ -22,6 +22,10 @@ import { WaveShader } from '@/components/effects/WaveShader';
 import { SoundEffects } from '@/components/effects/SoundEffects';
 import { HolographicScene } from '@/components/effects/HolographicScene';
 import { AchievementSystem } from '@/components/achievements/AchievementSystem';
+import { InstallPrompt } from '@/components/pwa/InstallPrompt';
+import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
+import { VoiceCommands } from '@/components/voice/VoiceCommands';
+import { ChatBot } from '@/components/ai/ChatBot';
 import { Hero } from '@/components/sections/Hero';
 import { About } from '@/components/sections/About';
 import { Services } from '@/components/sections/Services';
@@ -105,6 +109,10 @@ export default function Home() {
       <RealtimeMetrics />
       <SoundEffects />
       <AchievementSystem />
+      <InstallPrompt />
+      <ThemeSwitcher />
+      <VoiceCommands />
+      <ChatBot />
 
       <SkipToContent />
       <ScrollProgress />
