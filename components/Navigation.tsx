@@ -57,11 +57,12 @@ export function Navigation() {
                 e.preventDefault();
                 scrollToSection('#home');
               }}
-              className="text-2xl font-bold gradient-text cursor-pointer"
+              className="text-2xl logo-text cursor-pointer"
+              data-text="ADA LAB"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              ADA Lab
+              ADA LAB
             </motion.a>
 
             {/* Desktop Navigation */}

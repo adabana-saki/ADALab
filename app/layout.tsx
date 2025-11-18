@@ -1,9 +1,23 @@
 import type { Metadata, Viewport } from 'next';
+import { Orbitron, Inter } from 'next/font/google';
 import './globals.css';
 import { StructuredData } from '@/components/StructuredData';
 import { WebVitals } from '@/components/WebVitals';
 import { PWAProvider } from '@/components/pwa/PWAProvider';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
+
+const orbitron = Orbitron({
+  subsets: ['latin'],
+  variable: '--font-orbitron',
+  weight: ['400', '500', '600', '700', '800', '900'],
+  display: 'swap',
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+});
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -91,7 +105,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ja" className="scroll-smooth">
+    <html lang="ja" className={`scroll-smooth ${orbitron.variable} ${inter.variable}`}>
       <head>
         <StructuredData />
       </head>
