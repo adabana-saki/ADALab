@@ -16,6 +16,7 @@ interface Particle {
 export function ParticleBurst() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
+  const ripplesRef = useRef<Array<{ x: number; y: number; radius: number; life: number }>>([]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -31,16 +32,23 @@ export function ParticleBurst() {
       '#06b6d4', // cyan
       '#8b5cf6', // purple
       '#d946ef', // fuchsia
-      '#3b82f6', // blue
-      '#ec4899', // pink
     ];
 
     const createBurst = (x: number, y: number) => {
-      const particleCount = 30;
+      // リップル効果 - Ripple effect
+      ripplesRef.current.push({
+        x,
+        y,
+        radius: 0,
+        life: 1,
+      });
+
+      // シンプルなパーティクル - Simple particles
+      const particleCount = 12; // 30から12に削減
 
       for (let i = 0; i < particleCount; i++) {
         const angle = (Math.PI * 2 * i) / particleCount;
-        const velocity = 3 + Math.random() * 5;
+        const velocity = 2 + Math.random() * 3; // 速度を抑える
 
         particlesRef.current.push({
           x,
@@ -49,7 +57,7 @@ export function ParticleBurst() {
           vy: Math.sin(angle) * velocity,
           life: 1,
           maxLife: 1,
-          size: 2 + Math.random() * 4,
+          size: 3 + Math.random() * 2, // サイズを少し大きく
           color: colors[Math.floor(Math.random() * colors.length)],
         });
       }
@@ -65,12 +73,36 @@ export function ParticleBurst() {
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      // リップルを描画 - Draw ripples
+      ripplesRef.current = ripplesRef.current.filter((ripple) => {
+        ripple.radius += 4;
+        ripple.life -= 0.015;
+
+        if (ripple.life <= 0) return false;
+
+        ctx.beginPath();
+        ctx.arc(ripple.x, ripple.y, ripple.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(6, 182, 212, ${ripple.life * 0.5})`;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // 2つ目のリング
+        ctx.beginPath();
+        ctx.arc(ripple.x, ripple.y, ripple.radius * 0.7, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(168, 85, 247, ${ripple.life * 0.3})`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        return true;
+      });
+
+      // パーティクルを描画 - Draw particles
       particlesRef.current = particlesRef.current.filter((particle) => {
         particle.x += particle.vx;
         particle.y += particle.vy;
-        particle.vy += 0.2; // gravity
-        particle.vx *= 0.98; // friction
-        particle.life -= 0.02;
+        particle.vx *= 0.95; // 摩擦を強く
+        particle.vy *= 0.95;
+        particle.life -= 0.025; // 早く消える
 
         if (particle.life <= 0) return false;
 
@@ -85,7 +117,7 @@ export function ParticleBurst() {
         const b = parseInt(particle.color.slice(5, 7), 16);
 
         ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 8;
         ctx.shadowColor = particle.color;
         ctx.fill();
 
