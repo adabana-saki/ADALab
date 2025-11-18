@@ -39,14 +39,20 @@ export function KeyboardShortcutsHelper() {
       {/* Floating help button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-24 right-8 z-40 p-3 rounded-full bg-muted/80 backdrop-blur-sm text-foreground shadow-lg hover:shadow-xl transition-all hover:scale-110 group"
+        className="fixed bottom-4 right-4 z-[100] w-12 h-12 rounded-full bg-black/80 backdrop-blur-xl border-2 border-neon-purple/50 hover:border-neon-purple hover:scale-110 transition-all shadow-2xl flex items-center justify-center group"
         aria-label="キーボードショートカットヘルプ"
-        title="キーボードショートカット (Press ?)"
       >
         <Keyboard
           size={20}
-          className="group-hover:scale-110 transition-transform"
+          className="text-neon-purple group-hover:scale-110 transition-transform"
         />
+
+        {/* Tooltip */}
+        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-3 py-1 bg-black/90 backdrop-blur-md border border-neon-purple/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+          <span className="text-xs text-neon-purple font-mono">
+            ショートカット (?)
+          </span>
+        </div>
       </button>
 
       {/* Help modal */}
@@ -59,7 +65,7 @@ export function KeyboardShortcutsHelper() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50"
+              className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[200]"
             />
 
             {/* Modal content */}
@@ -67,7 +73,7 @@ export function KeyboardShortcutsHelper() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-lg"
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[201] w-full max-w-lg px-4"
             >
               <div className="glass rounded-xl p-6 shadow-2xl border border-border">
                 {/* Header */}

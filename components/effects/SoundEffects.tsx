@@ -210,7 +210,7 @@ export function SoundEffects() {
           // Fire achievement event
           window.dispatchEvent(new Event('sound-toggled'));
         }}
-        className="fixed bottom-24 right-4 z-[150] w-12 h-12 rounded-full bg-black/80 backdrop-blur-xl border-2 neon-border-purple hover:scale-110 transition-all shadow-2xl flex items-center justify-center group"
+        className="fixed bottom-20 right-4 z-[100] w-12 h-12 rounded-full bg-black/80 backdrop-blur-xl border-2 neon-border-purple hover:scale-110 transition-all shadow-2xl flex items-center justify-center group"
         aria-label="Toggle sound effects"
       >
         {isEnabled ? (
@@ -220,9 +220,9 @@ export function SoundEffects() {
         )}
 
         {/* Tooltip */}
-        <div className="absolute right-full mr-2 px-3 py-1 bg-black/90 backdrop-blur-md border border-neon-purple/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-3 py-1 bg-black/90 backdrop-blur-md border border-neon-purple/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
           <span className="text-xs text-neon-purple font-mono">
-            {isEnabled ? 'Sound ON' : 'Sound OFF'} (Ctrl+Shift+S)
+            {isEnabled ? 'サウンド ON' : 'サウンド OFF'} (Ctrl+Shift+S)
           </span>
         </div>
       </button>
@@ -234,7 +234,7 @@ export function SoundEffects() {
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: -20 }}
-            className="fixed bottom-40 right-4 z-[150] px-4 py-2 bg-black/90 backdrop-blur-xl border-2 neon-border-purple rounded-lg shadow-2xl"
+            className="fixed bottom-36 right-4 z-[100] px-4 py-2 bg-black/90 backdrop-blur-xl border-2 neon-border-purple rounded-lg shadow-2xl"
           >
             <div className="flex items-center gap-2">
               {isEnabled ? (

@@ -7,11 +7,11 @@ import { Sun, Moon, Palette, Check } from 'lucide-react';
 type Theme = 'dark' | 'light';
 type ColorScheme = 'default' | 'purple' | 'green' | 'orange';
 
-const colorSchemes: Record<ColorScheme, { name: string; primary: string; secondary: string }> = {
-  default: { name: 'サイバーパンク', primary: '#06b6d4', secondary: '#d946ef' },
-  purple: { name: 'パープルドリーム', primary: '#8b5cf6', secondary: '#ec4899' },
-  green: { name: 'マトリックス', primary: '#10b981', secondary: '#3b82f6' },
-  orange: { name: 'サンセット', primary: '#f59e0b', secondary: '#ef4444' },
+const colorSchemes: Record<ColorScheme, { name: string; primary: string; secondary: string; accent: string }> = {
+  default: { name: 'サイバーパンク', primary: '189 94% 43%', secondary: '271 91% 65%', accent: '331 86% 65%' },
+  purple: { name: 'パープルドリーム', primary: '271 91% 65%', secondary: '330 81% 60%', accent: '217 91% 60%' },
+  green: { name: 'マトリックス', primary: '160 84% 39%', secondary: '217 91% 60%', accent: '189 94% 43%' },
+  orange: { name: 'サンセット', primary: '38 92% 50%', secondary: '4 90% 58%', accent: '271 91% 65%' },
 };
 
 export function ThemeSwitcher() {
@@ -40,16 +40,41 @@ export function ThemeSwitcher() {
   };
 
   const applyColorScheme = (scheme: ColorScheme) => {
-    const { primary, secondary } = colorSchemes[scheme];
+    const { primary, secondary, accent } = colorSchemes[scheme];
 
-    // Update CSS variables
-    document.documentElement.style.setProperty('--color-primary', primary);
-    document.documentElement.style.setProperty('--color-secondary', secondary);
+    // Update CSS variables (HSL format)
+    document.documentElement.style.setProperty('--primary', primary);
+    document.documentElement.style.setProperty('--secondary', secondary);
+    document.documentElement.style.setProperty('--accent', accent);
 
-    // Update theme color for PWA
+    // Update theme color for PWA (convert HSL to hex for meta tag)
+    const hslToHex = (hsl: string) => {
+      const [h, s, l] = hsl.split(' ').map(v => parseFloat(v));
+      const lightness = l / 100;
+      const saturation = s / 100;
+      const chroma = (1 - Math.abs(2 * lightness - 1)) * saturation;
+      const huePrime = h / 60;
+      const secondComponent = chroma * (1 - Math.abs(huePrime % 2 - 1));
+
+      let r = 0, g = 0, b = 0;
+      if (huePrime >= 0 && huePrime < 1) [r, g, b] = [chroma, secondComponent, 0];
+      else if (huePrime >= 1 && huePrime < 2) [r, g, b] = [secondComponent, chroma, 0];
+      else if (huePrime >= 2 && huePrime < 3) [r, g, b] = [0, chroma, secondComponent];
+      else if (huePrime >= 3 && huePrime < 4) [r, g, b] = [0, secondComponent, chroma];
+      else if (huePrime >= 4 && huePrime < 5) [r, g, b] = [secondComponent, 0, chroma];
+      else if (huePrime >= 5 && huePrime < 6) [r, g, b] = [chroma, 0, secondComponent];
+
+      const lightnessAdjustment = lightness - chroma / 2;
+      r = Math.round((r + lightnessAdjustment) * 255);
+      g = Math.round((g + lightnessAdjustment) * 255);
+      b = Math.round((b + lightnessAdjustment) * 255);
+
+      return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+    };
+
     const themeColorMeta = document.querySelector('meta[name="theme-color"]');
     if (themeColorMeta) {
-      themeColorMeta.setAttribute('content', primary);
+      themeColorMeta.setAttribute('content', hslToHex(primary));
     }
   };
 
@@ -70,15 +95,15 @@ export function ThemeSwitcher() {
       {/* Theme Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-56 right-4 z-[150] w-12 h-12 rounded-full bg-black/80 backdrop-blur-xl border-2 neon-border-fuchsia hover:scale-110 transition-all shadow-2xl flex items-center justify-center group"
+        className="fixed bottom-68 right-4 z-[100] w-12 h-12 rounded-full bg-black/80 backdrop-blur-xl border-2 neon-border-fuchsia hover:scale-110 transition-all shadow-2xl flex items-center justify-center group"
         aria-label="Theme settings"
       >
         <Palette className="w-5 h-5 text-neon-fuchsia" />
 
         {/* Tooltip */}
-        <div className="absolute right-full mr-2 px-3 py-1 bg-black/90 backdrop-blur-md border border-neon-fuchsia/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-3 py-1 bg-black/90 backdrop-blur-md border border-neon-fuchsia/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
           <span className="text-xs text-neon-fuchsia font-mono">
-            テーマ設定 (Ctrl+Shift+T)
+            テーマ設定
           </span>
         </div>
       </button>
@@ -169,11 +194,15 @@ export function ThemeSwitcher() {
                           <div className="flex gap-2">
                             <div
                               className="w-6 h-6 rounded-full border-2 border-white/30"
-                              style={{ backgroundColor: colorSchemes[scheme].primary }}
+                              style={{ backgroundColor: `hsl(${colorSchemes[scheme].primary})` }}
                             />
                             <div
                               className="w-6 h-6 rounded-full border-2 border-white/30"
-                              style={{ backgroundColor: colorSchemes[scheme].secondary }}
+                              style={{ backgroundColor: `hsl(${colorSchemes[scheme].secondary})` }}
+                            />
+                            <div
+                              className="w-6 h-6 rounded-full border-2 border-white/30"
+                              style={{ backgroundColor: `hsl(${colorSchemes[scheme].accent})` }}
                             />
                           </div>
                         </div>

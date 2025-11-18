@@ -157,9 +157,13 @@ export function RealtimeMetrics() {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 300 }}
           transition={{ type: 'spring', stiffness: 200, damping: 25 }}
-          className="fixed top-20 right-4 z-[150] pointer-events-none select-none"
+          className="fixed top-24 right-4 z-[100] pointer-events-none select-none"
+          style={{
+            maxHeight: 'calc(100vh - 8rem)',
+            overflowY: 'auto'
+          }}
         >
-          <div className="bg-black/80 backdrop-blur-xl border-2 neon-border-cyan rounded-xl p-4 min-w-[280px] shadow-2xl">
+          <div className="bg-black/90 backdrop-blur-xl border-2 neon-border-cyan rounded-xl p-4 min-w-[280px] shadow-2xl">
             {/* Header */}
             <div className="flex items-center gap-2 mb-3 pb-2 border-b border-neon-cyan/30">
               <Activity className="w-4 h-4 text-neon-cyan animate-pulse" />

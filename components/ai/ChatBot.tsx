@@ -95,15 +95,15 @@ export function ChatBot() {
       {/* Chat Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-[22rem] right-4 z-[150] w-12 h-12 rounded-full bg-black/80 backdrop-blur-xl border-2 neon-border-blue hover:scale-110 transition-all shadow-2xl flex items-center justify-center group"
+        className="fixed bottom-52 right-4 z-[100] w-12 h-12 rounded-full bg-black/80 backdrop-blur-xl border-2 neon-border-blue hover:scale-110 transition-all shadow-2xl flex items-center justify-center group"
         aria-label="AI Chat"
       >
         <MessageCircle className="w-5 h-5 text-blue-400" />
 
         {/* Tooltip */}
-        <div className="absolute right-full mr-2 px-3 py-1 bg-black/90 backdrop-blur-md border border-blue-400/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-3 py-1 bg-black/90 backdrop-blur-md border border-blue-400/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
           <span className="text-xs text-blue-400 font-mono">
-            AIアシスタント (C)
+            AIアシスタント
           </span>
         </div>
 
@@ -120,7 +120,7 @@ export function ChatBot() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-[25rem] right-4 z-[150] w-96 h-[500px] bg-black/95 backdrop-blur-xl border-2 neon-border-blue rounded-xl shadow-2xl flex flex-col overflow-hidden"
+            className="fixed bottom-68 right-4 z-[100] w-96 max-w-[calc(100vw-2rem)] h-[500px] max-h-[calc(100vh-10rem)] bg-black/95 backdrop-blur-xl border-2 neon-border-blue rounded-xl shadow-2xl flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="p-4 border-b border-blue-400/30 flex items-center justify-between">
