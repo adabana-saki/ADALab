@@ -58,7 +58,7 @@ export function AchievementSystem() {
       {/* Floating achievement button with progress ring */}
       <button
         onClick={() => setIsModalOpen(true)}
-        className="fixed bottom-36 right-4 z-[100] w-14 h-14 rounded-full bg-black/80 backdrop-blur-xl border-2 neon-border-yellow hover:scale-110 transition-all shadow-2xl flex items-center justify-center group"
+        className="fixed bottom-36 right-4 z-[100] w-14 h-14 rounded-full bg-black/90 backdrop-blur-xl border-2 neon-border-yellow hover:scale-110 transition-all shadow-2xl flex items-center justify-center group"
         aria-label="View achievements"
       >
         {/* Progress ring */}

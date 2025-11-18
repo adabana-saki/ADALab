@@ -95,7 +95,7 @@ export function ThemeSwitcher() {
       {/* Theme Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-68 right-4 z-[100] w-12 h-12 rounded-full bg-black/80 backdrop-blur-xl border-2 neon-border-fuchsia hover:scale-110 transition-all shadow-2xl flex items-center justify-center group"
+        className="fixed bottom-68 right-4 z-[100] w-12 h-12 rounded-full bg-black/90 backdrop-blur-xl border-2 neon-border-fuchsia hover:scale-110 transition-all shadow-2xl flex items-center justify-center group"
         aria-label="Theme settings"
       >
         <Palette className="w-5 h-5 text-neon-fuchsia" />

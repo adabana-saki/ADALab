@@ -39,7 +39,7 @@ export function KeyboardShortcutsHelper() {
       {/* Floating help button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 right-4 z-[100] w-12 h-12 rounded-full bg-black/80 backdrop-blur-xl border-2 border-neon-purple/50 hover:border-neon-purple hover:scale-110 transition-all shadow-2xl flex items-center justify-center group"
+        className="fixed bottom-4 right-4 z-[100] w-12 h-12 rounded-full bg-black/90 backdrop-blur-xl border-2 border-neon-purple/50 hover:border-neon-purple hover:scale-110 transition-all shadow-2xl flex items-center justify-center group"
         aria-label="キーボードショートカットヘルプ"
       >
         <Keyboard

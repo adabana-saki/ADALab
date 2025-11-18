@@ -210,7 +210,7 @@ export function SoundEffects() {
           // Fire achievement event
           window.dispatchEvent(new Event('sound-toggled'));
         }}
-        className="fixed bottom-20 right-4 z-[100] w-12 h-12 rounded-full bg-black/80 backdrop-blur-xl border-2 neon-border-purple hover:scale-110 transition-all shadow-2xl flex items-center justify-center group"
+        className="fixed bottom-20 right-4 z-[100] w-12 h-12 rounded-full bg-black/90 backdrop-blur-xl border-2 neon-border-purple hover:scale-110 transition-all shadow-2xl flex items-center justify-center group"
         aria-label="Toggle sound effects"
       >
         {isEnabled ? (
