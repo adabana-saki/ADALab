@@ -26,6 +26,10 @@ import { InstallPrompt } from '@/components/pwa/InstallPrompt';
 import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
 import { VoiceCommands } from '@/components/voice/VoiceCommands';
 import { ChatBot } from '@/components/ai/ChatBot';
+import { BloomEffect } from '@/components/effects/BloomEffect';
+import { GlitchEffect } from '@/components/effects/GlitchEffect';
+import { ChromaticAberration } from '@/components/effects/ChromaticAberration';
+import { EnhancedParticles } from '@/components/effects/EnhancedParticles';
 import { Hero } from '@/components/sections/Hero';
 import { About } from '@/components/sections/About';
 import { Services } from '@/components/sections/Services';
@@ -102,6 +106,12 @@ export default function Home() {
       <ParticleBurst />
       <MouseGlow />
       <LiquidCursor />
+
+      {/* Advanced Post-Processing Effects */}
+      <BloomEffect />
+      <GlitchEffect />
+      <ChromaticAberration />
+      <EnhancedParticles />
 
       {/* Ultimate Features */}
       <CinematicIntro />
