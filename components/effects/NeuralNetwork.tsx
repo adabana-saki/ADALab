@@ -25,14 +25,6 @@ export function NeuralNetwork() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas size
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      initNodes();
-    };
-    resizeCanvas();
-
     const colors = ['#06b6d4', '#d946ef', '#ec4899', '#8b5cf6', '#10b981'];
     const nodeCount = 50;
     const maxDistance = 150;
@@ -53,7 +45,13 @@ export function NeuralNetwork() {
       }
     };
 
-    initNodes();
+    // Set canvas size
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      initNodes();
+    };
+    resizeCanvas();
 
     // Find connections between nodes
     const updateConnections = () => {
