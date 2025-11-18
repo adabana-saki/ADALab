@@ -7,35 +7,35 @@ import { CounterAnimation } from '../effects/CounterAnimation';
 const features = [
   {
     icon: Code2,
-    title: '最先端技術',
+    title: 'テクノロジードリブン',
     description:
-      '常に最新のテクノロジーをキャッチアップし、最適な技術スタックで開発します',
+      '最新技術を駆使し、革新的なプロダクトを生み出し続けます',
   },
   {
     icon: Sparkles,
-    title: 'クリエイティブ',
+    title: 'ユーザーファースト',
     description:
-      'ユーザーを魅了する美しく直感的なUI/UXデザインを提供します',
+      '使う人の体験を第一に考え、愛されるプロダクトを作ります',
   },
   {
     icon: Rocket,
-    title: '高速開発',
+    title: 'スピード',
     description:
-      'アジャイル開発により、迅速かつ柔軟にプロジェクトを進行します',
+      '迅速なリリースと改善サイクルで、市場の変化に素早く対応します',
   },
   {
     icon: Shield,
-    title: '品質保証',
+    title: '品質への こだわり',
     description:
-      'テスト駆動開発とコードレビューで、高品質なコードを保証します',
+      '妥協のない品質管理で、安心して使えるプロダクトを提供します',
   },
 ];
 
 const stats = [
-  { value: 50, suffix: '+', label: 'Projects Completed' },
-  { value: 5, suffix: '+', label: 'Years Experience' },
-  { value: 100, suffix: '%', label: 'Client Satisfaction' },
-  { value: 24, suffix: '/7', label: 'Support' },
+  { value: 6, suffix: '+', label: 'Products' },
+  { value: 50, suffix: 'K+', label: 'Active Users' },
+  { value: 99, suffix: '%', label: 'Uptime' },
+  { value: 20, suffix: '+', label: 'Team Members' },
 ];
 
 export function About() {
@@ -57,8 +57,8 @@ export function About() {
             About <span className="gradient-text">ADA Lab</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            革新的なソフトウェアとアプリケーションを開発する個人事業です。
-            技術への情熱と、クライアントの成功へのコミットメントを大切にしています。
+            テクノロジーの力で世界を変えるプロダクトカンパニー。
+            人々の生活やビジネスをより良くする、革新的なプロダクトを生み出し続けています。
           </p>
         </motion.div>
 

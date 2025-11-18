@@ -20,19 +20,19 @@ export default function CompanyInfoPage() {
       sections: [
         {
           title: '事業内容',
-          content: '• Webアプリケーション開発\n• モバイルアプリケーション開発（iOS / Android）\n• UI/UXデザイン\n• システムコンサルティング\n• クラウドインフラ構築・運用\n• AIソリューション開発',
+          content: '• 自社プロダクト開発・運営\n• SaaSプラットフォーム事業\n• AIソリューション開発\n• データ分析プラットフォーム\n• コミュニケーションツール\n• セキュリティソリューション',
         },
         {
           title: '企業理念',
-          content: 'テクノロジーで未来を創造する。\n\n私たちは、最新のテクノロジーと創造的なアイデアを融合し、お客様のビジネスに真の価値を提供します。常に挑戦し続け、革新的なソリューションを通じて社会に貢献することを目指しています。',
+          content: 'テクノロジーで世界を変える。\n\n私たちは、革新的なプロダクトを通じて人々の生活やビジネスをより良くすることを目指しています。ユーザーファーストの姿勢を貫き、常に挑戦し続けることで、社会に真の価値を提供します。',
         },
         {
           title: '私たちの強み',
-          content: '• 最新技術への迅速な対応\n• 経験豊富なエンジニアチーム\n• お客様に寄り添った丁寧なサポート\n• 高品質なコードとデザイン\n• アジャイル開発による柔軟な対応',
+          content: '• プロダクト開発に特化したチーム\n• 迅速なリリースと改善サイクル\n• データドリブンな意思決定\n• スケーラブルなアーキテクチャ設計\n• ユーザー体験を第一に考えたデザイン',
         },
         {
-          title: '取引先企業',
-          content: '大手IT企業、金融機関、製造業、小売業、スタートアップ企業など、幅広い業界のお客様と取引実績がございます。',
+          title: 'ユーザー',
+          content: '私たちのプロダクトは、スタートアップから大企業まで、50,000以上のユーザーにご利用いただいています。グローバルに展開し、日々成長を続けています。',
         },
       ],
     },
@@ -48,19 +48,19 @@ export default function CompanyInfoPage() {
       sections: [
         {
           title: 'Business Activities',
-          content: '• Web Application Development\n• Mobile Application Development (iOS / Android)\n• UI/UX Design\n• System Consulting\n• Cloud Infrastructure Construction & Operations\n• AI Solution Development',
+          content: '• Product Development & Operations\n• SaaS Platform Business\n• AI Solutions\n• Data Analytics Platform\n• Communication Tools\n• Security Solutions',
         },
         {
           title: 'Corporate Philosophy',
-          content: 'Creating the future with technology.\n\nWe combine cutting-edge technology with creative ideas to deliver true value to our clients\' businesses. We continuously challenge ourselves and aim to contribute to society through innovative solutions.',
+          content: 'Changing the world with technology.\n\nWe aim to improve people\'s lives and businesses through innovative products. With a user-first approach and continuous innovation, we deliver true value to society.',
         },
         {
           title: 'Our Strengths',
-          content: '• Rapid adoption of latest technologies\n• Experienced engineering team\n• Attentive customer support\n• High-quality code and design\n• Flexible agile development approach',
+          content: '• Product-focused team\n• Rapid release and improvement cycles\n• Data-driven decision making\n• Scalable architecture design\n• User experience-first design',
         },
         {
-          title: 'Client Portfolio',
-          content: 'We have worked with clients across various industries, including major IT companies, financial institutions, manufacturing, retail, and startups.',
+          title: 'Users',
+          content: 'Our products are used by over 50,000 users, from startups to large enterprises. We are expanding globally and growing every day.',
         },
       ],
     },

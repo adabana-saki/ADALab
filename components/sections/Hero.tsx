@@ -99,7 +99,7 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
-            Crafting Digital Excellence
+            Build. Ship. Scale.
           </motion.p>
 
           <motion.div
@@ -110,10 +110,10 @@ export function Hero() {
           >
             <TypingAnimation
               texts={[
-                'ソフトウェア開発の新次元へ',
-                'Building the Future, Today',
-                '革新的なソリューションを提供',
-                'Powered by Cutting-Edge Tech',
+                '自社プロダクトで世界を変える',
+                'Creating Products People Love',
+                'イノベーションを生み出すプロダクトカンパニー',
+                'Powered by Technology & Passion',
               ]}
               className="neon-purple font-medium"
             />
@@ -132,7 +132,7 @@ export function Hero() {
                 onClick={() => scrollToSection('#projects')}
                 className="w-full sm:w-auto min-w-[200px] border-2 neon-border-cyan relative overflow-hidden group transition-all hover:scale-110 active:scale-95 py-6 sm:py-4"
               >
-                <span className="relative z-10">View Our Work</span>
+                <span className="relative z-10">プロダクトを見る</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               </Button>
             </MagneticButton>
@@ -140,10 +140,10 @@ export function Hero() {
               <Button
                 size="lg"
                 variant="outline"
-                onClick={() => scrollToSection('#contact')}
+                onClick={() => scrollToSection('#about')}
                 className="w-full sm:w-auto min-w-[200px] border-2 neon-border-fuchsia relative overflow-hidden group transition-all hover:scale-110 active:scale-95 py-6 sm:py-4"
               >
-                <span className="relative z-10">Get in Touch</span>
+                <span className="relative z-10">私たちについて</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-neon-fuchsia/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               </Button>
             </MagneticButton>

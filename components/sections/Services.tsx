@@ -1,52 +1,64 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Globe, Smartphone, Palette, Lightbulb, Database, Cloud } from 'lucide-react';
+import { Sparkles, Zap, Shield, TrendingUp, Users, Rocket } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { TiltCard } from '../effects/TiltCard';
 
-const services = [
+const products = [
   {
-    icon: Globe,
-    title: 'Webアプリケーション開発',
+    icon: Sparkles,
+    title: 'ADA Analytics',
     description:
-      'モダンなフロントエンド技術（React, Next.js, Vue.js）とスケーラブルなバックエンドで、高品質なWebアプリケーションを開発します。',
-    features: ['レスポンシブデザイン', 'PWA対応', 'SEO最適化', 'パフォーマンス最適化'],
+      'AIを活用したデータ分析プラットフォーム。リアルタイムでビジネスインサイトを提供し、データドリブンな意思決定を支援します。',
+    features: ['リアルタイム分析', 'AI予測モデル', 'カスタムダッシュボード', 'データビジュアライゼーション'],
+    status: 'Live',
+    color: 'cyan',
   },
   {
-    icon: Smartphone,
-    title: 'モバイルアプリ開発',
+    icon: Zap,
+    title: 'ADA Connect',
     description:
-      'iOS/Android対応のネイティブアプリケーションや、React Native・Flutterを使用したクロスプラットフォーム開発を提供します。',
-    features: ['iOS/Android対応', 'クロスプラットフォーム', 'ネイティブパフォーマンス', 'App Store申請サポート'],
+      'チーム間のコミュニケーションを革新するコラボレーションツール。シームレスな情報共有と効率的なワークフローを実現します。',
+    features: ['リアルタイムチャット', 'タスク管理', 'ビデオ会議', 'ファイル共有'],
+    status: 'Live',
+    color: 'purple',
   },
   {
-    icon: Palette,
-    title: 'UI/UXデザイン',
+    icon: Shield,
+    title: 'ADA Guard',
     description:
-      'ユーザー中心設計に基づいた、美しく使いやすいインターフェースを提供。プロトタイピングから実装まで一貫してサポートします。',
-    features: ['ユーザーリサーチ', 'ワイヤーフレーム', 'プロトタイピング', 'デザインシステム'],
+      '次世代セキュリティプラットフォーム。AIによる脅威検知と自動対応で、企業の重要なデータを守ります。',
+    features: ['AI脅威検知', '自動セキュリティ対応', 'コンプライアンス管理', 'リスク分析'],
+    status: 'Beta',
+    color: 'green',
   },
   {
-    icon: Lightbulb,
-    title: '技術コンサルティング',
+    icon: TrendingUp,
+    title: 'ADA Growth',
     description:
-      'アーキテクチャ設計、技術選定、パフォーマンス最適化など、技術的な課題を解決します。コードレビューやメンタリングも対応可能です。',
-    features: ['アーキテクチャ設計', 'コードレビュー', 'パフォーマンス改善', '技術選定支援'],
+      'マーケティングオートメーションツール。データに基づいた施策で、ビジネスの成長を加速させます。',
+    features: ['マーケティング自動化', 'A/Bテスト', '顧客セグメント分析', 'ROI測定'],
+    status: 'Coming Soon',
+    color: 'fuchsia',
   },
   {
-    icon: Database,
-    title: 'バックエンド開発',
+    icon: Users,
+    title: 'ADA Talent',
     description:
-      'スケーラブルで安全なバックエンドシステムの構築。REST API、GraphQL、データベース設計など幅広く対応します。',
-    features: ['REST/GraphQL API', 'データベース設計', '認証・認可', 'マイクロサービス'],
+      '採用管理プラットフォーム。AIマッチングで最適な人材を見つけ、採用プロセスを効率化します。',
+    features: ['AIマッチング', '応募者管理', '面接スケジューリング', '採用分析'],
+    status: 'Coming Soon',
+    color: 'blue',
   },
   {
-    icon: Cloud,
-    title: 'クラウドインフラ',
+    icon: Rocket,
+    title: 'ADA Launch',
     description:
-      'AWS、Google Cloud、Azureなどのクラウドプラットフォームを活用したインフラ構築とDevOps支援を提供します。',
-    features: ['クラウド構築', 'CI/CD構築', 'コンテナ化', '監視・ログ管理'],
+      'スタートアップ支援プラットフォーム。アイデアから事業化まで、成功に必要なツールとリソースを提供します。',
+    features: ['ビジネスプラン作成', '資金調達支援', 'メンター紹介', 'コミュニティ'],
+    status: 'Planning',
+    color: 'orange',
   },
 ];
 
@@ -66,18 +78,18 @@ export function Services() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Our <span className="gradient-text">Services</span>
+            Our <span className="gradient-text">Products</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            幅広い技術領域で、お客様のビジネスを成功に導くソリューションを提供します
+            革新的なプロダクトで、ビジネスと日常を変革します
           </p>
         </motion.div>
 
-        {/* Services Grid */}
+        {/* Products Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service, index) => (
+          {products.map((product, index) => (
             <motion.div
-              key={service.title}
+              key={product.title}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -92,19 +104,36 @@ export function Services() {
                       : 'rgba(168, 85, 247, 0.5)'
                 }
               >
-                <Card className="h-full group cursor-pointer border-border/50 hover:border-primary/50 transition-all">
+                <Card className="h-full group cursor-pointer border-border/50 hover:border-primary/50 transition-all relative overflow-hidden">
+                  {/* Status Badge */}
+                  <div className="absolute top-4 right-4 z-10">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        product.status === 'Live'
+                          ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                          : product.status === 'Beta'
+                            ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                            : product.status === 'Coming Soon'
+                              ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                              : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+                      }`}
+                    >
+                      {product.status}
+                    </span>
+                  </div>
+
                   <CardHeader>
                     <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-4 group-hover:scale-110 group-hover:rotate-12 transition-all">
-                      <service.icon className="text-white" size={28} />
+                      <product.icon className="text-white" size={28} />
                     </div>
-                    <CardTitle className="text-xl">{service.title}</CardTitle>
+                    <CardTitle className="text-xl">{product.title}</CardTitle>
                     <CardDescription className="text-base">
-                      {service.description}
+                      {product.description}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
-                      {service.features.map((feature) => (
+                      {product.features.map((feature) => (
                         <li
                           key={feature}
                           className="flex items-center text-sm text-muted-foreground"
@@ -130,13 +159,13 @@ export function Services() {
           className="text-center mt-16"
         >
           <p className="text-lg text-muted-foreground mb-4">
-            上記以外のご要望も柔軟に対応いたします
+            より良いプロダクトを生み出すため、常に新しいチャレンジを続けています
           </p>
           <a
             href="#contact"
             className="text-primary hover:text-primary/80 font-semibold text-lg underline underline-offset-4"
           >
-            お気軽にご相談ください →
+            最新情報をチェック →
           </a>
         </motion.div>
       </div>
