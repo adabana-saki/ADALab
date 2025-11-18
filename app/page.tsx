@@ -30,6 +30,12 @@ import { BloomEffect } from '@/components/effects/BloomEffect';
 import { GlitchEffect } from '@/components/effects/GlitchEffect';
 import { ChromaticAberration } from '@/components/effects/ChromaticAberration';
 import { EnhancedParticles } from '@/components/effects/EnhancedParticles';
+import { TextScrambleEffect } from '@/components/effects/TextScrambleEffect';
+import { MagneticElements } from '@/components/effects/MagneticElements';
+import { RippleEffect } from '@/components/effects/RippleEffect';
+import { ParallaxScroll, ParallaxLayers } from '@/components/effects/ParallaxScroll';
+import { NeuralNetwork } from '@/components/effects/NeuralNetwork';
+import { DynamicIsland } from '@/components/effects/DynamicIsland';
 import { Hero } from '@/components/sections/Hero';
 import { About } from '@/components/sections/About';
 import { Services } from '@/components/sections/Services';
@@ -96,6 +102,12 @@ export default function Home() {
       {/* 3D Holographic Background */}
       <HolographicScene />
 
+      {/* Parallax Layers */}
+      <ParallaxLayers />
+
+      {/* Neural Network Background */}
+      <NeuralNetwork />
+
       {/* Cyberpunk Effects */}
       <AnimatedBackground />
       <WaveShader />
@@ -113,6 +125,12 @@ export default function Home() {
       <ChromaticAberration />
       <EnhancedParticles />
 
+      {/* Next-Gen Interactive Effects */}
+      <TextScrambleEffect />
+      <MagneticElements />
+      <RippleEffect />
+      <ParallaxScroll />
+
       {/* Ultimate Features */}
       <CinematicIntro />
       <KonamiCode />
@@ -123,6 +141,7 @@ export default function Home() {
       <ThemeSwitcher />
       <VoiceCommands />
       <ChatBot />
+      <DynamicIsland />
 
       <SkipToContent />
       <ScrollProgress />
