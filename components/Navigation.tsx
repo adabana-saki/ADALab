@@ -2,23 +2,25 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Globe } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
-
-const navItems = [
-  { name: 'Home', href: '#home' },
-  { name: 'About', href: '#about' },
-  { name: 'Services', href: '#services' },
-  { name: 'Technologies', href: '#technologies' },
-  { name: 'Projects', href: '#projects' },
-  { name: 'Process', href: '#process' },
-  { name: 'Contact', href: '#contact' },
-];
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { language, setLanguage, t } = useLanguage();
+
+  const navItems = [
+    { name: t.nav.home, href: '#home' },
+    { name: t.nav.about, href: '#about' },
+    { name: t.nav.services, href: '#services' },
+    { name: t.nav.technologies, href: '#technologies' },
+    { name: t.nav.projects, href: '#projects' },
+    { name: t.nav.process, href: '#process' },
+    { name: t.nav.contact, href: '#contact' },
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,7 +46,7 @@ export function Navigation() {
         className={cn(
           'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
           isScrolled
-            ? 'bg-background/80 backdrop-blur-md shadow-lg'
+            ? 'bg-background/60 backdrop-blur-xl shadow-lg shadow-neon-cyan/10'
             : 'bg-transparent'
         )}
       >
@@ -57,7 +59,7 @@ export function Navigation() {
                 e.preventDefault();
                 scrollToSection('#home');
               }}
-              className="text-2xl logo-text cursor-pointer"
+              className="text-xl sm:text-2xl md:text-2xl logo-text cursor-pointer"
               data-text="ADA LAB"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -84,23 +86,31 @@ export function Navigation() {
               ))}
             </ul>
 
-            {/* CTA Button (Desktop) */}
-            <div className="hidden md:block">
+            {/* Language Toggle & CTA Button (Desktop) */}
+            <div className="hidden md:flex items-center gap-4">
+              <button
+                onClick={() => setLanguage(language === 'ja' ? 'en' : 'ja')}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all group"
+                aria-label="Toggle language"
+              >
+                <Globe className="w-4 h-4 text-neon-cyan group-hover:text-neon-fuchsia transition-colors" />
+                <span className="text-sm font-medium">{language === 'ja' ? 'EN' : 'JP'}</span>
+              </button>
               <Button
                 onClick={() => scrollToSection('#contact')}
                 variant="default"
               >
-                Get in Touch
+                {t.nav.getInTouch}
               </Button>
             </div>
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden text-foreground"
+              className="md:hidden text-foreground p-2 rounded-lg hover:bg-white/10 transition-all active:scale-95"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle menu"
             >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
           </div>
         </nav>
@@ -114,9 +124,9 @@ export function Navigation() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: '100%' }}
             transition={{ type: 'tween' }}
-            className="fixed inset-0 z-40 bg-background md:hidden"
+            className="fixed inset-0 z-40 bg-background/95 backdrop-blur-2xl md:hidden"
           >
-            <div className="flex flex-col items-center justify-center h-full space-y-8">
+            <div className="flex flex-col items-center justify-center h-full space-y-6 px-6">
               {navItems.map((item, index) => (
                 <motion.a
                   key={item.name}
@@ -128,7 +138,7 @@ export function Navigation() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="text-2xl font-semibold text-foreground hover:text-primary transition-colors cursor-pointer"
+                  className="text-3xl font-bold text-foreground hover:text-neon-cyan transition-all cursor-pointer active:scale-95 py-2"
                 >
                   {item.name}
                 </motion.a>
@@ -137,13 +147,22 @@ export function Navigation() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: navItems.length * 0.1 }}
+                className="flex flex-col gap-4 w-full max-w-xs mt-4"
               >
+                <button
+                  onClick={() => setLanguage(language === 'ja' ? 'en' : 'ja')}
+                  className="flex items-center justify-center gap-3 px-8 py-4 rounded-lg bg-white/5 backdrop-blur-md border-2 border-white/10 hover:border-neon-cyan/50 hover:bg-white/10 transition-all group active:scale-95"
+                  aria-label="Toggle language"
+                >
+                  <Globe className="w-6 h-6 text-neon-cyan group-hover:text-neon-fuchsia transition-colors" />
+                  <span className="text-lg font-medium">{language === 'ja' ? 'English' : '日本語'}</span>
+                </button>
                 <Button
                   onClick={() => scrollToSection('#contact')}
                   variant="default"
-                  size="lg"
+                  className="w-full py-6 text-lg"
                 >
-                  Get in Touch
+                  {t.nav.getInTouch}
                 </Button>
               </motion.div>
             </div>

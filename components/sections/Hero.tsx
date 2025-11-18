@@ -68,14 +68,14 @@ export function Hero() {
         >
           {/* Main Heading with Glitch Effect */}
           <motion.h1
-            className="text-5xl md:text-7xl lg:text-8xl mb-6"
+            className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl mb-6 px-4"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             data-easter-egg="true"
           >
-            <GlitchText className="text-5xl md:text-7xl lg:text-8xl">
-              <span className="logo-text text-5xl md:text-7xl lg:text-8xl" data-text="ADA LAB">
+            <GlitchText className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl">
+              <span className="logo-text text-4xl sm:text-5xl md:text-7xl lg:text-8xl" data-text="ADA LAB">
                 ADA LAB
               </span>
             </GlitchText>
@@ -94,7 +94,7 @@ export function Hero() {
 
           {/* Subtitle with Neon Glow */}
           <motion.p
-            className="text-xl md:text-3xl lg:text-4xl text-foreground/90 mb-4 font-light neon-cyan"
+            className="text-lg sm:text-xl md:text-3xl lg:text-4xl text-foreground/90 mb-4 font-light neon-cyan px-4"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
@@ -103,7 +103,7 @@ export function Hero() {
           </motion.p>
 
           <motion.div
-            className="text-lg md:text-2xl text-muted-foreground mb-12 h-16 flex items-center justify-center"
+            className="text-base sm:text-lg md:text-2xl text-muted-foreground mb-12 h-16 flex items-center justify-center px-4"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
@@ -121,7 +121,7 @@ export function Hero() {
 
           {/* CTA Buttons with Neon Borders & Magnetic Effect */}
           <motion.div
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 px-4 w-full"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1 }}
@@ -130,7 +130,7 @@ export function Hero() {
               <Button
                 size="lg"
                 onClick={() => scrollToSection('#projects')}
-                className="min-w-[200px] border-2 neon-border-cyan relative overflow-hidden group transition-all hover:scale-110"
+                className="w-full sm:w-auto min-w-[200px] border-2 neon-border-cyan relative overflow-hidden group transition-all hover:scale-110 active:scale-95 py-6 sm:py-4"
               >
                 <span className="relative z-10">View Our Work</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -141,7 +141,7 @@ export function Hero() {
                 size="lg"
                 variant="outline"
                 onClick={() => scrollToSection('#contact')}
-                className="min-w-[200px] border-2 neon-border-fuchsia relative overflow-hidden group transition-all hover:scale-110"
+                className="w-full sm:w-auto min-w-[200px] border-2 neon-border-fuchsia relative overflow-hidden group transition-all hover:scale-110 active:scale-95 py-6 sm:py-4"
               >
                 <span className="relative z-10">Get in Touch</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-neon-fuchsia/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />

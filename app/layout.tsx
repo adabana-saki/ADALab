@@ -5,6 +5,7 @@ import { StructuredData } from '@/components/StructuredData';
 import { WebVitals } from '@/components/WebVitals';
 import { PWAProvider } from '@/components/pwa/PWAProvider';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
 const orbitron = Orbitron({
   subsets: ['latin'],
@@ -111,10 +112,12 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased">
         <GoogleAnalytics />
-        <PWAProvider>
-          <WebVitals />
-          {children}
-        </PWAProvider>
+        <LanguageProvider>
+          <PWAProvider>
+            <WebVitals />
+            {children}
+          </PWAProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

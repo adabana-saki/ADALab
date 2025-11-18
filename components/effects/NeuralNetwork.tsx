@@ -26,8 +26,8 @@ export function NeuralNetwork() {
     if (!ctx) return;
 
     const colors = ['#06b6d4', '#d946ef', '#ec4899', '#8b5cf6', '#10b981'];
-    const nodeCount = 50;
-    const maxDistance = 150;
+    const nodeCount = 80;
+    const maxDistance = 180;
 
     // Initialize nodes
     const initNodes = () => {
@@ -210,7 +210,7 @@ export function NeuralNetwork() {
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-[2]"
       style={{
-        opacity: 0.4,
+        opacity: 0.7,
         mixBlendMode: 'screen',
       }}
     />
