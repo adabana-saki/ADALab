@@ -194,8 +194,9 @@ export function RealtimeMetrics() {
                     <div className="flex items-center gap-2">
                       <motion.span
                         key={metric.value}
-                        initial={{ scale: 1.2, color: '#06b6d4' }}
-                        animate={{ scale: 1, color: 'inherit' }}
+                        initial={{ scale: 1.2, opacity: 0.5 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 0.3 }}
                         className={`text-sm font-bold font-mono ${metric.color}`}
                       >
                         {metric.value}{metric.unit}

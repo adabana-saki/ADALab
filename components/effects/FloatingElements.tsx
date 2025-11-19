@@ -1,15 +1,31 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useMemo } from 'react';
 
 export function FloatingElements() {
-  const elements = [
-    { size: 60, delay: 0, duration: 20, x: '10%', color: 'cyan' },
-    { size: 40, delay: 2, duration: 25, x: '80%', color: 'fuchsia' },
-    { size: 80, delay: 4, duration: 30, x: '50%', color: 'purple' },
-    { size: 50, delay: 1, duration: 22, x: '30%', color: 'blue' },
-    { size: 70, delay: 3, duration: 28, x: '70%', color: 'pink' },
-  ];
+  const elements = useMemo(
+    () => [
+      { size: 60, delay: 0, duration: 20, x: '10%', xOffset: 20, color: 'cyan' },
+      { size: 40, delay: 2, duration: 25, x: '80%', xOffset: -30, color: 'fuchsia' },
+      { size: 80, delay: 4, duration: 30, x: '50%', xOffset: 40, color: 'purple' },
+      { size: 50, delay: 1, duration: 22, x: '30%', xOffset: -20, color: 'blue' },
+      { size: 70, delay: 3, duration: 28, x: '70%', xOffset: 30, color: 'pink' },
+    ],
+    []
+  );
+
+  const particles = useMemo(
+    () =>
+      [...Array(20)].map((_, i) => ({
+        id: i,
+        left: (i * 5.26) % 100,
+        top: ((i * 7.89) % 100),
+        duration: 2 + (i % 3),
+        delay: (i * 0.25) % 5,
+      })),
+    []
+  );
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
@@ -34,7 +50,7 @@ export function FloatingElements() {
           }}
           animate={{
             y: ['100vh', '-20vh'],
-            x: [0, Math.random() * 100 - 50],
+            x: [0, el.xOffset],
             scale: [1, 1.5, 1],
           }}
           transition={{
@@ -47,21 +63,21 @@ export function FloatingElements() {
       ))}
 
       {/* Digital particles */}
-      {[...Array(20)].map((_, i) => (
+      {particles.map((particle) => (
         <motion.div
-          key={`particle-${i}`}
+          key={`particle-${particle.id}`}
           className="absolute w-1 h-1 bg-cyan-400 rounded-full"
           style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
+            left: `${particle.left}%`,
+            top: `${particle.top}%`,
           }}
           animate={{
             opacity: [0, 1, 0],
             scale: [0, 1, 0],
           }}
           transition={{
-            duration: 2 + Math.random() * 2,
-            delay: Math.random() * 5,
+            duration: particle.duration,
+            delay: particle.delay,
             repeat: Infinity,
           }}
         />

@@ -1,7 +1,7 @@
 {
-  "name": "ADA Lab - Software Development Excellence",
+  "name": "ADA Lab - 革新的なプロダクトで世界を変える",
   "short_name": "ADA Lab",
-  "description": "ADA Lab - ソフトウェア開発の新次元へ。最先端の技術とデザインで革新的なソリューションを提供します。",
+  "description": "テクノロジーで世界を変えるプロダクトカンパニー。ADA Analytics、ADA Connect、ADA Guardなど、革新的なSaaSプロダクトを提供します。",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",
@@ -9,33 +9,33 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
+      "src": "/apple-icon",
+      "sizes": "180x180",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ],
   "categories": ["business", "productivity", "technology"],
   "shortcuts": [
     {
-      "name": "プロジェクト",
-      "short_name": "Projects",
-      "description": "過去のプロジェクトを見る",
-      "url": "/#projects",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+      "name": "プロダクト",
+      "short_name": "Products",
+      "description": "製品ラインナップを見る",
+      "url": "/#products",
+      "icons": [{ "src": "/icon.svg", "sizes": "any" }]
     },
     {
       "name": "お問い合わせ",
       "short_name": "Contact",
       "description": "お問い合わせフォーム",
       "url": "/#contact",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/icon.svg", "sizes": "any" }]
     }
   ],
   "screenshots": [
