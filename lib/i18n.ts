@@ -61,6 +61,10 @@ export const translations = {
       services: 'サービス',
       contact: 'お問い合わせ',
     },
+    ui: {
+      openMenu: 'メニューを開く',
+      closeMenu: 'メニューを閉じる',
+    },
   },
   en: {
     nav: {
@@ -121,6 +125,10 @@ export const translations = {
       quickLinks: 'Quick Links',
       services: 'Services',
       contact: 'Contact',
+    },
+    ui: {
+      openMenu: 'Open Menu',
+      closeMenu: 'Close Menu',
     },
   },
 } as const;

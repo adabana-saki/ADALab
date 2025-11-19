@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface FloatingActionsProps {
   children: React.ReactNode;
@@ -10,6 +11,7 @@ interface FloatingActionsProps {
 
 export function FloatingActions({ children }: FloatingActionsProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { t } = useLanguage();
 
   return (
     <div className="fixed bottom-4 right-4 z-[100] flex flex-col-reverse items-end gap-3">
@@ -19,7 +21,7 @@ export function FloatingActions({ children }: FloatingActionsProps) {
         className="w-10 h-10 rounded-full bg-black/80 backdrop-blur-xl border-2 border-white/20 hover:border-white/40 hover:scale-110 transition-all shadow-2xl flex items-center justify-center group"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
-        aria-label={isCollapsed ? 'メニューを開く' : 'メニューを閉じる'}
+        aria-label={isCollapsed ? t.ui.openMenu : t.ui.closeMenu}
       >
         {isCollapsed ? (
           <ChevronLeft className="w-5 h-5 text-white/80" />
@@ -30,7 +32,7 @@ export function FloatingActions({ children }: FloatingActionsProps) {
         {/* Tooltip */}
         <div className="absolute bottom-full mb-2 right-0 px-3 py-1 bg-black/90 backdrop-blur-md border border-white/30 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
           <span className="text-xs text-white font-mono">
-            {isCollapsed ? 'メニューを開く' : 'メニューを閉じる'}
+            {isCollapsed ? t.ui.openMenu : t.ui.closeMenu}
           </span>
         </div>
       </motion.button>

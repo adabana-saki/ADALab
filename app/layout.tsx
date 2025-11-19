@@ -89,10 +89,6 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: 'https://adalab.dev',
-    languages: {
-      'ja': 'https://adalab.dev',
-      'en': 'https://adalab.dev/en',
-    },
   },
   robots: {
     index: true,
