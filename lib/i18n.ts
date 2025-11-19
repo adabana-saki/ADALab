@@ -1,6 +1,53 @@
 export type Language = 'ja' | 'en';
 
-export const translations = {
+export interface TranslationSchema {
+  nav: {
+    home: string;
+    about: string;
+    services: string;
+    technologies: string;
+    projects: string;
+    process: string;
+    contact: string;
+    getInTouch: string;
+  };
+  hero: {
+    title: string;
+    subtitle: string;
+    description: string;
+    viewWork: string;
+    contact: string;
+    techStack: string[];
+  };
+  about: {
+    title: string;
+    titleHighlight: string;
+    description: string;
+    stats: {
+      projects: string;
+      experience: string;
+      satisfaction: string;
+      support: string;
+    };
+    values: Array<{
+      title: string;
+      description: string;
+    }>;
+  };
+  footer: {
+    description: string;
+    rights: string;
+    quickLinks: string;
+    services: string;
+    contact: string;
+  };
+  ui: {
+    openMenu: string;
+    closeMenu: string;
+  };
+}
+
+export const translations: Record<Language, TranslationSchema> = {
   ja: {
     nav: {
       home: 'Home',
@@ -131,6 +178,4 @@ export const translations = {
       closeMenu: 'Close Menu',
     },
   },
-} as const;
-
-export type Translations = typeof translations;
+};
