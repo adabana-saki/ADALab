@@ -1,5 +1,9 @@
 # ADA Lab - Official Website
 
+[![CI](https://github.com/adabana-saki/ADALab/actions/workflows/ci.yml/badge.svg)](https://github.com/adabana-saki/ADALab/actions/workflows/ci.yml)
+[![Security](https://github.com/adabana-saki/ADALab/actions/workflows/security.yml/badge.svg)](https://github.com/adabana-saki/ADALab/actions/workflows/security.yml)
+[![Deploy Production](https://github.com/adabana-saki/ADALab/actions/workflows/deploy-production.yml/badge.svg)](https://github.com/adabana-saki/ADALab/actions/workflows/deploy-production.yml)
+
 ADA Labの公式ホームページ。最先端の技術で構築された、革新的なソフトウェア・アプリ開発事業のためのWebサイトです。
 
 ## 🚀 特徴
@@ -86,7 +90,30 @@ npm run lint
 
 # コードフォーマット
 npm run format
+
+# 型チェック
+npx tsc --noEmit
 ```
+
+## 🔄 CI/CD
+
+本プロジェクトは自動化されたCI/CDパイプラインを備えています。
+
+### GitHub Actions
+
+すべてのプッシュ・PRで自動実行：
+- ✅ **Lint**: ESLintによるコード品質チェック
+- ✅ **Type Check**: TypeScript型チェック
+- ✅ **Build**: Next.jsビルドテスト
+- ✅ **Security**: 依存関係の脆弱性スキャン
+- ✅ **Lighthouse CI**: パフォーマンス測定（PR のみ）
+
+### 自動デプロイ
+
+- **Preview環境**: すべてのプルリクエストで自動デプロイ
+- **Production環境**: `main`ブランチへのマージで自動デプロイ
+
+詳細は [DEPLOYMENT.md](./DEPLOYMENT.md) を参照してください。
 
 ## 🎨 デザインシステム
 
@@ -109,12 +136,48 @@ npm run format
 
 ## 🚀 デプロイ
 
-Vercelでのデプロイを推奨します。
+### Vercel（推奨）
+
+**完全無料でデプロイできます！**
+
+#### 方法1: Web UI（初心者向け）
+
+1. [Vercel](https://vercel.com/signup)でアカウント作成
+2. GitHubと連携
+3. 「Import Project」をクリック
+4. このリポジトリを選択
+5. 「Deploy」ボタンをクリック → 完了！
+
+#### 方法2: CLI（開発者向け）
 
 ```bash
-# Vercel CLIでデプロイ
+# Vercel CLIをインストール
+npm i -g vercel
+
+# ログイン
+vercel login
+
+# デプロイ（プレビュー）
 vercel
+
+# 本番デプロイ
+vercel --prod
 ```
+
+### 無料枠
+
+- ✅ 帯域幅: 100 GB/月
+- ✅ ビルド時間: 6,000分/月
+- ✅ プロジェクト数: 無制限
+- ✅ カスタムドメイン対応
+- ✅ 自動HTTPS
+- ✅ グローバルCDN
+
+**月間5万PVまで余裕で対応可能**
+
+### 環境変数
+
+現在、環境変数は不要です。将来的に必要になった場合は、Vercelダッシュボードの「Settings」→「Environment Variables」から設定してください。
 
 ## 📄 ライセンス
 
@@ -127,5 +190,8 @@ vercel
 
 ---
 
-詳細な設計書は [DESIGN.md](./DESIGN.md) を参照してください。
-技術スタックの詳細は [TECH_STACK.md](./TECH_STACK.md) を参照してください。
+## 📚 ドキュメント
+
+- [DESIGN.md](./DESIGN.md) - 詳細な設計書
+- [DEPLOYMENT.md](./DEPLOYMENT.md) - CI/CD・デプロイメントガイド
+- [TECH_STACK.md](./TECH_STACK.md) - 技術スタックの詳細

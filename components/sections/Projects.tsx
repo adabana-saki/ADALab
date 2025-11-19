@@ -49,10 +49,10 @@ export function Projects() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Featured <span className="gradient-text">Projects</span>
+            Our <span className="gradient-text">Products</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            これまでに手がけたプロジェクトの一部をご紹介します
+            私たちが開発・運営している革新的なプロダクトをご紹介します
           </p>
         </motion.div>
 

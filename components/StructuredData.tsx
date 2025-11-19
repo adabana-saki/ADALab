@@ -4,9 +4,14 @@ export function StructuredData() {
     '@type': 'Organization',
     name: 'ADA Lab',
     description:
-      'ADA Labは、最先端の技術で革新的なソフトウェアとアプリを開発する個人事業です。',
+      'ADA Labは、テクノロジーで世界を変えるプロダクトカンパニー。ADA Analytics、ADA Connect、ADA Guardなど、革新的なSaaSプロダクトを開発・運営しています。',
     url: 'https://adalab.dev',
     logo: 'https://adalab.dev/logo.png',
+    foundingDate: '2024',
+    numberOfEmployees: {
+      '@type': 'QuantitativeValue',
+      value: 15,
+    },
     sameAs: [
       'https://github.com/adalab',
       'https://twitter.com/adalab',
@@ -25,40 +30,70 @@ export function StructuredData() {
     name: 'ADA Lab',
     url: 'https://adalab.dev',
     description:
-      'ADA Labは、最先端の技術で革新的なソフトウェアとアプリを開発する個人事業です。',
+      'テクノロジーで世界を変えるプロダクトカンパニー。50,000+のアクティブユーザーに支持される革新的なSaaSプロダクトを提供。',
     inLanguage: 'ja-JP',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: 'https://adalab.dev/search?q={search_term_string}',
+      'query-input': 'required name=search_term_string',
+    },
   };
 
-  const professionalServiceSchema = {
+  const adaAnalyticsSchema = {
     '@context': 'https://schema.org',
-    '@type': 'ProfessionalService',
-    name: 'ADA Lab',
-    image: 'https://adalab.dev/logo.png',
-    '@id': 'https://adalab.dev',
-    url: 'https://adalab.dev',
-    telephone: '',
-    priceRange: '$$',
-    address: {
-      '@type': 'PostalAddress',
-      addressLocality: 'Tokyo',
-      addressCountry: 'JP',
+    '@type': 'SoftwareApplication',
+    name: 'ADA Analytics',
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'Web',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'JPY',
     },
-    geo: {
-      '@type': 'GeoCoordinates',
-      latitude: 35.6762,
-      longitude: 139.6503,
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.8',
+      ratingCount: '2500',
     },
-    openingHoursSpecification: {
-      '@type': 'OpeningHoursSpecification',
-      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-      opens: '09:00',
-      closes: '18:00',
+    description: 'AIを活用した高度なデータ分析プラットフォーム',
+  };
+
+  const adaConnectSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'ADA Connect',
+    applicationCategory: 'CommunicationApplication',
+    operatingSystem: 'Web',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'JPY',
     },
-    sameAs: [
-      'https://github.com/adalab',
-      'https://twitter.com/adalab',
-      'https://linkedin.com/company/adalab',
-    ],
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.7',
+      ratingCount: '1800',
+    },
+    description: 'リアルタイムコラボレーションツール',
+  };
+
+  const adaGuardSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'ADA Guard',
+    applicationCategory: 'SecurityApplication',
+    operatingSystem: 'Web',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'JPY',
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.9',
+      ratingCount: '3200',
+    },
+    description: '次世代セキュリティ監視システム',
   };
 
   const breadcrumbSchema = {
@@ -80,14 +115,14 @@ export function StructuredData() {
       {
         '@type': 'ListItem',
         position: 3,
-        name: 'Services',
-        item: 'https://adalab.dev#services',
+        name: 'Products',
+        item: 'https://adalab.dev#products',
       },
       {
         '@type': 'ListItem',
         position: 4,
-        name: 'Projects',
-        item: 'https://adalab.dev#projects',
+        name: 'Team',
+        item: 'https://adalab.dev#team',
       },
       {
         '@type': 'ListItem',
@@ -115,7 +150,19 @@ export function StructuredData() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(professionalServiceSchema),
+          __html: JSON.stringify(adaAnalyticsSchema),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(adaConnectSchema),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(adaGuardSchema),
         }}
       />
       <script

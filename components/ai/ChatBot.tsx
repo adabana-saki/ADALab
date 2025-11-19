@@ -12,15 +12,15 @@ interface Message {
 }
 
 const responses: Record<string, string> = {
-  こんにちは: 'こんにちは！ADA Labへようこそ。何かお手伝いできることはありますか？',
-  料金: '料金はプロジェクトの規模や内容によって異なります。お問い合わせフォームからご相談ください。',
-  技術: '私たちはReact、Next.js、TypeScript、Node.js、Pythonなどの最新技術を使用しています。',
-  期間: '開発期間はプロジェクトの規模によりますが、通常1ヶ月〜6ヶ月程度です。',
-  実績: 'これまで50以上のプロジェクトを成功させています。詳細はプロジェクトセクションをご覧ください。',
-  対応地域: '全国どこでもリモートで対応可能です。',
+  こんにちは: 'こんにちは！ADA Labへようこそ。プロダクトについて何かご質問はありますか？',
+  プロダクト: '現在、ADA Analytics、ADA Connect、ADA Guardなど、6つのプロダクトを開発・運営しています。詳細はProductsセクションをご覧ください。',
+  技術: '私たちはReact、Next.js、TypeScript、Node.js、Pythonなどの最新技術を使用して、スケーラブルなプロダクトを開発しています。',
+  採用: '積極的に採用を行っています！詳細は採用情報ページをご覧いただくか、お問い合わせフォームからご連絡ください。',
+  料金: '各プロダクトの料金プランは、プロダクトページでご確認いただけます。無料トライアルもご用意しています。',
+  ユーザー: '現在、50,000以上のアクティブユーザーに私たちのプロダクトをご利用いただいています。',
   連絡: 'お問い合わせはページ下部のフォームからお願いします。24時間以内に返信いたします。',
-  サービス: 'Web開発、モバイルアプリ開発、UI/UXデザインなど幅広く対応しています。',
-  default: '申し訳ございません。その質問にはお答えできません。お問い合わせフォームからご連絡いただくか、以下のキーワードでお試しください：\n\n• 料金\n• 技術\n• 期間\n• 実績\n• サービス\n• 連絡',
+  会社: 'ADA Labは、革新的なプロダクトで世界を変えるプロダクトカンパニーです。詳細はAboutセクションをご覧ください。',
+  default: '申し訳ございません。その質問にはお答えできません。お問い合わせフォームからご連絡いただくか、以下のキーワードでお試しください：\n\n• プロダクト\n• 技術\n• 採用\n• 料金\n• ユーザー\n• 会社\n• 連絡',
 };
 
 export function ChatBot() {
@@ -95,15 +95,15 @@ export function ChatBot() {
       {/* Chat Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-[22rem] right-4 z-[150] w-12 h-12 rounded-full bg-black/80 backdrop-blur-xl border-2 neon-border-blue hover:scale-110 transition-all shadow-2xl flex items-center justify-center group"
+        className="fixed bottom-52 right-4 z-[100] w-12 h-12 rounded-full bg-black/90 backdrop-blur-xl border-2 neon-border-blue hover:scale-110 transition-all shadow-2xl flex items-center justify-center group"
         aria-label="AI Chat"
       >
         <MessageCircle className="w-5 h-5 text-blue-400" />
 
         {/* Tooltip */}
-        <div className="absolute right-full mr-2 px-3 py-1 bg-black/90 backdrop-blur-md border border-blue-400/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-3 py-1 bg-black/90 backdrop-blur-md border border-blue-400/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
           <span className="text-xs text-blue-400 font-mono">
-            AIアシスタント (C)
+            AIアシスタント
           </span>
         </div>
 
@@ -120,7 +120,7 @@ export function ChatBot() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-[25rem] right-4 z-[150] w-96 h-[500px] bg-black/95 backdrop-blur-xl border-2 neon-border-blue rounded-xl shadow-2xl flex flex-col overflow-hidden"
+            className="fixed bottom-68 right-4 z-[100] w-96 max-w-[calc(100vw-2rem)] h-[500px] max-h-[calc(100vh-10rem)] bg-black/95 backdrop-blur-xl border-2 neon-border-blue rounded-xl shadow-2xl flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="p-4 border-b border-blue-400/30 flex items-center justify-between">

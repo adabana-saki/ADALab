@@ -25,17 +25,9 @@ export function NeuralNetwork() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas size
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      initNodes();
-    };
-    resizeCanvas();
-
     const colors = ['#06b6d4', '#d946ef', '#ec4899', '#8b5cf6', '#10b981'];
-    const nodeCount = 50;
-    const maxDistance = 150;
+    const nodeCount = 80;
+    const maxDistance = 180;
 
     // Initialize nodes
     const initNodes = () => {
@@ -53,7 +45,13 @@ export function NeuralNetwork() {
       }
     };
 
-    initNodes();
+    // Set canvas size
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      initNodes();
+    };
+    resizeCanvas();
 
     // Find connections between nodes
     const updateConnections = () => {
@@ -76,6 +74,12 @@ export function NeuralNetwork() {
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      // Create gradient mask to fade out at the top (to avoid clipping with header)
+      const gradientMask = ctx.createLinearGradient(0, 0, 0, 120);
+      gradientMask.addColorStop(0, 'rgba(0,0,0,0)');
+      gradientMask.addColorStop(0.5, 'rgba(0,0,0,0.5)');
+      gradientMask.addColorStop(1, 'rgba(0,0,0,1)');
+
       // Update connections
       updateConnections();
 
@@ -87,6 +91,10 @@ export function NeuralNetwork() {
           const dy = node.y - connectedNode.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
           const opacity = 1 - distance / maxDistance;
+
+          // Calculate fade factor for top area
+          const avgY = (node.y + connectedNode.y) / 2;
+          const topFade = avgY < 120 ? Math.max(0, avgY / 120) : 1;
 
           ctx.beginPath();
           ctx.moveTo(node.x, node.y);
@@ -104,13 +112,13 @@ export function NeuralNetwork() {
 
           ctx.strokeStyle = gradient;
           ctx.lineWidth = 1;
-          ctx.globalAlpha = opacity * 0.3;
+          ctx.globalAlpha = opacity * 0.3 * topFade;
           ctx.stroke();
 
           // Pulse effect on active connections
           if (node.connections.length > 5) {
             ctx.lineWidth = 2;
-            ctx.globalAlpha = opacity * 0.5;
+            ctx.globalAlpha = opacity * 0.5 * topFade;
             ctx.stroke();
           }
         });
@@ -139,28 +147,34 @@ export function NeuralNetwork() {
           node.y -= (dy / distance) * force * 2;
         }
 
-        // Draw node
+        // Calculate fade factor for top area
+        const topFade = node.y < 120 ? Math.max(0, (node.y - 0) / 120) : 1;
+
+        // Draw node with top fade
+        ctx.globalAlpha = topFade;
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
         ctx.fillStyle = node.color;
         ctx.fill();
 
         // Glow effect
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = node.color;
-        ctx.fill();
-        ctx.shadowBlur = 0;
+        if (topFade > 0.3) {
+          ctx.shadowBlur = 15 * topFade;
+          ctx.shadowColor = node.color;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
 
         // Active node highlight
-        if (node.connections.length > 5) {
+        if (node.connections.length > 5 && topFade > 0.5) {
           ctx.beginPath();
           ctx.arc(node.x, node.y, node.radius + 3, 0, Math.PI * 2);
           ctx.strokeStyle = node.color;
           ctx.lineWidth = 2;
-          ctx.globalAlpha = 0.5;
+          ctx.globalAlpha = 0.5 * topFade;
           ctx.stroke();
-          ctx.globalAlpha = 1;
         }
+        ctx.globalAlpha = 1;
 
         // Data flow animation
         if (Math.random() < 0.01) {
@@ -212,7 +226,7 @@ export function NeuralNetwork() {
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-[2]"
       style={{
-        opacity: 0.4,
+        opacity: 0.7,
         mixBlendMode: 'screen',
       }}
     />

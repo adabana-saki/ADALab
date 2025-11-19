@@ -14,11 +14,11 @@ const socialLinks = [
   { icon: Linkedin, label: 'LinkedIn', href: 'https://linkedin.com' },
 ];
 
-const projectTypes = [
-  'Webアプリケーション開発',
-  'モバイルアプリ開発',
-  'UI/UXデザイン',
-  '技術コンサルティング',
+const inquiryTypes = [
+  '採用について',
+  'プロダクトに関するお問い合わせ',
+  'パートナーシップ',
+  'メディア掲載',
   'その他',
 ];
 
@@ -26,7 +26,7 @@ export function Contact() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    projectType: '',
+    inquiryType: '',
     message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,7 +40,7 @@ export function Contact() {
     setTimeout(() => {
       setIsSubmitting(false);
       setSubmitStatus('success');
-      setFormData({ name: '', email: '', projectType: '', message: '' });
+      setFormData({ name: '', email: '', inquiryType: '', message: '' });
 
       // 3秒後にステータスをリセット
       setTimeout(() => setSubmitStatus('idle'), 3000);
@@ -71,10 +71,10 @@ export function Contact() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Get in <span className="gradient-text">Touch</span>
+            Join Us or <span className="gradient-text">Contact</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            プロジェクトのご相談、お見積もり、その他のお問い合わせはこちらから
+            採用のご応募、プロダクトに関するお問い合わせ、パートナーシップなどお気軽にご連絡ください
           </p>
         </motion.div>
 
@@ -108,8 +108,12 @@ export function Contact() {
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">初回相談</h4>
-                  <p className="text-muted-foreground">無料</p>
+                  <h4 className="font-semibold mb-2">採用について</h4>
+                  <p className="text-muted-foreground">
+                    <a href="/company" className="text-primary hover:underline">
+                      採用情報はこちら →
+                    </a>
+                  </p>
                 </div>
               </div>
 
@@ -178,20 +182,20 @@ export function Contact() {
                   />
                 </div>
 
-                {/* Project Type */}
+                {/* Inquiry Type */}
                 <div>
-                  <label htmlFor="projectType" className="block text-sm font-medium mb-2">
-                    プロジェクトタイプ
+                  <label htmlFor="inquiryType" className="block text-sm font-medium mb-2">
+                    お問い合わせ種別
                   </label>
                   <select
-                    id="projectType"
-                    name="projectType"
-                    value={formData.projectType}
+                    id="inquiryType"
+                    name="inquiryType"
+                    value={formData.inquiryType}
                     onChange={handleChange}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
                     <option value="">選択してください</option>
-                    {projectTypes.map((type) => (
+                    {inquiryTypes.map((type) => (
                       <option key={type} value={type}>
                         {type}
                       </option>

@@ -8,7 +8,7 @@ export function MouseGlow() {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  const springConfig = { damping: 25, stiffness: 200 };
+  const springConfig = { damping: 30, stiffness: 300 };
   const x = useSpring(mouseX, springConfig);
   const y = useSpring(mouseY, springConfig);
 
@@ -34,24 +34,7 @@ export function MouseGlow() {
 
   return (
     <>
-      {/* Main glow */}
-      <motion.div
-        className="fixed pointer-events-none z-40 rounded-full mix-blend-screen"
-        style={{
-          width: 400,
-          height: 400,
-          x,
-          y,
-          translateX: '-50%',
-          translateY: '-50%',
-          background:
-            'radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, rgba(217, 70, 239, 0.1) 50%, transparent 70%)',
-          opacity: isVisible ? 1 : 0,
-        }}
-        transition={{ opacity: { duration: 0.3 } }}
-      />
-
-      {/* Inner glow */}
+      {/* Subtle glow - シンプルなグロー */}
       <motion.div
         className="fixed pointer-events-none z-40 rounded-full mix-blend-screen"
         style={{
@@ -62,24 +45,37 @@ export function MouseGlow() {
           translateX: '-50%',
           translateY: '-50%',
           background:
-            'radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, rgba(168, 85, 247, 0.2) 50%, transparent 70%)',
+            'radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%)',
           opacity: isVisible ? 1 : 0,
         }}
-        transition={{ opacity: { duration: 0.3 } }}
+        transition={{ opacity: { duration: 0.2 } }}
       />
 
-      {/* Cursor trail */}
+      {/* Cursor ring - カーソルリング */}
       <motion.div
-        className="fixed pointer-events-none z-50 w-2 h-2 rounded-full border border-cyan-400"
+        className="fixed pointer-events-none z-50 w-8 h-8 rounded-full border-2 border-cyan-400/60"
         style={{
           x,
           y,
           translateX: '-50%',
           translateY: '-50%',
           opacity: isVisible ? 1 : 0,
-          boxShadow: '0 0 10px rgba(6, 182, 212, 0.8)',
         }}
-        transition={{ opacity: { duration: 0.3 } }}
+        transition={{ opacity: { duration: 0.2 } }}
+      />
+
+      {/* Cursor dot - カーソルドット */}
+      <motion.div
+        className="fixed pointer-events-none z-50 w-1.5 h-1.5 rounded-full bg-cyan-400"
+        style={{
+          x,
+          y,
+          translateX: '-50%',
+          translateY: '-50%',
+          opacity: isVisible ? 1 : 0,
+          boxShadow: '0 0 8px rgba(6, 182, 212, 0.8)',
+        }}
+        transition={{ opacity: { duration: 0.2 } }}
       />
     </>
   );
