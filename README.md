@@ -109,12 +109,48 @@ npm run format
 
 ## 🚀 デプロイ
 
-Vercelでのデプロイを推奨します。
+### Vercel（推奨）
+
+**完全無料でデプロイできます！**
+
+#### 方法1: Web UI（初心者向け）
+
+1. [Vercel](https://vercel.com/signup)でアカウント作成
+2. GitHubと連携
+3. 「Import Project」をクリック
+4. このリポジトリを選択
+5. 「Deploy」ボタンをクリック → 完了！
+
+#### 方法2: CLI（開発者向け）
 
 ```bash
-# Vercel CLIでデプロイ
+# Vercel CLIをインストール
+npm i -g vercel
+
+# ログイン
+vercel login
+
+# デプロイ（プレビュー）
 vercel
+
+# 本番デプロイ
+vercel --prod
 ```
+
+### 無料枠
+
+- ✅ 帯域幅: 100 GB/月
+- ✅ ビルド時間: 6,000分/月
+- ✅ プロジェクト数: 無制限
+- ✅ カスタムドメイン対応
+- ✅ 自動HTTPS
+- ✅ グローバルCDN
+
+**月間5万PVまで余裕で対応可能**
+
+### 環境変数
+
+現在、環境変数は不要です。将来的に必要になった場合は、Vercelダッシュボードの「Settings」→「Environment Variables」から設定してください。
 
 ## 📄 ライセンス
 
