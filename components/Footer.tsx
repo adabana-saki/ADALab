@@ -7,15 +7,9 @@ import Link from 'next/link';
 const footerLinks = {
   company: [
     { name: 'About', href: '#about' },
-    { name: 'Services', href: '#services' },
-    { name: 'Projects', href: '#projects' },
+    { name: 'Products', href: '#projects' },
+    { name: 'Technologies', href: '#technologies' },
     { name: 'Contact', href: '#contact' },
-  ],
-  services: [
-    { name: 'Web Development', href: '#services' },
-    { name: 'Mobile Development', href: '#services' },
-    { name: 'UI/UX Design', href: '#services' },
-    { name: 'Consulting', href: '#services' },
   ],
   legal: [
     { name: 'Company Info', href: '/company' },
@@ -43,7 +37,7 @@ export function Footer() {
   return (
     <footer className="bg-background border-t border-border">
       <div className="container mx-auto px-4 py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Brand */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -71,32 +65,6 @@ export function Footer() {
             <h4 className="font-semibold mb-4">Company</h4>
             <ul className="space-y-2">
               {footerLinks.company.map((link) => (
-                <li key={link.name}>
-                  <a
-                    href={link.href}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      scrollToSection(link.href);
-                    }}
-                    className="text-muted-foreground hover:text-foreground transition-colors text-sm cursor-pointer"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-
-          {/* Services Links */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <h4 className="font-semibold mb-4">Services</h4>
-            <ul className="space-y-2">
-              {footerLinks.services.map((link) => (
                 <li key={link.name}>
                   <a
                     href={link.href}

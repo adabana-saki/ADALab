@@ -15,10 +15,8 @@ export function Navigation() {
   const navItems = [
     { name: t.nav.home, href: '#home' },
     { name: t.nav.about, href: '#about' },
-    { name: t.nav.services, href: '#services' },
     { name: t.nav.technologies, href: '#technologies' },
     { name: t.nav.projects, href: '#projects' },
-    { name: t.nav.process, href: '#process' },
     { name: t.nav.contact, href: '#contact' },
   ];
 
@@ -46,7 +44,7 @@ export function Navigation() {
         className={cn(
           'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
           isScrolled
-            ? 'bg-background/60 backdrop-blur-xl shadow-lg shadow-neon-cyan/10'
+            ? 'bg-background/90 backdrop-blur-xl shadow-lg shadow-neon-cyan/10 border-b border-border/50'
             : 'bg-transparent'
         )}
       >

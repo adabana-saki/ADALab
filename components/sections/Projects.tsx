@@ -1,39 +1,20 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import { ExternalLink, Github } from 'lucide-react';
+import { ExternalLink, Github, ChevronDown, Check } from 'lucide-react';
+import { FaDiscord } from 'react-icons/fa';
 import { Card, CardContent } from '../ui/card';
-import { ProjectModal } from '../ProjectModal';
 import { PROJECTS } from '@/lib/projects';
 import type { Project } from '@/types';
 
-type FilterCategory = 'all' | Project['category'];
-
-const categories = [
-  { id: 'all' as FilterCategory, name: 'すべて' },
-  { id: 'web' as FilterCategory, name: 'Web' },
-  { id: 'mobile' as FilterCategory, name: 'Mobile' },
-  { id: 'design' as FilterCategory, name: 'Design' },
-  { id: 'ai' as FilterCategory, name: 'AI' },
-];
-
 export function Projects() {
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [filter, setFilter] = useState<FilterCategory>('all');
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const filteredProjects =
-    filter === 'all'
-      ? PROJECTS
-      : PROJECTS.filter((project) => project.category === filter);
-
-  const handleProjectClick = (project: Project) => {
-    setSelectedProject(project);
+  const toggleExpand = (id: string) => {
+    setExpandedId(expandedId === id ? null : id);
   };
 
-  const handleCloseModal = () => {
-    setSelectedProject(null);
-  };
   return (
     <section id="projects" className="py-20 md:py-32 bg-muted/20 relative overflow-hidden">
       {/* Background decoration */}
@@ -56,69 +37,65 @@ export function Projects() {
           </p>
         </motion.div>
 
-        {/* Category Filter */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="flex flex-wrap justify-center gap-3 mb-12"
-        >
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              onClick={() => setFilter(category.id)}
-              className={`px-6 py-2 rounded-full font-medium transition-all ${
-                filter === category.id
-                  ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-lg scale-105'
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
-              }`}
-            >
-              {category.name}
-            </button>
-          ))}
-        </motion.div>
-
         {/* Projects Grid */}
-        <motion.div
-          key={filter}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4 }}
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          {filteredProjects.map((project, index) => (
+        <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+          {PROJECTS.map((project, index) => (
             <motion.div
               key={project.id}
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.05 * index }}
-              onClick={() => handleProjectClick(project)}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.1 * index }}
             >
-              <Card className="h-full group hover:scale-105 transition-all duration-300 cursor-pointer overflow-hidden border-border/50 hover:border-primary/50">
-                {/* Project Image Placeholder */}
+              <Card className="h-full overflow-hidden border-border/50 hover:border-primary/50 transition-all duration-300">
+                {/* Project Header - Always Visible */}
                 <div
-                  className={`h-48 bg-gradient-to-br ${project.gradient} relative overflow-hidden`}
+                  className={`h-48 bg-gradient-to-br ${project.gradient} relative overflow-hidden cursor-pointer`}
+                  onClick={() => toggleExpand(project.id)}
                 >
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
+                  <div className="absolute inset-0 bg-black/40" />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-white text-center p-4">
                       <h3 className="text-2xl font-bold mb-2">
                         {project.title}
                       </h3>
+                      <span className="px-3 py-1 bg-yellow-500/90 text-black text-xs font-bold rounded-full">
+                        Coming Soon
+                      </span>
                     </div>
                   </div>
-                  {/* Hover Icons */}
-                  <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
-                      <ExternalLink size={16} className="text-white" />
-                    </div>
+                  {/* Action Icons */}
+                  <div className="absolute top-4 right-4 flex gap-2">
+                    {project.id === '1' && (
+                      <a
+                        href="https://discord.com/oauth2/authorize?client_id=1288117077237248072"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/40 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <FaDiscord size={16} className="text-white" />
+                      </a>
+                    )}
                     {project.github && (
-                      <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/30 transition-colors">
+                      <a
+                        href={project.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/40 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Github size={16} className="text-white" />
-                      </div>
+                      </a>
                     )}
                   </div>
+                  {/* Expand Indicator */}
+                  <motion.div
+                    className="absolute bottom-4 left-1/2 -translate-x-1/2"
+                    animate={{ rotate: expandedId === project.id ? 180 : 0 }}
+                  >
+                    <ChevronDown size={24} className="text-white/70" />
+                  </motion.div>
                 </div>
 
                 <CardContent className="p-6">
@@ -127,8 +104,8 @@ export function Projects() {
                   </p>
 
                   {/* Technologies */}
-                  <div className="flex flex-wrap gap-2">
-                    {project.technologies.slice(0, 4).map((tech) => (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {project.technologies.map((tech) => (
                       <span
                         key={tech}
                         className="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full"
@@ -136,37 +113,57 @@ export function Projects() {
                         {tech}
                       </span>
                     ))}
-                    {project.technologies.length > 4 && (
-                      <span className="px-3 py-1 bg-muted text-muted-foreground text-xs rounded-full">
-                        +{project.technologies.length - 4}
-                      </span>
-                    )}
                   </div>
+
+                  {/* Expandable Details */}
+                  <AnimatePresence>
+                    {expandedId === project.id && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="pt-4 border-t border-border/50">
+                          {/* Long Description */}
+                          <p className="text-sm text-muted-foreground mb-4">
+                            {project.longDescription}
+                          </p>
+
+                          {/* Features */}
+                          <div className="mb-4">
+                            <h4 className="text-sm font-semibold mb-2">主な機能</h4>
+                            <ul className="grid grid-cols-2 gap-2">
+                              {project.features.map((feature) => (
+                                <li key={feature} className="flex items-center gap-2 text-xs text-muted-foreground">
+                                  <Check size={12} className="text-primary flex-shrink-0" />
+                                  {feature}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          {/* Challenges */}
+                          <div>
+                            <h4 className="text-sm font-semibold mb-2">技術的チャレンジ</h4>
+                            <ul className="space-y-1">
+                              {project.challenges.map((challenge) => (
+                                <li key={challenge} className="text-xs text-muted-foreground">
+                                  • {challenge}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </CardContent>
               </Card>
             </motion.div>
           ))}
-        </motion.div>
-
-        {/* Project Modal */}
-        <ProjectModal
-          project={selectedProject}
-          open={!!selectedProject}
-          onClose={handleCloseModal}
-        />
-
-        {/* Empty State */}
-        {filteredProjects.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-12"
-          >
-            <p className="text-muted-foreground">
-              このカテゴリーのプロジェクトはまだありません
-            </p>
-          </motion.div>
-        )}
+        </div>
       </div>
     </section>
   );

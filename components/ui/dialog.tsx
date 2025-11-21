@@ -61,11 +61,11 @@ export function DialogContent({
       exit={{ opacity: 0, scale: 0.95, y: 20 }}
       transition={{ type: 'spring', duration: 0.5 }}
       className={cn(
-        'fixed left-1/2 top-1/2 z-50 w-full max-w-4xl -translate-x-1/2 -translate-y-1/2 overflow-hidden px-4',
+        'fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6',
         className
       )}
     >
-      <div className="glass rounded-2xl border border-border/50 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div className="glass rounded-2xl border border-border/50 shadow-2xl max-h-[90vh] max-w-4xl w-full overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 z-10 rounded-full bg-background/50 p-2 hover:bg-background/80 transition-colors"

@@ -9,40 +9,14 @@ import { SkipToContent } from '@/components/SkipToContent';
 import { KeyboardShortcutsHelper } from '@/components/KeyboardShortcutsHelper';
 import { CyberGrid } from '@/components/effects/CyberGrid';
 import { ScanLines } from '@/components/effects/ScanLines';
-import { FloatingElements } from '@/components/effects/FloatingElements';
 import { MouseGlow } from '@/components/effects/MouseGlow';
 import { AnimatedBackground } from '@/components/effects/AnimatedBackground';
-import { DataStream } from '@/components/effects/DataStream';
-import { LiquidCursor } from '@/components/effects/LiquidCursor';
-import { ParticleBurst } from '@/components/effects/ParticleBurst';
-import { CinematicIntro } from '@/components/effects/CinematicIntro';
-import { KonamiCode } from '@/components/effects/KonamiCode';
-import { RealtimeMetrics } from '@/components/effects/RealtimeMetrics';
-import { WaveShader } from '@/components/effects/WaveShader';
-import { SoundEffects } from '@/components/effects/SoundEffects';
-import { HolographicScene } from '@/components/effects/HolographicScene';
-import { AchievementSystem } from '@/components/achievements/AchievementSystem';
-import { InstallPrompt } from '@/components/pwa/InstallPrompt';
-import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
-import { VoiceCommands } from '@/components/voice/VoiceCommands';
-import { ChatBot } from '@/components/ai/ChatBot';
-import { BloomEffect } from '@/components/effects/BloomEffect';
-import { GlitchEffect } from '@/components/effects/GlitchEffect';
-import { ChromaticAberration } from '@/components/effects/ChromaticAberration';
-import { EnhancedParticles } from '@/components/effects/EnhancedParticles';
-import { TextScrambleEffect } from '@/components/effects/TextScrambleEffect';
-import { MagneticElements } from '@/components/effects/MagneticElements';
-import { RippleEffect } from '@/components/effects/RippleEffect';
-import { ParallaxScroll, ParallaxLayers } from '@/components/effects/ParallaxScroll';
 import { NeuralNetwork } from '@/components/effects/NeuralNetwork';
 import { DynamicIsland } from '@/components/effects/DynamicIsland';
 import { Hero } from '@/components/sections/Hero';
 import { About } from '@/components/sections/About';
-import { Services } from '@/components/sections/Services';
 import { Technologies } from '@/components/sections/Technologies';
 import { Projects } from '@/components/sections/Projects';
-import { Process } from '@/components/sections/Process';
-import { Testimonials } from '@/components/sections/Testimonials';
 import { FAQ } from '@/components/sections/FAQ';
 import { Contact } from '@/components/sections/Contact';
 import { scrollToSection, scrollToTop } from '@/hooks/useKeyboardShortcuts';
@@ -67,10 +41,6 @@ export default function Home() {
         case 'a':
           e.preventDefault();
           scrollToSection('about');
-          break;
-        case 's':
-          e.preventDefault();
-          scrollToSection('services');
           break;
         case 't':
           e.preventDefault();
@@ -99,48 +69,12 @@ export default function Home() {
 
   return (
     <>
-      {/* 3D Holographic Background */}
-      <HolographicScene />
-
-      {/* Parallax Layers */}
-      <ParallaxLayers />
-
-      {/* Neural Network Background */}
+      {/* Background Effects - Optimized */}
       <NeuralNetwork />
-
-      {/* Cyberpunk Effects */}
       <AnimatedBackground />
-      <WaveShader />
-      <DataStream />
       <CyberGrid />
       <ScanLines />
-      <FloatingElements />
-      <ParticleBurst />
       <MouseGlow />
-      <LiquidCursor />
-
-      {/* Advanced Post-Processing Effects */}
-      <BloomEffect />
-      <GlitchEffect />
-      <ChromaticAberration />
-      <EnhancedParticles />
-
-      {/* Next-Gen Interactive Effects */}
-      <TextScrambleEffect />
-      <MagneticElements />
-      <RippleEffect />
-      <ParallaxScroll />
-
-      {/* Ultimate Features */}
-      <CinematicIntro />
-      <KonamiCode />
-      <RealtimeMetrics />
-      <SoundEffects />
-      <AchievementSystem />
-      <InstallPrompt />
-      <ThemeSwitcher />
-      <VoiceCommands />
-      <ChatBot />
       <DynamicIsland />
 
       <SkipToContent />
@@ -149,11 +83,8 @@ export default function Home() {
       <main id="main-content" tabIndex={-1} className="focus:outline-none relative z-10">
         <Hero />
         <About />
-        <Services />
         <Technologies />
         <Projects />
-        <Process />
-        <Testimonials />
         <FAQ />
         <Contact />
       </main>
