@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { Mail, Github, Twitter, Send } from 'lucide-react';
+import { FaDiscord } from 'react-icons/fa';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
@@ -11,6 +12,7 @@ const socialLinks = [
   { icon: Mail, label: 'Email', href: 'mailto:info.adalabtech@gmail.com' },
   { icon: Github, label: 'GitHub', href: 'https://github.com/adabana-saki' },
   { icon: Twitter, label: 'X', href: 'https://x.com/saki_18191' },
+  { icon: FaDiscord, label: 'Discord', href: 'https://discord.com/users/adabana_saki' },
 ];
 
 const inquiryTypes = [
@@ -99,9 +101,9 @@ export function Contact() {
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">Discord</h4>
+                  <h4 className="font-semibold mb-2">対応時間</h4>
                   <p className="text-muted-foreground">
-                    adabana_saki
+                    8:00 - 24:00（JST）
                   </p>
                 </div>
 
