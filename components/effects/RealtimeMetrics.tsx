@@ -157,7 +157,7 @@ export function RealtimeMetrics() {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 300 }}
           transition={{ type: 'spring', stiffness: 200, damping: 25 }}
-          className="fixed bottom-24 right-4 z-[100] pointer-events-none select-none"
+          className="fixed top-24 right-4 z-[100] pointer-events-none select-none"
           style={{
             maxHeight: 'calc(100vh - 8rem)',
             overflowY: 'auto'

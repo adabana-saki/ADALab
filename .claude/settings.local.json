@@ -45,7 +45,8 @@
       "Bash(venvScriptsactivate)",
       "Bash(cmd /c dir:*)",
       "Bash(git restore:*)",
-      "Bash(pip show:*)"
+      "Bash(pip show:*)",
+      "Bash(npm run dev:*)"
     ],
     "deny": [],
     "ask": []

@@ -99,7 +99,7 @@ export function DynamicIsland() {
   }, [isExpanded]);
 
   return (
-    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[250]">
+    <div className="fixed bottom-20 right-4 z-[250]">
       <motion.div
         className="relative"
         initial={false}
