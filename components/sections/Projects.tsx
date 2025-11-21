@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import { ExternalLink, Github, ChevronDown, Check } from 'lucide-react';
+import { Github, ChevronDown, Check } from 'lucide-react';
 import { FaDiscord } from 'react-icons/fa';
 import { Card, CardContent } from '../ui/card';
 import { PROJECTS } from '@/lib/projects';
@@ -132,29 +132,33 @@ export function Projects() {
                           </p>
 
                           {/* Features */}
-                          <div className="mb-4">
-                            <h4 className="text-sm font-semibold mb-2">主な機能</h4>
-                            <ul className="grid grid-cols-2 gap-2">
-                              {project.features.map((feature) => (
-                                <li key={feature} className="flex items-center gap-2 text-xs text-muted-foreground">
-                                  <Check size={12} className="text-primary flex-shrink-0" />
-                                  {feature}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
+                          {project.features && project.features.length > 0 && (
+                            <div className="mb-4">
+                              <h4 className="text-sm font-semibold mb-2">主な機能</h4>
+                              <ul className="grid grid-cols-2 gap-2">
+                                {project.features.map((feature) => (
+                                  <li key={feature} className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <Check size={12} className="text-primary flex-shrink-0" />
+                                    {feature}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
 
                           {/* Challenges */}
-                          <div>
-                            <h4 className="text-sm font-semibold mb-2">技術的チャレンジ</h4>
-                            <ul className="space-y-1">
-                              {project.challenges.map((challenge) => (
-                                <li key={challenge} className="text-xs text-muted-foreground">
-                                  • {challenge}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
+                          {project.challenges && project.challenges.length > 0 && (
+                            <div>
+                              <h4 className="text-sm font-semibold mb-2">技術的チャレンジ</h4>
+                              <ul className="space-y-1">
+                                {project.challenges.map((challenge) => (
+                                  <li key={challenge} className="text-xs text-muted-foreground">
+                                    • {challenge}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
                         </div>
                       </motion.div>
                     )}

@@ -2,7 +2,7 @@
 
 import { useLanguage } from '@/contexts/LanguageContext';
 import Link from 'next/link';
-import { ArrowLeft, Code, Mail, Calendar, Rocket, Heart } from 'lucide-react';
+import { ArrowLeft, Code, Mail, Calendar, Heart } from 'lucide-react';
 
 export default function CompanyInfoPage() {
   const { language } = useLanguage();
