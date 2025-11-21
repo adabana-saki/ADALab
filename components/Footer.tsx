@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Mail, Github, Twitter, Linkedin, Heart } from 'lucide-react';
+import { Mail, Github, Twitter, Heart } from 'lucide-react';
 import Link from 'next/link';
 
 const footerLinks = {
@@ -24,10 +24,9 @@ const footerLinks = {
     { name: 'Terms of Service', href: '/terms' },
   ],
   social: [
-    { name: 'GitHub', href: 'https://github.com', icon: Github },
-    { name: 'Twitter', href: 'https://twitter.com', icon: Twitter },
-    { name: 'LinkedIn', href: 'https://linkedin.com', icon: Linkedin },
-    { name: 'Email', href: 'mailto:contact@ada-lab.com', icon: Mail },
+    { name: 'GitHub', href: 'https://github.com/adabana-saki', icon: Github },
+    { name: 'X', href: 'https://x.com/saki_18191', icon: Twitter },
+    { name: 'Email', href: 'mailto:info.adalabtech@gmail.com', icon: Mail },
   ],
 };
 
@@ -54,11 +53,11 @@ export function Footer() {
           >
             <h3 className="text-2xl font-bold gradient-text mb-4">ADA Lab</h3>
             <p className="text-muted-foreground text-sm mb-4">
-              革新的なソフトウェアとアプリケーションを開発し、
-              ビジネスの成功を支援します。
+              あなたの"ほしい"を、カタチに。
+              シンプルで使いやすいアプリを開発しています。
             </p>
             <p className="text-muted-foreground text-sm">
-              Crafting Digital Excellence
+              Simple tools for everyday needs
             </p>
           </motion.div>
 
@@ -162,7 +161,7 @@ export function Footer() {
               ))}
             </div>
             <p className="text-muted-foreground text-sm">
-              contact@ada-lab.com
+              info.adalabtech@gmail.com
             </p>
           </motion.div>
         </div>

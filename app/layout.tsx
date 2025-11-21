@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Orbitron, Inter } from 'next/font/google';
+import { Orbitron, Inter, Noto_Sans_JP } from 'next/font/google';
 import './globals.css';
 import { StructuredData } from '@/components/StructuredData';
 import { WebVitals } from '@/components/WebVitals';
@@ -20,6 +20,13 @@ const inter = Inter({
   display: 'swap',
 });
 
+const notoSansJP = Noto_Sans_JP({
+  subsets: ['latin'],
+  variable: '--font-noto-sans-jp',
+  weight: ['300', '400', '500', '700'],
+  display: 'swap',
+});
+
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
@@ -30,29 +37,26 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://adalab.dev'),
   title: {
-    default: 'ADA Lab | 革新的なプロダクトで世界を変える',
+    default: 'ADA Lab | あなたの"ほしい"を、カタチに',
     template: '%s | ADA Lab',
   },
   description:
-    'ADA Labは、テクノロジーで世界を変えるプロダクトカンパニー。ADA Analytics、ADA Connect、ADA Guardなど、革新的なSaaSプロダクトを開発・運営しています。50,000+のアクティブユーザーに支持されています。',
+    'ADA Labは、シンプルで使いやすいアプリやサービスを開発する個人開発チーム。Rem bot（Discord多機能Bot）やNavi（片手操作アプリ）など、かゆいところに手が届くプロダクトを提供します。',
   keywords: [
-    'SaaS',
-    'プロダクト開発',
-    'スタートアップ',
-    'データ分析',
-    'AIソリューション',
-    'セキュリティ',
-    'コラボレーションツール',
-    '自社開発',
-    'プロダクトカンパニー',
+    'Discord Bot',
+    'Rem bot',
+    'Navi',
+    'モバイルアプリ',
+    '個人開発',
+    'シンプル',
+    '使いやすい',
     'Next.js',
     'React',
     'TypeScript',
     'ADA Lab',
-    'ADA Analytics',
-    'ADA Connect',
+    'アダラボ',
   ],
-  authors: [{ name: 'ADA Lab' }],
+  authors: [{ name: 'Adabana Saki' }],
   creator: 'ADA Lab',
   publisher: 'ADA Lab',
   category: 'technology',
@@ -62,9 +66,9 @@ export const metadata: Metadata = {
     telephone: false,
   },
   openGraph: {
-    title: 'ADA Lab | 革新的なプロダクトで世界を変える',
+    title: 'ADA Lab | あなたの"ほしい"を、カタチに',
     description:
-      'テクノロジーで世界を変えるプロダクトカンパニー。ADA Analytics、ADA Connect、ADA Guardなど、革新的なSaaSプロダクトを開発・運営。50,000+のアクティブユーザーに支持されています。',
+      'シンプルで使いやすいアプリを開発する個人開発チーム。Rem bot、Naviなど、かゆいところに手が届くプロダクトを提供します。',
     url: 'https://adalab.dev',
     siteName: 'ADA Lab',
     type: 'website',
@@ -75,17 +79,17 @@ export const metadata: Metadata = {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'ADA Lab - 革新的なプロダクトで世界を変える',
+        alt: 'ADA Lab - あなたの"ほしい"を、カタチに',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ADA Lab | 革新的なプロダクトで世界を変える',
+    title: 'ADA Lab | あなたの"ほしい"を、カタチに',
     description:
-      'テクノロジーで世界を変えるプロダクトカンパニー。ADA Analytics、ADA Connect、ADA Guardなど、革新的なSaaSプロダクトを開発・運営。',
+      'シンプルで使いやすいアプリを開発する個人開発チーム。Rem bot、Naviなど、かゆいところに手が届くプロダクトを提供。',
     images: ['/og-image.png'],
-    creator: '@adalab',
+    creator: '@saki_18191',
   },
   alternates: {
     canonical: 'https://adalab.dev',
@@ -120,7 +124,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ja" className={`scroll-smooth ${orbitron.variable} ${inter.variable}`}>
+    <html lang="ja" className={`scroll-smooth ${orbitron.variable} ${inter.variable} ${notoSansJP.variable}`}>
       <head>
         <StructuredData />
       </head>

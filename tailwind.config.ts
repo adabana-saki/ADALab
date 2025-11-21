@@ -12,7 +12,8 @@ const config: Config = {
       fontFamily: {
         orbitron: ['var(--font-orbitron)', 'sans-serif'],
         inter: ['var(--font-inter)', 'sans-serif'],
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-inter)', 'var(--font-noto-sans-jp)', 'system-ui', 'sans-serif'],
+        jp: ['var(--font-noto-sans-jp)', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',

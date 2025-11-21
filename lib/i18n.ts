@@ -54,16 +54,16 @@ export const translations: Record<Language, TranslationSchema> = {
       about: 'About',
       services: 'Services',
       technologies: 'Technologies',
-      projects: 'Projects',
+      projects: 'Products',
       process: 'Process',
       contact: 'Contact',
       getInTouch: 'お問い合わせ',
     },
     hero: {
       title: 'ADA Lab',
-      subtitle: 'Crafting Digital Excellence',
-      description: '最先端の技術で未来を創造する',
-      viewWork: 'プロジェクトを見る',
+      subtitle: 'あなたの"ほしい"を、カタチに。',
+      description: 'シンプルで使いやすい、ちょうどいいアプリを',
+      viewWork: 'プロダクトを見る',
       contact: 'お問い合わせ',
       techStack: ['React', 'Next.js', 'TypeScript', 'Node.js', 'Python'],
     },
@@ -71,38 +71,38 @@ export const translations: Record<Language, TranslationSchema> = {
       title: 'About',
       titleHighlight: 'ADA Lab',
       description:
-        '革新的なソフトウェアとアプリケーションを開発する個人事業です。技術への情熱と、クライアントの成功へのコミットメントを大切にしています。',
+        '世の中の「かゆいところに手が届く」便利なアプリやサービスを開発しています。シンプルで使いやすく、本当に必要な機能だけを提供することを大切にしています。',
       stats: {
-        projects: 'プロジェクト完了',
-        experience: '年の経験',
-        satisfaction: 'お客様満足度',
+        projects: 'プロダクト開発中',
+        experience: '設立',
+        satisfaction: 'スピード開発',
         support: 'サポート',
       },
       values: [
         {
-          title: '最先端技術',
+          title: 'シンプルさ',
           description:
-            '常に最新のテクノロジーをキャッチアップし、最適な技術スタックで開発します',
+            '必要な機能だけをピンポイントで提供。複雑すぎず、使いやすいプロダクトを目指します',
         },
         {
-          title: '高品質な成果物',
+          title: 'スピード感',
           description:
-            'コードの品質、パフォーマンス、セキュリティを重視し、長期的に価値のあるソフトウェアを提供します',
+            '素早い開発と迅速な対応で、アイデアをすぐにカタチにします',
         },
         {
-          title: 'クライアント第一',
+          title: '低コスト',
           description:
-            'お客様のビジネス目標の達成を最優先に、密なコミュニケーションと柔軟な対応を心がけています',
+            '個人開発だからこそ実現できる、リーズナブルな価格設定',
         },
         {
-          title: '継続的な成長',
+          title: '親しみやすさ',
           description:
-            '技術の進化に合わせて常に学び続け、より良いソリューションを提供できるよう努めています',
+            '堅苦しくない、フレンドリーなコミュニケーションを大切にしています',
         },
       ],
     },
     footer: {
-      description: '最先端の技術で革新的なソフトウェアとアプリを開発',
+      description: 'あなたの"ほしい"を、カタチに',
       rights: 'All rights reserved.',
       quickLinks: 'クイックリンク',
       services: 'サービス',
@@ -119,16 +119,16 @@ export const translations: Record<Language, TranslationSchema> = {
       about: 'About',
       services: 'Services',
       technologies: 'Technologies',
-      projects: 'Projects',
+      projects: 'Products',
       process: 'Process',
       contact: 'Contact',
       getInTouch: 'Get in Touch',
     },
     hero: {
       title: 'ADA Lab',
-      subtitle: 'Crafting Digital Excellence',
-      description: 'Creating the future with cutting-edge technology',
-      viewWork: 'View Our Work',
+      subtitle: 'Simple tools for everyday needs.',
+      description: 'Building apps that just work',
+      viewWork: 'View Products',
       contact: 'Get in Touch',
       techStack: ['React', 'Next.js', 'TypeScript', 'Node.js', 'Python'],
     },
@@ -136,38 +136,38 @@ export const translations: Record<Language, TranslationSchema> = {
       title: 'About',
       titleHighlight: 'ADA Lab',
       description:
-        'We are a software development business creating innovative software and applications. We value passion for technology and commitment to client success.',
+        'We develop useful apps and services that solve real everyday problems. We focus on simplicity and usability, providing only the features you actually need.',
       stats: {
-        projects: 'Projects Completed',
-        experience: 'Years Experience',
-        satisfaction: 'Client Satisfaction',
+        projects: 'Products in Development',
+        experience: 'Founded',
+        satisfaction: 'Fast Development',
         support: 'Support',
       },
       values: [
         {
-          title: 'Cutting-Edge Technology',
+          title: 'Simplicity',
           description:
-            'Always staying up-to-date with the latest technologies and developing with the optimal tech stack',
+            'Pinpoint solutions with just the features you need. No bloat, just usefulness',
         },
         {
-          title: 'High-Quality Deliverables',
+          title: 'Speed',
           description:
-            'Focusing on code quality, performance, and security to deliver long-term valuable software',
+            'Quick development and fast responses to turn ideas into reality',
         },
         {
-          title: 'Client-First Approach',
+          title: 'Affordable',
           description:
-            'Prioritizing client business goals with close communication and flexible responses',
+            'Reasonable pricing made possible by indie development',
         },
         {
-          title: 'Continuous Growth',
+          title: 'Friendly',
           description:
-            'Constantly learning alongside technological evolution to provide better solutions',
+            'Casual, approachable communication without the corporate stiffness',
         },
       ],
     },
     footer: {
-      description: 'Developing innovative software and apps with cutting-edge technology',
+      description: 'Simple tools for everyday needs',
       rights: 'All rights reserved.',
       quickLinks: 'Quick Links',
       services: 'Services',

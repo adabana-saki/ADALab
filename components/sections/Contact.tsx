@@ -2,23 +2,21 @@
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Mail, Github, Twitter, Linkedin, Send } from 'lucide-react';
+import { Mail, Github, Twitter, Send } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 
 const socialLinks = [
-  { icon: Mail, label: 'Email', href: 'mailto:contact@ada-lab.com' },
-  { icon: Github, label: 'GitHub', href: 'https://github.com' },
-  { icon: Twitter, label: 'Twitter', href: 'https://twitter.com' },
-  { icon: Linkedin, label: 'LinkedIn', href: 'https://linkedin.com' },
+  { icon: Mail, label: 'Email', href: 'mailto:info.adalabtech@gmail.com' },
+  { icon: Github, label: 'GitHub', href: 'https://github.com/adabana-saki' },
+  { icon: Twitter, label: 'X', href: 'https://x.com/saki_18191' },
 ];
 
 const inquiryTypes = [
-  '採用について',
   'プロダクトに関するお問い合わせ',
+  'バグ報告・機能要望',
   'パートナーシップ',
-  'メディア掲載',
   'その他',
 ];
 
@@ -71,10 +69,10 @@ export function Contact() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Join Us or <span className="gradient-text">Contact</span>
+            Get in <span className="gradient-text">Touch</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            採用のご応募、プロダクトに関するお問い合わせ、パートナーシップなどお気軽にご連絡ください
+            プロダクトに関するお問い合わせ、ご質問などお気軽にご連絡ください
           </p>
         </motion.div>
 
@@ -93,26 +91,24 @@ export function Contact() {
                 <div>
                   <h4 className="font-semibold mb-2">メールアドレス</h4>
                   <a
-                    href="mailto:contact@ada-lab.com"
+                    href="mailto:info.adalabtech@gmail.com"
                     className="text-primary hover:underline"
                   >
-                    contact@ada-lab.com
+                    info.adalabtech@gmail.com
                   </a>
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">対応時間</h4>
+                  <h4 className="font-semibold mb-2">Discord</h4>
                   <p className="text-muted-foreground">
-                    平日 9:00 - 18:00（JST）
+                    adabana_saki
                   </p>
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">採用について</h4>
+                  <h4 className="font-semibold mb-2">運営者</h4>
                   <p className="text-muted-foreground">
-                    <a href="/company" className="text-primary hover:underline">
-                      採用情報はこちら →
-                    </a>
+                    Adabana Saki
                   </p>
                 </div>
               </div>
