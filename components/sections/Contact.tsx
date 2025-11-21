@@ -2,11 +2,12 @@
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Mail, Github, Twitter, Send } from 'lucide-react';
+import { Mail, Github, Twitter, Send, AlertCircle } from 'lucide-react';
 import { FaDiscord } from 'react-icons/fa';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
+import { Toast } from '../ui/toast';
 
 const socialLinks = [
   { icon: Mail, label: 'Email', href: 'mailto:info.adalabtech@gmail.com' },
@@ -22,6 +23,12 @@ const inquiryTypes = [
   'その他',
 ];
 
+interface FormErrors {
+  name?: string;
+  email?: string;
+  message?: string;
+}
+
 export function Contact() {
   const [formData, setFormData] = useState({
     name: '',
@@ -29,35 +36,113 @@ export function Contact() {
     inquiryType: '',
     message: '',
   });
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error'; isVisible: boolean }>({
+    message: '',
+    type: 'success',
+    isVisible: false,
+  });
+
+  const validateField = (name: string, value: string): string | undefined => {
+    switch (name) {
+      case 'name':
+        if (!value.trim()) return 'お名前を入力してください';
+        if (value.length < 2) return 'お名前は2文字以上で入力してください';
+        break;
+      case 'email':
+        if (!value.trim()) return 'メールアドレスを入力してください';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return '有効なメールアドレスを入力してください';
+        break;
+      case 'message':
+        if (!value.trim()) return 'メッセージを入力してください';
+        if (value.length < 10) return 'メッセージは10文字以上で入力してください';
+        break;
+    }
+    return undefined;
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+    newErrors.name = validateField('name', formData.name);
+    newErrors.email = validateField('email', formData.email);
+    newErrors.message = validateField('message', formData.message);
+
+    setErrors(newErrors);
+    return !Object.values(newErrors).some(error => error);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Mark all fields as touched
+    setTouched({ name: true, email: true, message: true });
+
+    if (!validateForm()) {
+      setToast({
+        message: '入力内容を確認してください',
+        type: 'error',
+        isVisible: true,
+      });
+      setTimeout(() => setToast(prev => ({ ...prev, isVisible: false })), 4000);
+      return;
+    }
+
     setIsSubmitting(true);
 
     // ダミー送信処理（実際のAPI呼び出しに置き換え可能）
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitStatus('success');
-      setFormData({ name: '', email: '', inquiryType: '', message: '' });
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
-      // 3秒後にステータスをリセット
-      setTimeout(() => setSubmitStatus('idle'), 3000);
-    }, 1500);
+      setToast({
+        message: '送信完了しました。ご連絡ありがとうございます！',
+        type: 'success',
+        isVisible: true,
+      });
+      setFormData({ name: '', email: '', inquiryType: '', message: '' });
+      setErrors({});
+      setTouched({});
+    } catch {
+      setToast({
+        message: '送信に失敗しました。もう一度お試しください。',
+        type: 'error',
+        isVisible: true,
+      });
+    } finally {
+      setIsSubmitting(false);
+      setTimeout(() => setToast(prev => ({ ...prev, isVisible: false })), 4000);
+    }
   };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+
+    // Validate on change if field has been touched
+    if (touched[name]) {
+      setErrors(prev => ({ ...prev, [name]: validateField(name, value) }));
+    }
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setTouched(prev => ({ ...prev, [name]: true }));
+    setErrors(prev => ({ ...prev, [name]: validateField(name, value) }));
   };
 
   return (
     <section id="contact" className="py-20 md:py-32 bg-muted/20 relative overflow-hidden">
+      {/* Toast Notification */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
+      />
+
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-accent/5 rounded-full blur-[120px]" />
 
@@ -146,12 +231,12 @@ export function Contact() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <form onSubmit={handleSubmit} className="glass p-8 rounded-2xl">
+            <form onSubmit={handleSubmit} className="glass p-8 rounded-2xl" noValidate>
               <div className="space-y-6">
                 {/* Name */}
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium mb-2">
-                    お名前 *
+                    お名前 <span className="text-red-500">*</span>
                   </label>
                   <Input
                     id="name"
@@ -160,14 +245,24 @@ export function Contact() {
                     required
                     value={formData.name}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     placeholder="山田太郎"
+                    aria-invalid={!!errors.name}
+                    aria-describedby={errors.name ? 'name-error' : undefined}
+                    className={errors.name && touched.name ? 'border-red-500 focus:ring-red-500' : ''}
                   />
+                  {errors.name && touched.name && (
+                    <p id="name-error" className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {errors.name}
+                    </p>
+                  )}
                 </div>
 
                 {/* Email */}
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium mb-2">
-                    メールアドレス *
+                    メールアドレス <span className="text-red-500">*</span>
                   </label>
                   <Input
                     id="email"
@@ -176,8 +271,18 @@ export function Contact() {
                     required
                     value={formData.email}
                     onChange={handleChange}
+                    onBlur={handleBlur}
                     placeholder="example@email.com"
+                    aria-invalid={!!errors.email}
+                    aria-describedby={errors.email ? 'email-error' : undefined}
+                    className={errors.email && touched.email ? 'border-red-500 focus:ring-red-500' : ''}
                   />
+                  {errors.email && touched.email && (
+                    <p id="email-error" className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {errors.email}
+                    </p>
+                  )}
                 </div>
 
                 {/* Inquiry Type */}
@@ -204,7 +309,7 @@ export function Contact() {
                 {/* Message */}
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium mb-2">
-                    メッセージ *
+                    メッセージ <span className="text-red-500">*</span>
                   </label>
                   <Textarea
                     id="message"
@@ -212,9 +317,19 @@ export function Contact() {
                     required
                     value={formData.message}
                     onChange={handleChange}
-                    placeholder="プロジェクトの詳細やご質問をお書きください"
+                    onBlur={handleBlur}
+                    placeholder="プロダクトに関するご質問やフィードバックをお書きください"
                     rows={5}
+                    aria-invalid={!!errors.message}
+                    aria-describedby={errors.message ? 'message-error' : undefined}
+                    className={errors.message && touched.message ? 'border-red-500 focus:ring-red-500' : ''}
                   />
+                  {errors.message && touched.message && (
+                    <p id="message-error" className="mt-1 text-sm text-red-500 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      {errors.message}
+                    </p>
+                  )}
                 </div>
 
                 {/* Submit Button */}
@@ -225,7 +340,14 @@ export function Contact() {
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
-                    '送信中...'
+                    <span className="flex items-center gap-2">
+                      <motion.span
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                        className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                      />
+                      送信中...
+                    </span>
                   ) : (
                     <>
                       送信する
@@ -233,26 +355,6 @@ export function Contact() {
                     </>
                   )}
                 </Button>
-
-                {/* Status Message */}
-                {submitStatus === 'success' && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-green-500 text-center text-sm"
-                  >
-                    送信完了しました。ご連絡ありがとうございます！
-                  </motion.p>
-                )}
-                {submitStatus === 'error' && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-red-500 text-center text-sm"
-                  >
-                    送信に失敗しました。もう一度お試しください。
-                  </motion.p>
-                )}
               </div>
             </form>
           </motion.div>
