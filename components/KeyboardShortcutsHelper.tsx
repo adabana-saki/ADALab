@@ -7,11 +7,10 @@ import { X, Keyboard } from 'lucide-react';
 const shortcuts = [
   { keys: ['H'], description: 'ホームへ移動' },
   { keys: ['A'], description: 'About セクションへ移動' },
-  { keys: ['S'], description: 'Services セクションへ移動' },
   { keys: ['T'], description: 'Technologies セクションへ移動' },
-  { keys: ['P'], description: 'Projects セクションへ移動' },
+  { keys: ['P'], description: 'Products セクションへ移動' },
   { keys: ['C'], description: 'Contact セクションへ移動' },
-  { keys: ['↑'], description: 'ページトップへスクロール' },
+  { keys: ['Ctrl', '↑'], description: 'ページトップへスクロール' },
   { keys: ['?'], description: 'このヘルプを表示' },
   { keys: ['Esc'], description: 'モーダル/ヘルプを閉じる' },
 ];

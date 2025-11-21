@@ -10,14 +10,15 @@ import { useLanguage } from '@/contexts/LanguageContext';
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
   const { language, setLanguage, t } = useLanguage();
 
   const navItems = [
-    { name: t.nav.home, href: '#home' },
-    { name: t.nav.about, href: '#about' },
-    { name: t.nav.technologies, href: '#technologies' },
-    { name: t.nav.projects, href: '#projects' },
-    { name: t.nav.contact, href: '#contact' },
+    { name: t.nav.home, href: '#home', id: 'home' },
+    { name: t.nav.about, href: '#about', id: 'about' },
+    { name: t.nav.technologies, href: '#technologies', id: 'technologies' },
+    { name: t.nav.projects, href: '#projects', id: 'projects' },
+    { name: t.nav.contact, href: '#contact', id: 'contact' },
   ];
 
   useEffect(() => {
@@ -26,6 +27,34 @@ export function Navigation() {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Track active section with Intersection Observer
+  useEffect(() => {
+    const sectionIds = ['home', 'about', 'technologies', 'projects', 'contact'];
+    const observers: IntersectionObserver[] = [];
+
+    sectionIds.forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                setActiveSection(id);
+              }
+            });
+          },
+          { threshold: 0.3, rootMargin: '-20% 0px -50% 0px' }
+        );
+        observer.observe(element);
+        observers.push(observer);
+      }
+    });
+
+    return () => {
+      observers.forEach((observer) => observer.disconnect());
+    };
   }, []);
 
   const scrollToSection = (href: string) => {
@@ -75,10 +104,18 @@ export function Navigation() {
                       e.preventDefault();
                       scrollToSection(item.href);
                     }}
-                    className="text-foreground/80 hover:text-foreground transition-colors relative group cursor-pointer"
+                    className={cn(
+                      "transition-colors relative group cursor-pointer",
+                      activeSection === item.id
+                        ? "text-neon-cyan"
+                        : "text-foreground/80 hover:text-foreground"
+                    )}
                   >
                     {item.name}
-                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-secondary transition-all group-hover:w-full" />
+                    <span className={cn(
+                      "absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-primary to-secondary transition-all",
+                      activeSection === item.id ? "w-full" : "w-0 group-hover:w-full"
+                    )} />
                   </a>
                 </li>
               ))}
