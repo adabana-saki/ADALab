@@ -2,65 +2,71 @@
 
 import { useLanguage } from '@/contexts/LanguageContext';
 import Link from 'next/link';
-import { ArrowLeft, Building, MapPin, Mail, Phone, Calendar } from 'lucide-react';
+import { ArrowLeft, Code, Mail, Calendar, Rocket, Heart } from 'lucide-react';
 
 export default function CompanyInfoPage() {
   const { language } = useLanguage();
 
   const content = {
     ja: {
-      title: '会社概要',
+      title: 'About ADA Lab',
+      subtitle: 'あなたの"ほしい"を、カタチに。',
       info: [
-        { icon: Building, label: '会社名', value: '株式会社ADA Lab' },
-        { icon: Calendar, label: '設立', value: '2020年4月1日' },
-        { icon: MapPin, label: '所在地', value: '〒100-0001 東京都千代田区千代田1-1-1' },
-        { icon: Phone, label: '電話番号', value: '03-1234-5678' },
-        { icon: Mail, label: 'メール', value: 'info@adalab.example.com' },
+        { icon: Code, label: '運営', value: '個人開発' },
+        { icon: Calendar, label: '活動開始', value: '2024年' },
+        { icon: Mail, label: 'メール', value: 'info.adalabtech@gmail.com' },
       ],
       sections: [
         {
-          title: '事業内容',
-          content: '• 自社プロダクト開発・運営\n• SaaSプラットフォーム事業\n• AIソリューション開発\n• データ分析プラットフォーム\n• コミュニケーションツール\n• セキュリティソリューション',
+          title: 'ADA Labとは',
+          content: 'ADA Labは、日常の「あったらいいな」を形にするプロダクトカンパニーです。\n\n個人開発として、使いやすさとシンプルさを追求したアプリケーションを開発しています。大きな組織ではできない素早い開発と、ユーザーの声に寄り添った改善を強みとしています。',
         },
         {
-          title: '企業理念',
-          content: 'テクノロジーで世界を変える。\n\n私たちは、革新的なプロダクトを通じて人々の生活やビジネスをより良くすることを目指しています。ユーザーファーストの姿勢を貫き、常に挑戦し続けることで、社会に真の価値を提供します。',
+          title: 'ミッション',
+          content: 'Build. Ship. Scale.\n\n素早く作り、素早く届け、成長させる。\n\n完璧を目指すよりも、まず価値を届けることを大切にしています。ユーザーからのフィードバックを元に、継続的に改善を重ねていきます。',
         },
         {
-          title: '私たちの強み',
-          content: '• プロダクト開発に特化したチーム\n• 迅速なリリースと改善サイクル\n• データドリブンな意思決定\n• スケーラブルなアーキテクチャ設計\n• ユーザー体験を第一に考えたデザイン',
+          title: '現在のプロダクト',
+          content: '• Rem bot - Discord多機能管理Bot（開発中）\n• Navi - 片手操作モバイルアプリ（開発中）\n\nこれからも、人々の生活を少しでも便利にするプロダクトを開発していきます。',
         },
         {
-          title: 'ユーザー',
-          content: '私たちのプロダクトは、スタートアップから大企業まで、50,000以上のユーザーにご利用いただいています。グローバルに展開し、日々成長を続けています。',
+          title: '技術スタック',
+          content: '• フロントエンド: React, Next.js, TypeScript\n• バックエンド: Node.js, Python\n• モバイル: React Native, Expo\n• インフラ: Google Cloud, Vercel\n• データベース: MongoDB, PostgreSQL',
+        },
+        {
+          title: 'お問い合わせ',
+          content: 'プロダクトへのご質問、機能リクエスト、バグ報告など、お気軽にお問い合わせください。\n\nメール: info.adalabtech@gmail.com\nX (Twitter): @saki_18191',
         },
       ],
     },
     en: {
-      title: 'Company Information',
+      title: 'About ADA Lab',
+      subtitle: 'Simple tools for everyday needs.',
       info: [
-        { icon: Building, label: 'Company Name', value: 'ADA Lab Inc.' },
-        { icon: Calendar, label: 'Established', value: 'April 1, 2020' },
-        { icon: MapPin, label: 'Address', value: '1-1-1 Chiyoda, Chiyoda-ku, Tokyo 100-0001, Japan' },
-        { icon: Phone, label: 'Phone', value: '+81-3-1234-5678' },
-        { icon: Mail, label: 'Email', value: 'info@adalab.example.com' },
+        { icon: Code, label: 'Operation', value: 'Independent Development' },
+        { icon: Calendar, label: 'Started', value: '2024' },
+        { icon: Mail, label: 'Email', value: 'info.adalabtech@gmail.com' },
       ],
       sections: [
         {
-          title: 'Business Activities',
-          content: '• Product Development & Operations\n• SaaS Platform Business\n• AI Solutions\n• Data Analytics Platform\n• Communication Tools\n• Security Solutions',
+          title: 'What is ADA Lab',
+          content: 'ADA Lab is a product company that turns everyday "nice to haves" into reality.\n\nAs an independent developer, we focus on creating applications that prioritize usability and simplicity. Our strengths are rapid development and user-centric improvements.',
         },
         {
-          title: 'Corporate Philosophy',
-          content: 'Changing the world with technology.\n\nWe aim to improve people\'s lives and businesses through innovative products. With a user-first approach and continuous innovation, we deliver true value to society.',
+          title: 'Mission',
+          content: 'Build. Ship. Scale.\n\nBuild fast, deliver fast, grow.\n\nWe value delivering value over pursuing perfection. We continuously improve based on user feedback.',
         },
         {
-          title: 'Our Strengths',
-          content: '• Product-focused team\n• Rapid release and improvement cycles\n• Data-driven decision making\n• Scalable architecture design\n• User experience-first design',
+          title: 'Current Products',
+          content: '• Rem bot - Discord multi-function management Bot (In Development)\n• Navi - One-hand operation mobile app (In Development)\n\nWe will continue to develop products that make people\'s lives a little more convenient.',
         },
         {
-          title: 'Users',
-          content: 'Our products are used by over 50,000 users, from startups to large enterprises. We are expanding globally and growing every day.',
+          title: 'Tech Stack',
+          content: '• Frontend: React, Next.js, TypeScript\n• Backend: Node.js, Python\n• Mobile: React Native, Expo\n• Infrastructure: Google Cloud, Vercel\n• Database: MongoDB, PostgreSQL',
+        },
+        {
+          title: 'Contact',
+          content: 'Feel free to contact us for product questions, feature requests, or bug reports.\n\nEmail: info.adalabtech@gmail.com\nX (Twitter): @saki_18191',
         },
       ],
     },
@@ -87,11 +93,12 @@ export default function CompanyInfoPage() {
         </Link>
 
         {/* Title */}
-        <h1 className="text-4xl md:text-5xl font-bold mb-12 holographic-text">
+        <h1 className="text-4xl md:text-5xl font-bold mb-2 holographic-text">
           {t.title}
         </h1>
+        <p className="text-lg text-muted-foreground mb-12">{t.subtitle}</p>
 
-        {/* Company Info Cards */}
+        {/* Info Cards */}
         <div className="grid gap-4 mb-12">
           {t.info.map((item, index) => {
             const Icon = item.icon;
@@ -128,8 +135,8 @@ export default function CompanyInfoPage() {
 
         {/* Footer */}
         <div className="mt-16 pt-8 border-t border-border text-center">
-          <p className="text-sm text-muted-foreground">
-            © 2025 ADA Lab. All rights reserved.
+          <p className="text-sm text-muted-foreground flex items-center justify-center gap-1">
+            Made with <Heart size={14} className="text-red-500 fill-red-500" /> by ADA Lab
           </p>
         </div>
       </div>

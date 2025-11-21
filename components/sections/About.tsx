@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Code2, Sparkles, Rocket, Shield } from 'lucide-react';
+import { Code2, Sparkles, Rocket, Zap } from 'lucide-react';
 import { CounterAnimation } from '../effects/CounterAnimation';
 
 const features = [
@@ -21,21 +21,21 @@ const features = [
     icon: Rocket,
     title: 'スピード',
     description:
-      '迅速なリリースと改善サイクルで、市場の変化に素早く対応します',
+      '迅速なリリースと改善サイクルで、アイデアを素早く形にします',
   },
   {
-    icon: Shield,
-    title: '品質への こだわり',
+    icon: Zap,
+    title: 'シンプル',
     description:
-      '妥協のない品質管理で、安心して使えるプロダクトを提供します',
+      '複雑さを排除し、誰でも使いやすいプロダクトを提供します',
   },
 ];
 
 const stats = [
-  { value: 6, suffix: '+', label: 'Products' },
-  { value: 50, suffix: 'K+', label: 'Active Users' },
-  { value: 99, suffix: '%', label: 'Uptime' },
-  { value: 20, suffix: '+', label: 'Team Members' },
+  { value: 2, suffix: '', label: 'Products' },
+  { value: 2024, suffix: '', label: 'Since' },
+  { value: 5, suffix: '+', label: 'Technologies' },
+  { value: 1, suffix: '', label: 'Developer' },
 ];
 
 export function About() {
@@ -57,8 +57,8 @@ export function About() {
             About <span className="gradient-text">ADA Lab</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            テクノロジーの力で世界を変えるプロダクトカンパニー。
-            人々の生活やビジネスをより良くする、革新的なプロダクトを生み出し続けています。
+            あなたの&quot;ほしい&quot;を、カタチに。
+            日常の「あったらいいな」を形にするプロダクトカンパニーです。
           </p>
         </motion.div>
 
@@ -127,11 +127,12 @@ export function About() {
         >
           <div className="glass p-8 md:p-12 rounded-2xl">
             <h3 className="text-2xl md:text-3xl font-bold mb-4">
-              私たちのミッション
+              Build. Ship. Scale.
             </h3>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              最先端の技術と創造性を融合させ、ビジネスを次のレベルへと導くソフトウェアソリューションを提供します。
-              単なるコードではなく、ユーザー体験と価値を生み出すことに焦点を当てています。
+              素早く作り、素早く届け、成長させる。
+              完璧を目指すよりも、まず価値を届けることを大切にしています。
+              ユーザーからのフィードバックを元に、継続的に改善を重ねていきます。
             </p>
           </div>
         </motion.div>
