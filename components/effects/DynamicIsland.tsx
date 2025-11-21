@@ -16,8 +16,19 @@ export function DynamicIsland() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [notification, setNotification] = useState<Notification | null>(null);
   const [status, setStatus] = useState({ cpu: 0, memory: 0, fps: 60 });
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check for mobile on mount
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
+    // Don't run notifications on mobile
+    if (isMobile) return;
     // Simulate notifications
     const notifications: Omit<Notification, 'id'>[] = [
       {
@@ -72,15 +83,15 @@ export function DynamicIsland() {
       }, 3000);
     };
 
-    // Show first notification after 3 seconds
-    const initialTimeout = setTimeout(showNotification, 3000);
+    // Show first notification after 5 seconds
+    const initialTimeout = setTimeout(showNotification, 5000);
 
-    // Show random notifications every 10-20 seconds
+    // Show random notifications every 20-40 seconds (reduced frequency)
     const interval = setInterval(() => {
       if (!isExpanded) {
         showNotification();
       }
-    }, 10000 + Math.random() * 10000);
+    }, 20000 + Math.random() * 20000);
 
     // Update status metrics
     const statusInterval = setInterval(() => {
@@ -96,7 +107,10 @@ export function DynamicIsland() {
       clearInterval(interval);
       clearInterval(statusInterval);
     };
-  }, [isExpanded]);
+  }, [isExpanded, isMobile]);
+
+  // Don't render on mobile
+  if (isMobile) return null;
 
   return (
     <div className="fixed bottom-20 right-4 z-[250]">

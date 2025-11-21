@@ -25,9 +25,15 @@ export function NeuralNetwork() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    // Check for mobile and reduced motion preference
+    const isMobile = window.innerWidth < 768;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReducedMotion) return;
+
     const colors = ['#06b6d4', '#d946ef', '#ec4899', '#8b5cf6', '#10b981'];
-    const nodeCount = 80;
-    const maxDistance = 180;
+    const nodeCount = isMobile ? 30 : 60; // Reduced for performance
+    const maxDistance = isMobile ? 120 : 150;
 
     // Initialize nodes
     const initNodes = () => {
