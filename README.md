@@ -32,7 +32,8 @@ Discord多機能Bot。リマインダー、タスク管理、ロール管理な�
 
 - **Email**: info.adalabtech@gmail.com
 - **GitHub**: [@adabana-saki](https://github.com/adabana-saki)
-- **X (Twitter)**: [@saki_18191](https://x.com/saki_18191)
+- **X**: [@ADA_Lab_tech](https://x.com/ADA_Lab_tech)
+- **Discord**: [ADA Lab](https://discord.gg/7Egm8uJPDs)
 
 ## ライセンス
 
