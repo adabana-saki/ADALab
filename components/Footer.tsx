@@ -19,7 +19,7 @@ const footerLinks = {
   ],
   social: [
     { name: 'GitHub', href: 'https://github.com/adabana-saki', icon: Github },
-    { name: 'X', href: 'https://x.com/saki_18191', icon: Twitter },
+    { name: 'X', href: 'https://x.com/ADA_Lab_tech', icon: Twitter },
     { name: 'Email', href: 'mailto:info.adalabtech@gmail.com', icon: Mail },
   ],
 };
