@@ -44,7 +44,7 @@ const faqs = [
     id: '5',
     question: 'バグを見つけた場合や機能リクエストはどこに送ればいいですか？',
     answer:
-      'バグ報告や機能リクエストは以下の方法で受け付けています：\n\n- **お問い合わせフォーム**: このサイトのContactセクションから\n- **メール**: info.adalabtech@gmail.com\n- **X (Twitter)**: @saki_18191 へDMまたはリプライ\n- **GitHub Issues**: 各プロダクトのリポジトリにて\n\nユーザーからのフィードバックは大歓迎です！',
+      'バグ報告や機能リクエストは以下の方法で受け付けています：\n\n- **お問い合わせフォーム**: このサイトのContactセクションから\n- **メール**: info.adalabtech@gmail.com\n- **X**: @ADA_Lab_tech へDMまたはリプライ\n- **GitHub Issues**: 各プロダクトのリポジトリにて\n\nユーザーからのフィードバックは大歓迎です！',
   },
   {
     id: '6',

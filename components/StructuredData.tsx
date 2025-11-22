@@ -13,9 +13,9 @@ export function StructuredData() {
       value: 15,
     },
     sameAs: [
-      'https://github.com/adalab',
-      'https://twitter.com/adalab',
-      'https://linkedin.com/company/adalab',
+      'https://github.com/adabana-saki',
+      'https://x.com/ADA_Lab_tech',
+      'https://discord.gg/7Egm8uJPDs',
     ],
     contactPoint: {
       '@type': 'ContactPoint',

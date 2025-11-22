@@ -35,7 +35,7 @@ export default function CompanyInfoPage() {
         },
         {
           title: 'お問い合わせ',
-          content: 'プロダクトへのご質問、機能リクエスト、バグ報告など、お気軽にお問い合わせください。\n\nメール: info.adalabtech@gmail.com\nX (Twitter): @saki_18191',
+          content: 'プロダクトへのご質問、機能リクエスト、バグ報告など、お気軽にお問い合わせください。\n\nメール: info.adalabtech@gmail.com\nX: @ADA_Lab_tech',
         },
       ],
     },
@@ -66,7 +66,7 @@ export default function CompanyInfoPage() {
         },
         {
           title: 'Contact',
-          content: 'Feel free to contact us for product questions, feature requests, or bug reports.\n\nEmail: info.adalabtech@gmail.com\nX (Twitter): @saki_18191',
+          content: 'Feel free to contact us for product questions, feature requests, or bug reports.\n\nEmail: info.adalabtech@gmail.com\nX: @ADA_Lab_tech',
         },
       ],
     },

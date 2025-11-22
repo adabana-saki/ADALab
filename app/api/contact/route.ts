@@ -146,10 +146,23 @@ export async function POST(request: NextRequest) {
     // メール送信
     const resend = new Resend(process.env.RESEND_API_KEY);
 
+    // 複数の管理者メールアドレスを取得（カンマ区切り対応）
+    const contactEmails = process.env.CONTACT_EMAILS
+      ? process.env.CONTACT_EMAILS.split(',').map(e => e.trim()).filter(Boolean)
+      : [];
+
+    if (contactEmails.length === 0) {
+      console.error('CONTACT_EMAILS is not configured');
+      return NextResponse.json(
+        { success: false, message: '管理者メールが設定されていません' },
+        { status: 500 }
+      );
+    }
+
     // 管理者への通知メール
     const { error: adminError } = await resend.emails.send({
       from: 'ADA Lab <onboarding@resend.dev>',
-      to: process.env.CONTACT_EMAIL || 'info.adalabtech@gmail.com',
+      to: contactEmails,
       replyTo: email,
       subject: `[ADA Lab] お問い合わせ: ${inquiryType || '一般'}`,
       html: `
