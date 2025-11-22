@@ -1,0 +1,474 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 6%;
+    --foreground: 0 0% 98%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 189 94% 43%;
+    --secondary-foreground: 0 0% 98%;
+
+    --accent: 271 91% 65%;
+    --accent-foreground: 0 0% 98%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 98%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 217 91% 60%;
+
+    --radius: 0.5rem;
+  }
+
+  /* Light theme */
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 189 94% 43%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 271 91% 65%;
+    --accent-foreground: 0 0% 9%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 217 91% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+
+  /* Performance optimizations */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Improve rendering performance */
+  img,
+  video,
+  canvas,
+  svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Hardware acceleration for animations */
+  .will-change-transform {
+    will-change: transform;
+  }
+
+  .will-change-opacity {
+    will-change: opacity;
+  }
+
+  /* Enhanced keyboard focus styles */
+  :focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Skip focus outline for mouse users */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary));
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--secondary));
+}
+
+/* Gradient Text */
+.gradient-text {
+  @apply bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent;
+}
+
+/* Epic Logo Style */
+.logo-text {
+  font-family: var(--font-orbitron), sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  background: linear-gradient(
+    135deg,
+    #06b6d4 0%,
+    #3b82f6 20%,
+    #8b5cf6 40%,
+    #d946ef 60%,
+    #06b6d4 80%,
+    #3b82f6 100%
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: cyber-slide 8s ease infinite;
+  filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.7))
+          drop-shadow(0 0 20px rgba(139, 92, 246, 0.5))
+          drop-shadow(0 0 30px rgba(217, 70, 239, 0.3));
+  position: relative;
+  text-shadow: none;
+  transform: translateZ(0);
+  will-change: filter;
+}
+
+.logo-text::before {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: -1;
+  background: linear-gradient(
+    135deg,
+    #06b6d4 0%,
+    #d946ef 50%,
+    #06b6d4 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  opacity: 0.5;
+  filter: blur(8px);
+  animation: cyber-slide 6s ease-in-out infinite reverse;
+}
+
+/* Logo Hover Effect */
+.logo-text:hover {
+  filter: drop-shadow(0 0 15px rgba(6, 182, 212, 1))
+          drop-shadow(0 0 25px rgba(139, 92, 246, 0.8))
+          drop-shadow(0 0 35px rgba(217, 70, 239, 0.6));
+  animation: cyber-slide 4s ease infinite, neon-pulse 1s ease-in-out infinite;
+}
+
+@keyframes neon-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.7))
+            drop-shadow(0 0 20px rgba(139, 92, 246, 0.5))
+            drop-shadow(0 0 30px rgba(217, 70, 239, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(6, 182, 212, 1))
+            drop-shadow(0 0 30px rgba(139, 92, 246, 0.8))
+            drop-shadow(0 0 45px rgba(217, 70, 239, 0.6));
+  }
+}
+
+/* Glassmorphism */
+.glass {
+  @apply bg-white/5 backdrop-blur-md border border-white/10;
+}
+
+/* Bento Card - Modern Grid Card Style */
+.bento-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  color: hsl(var(--foreground));
+}
+
+.bento-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(6, 182, 212, 0.3) 0%,
+    transparent 50%,
+    rgba(217, 70, 239, 0.3) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bento-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-4px);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.3),
+    0 0 40px rgba(6, 182, 212, 0.1);
+}
+
+.bento-card:hover::before {
+  opacity: 1;
+}
+
+/* Glow Effect */
+.glow {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+}
+
+/* Cyberpunk Neon Glow */
+.neon-cyan {
+  text-shadow: 0 0 10px rgba(6, 182, 212, 0.8),
+               0 0 20px rgba(6, 182, 212, 0.6),
+               0 0 30px rgba(6, 182, 212, 0.4);
+}
+
+.neon-fuchsia {
+  text-shadow: 0 0 10px rgba(217, 70, 239, 0.8),
+               0 0 20px rgba(217, 70, 239, 0.6),
+               0 0 30px rgba(217, 70, 239, 0.4);
+}
+
+.neon-purple {
+  text-shadow: 0 0 10px rgba(168, 85, 247, 0.8),
+               0 0 20px rgba(168, 85, 247, 0.6),
+               0 0 30px rgba(168, 85, 247, 0.4);
+}
+
+.neon-border-cyan {
+  border-color: rgb(6, 182, 212);
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.5),
+              inset 0 0 10px rgba(6, 182, 212, 0.2);
+}
+
+.neon-border-fuchsia {
+  border-color: rgb(217, 70, 239);
+  box-shadow: 0 0 10px rgba(217, 70, 239, 0.5),
+              inset 0 0 10px rgba(217, 70, 239, 0.2);
+}
+
+/* Holographic Text */
+.holographic-text {
+  background: linear-gradient(
+    90deg,
+    #06b6d4 0%,
+    #8b5cf6 25%,
+    #d946ef 50%,
+    #06b6d4 75%,
+    #8b5cf6 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.5));
+}
+
+/* Cyber Grid */
+.cyber-grid {
+  background-image:
+    linear-gradient(rgba(6, 182, 212, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(6, 182, 212, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center center;
+  transform: perspective(500px) rotateX(60deg) scale(2);
+  transform-origin: center bottom;
+}
+
+/* CRT Scanlines */
+.scanlines {
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+}
+
+.scan-line {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(6, 182, 212, 0.3) 50%,
+    transparent 100%
+  );
+  height: 100px;
+  animation: scan 8s linear infinite;
+}
+
+@keyframes scan {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+/* Cyber Counter */
+.cyber-counter {
+  font-family: 'Courier New', monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+/* Glitch Animation */
+@keyframes glitch {
+  0% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-2px, 2px);
+  }
+  40% {
+    transform: translate(-2px, -2px);
+  }
+  60% {
+    transform: translate(2px, 2px);
+  }
+  80% {
+    transform: translate(2px, -2px);
+  }
+  100% {
+    transform: translate(0);
+  }
+}
+
+/* Enhanced Glow Effects */
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.5),
+              0 0 40px rgba(6, 182, 212, 0.3),
+              0 0 60px rgba(6, 182, 212, 0.2);
+}
+
+.glow-fuchsia {
+  box-shadow: 0 0 20px rgba(217, 70, 239, 0.5),
+              0 0 40px rgba(217, 70, 239, 0.3),
+              0 0 60px rgba(217, 70, 239, 0.2);
+}
+
+.glow-purple {
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.5),
+              0 0 40px rgba(168, 85, 247, 0.3),
+              0 0 60px rgba(168, 85, 247, 0.2);
+}
+
+/* Pulsing Glow Animation */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.5),
+                0 0 40px rgba(6, 182, 212, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(6, 182, 212, 0.8),
+                0 0 60px rgba(6, 182, 212, 0.5);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger tap targets for mobile */
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Remove hover effects on touch devices */
+  .hover\:scale-105:hover,
+  .hover\:scale-110:hover {
+    transform: none;
+  }
+
+  /* Use active states instead */
+  .active\:scale-95:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Tap Highlight */
+html {
+  -webkit-tap-highlight-color: rgba(6, 182, 212, 0.2);
+}
+
+/* Better Focus Styles */
+*:focus-visible {
+  outline: 2px solid rgba(6, 182, 212, 0.8);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Smooth Scroll Behavior - Respects user preference */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Dark Mode Text Selection */
+::selection {
+  background-color: rgba(6, 182, 212, 0.3);
+  color: #fff;
+}
+
+::-moz-selection {
+  background-color: rgba(6, 182, 212, 0.3);
+  color: #fff;
+}
