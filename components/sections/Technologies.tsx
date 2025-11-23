@@ -38,7 +38,6 @@ import {
   SiGit,
   SiFigma,
   SiNotion,
-  SiVisualstudiocode,
   SiLinux,
 } from 'react-icons/si';
 import { FaJava, FaMicrosoft } from 'react-icons/fa';
@@ -90,7 +89,7 @@ const techIcons: Record<string, React.ElementType> = {
   'Git': SiGit,
   'Figma': SiFigma,
   'Notion': SiNotion,
-  'VS Code': SiVisualstudiocode,
+  'VS Code': Code2,
   'Linux': SiLinux,
 };
 

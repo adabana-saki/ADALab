@@ -13,29 +13,29 @@ export default function CompanyInfoPage() {
       subtitle: 'あなたの"ほしい"を、カタチに。',
       info: [
         { icon: Code, label: '運営', value: '個人開発' },
-        { icon: Calendar, label: '活動開始', value: '2024年' },
+        { icon: Calendar, label: '活動開始', value: '2025年' },
         { icon: Mail, label: 'メール', value: 'info.adalabtech@gmail.com' },
       ],
       sections: [
         {
           title: 'ADA Labとは',
-          content: 'ADA Labは、日常の「あったらいいな」を形にするプロダクトカンパニーです。\n\n個人開発として、使いやすさとシンプルさを追求したアプリケーションを開発しています。大きな組織ではできない素早い開発と、ユーザーの声に寄り添った改善を強みとしています。',
+          content: 'ADA Labは、日常の「あったらいいな」を形にする個人開発チームです。\n\n使いやすさとシンプルさを大切に、自分たちが本当に欲しいと思えるアプリケーションを開発しています。',
         },
         {
-          title: 'ミッション',
-          content: 'Build. Ship. Scale.\n\n素早く作り、素早く届け、成長させる。\n\n完璧を目指すよりも、まず価値を届けることを大切にしています。ユーザーからのフィードバックを元に、継続的に改善を重ねていきます。',
+          title: '開発スタイル',
+          content: 'のんびり、マイペースに開発しています。\n\n急ぎの案件や厳しい納期には対応できませんが、じっくり丁寧に作りたい方には向いているかもしれません。',
+        },
+        {
+          title: '受託開発について',
+          content: 'ご依頼をお受けする場合もあります。\n\n• 納期に余裕がある案件\n• 企画からコーディングまで一貫して任せていただける案件\n\nデザインのみ、コーディングのみといった部分的なご依頼は基本的にお受けしていません。',
         },
         {
           title: '現在のプロダクト',
-          content: '• Rem bot - Discord多機能管理Bot（開発中）\n• Navi - 片手操作モバイルアプリ（開発中）\n\nこれからも、人々の生活を少しでも便利にするプロダクトを開発していきます。',
-        },
-        {
-          title: '技術スタック',
-          content: '• フロントエンド: React, Next.js, TypeScript\n• バックエンド: Node.js, Python\n• モバイル: React Native, Expo\n• インフラ: Google Cloud, Vercel\n• データベース: MongoDB, PostgreSQL',
+          content: '• Rem bot - Discord多機能管理Bot（開発中）\n• Navi - 片手操作モバイルアプリ（開発中）\n\n自分たちが使いたいものを、自分たちのペースで作っています。',
         },
         {
           title: 'お問い合わせ',
-          content: 'プロダクトへのご質問、機能リクエスト、バグ報告など、お気軽にお問い合わせください。\n\nメール: info.adalabtech@gmail.com\nX: @ADA_Lab_tech',
+          content: 'プロダクトへのご質問、ご依頼のご相談など、お気軽にどうぞ。\n\nメール: info.adalabtech@gmail.com\nX: @ADA_Lab_tech',
         },
       ],
     },
@@ -44,29 +44,29 @@ export default function CompanyInfoPage() {
       subtitle: 'Simple tools for everyday needs.',
       info: [
         { icon: Code, label: 'Operation', value: 'Independent Development' },
-        { icon: Calendar, label: 'Started', value: '2024' },
+        { icon: Calendar, label: 'Started', value: '2025' },
         { icon: Mail, label: 'Email', value: 'info.adalabtech@gmail.com' },
       ],
       sections: [
         {
           title: 'What is ADA Lab',
-          content: 'ADA Lab is a product company that turns everyday "nice to haves" into reality.\n\nAs an independent developer, we focus on creating applications that prioritize usability and simplicity. Our strengths are rapid development and user-centric improvements.',
+          content: 'ADA Lab is an indie development team that turns everyday "nice to haves" into reality.\n\nWe focus on usability and simplicity, building applications that we genuinely want to use ourselves.',
         },
         {
-          title: 'Mission',
-          content: 'Build. Ship. Scale.\n\nBuild fast, deliver fast, grow.\n\nWe value delivering value over pursuing perfection. We continuously improve based on user feedback.',
+          title: 'Development Style',
+          content: 'We work at our own relaxed pace.\n\nWe can\'t handle urgent projects or tight deadlines, but we might be a good fit if you prefer careful, thoughtful development.',
+        },
+        {
+          title: 'About Commissions',
+          content: 'We occasionally accept project requests.\n\n• Projects with flexible timelines\n• Projects where we handle everything from planning to coding\n\nWe generally don\'t accept partial work like design-only or coding-only requests.',
         },
         {
           title: 'Current Products',
-          content: '• Rem bot - Discord multi-function management Bot (In Development)\n• Navi - One-hand operation mobile app (In Development)\n\nWe will continue to develop products that make people\'s lives a little more convenient.',
-        },
-        {
-          title: 'Tech Stack',
-          content: '• Frontend: React, Next.js, TypeScript\n• Backend: Node.js, Python\n• Mobile: React Native, Expo\n• Infrastructure: Google Cloud, Vercel\n• Database: MongoDB, PostgreSQL',
+          content: '• Rem bot - Discord multi-function management Bot (In Development)\n• Navi - One-hand operation mobile app (In Development)\n\nWe build what we want to use, at our own pace.',
         },
         {
           title: 'Contact',
-          content: 'Feel free to contact us for product questions, feature requests, or bug reports.\n\nEmail: info.adalabtech@gmail.com\nX: @ADA_Lab_tech',
+          content: 'Feel free to reach out for product questions or project inquiries.\n\nEmail: info.adalabtech@gmail.com\nX: @ADA_Lab_tech',
         },
       ],
     },

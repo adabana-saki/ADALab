@@ -144,72 +144,20 @@
 
 /* Epic Logo Style */
 .logo-text {
-  font-family: var(--font-orbitron), sans-serif;
-  font-weight: 900;
-  letter-spacing: 0.15em;
-  background: linear-gradient(
-    135deg,
-    #06b6d4 0%,
-    #3b82f6 20%,
-    #8b5cf6 40%,
-    #d946ef 60%,
-    #06b6d4 80%,
-    #3b82f6 100%
-  );
-  background-size: 300% 300%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: cyber-slide 8s ease infinite;
-  filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.7))
-          drop-shadow(0 0 20px rgba(139, 92, 246, 0.5))
-          drop-shadow(0 0 30px rgba(217, 70, 239, 0.3));
+  font-family: var(--font-audiowide), sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  color: #ffffff;
+  text-shadow: 0 0 20px rgba(6, 182, 212, 0.8),
+               0 0 40px rgba(6, 182, 212, 0.4);
   position: relative;
-  text-shadow: none;
   transform: translateZ(0);
-  will-change: filter;
-}
-
-.logo-text::before {
-  content: attr(data-text);
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: -1;
-  background: linear-gradient(
-    135deg,
-    #06b6d4 0%,
-    #d946ef 50%,
-    #06b6d4 100%
-  );
-  background-size: 200% 200%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  opacity: 0.5;
-  filter: blur(8px);
-  animation: cyber-slide 6s ease-in-out infinite reverse;
 }
 
 /* Logo Hover Effect */
 .logo-text:hover {
-  filter: drop-shadow(0 0 15px rgba(6, 182, 212, 1))
-          drop-shadow(0 0 25px rgba(139, 92, 246, 0.8))
-          drop-shadow(0 0 35px rgba(217, 70, 239, 0.6));
-  animation: cyber-slide 4s ease infinite, neon-pulse 1s ease-in-out infinite;
-}
-
-@keyframes neon-pulse {
-  0%, 100% {
-    filter: drop-shadow(0 0 12px rgba(6, 182, 212, 0.7))
-            drop-shadow(0 0 20px rgba(139, 92, 246, 0.5))
-            drop-shadow(0 0 30px rgba(217, 70, 239, 0.3));
-  }
-  50% {
-    filter: drop-shadow(0 0 20px rgba(6, 182, 212, 1))
-            drop-shadow(0 0 30px rgba(139, 92, 246, 0.8))
-            drop-shadow(0 0 45px rgba(217, 70, 239, 0.6));
-  }
+  text-shadow: 0 0 30px rgba(6, 182, 212, 1),
+               0 0 60px rgba(6, 182, 212, 0.6);
 }
 
 /* Glassmorphism */

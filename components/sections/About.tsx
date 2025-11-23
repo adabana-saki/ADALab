@@ -37,7 +37,7 @@ const features = [
 
 const stats = [
   { value: 2, suffix: '', label: 'Products' },
-  { value: 2024, suffix: '', label: 'Since' },
+  { value: 2025, suffix: '', label: 'Since' },
   { value: 50, suffix: '+', label: 'Technologies' },
   { value: 1, suffix: '', label: 'Developer' },
 ];

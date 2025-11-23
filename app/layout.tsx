@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Orbitron, Inter, Noto_Sans_JP } from 'next/font/google';
+import { Audiowide, Inter, Noto_Sans_JP } from 'next/font/google';
 import './globals.css';
 import { StructuredData } from '@/components/StructuredData';
 import { WebVitals } from '@/components/WebVitals';
@@ -7,10 +7,10 @@ import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 
-const orbitron = Orbitron({
+const audiowide = Audiowide({
   subsets: ['latin'],
-  variable: '--font-orbitron',
-  weight: ['400', '500', '600', '700', '800', '900'],
+  variable: '--font-audiowide',
+  weight: ['400'],
   display: 'swap',
 });
 
@@ -121,7 +121,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ja" className={`scroll-smooth ${orbitron.variable} ${inter.variable} ${notoSansJP.variable}`}>
+    <html lang="ja" className={`scroll-smooth ${audiowide.variable} ${inter.variable} ${notoSansJP.variable}`}>
       <head>
         <StructuredData />
       </head>

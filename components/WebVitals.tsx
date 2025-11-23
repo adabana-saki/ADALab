@@ -5,10 +5,7 @@ import { useReportWebVitals } from 'next/web-vitals';
 
 export function WebVitals() {
   useReportWebVitals((metric) => {
-    // Log to console in development
-    if (process.env.NODE_ENV === 'development') {
-      console.log(metric);
-    }
+    // Development logging handled by browser devtools
 
     // Send to analytics in production
     if (process.env.NODE_ENV === 'production') {
@@ -37,12 +34,9 @@ export function WebVitals() {
         try {
           const observer = new PerformanceObserver((list) => {
             for (const entry of list.getEntries()) {
-              // Log long tasks (>50ms)
+              // Track long tasks (>50ms) - metrics sent via Web Vitals
               if (entry.duration > 50) {
-                console.warn('Long task detected:', {
-                  duration: entry.duration,
-                  startTime: entry.startTime,
-                });
+                // Long task detected - can be sent to analytics
               }
             }
           });
