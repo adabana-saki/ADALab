@@ -38,7 +38,7 @@ export function KeyboardShortcutsHelper() {
       {/* Floating help button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 left-4 z-[100] w-12 h-12 rounded-full bg-black/90 backdrop-blur-xl border-2 border-neon-purple/50 hover:border-neon-purple hover:scale-110 transition-all shadow-2xl flex items-center justify-center group"
+        className="fixed bottom-4 right-4 z-[100] w-12 h-12 rounded-full bg-black/90 backdrop-blur-xl border-2 border-neon-purple/50 hover:border-neon-purple hover:scale-110 transition-all shadow-2xl flex items-center justify-center group"
         aria-label="キーボードショートカットヘルプ"
       >
         <Keyboard
@@ -47,7 +47,7 @@ export function KeyboardShortcutsHelper() {
         />
 
         {/* Tooltip */}
-        <div className="absolute bottom-full mb-2 left-0 px-3 py-1 bg-black/90 backdrop-blur-md border border-neon-purple/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+        <div className="absolute bottom-full mb-2 right-0 px-3 py-1 bg-black/90 backdrop-blur-md border border-neon-purple/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
           <span className="text-xs text-neon-purple font-mono">
             ショートカット (?)
           </span>
