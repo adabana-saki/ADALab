@@ -1,8 +1,29 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Code2, Sparkles, Rocket, Zap, Target, Heart } from 'lucide-react';
+import { Code2, Sparkles, Rocket, Zap, Target, Heart, Github } from 'lucide-react';
 import { CounterAnimation } from '../effects/CounterAnimation';
+import dynamic from 'next/dynamic';
+
+const GitHubHologram = dynamic(
+  () => import('../effects/GitHubHologram').then((mod) => mod.GitHubHologram),
+  { ssr: false }
+);
+
+const QiitaArticles = dynamic(
+  () => import('../effects/QiitaArticles').then((mod) => mod.QiitaArticles),
+  { ssr: false }
+);
+
+const CodeSandbox = dynamic(
+  () => import('../effects/CodeSandbox').then((mod) => mod.CodeSandbox),
+  { ssr: false }
+);
+
+const TerminalEmulator = dynamic(
+  () => import('../effects/TerminalEmulator').then((mod) => mod.TerminalEmulator),
+  { ssr: false }
+);
 
 const features = [
   {
@@ -179,6 +200,124 @@ export function About() {
                     継続的な改善を重ね、本当に必要とされるプロダクトを追求します。
                   </p>
                 </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* GitHub 3D Hologram Stats */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.7 }}
+            className="col-span-1 md:col-span-6 lg:col-span-12"
+          >
+            <div className="bento-card p-6 md:p-8 rounded-3xl relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/5 via-transparent to-neon-purple/5" />
+              <div className="relative z-10">
+                {/* Header */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center">
+                    <Github className="text-white" size={24} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold">GitHub Stats</h3>
+                    <p className="text-sm text-muted-foreground">3D Holographic Display</p>
+                  </div>
+                </div>
+
+                {/* Hologram Stats */}
+                <GitHubHologram />
+
+                {/* Contribution Calendar */}
+                <div className="mt-6 bg-black/40 rounded-xl p-4 border border-neon-green/30">
+                  <div className="font-mono text-xs text-neon-green mb-3">{'>'} CONTRIBUTION_GRAPH</div>
+                  <div className="overflow-x-auto">
+                    <img
+                      src="https://ghchart.rshah.org/06b6d4/adabana-saki"
+                      alt="GitHub Contribution Graph"
+                      className="w-full h-auto min-w-[600px]"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Qiita Articles Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+            className="col-span-1 md:col-span-6 lg:col-span-12"
+          >
+            <div className="bento-card p-6 md:p-8 rounded-3xl relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 via-transparent to-green-500/5" />
+              <div className="relative z-10">
+                {/* Header */}
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
+                    <span className="text-white font-bold text-lg">Q</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold">Qiita Articles</h3>
+                    <p className="text-sm text-muted-foreground">Tech Blog Posts</p>
+                  </div>
+                </div>
+
+                {/* Qiita Articles */}
+                <QiitaArticles />
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Interactive Demo Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.9 }}
+            className="col-span-1 md:col-span-3 lg:col-span-6"
+          >
+            <div className="bento-card p-6 md:p-8 rounded-3xl relative overflow-hidden h-full">
+              <div className="absolute inset-0 bg-gradient-to-r from-neon-purple/5 via-transparent to-neon-purple/5" />
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-purple to-neon-fuchsia flex items-center justify-center">
+                    <Code2 className="text-white" size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold">Code Sandbox</h3>
+                    <p className="text-xs text-muted-foreground">Try running JavaScript</p>
+                  </div>
+                </div>
+                <CodeSandbox />
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Terminal Emulator */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 1.0 }}
+            className="col-span-1 md:col-span-3 lg:col-span-6"
+          >
+            <div className="bento-card p-6 md:p-8 rounded-3xl relative overflow-hidden h-full">
+              <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/5 via-transparent to-neon-cyan/5" />
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-cyan to-neon-green flex items-center justify-center">
+                    <Zap className="text-white" size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold">Terminal</h3>
+                    <p className="text-xs text-muted-foreground">Type &quot;help&quot; to start</p>
+                  </div>
+                </div>
+                <TerminalEmulator />
               </div>
             </div>
           </motion.div>
