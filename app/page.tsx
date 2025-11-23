@@ -27,6 +27,8 @@ const DynamicIsland = dynamic(() => import('@/components/effects/DynamicIsland')
 const KonamiCode = dynamic(() => import('@/components/effects/KonamiCode').then(mod => ({ default: mod.KonamiCode })), { ssr: false });
 const RippleEffect = dynamic(() => import('@/components/effects/RippleEffect').then(mod => ({ default: mod.RippleEffect })), { ssr: false });
 const ParallaxLayers = dynamic(() => import('@/components/effects/ParallaxScroll').then(mod => ({ default: mod.ParallaxLayers })), { ssr: false });
+const MatrixRain = dynamic(() => import('@/components/effects/MatrixRain').then(mod => ({ default: mod.MatrixRain })), { ssr: false });
+const CommandPalette = dynamic(() => import('@/components/CommandPalette').then(mod => ({ default: mod.CommandPalette })), { ssr: false });
 
 export default function Home() {
   useEffect(() => {
@@ -86,6 +88,7 @@ export default function Home() {
     <>
       {/* Background Effects - Optimized */}
       <ParallaxLayers />
+      <MatrixRain />
       <NeuralNetwork />
       <AnimatedBackground />
       <CyberGrid />
@@ -94,6 +97,7 @@ export default function Home() {
       <DynamicIsland />
       <KonamiCode />
       <RippleEffect />
+      <CommandPalette />
 
       <SkipToContent />
       <ScrollProgress />

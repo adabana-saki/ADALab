@@ -1,60 +1,60 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Code2, Sparkles, Rocket, Zap, Target, Heart, Github } from 'lucide-react';
+import { Sparkles, Rocket, Zap, Target, Heart } from 'lucide-react';
 import { CounterAnimation } from '../effects/CounterAnimation';
-import dynamic from 'next/dynamic';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { GitHubActivity } from '../GitHubActivity';
+import { StatusDisplay } from '../StatusDisplay';
+import { StatsDisplay } from '../StatsDisplay';
+import { QiitaFeed } from '../QiitaFeed';
 
-const GitHubHologram = dynamic(
-  () => import('../effects/GitHubHologram').then((mod) => mod.GitHubHologram),
-  { ssr: false }
-);
-
-const QiitaArticles = dynamic(
-  () => import('../effects/QiitaArticles').then((mod) => mod.QiitaArticles),
-  { ssr: false }
-);
-
-const CodeSandbox = dynamic(
-  () => import('../effects/CodeSandbox').then((mod) => mod.CodeSandbox),
-  { ssr: false }
-);
-
-const TerminalEmulator = dynamic(
-  () => import('../effects/TerminalEmulator').then((mod) => mod.TerminalEmulator),
-  { ssr: false }
-);
-
-const features = [
-  {
-    icon: Code2,
-    title: 'テクノロジードリブン',
-    description:
-      '最新技術を駆使し、革新的なプロダクトを生み出し続けます',
-    size: 'normal',
-  },
-  {
-    icon: Sparkles,
-    title: 'ユーザーファースト',
-    description:
-      '使う人の体験を第一に考え、愛されるプロダクトを作ります',
-    size: 'normal',
-  },
-  {
-    icon: Rocket,
-    title: 'スピード',
-    description:
-      '迅速なリリースと改善サイクルで、アイデアを素早く形にします',
-    size: 'normal',
-  },
-  {
-    icon: Zap,
-    title: 'シンプル',
-    description:
-      '複雑さを排除し、誰でも使いやすいプロダクトを提供します',
-    size: 'normal',
-  },
-];
+const featuresData = {
+  ja: [
+    {
+      icon: Code2,
+      title: 'テクノロジードリブン',
+      description: '最新技術を駆使し、革新的なプロダクトを生み出し続けます',
+    },
+    {
+      icon: Sparkles,
+      title: 'ユーザーファースト',
+      description: '使う人の体験を第一に考え、愛されるプロダクトを作ります',
+    },
+    {
+      icon: Rocket,
+      title: 'スピード',
+      description: '迅速なリリースと改善サイクルで、アイデアを素早く形にします',
+    },
+    {
+      icon: Zap,
+      title: 'シンプル',
+      description: '複雑さを排除し、誰でも使いやすいプロダクトを提供します',
+    },
+  ],
+  en: [
+    {
+      icon: Code2,
+      title: 'Technology Driven',
+      description: 'Leveraging cutting-edge technology to create innovative products',
+    },
+    {
+      icon: Sparkles,
+      title: 'User First',
+      description: 'Prioritizing user experience to build products people love',
+    },
+    {
+      icon: Rocket,
+      title: 'Speed',
+      description: 'Rapid releases and improvement cycles to quickly turn ideas into reality',
+    },
+    {
+      icon: Zap,
+      title: 'Simple',
+      description: 'Eliminating complexity to provide easy-to-use products for everyone',
+    },
+  ],
+};
 
 const stats = [
   { value: 2, suffix: '', label: 'Products' },
@@ -64,6 +64,24 @@ const stats = [
 ];
 
 export function About() {
+  const { language } = useLanguage();
+  const features = featuresData[language];
+
+  const content = {
+    ja: {
+      description: 'あなたの"ほしい"を、カタチに。日常の「あったらいいな」を形にするプロダクトカンパニーです。',
+      mission: '素早く作り、素早く届け、成長させる。完璧を目指すよりも、まず価値を届けることを大切にしています。',
+      philosophy: 'ユーザーからのフィードバックを大切に',
+      philosophyDesc: '継続的な改善を重ね、本当に必要とされるプロダクトを追求します。',
+    },
+    en: {
+      description: 'Simple tools for everyday needs. A product company that turns everyday "nice-to-haves" into reality.',
+      mission: 'Build fast, ship fast, and scale. We prioritize delivering value over perfection.',
+      philosophy: 'We Value User Feedback',
+      philosophyDesc: 'Through continuous improvement, we pursue products that are truly needed.',
+    },
+  };
+
   return (
     <section id="about" className="py-20 md:py-32 bg-background relative overflow-hidden">
       {/* Background decoration */}
@@ -83,8 +101,7 @@ export function About() {
             About <span className="gradient-text">ADA Lab</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            あなたの&quot;ほしい&quot;を、カタチに。
-            日常の「あったらいいな」を形にするプロダクトカンパニーです。
+            {content[language].description}
           </p>
         </motion.div>
 
@@ -111,8 +128,7 @@ export function About() {
                   Build. Ship. <span className="gradient-text">Scale.</span>
                 </h3>
                 <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-                  素早く作り、素早く届け、成長させる。
-                  完璧を目指すよりも、まず価値を届けることを大切にしています。
+                  {content[language].mission}
                 </p>
               </div>
             </div>
@@ -195,132 +211,55 @@ export function About() {
                   <Heart className="text-white" size={28} />
                 </div>
                 <div className="text-center md:text-left">
-                  <h3 className="text-xl md:text-2xl font-bold mb-2">ユーザーからのフィードバックを大切に</h3>
+                  <h3 className="text-xl md:text-2xl font-bold mb-2">{content[language].philosophy}</h3>
                   <p className="text-muted-foreground">
-                    継続的な改善を重ね、本当に必要とされるプロダクトを追求します。
+                    {content[language].philosophyDesc}
                   </p>
                 </div>
               </div>
             </div>
           </motion.div>
 
-          {/* GitHub 3D Hologram Stats */}
+          {/* GitHub Activity & Status Widgets */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.7 }}
-            className="col-span-1 md:col-span-6 lg:col-span-12"
+            className="col-span-1 md:col-span-3 lg:col-span-6"
           >
-            <div className="bento-card p-6 md:p-8 rounded-3xl relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/5 via-transparent to-neon-purple/5" />
-              <div className="relative z-10">
-                {/* Header */}
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center">
-                    <Github className="text-white" size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold">GitHub Stats</h3>
-                    <p className="text-sm text-muted-foreground">3D Holographic Display</p>
-                  </div>
-                </div>
-
-                {/* Hologram Stats */}
-                <GitHubHologram />
-
-                {/* Contribution Calendar */}
-                <div className="mt-6 bg-black/40 rounded-xl p-4 border border-neon-green/30">
-                  <div className="font-mono text-xs text-neon-green mb-3">{'>'} CONTRIBUTION_GRAPH</div>
-                  <div className="overflow-x-auto">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="https://ghchart.rshah.org/06b6d4/adabana-saki"
-                      alt="GitHub Contribution Graph"
-                      className="w-full h-auto min-w-[600px]"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+            <GitHubActivity />
           </motion.div>
 
-          {/* Qiita Articles Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.8 }}
-            className="col-span-1 md:col-span-6 lg:col-span-12"
+            className="col-span-1 md:col-span-3 lg:col-span-6"
           >
-            <div className="bento-card p-6 md:p-8 rounded-3xl relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 via-transparent to-green-500/5" />
-              <div className="relative z-10">
-                {/* Header */}
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
-                    <span className="text-white font-bold text-lg">Q</span>
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold">Qiita Articles</h3>
-                    <p className="text-sm text-muted-foreground">Tech Blog Posts</p>
-                  </div>
-                </div>
-
-                {/* Qiita Articles */}
-                <QiitaArticles />
-              </div>
-            </div>
+            <StatusDisplay />
           </motion.div>
 
-          {/* Interactive Demo Section */}
+          {/* Stats & Qiita Widgets */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.9 }}
-            className="col-span-1 md:col-span-3 lg:col-span-6"
+            className="col-span-1 md:col-span-6 lg:col-span-12"
           >
-            <div className="bento-card p-6 md:p-8 rounded-3xl relative overflow-hidden h-full">
-              <div className="absolute inset-0 bg-gradient-to-r from-neon-purple/5 via-transparent to-neon-purple/5" />
-              <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-purple to-neon-fuchsia flex items-center justify-center">
-                    <Code2 className="text-white" size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold">Code Sandbox</h3>
-                    <p className="text-xs text-muted-foreground">Try running JavaScript</p>
-                  </div>
-                </div>
-                <CodeSandbox />
-              </div>
-            </div>
+            <StatsDisplay />
           </motion.div>
 
-          {/* Terminal Emulator */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 1.0 }}
-            className="col-span-1 md:col-span-3 lg:col-span-6"
+            className="col-span-1 md:col-span-6 lg:col-span-12"
           >
-            <div className="bento-card p-6 md:p-8 rounded-3xl relative overflow-hidden h-full">
-              <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/5 via-transparent to-neon-cyan/5" />
-              <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-neon-cyan to-neon-green flex items-center justify-center">
-                    <Zap className="text-white" size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold">Terminal</h3>
-                    <p className="text-xs text-muted-foreground">Type &quot;help&quot; to start</p>
-                  </div>
-                </div>
-                <TerminalEmulator />
-              </div>
-            </div>
+            <QiitaFeed />
           </motion.div>
         </div>
       </div>

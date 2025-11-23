@@ -6,6 +6,7 @@ import { WebVitals } from '@/components/WebVitals';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { KeyboardShortcutsProvider } from '@/components/KeyboardShortcutsProvider';
 
 const audiowide = Audiowide({
   subsets: ['latin'],
@@ -135,8 +136,10 @@ export default function RootLayout({
         <GoogleAnalytics />
         <ThemeProvider>
           <LanguageProvider>
-            <WebVitals />
-            {children}
+            <KeyboardShortcutsProvider>
+              <WebVitals />
+              {children}
+            </KeyboardShortcutsProvider>
           </LanguageProvider>
         </ThemeProvider>
       </body>

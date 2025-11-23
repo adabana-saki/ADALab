@@ -9,6 +9,7 @@ import { GlitchText } from '../effects/GlitchText';
 import { TypingAnimation } from '../effects/TypingAnimation';
 import { MagneticButton } from '../effects/MagneticButton';
 import { scrollToSection } from '@/hooks/useKeyboardShortcuts';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // 3D背景を動的インポート（パフォーマンス最適化）
 const ParticleField = dynamic(
@@ -23,6 +24,7 @@ const FloatingLogo3D = dynamic(
 
 export function Hero() {
   const [showParticles, setShowParticles] = useState(false);
+  const { language, t } = useLanguage();
 
   useEffect(() => {
     // モバイルではパーティクルを無効化（パフォーマンス考慮）
@@ -131,11 +133,16 @@ export function Hero() {
             transition={{ duration: 0.8, delay: 0.9 }}
           >
             <TypingAnimation
-              texts={[
+              texts={language === 'ja' ? [
                 '自社プロダクトで世界を変える',
                 'Creating Products People Love',
                 'イノベーションを生み出すプロダクトカンパニー',
                 'Powered by Technology & Passion',
+              ] : [
+                'Creating Products People Love',
+                'Powered by Technology & Passion',
+                'Building the Future, One App at a Time',
+                'Simple Solutions for Complex Problems',
               ]}
               className="neon-purple font-medium"
             />
@@ -154,7 +161,7 @@ export function Hero() {
                 onClick={() => scrollToSection('projects')}
                 className="w-full sm:w-auto min-w-[200px] border-2 neon-border-cyan relative overflow-hidden group transition-all hover:scale-110 active:scale-95 py-6 sm:py-4"
               >
-                <span className="relative z-10">プロダクトを見る</span>
+                <span className="relative z-10">{t.hero.viewWork}</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-neon-cyan/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               </Button>
             </MagneticButton>
@@ -165,7 +172,7 @@ export function Hero() {
                 onClick={() => scrollToSection('about')}
                 className="w-full sm:w-auto min-w-[200px] border-2 neon-border-fuchsia relative overflow-hidden group transition-all hover:scale-110 active:scale-95 py-6 sm:py-4"
               >
-                <span className="relative z-10">私たちについて</span>
+                <span className="relative z-10">{language === 'ja' ? '私たちについて' : 'About Us'}</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-neon-fuchsia/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               </Button>
             </MagneticButton>
