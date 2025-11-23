@@ -2,15 +2,17 @@ name: Deploy Preview
 
 on:
   pull_request:
-    branches: ['main']
-    types: [opened, synchronize, reopened]
+    branches:
+      - main
+      - develop
 
 jobs:
   deploy-preview:
-    name: Deploy to Vercel Preview
+    name: Deploy Preview to Cloudflare Pages
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
     permissions:
+      contents: read
+      deployments: write
       pull-requests: write
 
     steps:
@@ -23,39 +25,30 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install Vercel CLI
-        run: npm install -g vercel@latest
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      - name: Build with Next.js
+        run: npm run build
 
-      - name: Build Project Artifacts
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      - name: Build for Cloudflare Pages
+        run: npm run build:cloudflare
 
-      - name: Deploy to Vercel Preview
+      - name: Deploy Preview to Cloudflare Pages
         id: deploy
-        run: |
-          url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
-          echo "url=$url" >> $GITHUB_OUTPUT
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
-      - name: Comment PR with Preview URL
-        uses: actions/github-script@v7
-        if: github.event_name == 'pull_request'
+        uses: cloudflare/wrangler-action@v3
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy .vercel/output/static --project-name=adalab --branch=${{ github.head_ref }}
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
           script: |
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '## 🚀 Preview Deployment\n\n✅ Preview deployed successfully!\n\n🔗 **Preview URL:** ${{ steps.deploy.outputs.url }}\n\n---\n*Powered by [Vercel](https://vercel.com)*'
+              body: `## 🚀 Preview Deployment\n\nPreview URL: ${{ steps.deploy.outputs.deployment-url }}`
             })
