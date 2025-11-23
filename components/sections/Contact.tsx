@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Mail, Github, Twitter, Send, AlertCircle, CheckCircle } from 'lucide-react';
 import { FaDiscord } from 'react-icons/fa';
 import { Button } from '../ui/button';
@@ -46,6 +46,14 @@ export function Contact() {
     type: 'success',
     isVisible: false,
   });
+  const [isConfigured, setIsConfigured] = useState(true);
+
+  useEffect(() => {
+    const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+    const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+    setIsConfigured(!!(serviceId && templateId && publicKey));
+  }, []);
 
   const validateField = (name: string, value: string): string | undefined => {
     switch (name) {
@@ -167,6 +175,22 @@ export function Contact() {
     setTouched(prev => ({ ...prev, [name]: true }));
     setErrors(prev => ({ ...prev, [name]: validateField(name, value) }));
   };
+
+  if (!isConfigured) {
+    return (
+      <section id="contact" className="py-20 md:py-32 bg-muted/20 relative overflow-hidden">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+            Get in <span className="gradient-text">Touch</span>
+          </h2>
+          <p className="text-muted-foreground">
+            お問い合わせフォームは現在ご利用いただけません。<br />
+            メールにてお問い合わせください: <a href="mailto:info.adalabtech@gmail.com" className="text-primary hover:underline">info.adalabtech@gmail.com</a>
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="contact" className="py-20 md:py-32 bg-muted/20 relative overflow-hidden">
