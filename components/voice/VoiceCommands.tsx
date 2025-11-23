@@ -74,7 +74,7 @@ export function VoiceCommands() {
   }, []);
 
   const handleCommand = (command: string) => {
-    console.log('Voice command:', command);
+    // Process voice command
 
     // Navigate commands
     if (command.includes('ホーム') || command.includes('トップ')) {

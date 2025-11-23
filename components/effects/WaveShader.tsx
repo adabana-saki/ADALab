@@ -6,7 +6,7 @@ export function WaveShader() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const glRef = useRef<WebGLRenderingContext | null>(null);
   const programRef = useRef<WebGLProgram | null>(null);
-  const animationFrameRef = useRef<number>();
+  const animationFrameRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -25,7 +25,6 @@ export function WaveShader() {
     // Initialize WebGL
     const gl = canvas.getContext('webgl', { alpha: true, antialias: true });
     if (!gl) {
-      console.warn('WebGL not supported');
       return;
     }
     glRef.current = gl;
@@ -107,7 +106,6 @@ export function WaveShader() {
       gl.compileShader(shader);
 
       if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        console.error('Shader compile error:', gl.getShaderInfoLog(shader));
         gl.deleteShader(shader);
         return null;
       }
@@ -129,7 +127,6 @@ export function WaveShader() {
     gl.linkProgram(program);
 
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      console.error('Program link error:', gl.getProgramInfoLog(program));
       return;
     }
 

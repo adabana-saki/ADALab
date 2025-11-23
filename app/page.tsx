@@ -54,6 +54,10 @@ export default function Home() {
           e.preventDefault();
           scrollToSection('projects');
           break;
+        case 'n':
+          e.preventDefault();
+          scrollToSection('news');
+          break;
         case 'c':
           e.preventDefault();
           scrollToSection('contact');
@@ -86,10 +90,10 @@ export default function Home() {
       <Navigation />
       <main id="main-content" tabIndex={-1} className="focus:outline-none relative z-10">
         <Hero />
-        <News />
         <About />
         <Technologies />
         <Projects />
+        <News />
         <FAQ />
         <Contact />
       </main>

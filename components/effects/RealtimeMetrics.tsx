@@ -9,7 +9,7 @@ interface Metric {
   label: string;
   value: number;
   unit: string;
-  icon: React.ElementType;
+  icon: React.ComponentType<{ className?: string }>;
   color: string;
   changeRate: number;
 }
