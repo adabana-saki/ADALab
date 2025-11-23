@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Mail, Github, Twitter, Heart } from 'lucide-react';
-import { SiDiscord } from 'react-icons/si';
+import { SiDiscord, SiQiita } from 'react-icons/si';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -10,14 +10,14 @@ const footerLinksData = {
   company: {
     ja: [
       { name: '会社概要', href: '#about' },
-      { name: 'プロダクト', href: '#projects' },
-      { name: '技術', href: '#technologies' },
+      { name: 'プロダクト', href: '/products' },
+      { name: 'ブログ', href: '/blog' },
       { name: 'お問い合わせ', href: '#contact' },
     ],
     en: [
       { name: 'About', href: '#about' },
-      { name: 'Products', href: '#projects' },
-      { name: 'Technologies', href: '#technologies' },
+      { name: 'Products', href: '/products' },
+      { name: 'Blog', href: '/blog' },
       { name: 'Contact', href: '#contact' },
     ],
   },
@@ -39,6 +39,7 @@ const footerLinksData = {
     { name: 'GitHub', href: 'https://github.com/adabana-saki', icon: Github },
     { name: 'X', href: 'https://x.com/ADA_Lab_tech', icon: Twitter },
     { name: 'Discord', href: 'https://discord.gg/7Egm8uJPDs', icon: SiDiscord },
+    { name: 'Qiita', href: 'https://qiita.com/adabana-saki', icon: SiQiita },
     { name: 'Email', href: 'mailto:info.adalabtech@gmail.com', icon: Mail },
   ],
 };
@@ -102,16 +103,25 @@ export function Footer() {
             <ul className="space-y-2">
               {companyLinks.map((link) => (
                 <li key={link.name}>
-                  <a
-                    href={link.href}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      scrollToSection(link.href);
-                    }}
-                    className="text-muted-foreground hover:text-foreground transition-colors text-sm cursor-pointer"
-                  >
-                    {link.name}
-                  </a>
+                  {link.href.startsWith('#') ? (
+                    <a
+                      href={link.href}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        scrollToSection(link.href);
+                      }}
+                      className="text-muted-foreground hover:text-foreground transition-colors text-sm cursor-pointer"
+                    >
+                      {link.name}
+                    </a>
+                  ) : (
+                    <Link
+                      href={link.href}
+                      className="text-muted-foreground hover:text-foreground transition-colors text-sm"
+                    >
+                      {link.name}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
