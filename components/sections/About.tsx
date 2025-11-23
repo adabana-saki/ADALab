@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Sparkles, Rocket, Zap, Target, Heart } from 'lucide-react';
+import { Code2, Sparkles, Rocket, Zap, Target, Heart } from 'lucide-react';
 import { CounterAnimation } from '../effects/CounterAnimation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { GitHubActivity } from '../GitHubActivity';
