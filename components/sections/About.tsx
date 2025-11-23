@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { Code2, Sparkles, Rocket, Zap, Target, Heart } from 'lucide-react';
 import { CounterAnimation } from '../effects/CounterAnimation';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { GitHubActivity } from '../GitHubActivity';
+import { StatusDisplay } from '../StatusDisplay';
 
 const featuresData = {
   ja: [
@@ -214,6 +216,27 @@ export function About() {
                 </div>
               </div>
             </div>
+          </motion.div>
+
+          {/* GitHub Activity & Status Widgets */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.7 }}
+            className="col-span-1 md:col-span-3 lg:col-span-6"
+          >
+            <GitHubActivity />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+            className="col-span-1 md:col-span-3 lg:col-span-6"
+          >
+            <StatusDisplay />
           </motion.div>
         </div>
       </div>
