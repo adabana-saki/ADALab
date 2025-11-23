@@ -73,7 +73,6 @@ export function StatsDisplay() {
                 end={stat.value}
                 suffix={stat.suffix}
                 duration={2}
-                decimals={stat.value % 1 !== 0 ? 1 : 0}
               />
             </div>
             <div className="text-xs text-muted-foreground">

@@ -17,11 +17,12 @@ import {
   Moon,
   Globe,
   X,
+  LucideIcon,
 } from 'lucide-react';
 
 interface Command {
   id: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   label: string;
   shortcut?: string;
   action: () => void;
