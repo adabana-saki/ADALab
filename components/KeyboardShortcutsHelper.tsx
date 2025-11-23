@@ -8,7 +8,8 @@ const shortcuts = [
   { keys: ['H'], description: 'ホームへ移動' },
   { keys: ['A'], description: 'About セクションへ移動' },
   { keys: ['T'], description: 'Technologies セクションへ移動' },
-  { keys: ['P'], description: 'Products セクションへ移動' },
+  { keys: ['P'], description: 'Projects セクションへ移動' },
+  { keys: ['N'], description: 'News セクションへ移動' },
   { keys: ['C'], description: 'Contact セクションへ移動' },
   { keys: ['Ctrl', '↑'], description: 'ページトップへスクロール' },
   { keys: ['?'], description: 'このヘルプを表示' },
@@ -38,18 +39,18 @@ export function KeyboardShortcutsHelper() {
       {/* Floating help button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 left-4 z-[100] w-12 h-12 rounded-full bg-black/90 backdrop-blur-xl border-2 border-neon-purple/50 hover:border-neon-purple hover:scale-110 transition-all shadow-2xl flex items-center justify-center group"
+        className="fixed bottom-6 left-6 z-[100] w-10 h-10 rounded-full bg-muted/80 backdrop-blur-sm border border-border hover:bg-muted hover:scale-105 transition-all shadow-lg flex items-center justify-center group"
         aria-label="キーボードショートカットヘルプ"
       >
         <Keyboard
-          size={20}
-          className="text-neon-purple group-hover:scale-110 transition-transform"
+          size={16}
+          className="text-muted-foreground group-hover:text-foreground transition-colors"
         />
 
         {/* Tooltip */}
-        <div className="absolute bottom-full mb-2 left-0 px-3 py-1 bg-black/90 backdrop-blur-md border border-neon-purple/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-          <span className="text-xs text-neon-purple font-mono">
-            ショートカット (?)
+        <div className="absolute bottom-full mb-2 left-0 px-2 py-1 bg-popover border border-border rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-md">
+          <span className="text-xs text-muted-foreground">
+            ? でヘルプ
           </span>
         </div>
       </button>
@@ -72,7 +73,7 @@ export function KeyboardShortcutsHelper() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[201] w-full max-w-lg px-4"
+              className="fixed bottom-20 left-6 z-[201] w-full max-w-sm"
             >
               <div className="glass rounded-xl p-6 shadow-2xl border border-border">
                 {/* Header */}

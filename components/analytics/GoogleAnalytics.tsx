@@ -4,7 +4,8 @@ import Script from 'next/script';
 import { useEffect, Suspense } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
-const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX';
+// GA_MEASUREMENT_ID must be set in environment variables for tracking to work
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '';
 
 // Extend Window interface for gtag
 declare global {
@@ -57,8 +58,8 @@ function PageViewTracker() {
 }
 
 export function GoogleAnalytics() {
-  // Don't render in development
-  if (process.env.NODE_ENV === 'development') {
+  // Don't render in development or if GA ID is not configured
+  if (process.env.NODE_ENV === 'development' || !GA_MEASUREMENT_ID) {
     return null;
   }
 

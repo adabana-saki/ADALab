@@ -37,4 +37,4 @@ Discord多機能Bot。リマインダー、タスク管理、ロール管理な�
 
 ## ライセンス
 
-© 2024 ADA Lab. All rights reserved.
+© 2025 ADA Lab. All rights reserved.

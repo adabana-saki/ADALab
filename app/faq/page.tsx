@@ -21,44 +21,32 @@ export default function FAQPage() {
       subtitle: 'お客様からよくいただくご質問とその回答をまとめました。',
       faqs: [
         {
+          question: 'ADA Labはどんな活動をしていますか？',
+          answer: '個人開発チームとして、自分たちが欲しいと思えるアプリやサービスを開発しています。現在はRem bot（Discord Bot）やNavi（モバイルアプリ）を開発中です。',
+        },
+        {
+          question: '開発の依頼は受け付けていますか？',
+          answer: 'はい、納期に余裕がある案件であればお受けする場合があります。ただし、のんびりマイペースで開発するスタイルなので、急ぎの案件には対応できません。',
+        },
+        {
+          question: 'デザインのみ、コーディングのみの依頼は可能ですか？',
+          answer: '申し訳ありませんが、デザインのみやコーディングのみといった部分的なご依頼は基本的にお受けしていません。企画からコーディングまで一貫して担当できる案件を優先しています。',
+        },
+        {
           question: '開発期間はどのくらいかかりますか？',
-          answer: 'プロジェクトの規模や内容によって異なりますが、一般的なWebアプリケーションの場合、1ヶ月〜6ヶ月程度です。詳細なスケジュールについては、お見積もり時にご提示いたします。',
+          answer: 'プロジェクトの規模によりますが、のんびり開発するスタイルなので、一般的な開発会社より時間がかかる場合があります。スケジュールについてはご相談時にお伝えします。',
         },
         {
-          question: '料金体系について教えてください',
-          answer: '料金はプロジェクトの規模、使用する技術、開発期間などによって異なります。まずはお問い合わせフォームよりご相談ください。無料でお見積もりを作成いたします。',
+          question: 'どのような技術を使っていますか？',
+          answer: 'React、Next.js、TypeScript、Node.js、Python、PostgreSQL、Firebase、Cloudflareなどを使用しています。プロジェクトに合わせて最適な技術を選択します。',
         },
         {
-          question: 'どのような技術に対応していますか？',
-          answer: 'React、Next.js、TypeScript、Node.js、Python、PostgreSQL、MongoDB、AWS、GCP、Azureなど、最新のモダンな技術スタックに対応しています。また、お客様のご要望に応じて柔軟に対応いたします。',
+          question: 'プロダクトのバグ報告や機能リクエストはどこに送ればいいですか？',
+          answer: 'お問い合わせフォーム、メール（info.adalabtech@gmail.com）、またはX（@ADA_Lab_tech）のDMでお気軽にご連絡ください。',
         },
         {
-          question: '保守・運用サポートは提供していますか？',
-          answer: 'はい、開発後の保守・運用サポートも提供しております。サーバーの監視、バグ修正、機能追加など、長期的なサポートが可能です。',
-        },
-        {
-          question: 'リモートでの開発は可能ですか？',
-          answer: 'はい、全国どこからでもリモートで対応可能です。オンラインミーティングツールを活用し、スムーズなコミュニケーションを心がけています。',
-        },
-        {
-          question: 'デザインのみの依頼は可能ですか？',
-          answer: 'はい、UI/UXデザインのみのご依頼も承っております。Figma等のデザインツールを使用し、モダンで使いやすいデザインをご提供いたします。',
-        },
-        {
-          question: '小規模なプロジェクトでも依頼できますか？',
-          answer: 'はい、小規模なプロジェクトから大規模なシステム開発まで、幅広く対応しております。まずはお気軽にご相談ください。',
-        },
-        {
-          question: '既存システムの改修・リニューアルは対応していますか？',
-          answer: 'はい、既存システムの改修、リニューアル、移行作業なども対応可能です。現在のシステムの状況をお聞かせいただければ、最適な提案をさせていただきます。',
-        },
-        {
-          question: '納品後の追加開発は可能ですか？',
-          answer: 'はい、納品後も継続的な機能追加や改善を承っております。お客様のビジネスの成長に合わせて、柔軟に対応いたします。',
-        },
-        {
-          question: '相談・見積もりは無料ですか？',
-          answer: 'はい、初回のご相談とお見積もりは無料です。お問い合わせフォームまたはメールにてお気軽にご連絡ください。',
+          question: '相談は無料ですか？',
+          answer: 'はい、ご相談は無料です。お気軽にお問い合わせください。',
         },
       ] as FAQItem[],
     },
@@ -67,44 +55,32 @@ export default function FAQPage() {
       subtitle: 'Common questions and answers from our clients.',
       faqs: [
         {
+          question: 'What does ADA Lab do?',
+          answer: 'We\'re an indie development team building apps and services we genuinely want to use. Currently developing Rem bot (Discord Bot) and Navi (mobile app).',
+        },
+        {
+          question: 'Do you accept development requests?',
+          answer: 'Yes, we may accept projects with flexible timelines. However, we work at our own relaxed pace, so we can\'t handle urgent projects.',
+        },
+        {
+          question: 'Can I request design-only or coding-only work?',
+          answer: 'Sorry, we generally don\'t accept partial work like design-only or coding-only requests. We prefer projects where we handle everything from planning to coding.',
+        },
+        {
           question: 'How long does development take?',
-          answer: 'It varies by project scope and content, but typically 1-6 months for standard web applications. We provide detailed schedules during the estimation phase.',
+          answer: 'It depends on project scope, but since we work at a relaxed pace, it may take longer than typical development firms. We\'ll discuss schedules during consultation.',
         },
         {
-          question: 'What is your pricing structure?',
-          answer: 'Pricing depends on project scale, technologies used, and development timeline. Please contact us through our inquiry form for a free estimate.',
+          question: 'What technologies do you use?',
+          answer: 'We use React, Next.js, TypeScript, Node.js, Python, PostgreSQL, Firebase, Cloudflare, and more. We choose the best tech for each project.',
         },
         {
-          question: 'What technologies do you support?',
-          answer: 'We support modern technology stacks including React, Next.js, TypeScript, Node.js, Python, PostgreSQL, MongoDB, AWS, GCP, and Azure. We also adapt flexibly to client requirements.',
+          question: 'Where can I send bug reports or feature requests?',
+          answer: 'Feel free to reach out via our contact form, email (info.adalabtech@gmail.com), or X (@ADA_Lab_tech) DM.',
         },
         {
-          question: 'Do you provide maintenance and operational support?',
-          answer: 'Yes, we offer post-development maintenance and operational support, including server monitoring, bug fixes, and feature additions for long-term support.',
-        },
-        {
-          question: 'Is remote development possible?',
-          answer: 'Yes, we can work remotely from anywhere in Japan. We use online meeting tools to ensure smooth communication.',
-        },
-        {
-          question: 'Can I request design-only services?',
-          answer: 'Yes, we accept UI/UX design-only requests. We use design tools like Figma to provide modern, user-friendly designs.',
-        },
-        {
-          question: 'Do you accept small projects?',
-          answer: 'Yes, we handle projects of all sizes, from small projects to large-scale system development. Please feel free to contact us.',
-        },
-        {
-          question: 'Do you handle existing system modifications and renewals?',
-          answer: 'Yes, we can handle existing system modifications, renewals, and migration work. Share your current system situation, and we\'ll provide optimal recommendations.',
-        },
-        {
-          question: 'Is additional development possible after delivery?',
-          answer: 'Yes, we accept continuous feature additions and improvements after delivery. We adapt flexibly to your business growth.',
-        },
-        {
-          question: 'Are consultations and estimates free?',
-          answer: 'Yes, initial consultations and estimates are free. Please contact us via our inquiry form or email.',
+          question: 'Are consultations free?',
+          answer: 'Yes, consultations are free. Feel free to contact us.',
         },
       ] as FAQItem[],
     },

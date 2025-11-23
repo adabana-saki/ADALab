@@ -73,17 +73,21 @@ export default function RemPage() {
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <a
-                  href="#"
+                  href="https://discord.com/oauth2/authorize?client_id=1288117077237248072"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                 >
                   Botを招待
                   <ExternalLink className="w-4 h-4" />
                 </a>
                 <a
-                  href="#"
+                  href="https://discord.gg/qvEHyPJyEN"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-6 py-3 border border-input rounded-lg hover:bg-accent transition-colors"
                 >
-                  ドキュメント
+                  サポートサーバー
                 </a>
               </div>
             </div>

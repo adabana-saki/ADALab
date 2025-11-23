@@ -57,6 +57,7 @@ class TextScrambler {
       }
     }
 
+    // Safe: output contains only predefined chars from this.chars and <span> tags
     this.el.innerHTML = output;
 
     if (complete === this.queue.length) {

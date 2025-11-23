@@ -7,7 +7,7 @@ export function StructuredData() {
       'ADA Labは、テクノロジーで世界を変えるプロダクトカンパニー。ADA Analytics、ADA Connect、ADA Guardなど、革新的なSaaSプロダクトを開発・運営しています。',
     url: 'https://adalab.dev',
     logo: 'https://adalab.dev/logo.png',
-    foundingDate: '2024',
+    foundingDate: '2025',
     numberOfEmployees: {
       '@type': 'QuantitativeValue',
       value: 15,
