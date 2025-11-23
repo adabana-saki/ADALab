@@ -6,6 +6,8 @@ import { CounterAnimation } from '../effects/CounterAnimation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { GitHubActivity } from '../GitHubActivity';
 import { StatusDisplay } from '../StatusDisplay';
+import { StatsDisplay } from '../StatsDisplay';
+import { QiitaFeed } from '../QiitaFeed';
 
 const featuresData = {
   ja: [
@@ -237,6 +239,27 @@ export function About() {
             className="col-span-1 md:col-span-3 lg:col-span-6"
           >
             <StatusDisplay />
+          </motion.div>
+
+          {/* Stats & Qiita Widgets */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.9 }}
+            className="col-span-1 md:col-span-6 lg:col-span-12"
+          >
+            <StatsDisplay />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 1.0 }}
+            className="col-span-1 md:col-span-6 lg:col-span-12"
+          >
+            <QiitaFeed />
           </motion.div>
         </div>
       </div>
