@@ -82,8 +82,6 @@ export function GitHubHologram() {
     followers: 0,
     accountAge: 0,
   });
-  const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
     async function fetchGitHubStats() {
       try {
@@ -120,7 +118,7 @@ export function GitHubHologram() {
           accountAge: 365,
         });
       } finally {
-        setIsLoading(false);
+        // Stats loaded
       }
     }
 

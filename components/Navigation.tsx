@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Globe } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -18,6 +20,8 @@ export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const { language, setLanguage, t } = useLanguage();
+  const pathname = usePathname();
+  const isHomePage = pathname === '/';
 
   const navItems = [
     { name: t.nav.home, href: '#home', id: 'home' },
@@ -87,19 +91,32 @@ export function Navigation() {
         <nav className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <motion.a
-              href="#home"
-              onClick={(e) => {
-                e.preventDefault();
-                scrollToSection('#home');
-              }}
-              className="text-xl sm:text-2xl md:text-2xl logo-text cursor-pointer"
-              data-text="ADA LAB"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              ADA LAB
-            </motion.a>
+            {isHomePage ? (
+              <motion.a
+                href="#home"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection('#home');
+                }}
+                className="text-xl sm:text-2xl md:text-2xl logo-text cursor-pointer"
+                data-text="ADA LAB"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                ADA LAB
+              </motion.a>
+            ) : (
+              <Link href="/">
+                <motion.span
+                  className="text-xl sm:text-2xl md:text-2xl logo-text cursor-pointer"
+                  data-text="ADA LAB"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  ADA LAB
+                </motion.span>
+              </Link>
+            )}
 
             {/* Desktop Navigation */}
             <ul className="hidden md:flex items-center space-x-8">
@@ -137,7 +154,7 @@ export function Navigation() {
                 aria-label="Toggle language"
               >
                 <Globe className="w-4 h-4 text-neon-cyan group-hover:text-neon-fuchsia transition-colors" />
-                <span className="text-sm font-medium">{language === 'ja' ? 'EN' : 'JP'}</span>
+                <span className="text-sm font-medium">{language === 'ja' ? 'JP' : 'EN'}</span>
               </button>
               <Button
                 onClick={() => scrollToSection('#contact')}
@@ -201,7 +218,7 @@ export function Navigation() {
                   aria-label="Toggle language"
                 >
                   <Globe className="w-6 h-6 text-neon-cyan group-hover:text-neon-fuchsia transition-colors" />
-                  <span className="text-lg font-medium">{language === 'ja' ? 'English' : '日本語'}</span>
+                  <span className="text-lg font-medium">{language === 'ja' ? '日本語' : 'English'}</span>
                 </button>
                 <Button
                   onClick={() => scrollToSection('#contact')}

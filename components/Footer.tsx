@@ -8,8 +8,8 @@ import Link from 'next/link';
 const footerLinks = {
   company: [
     { name: 'About', href: '#about' },
-    { name: 'Products', href: '#projects' },
-    { name: 'Technologies', href: '#technologies' },
+    { name: 'Products', href: '/products' },
+    { name: 'Blog', href: '/blog' },
     { name: 'Contact', href: '#contact' },
   ],
   legal: [
@@ -69,16 +69,25 @@ export function Footer() {
             <ul className="space-y-2">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
-                  <a
-                    href={link.href}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      scrollToSection(link.href);
-                    }}
-                    className="text-muted-foreground hover:text-foreground transition-colors text-sm cursor-pointer"
-                  >
-                    {link.name}
-                  </a>
+                  {link.href.startsWith('#') ? (
+                    <a
+                      href={link.href}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        scrollToSection(link.href);
+                      }}
+                      className="text-muted-foreground hover:text-foreground transition-colors text-sm cursor-pointer"
+                    >
+                      {link.name}
+                    </a>
+                  ) : (
+                    <Link
+                      href={link.href}
+                      className="text-muted-foreground hover:text-foreground transition-colors text-sm"
+                    >
+                      {link.name}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

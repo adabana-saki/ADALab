@@ -233,6 +233,7 @@ export function About() {
                 <div className="mt-6 bg-black/40 rounded-xl p-4 border border-neon-green/30">
                   <div className="font-mono text-xs text-neon-green mb-3">{'>'} CONTRIBUTION_GRAPH</div>
                   <div className="overflow-x-auto">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="https://ghchart.rshah.org/06b6d4/adabana-saki"
                       alt="GitHub Contribution Graph"

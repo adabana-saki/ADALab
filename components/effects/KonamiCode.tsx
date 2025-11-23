@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const KONAMI_CODE = [
@@ -18,6 +18,8 @@ const KONAMI_CODE = [
 
 export function KonamiCode() {
   const [show, setShow] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number | null>(null);
 
   useEffect(() => {
     let position = 0;
@@ -34,7 +36,10 @@ export function KonamiCode() {
           position = 0;
 
           // Hide after 10 seconds
-          setTimeout(() => setShow(false), 10000);
+          setTimeout(() => {
+            setShow(false);
+            document.body.classList.remove('konami-active');
+          }, 10000);
 
           // Enable matrix mode
           document.body.classList.add('konami-active');
@@ -54,15 +59,94 @@ export function KonamiCode() {
     };
   }, []);
 
+  // Matrix rain effect
+  useEffect(() => {
+    if (!show) {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+      return;
+    }
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const characters = '01アイウエオカキクケコサシスセソタチツテトADALAB';
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+    const drops: number[] = Array(Math.floor(columns)).fill(1);
+
+    function draw() {
+      if (!ctx || !canvas) return;
+
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#06b6d4';
+      ctx.font = `${fontSize}px monospace`;
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = characters[Math.floor(Math.random() * characters.length)];
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
+
+        // Random color between cyan and fuchsia
+        const colors = ['#06b6d4', '#d946ef', '#8b5cf6'];
+        ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+
+        ctx.fillText(text, x, y);
+
+        if (y > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+
+      animationRef.current = requestAnimationFrame(draw);
+    }
+
+    draw();
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [show]);
+
   return (
-    <AnimatePresence>
+    <>
+      {/* Matrix rain canvas */}
       {show && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
-          animate={{ opacity: 1, scale: 1, rotate: 0 }}
-          exit={{ opacity: 0, scale: 0.5, rotate: 10 }}
-          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[300] pointer-events-none"
-        >
+        <canvas
+          ref={canvasRef}
+          className="fixed inset-0 pointer-events-none z-[299]"
+          style={{ opacity: 0.7 }}
+        />
+      )}
+
+      <AnimatePresence>
+        {show && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            exit={{ opacity: 0, scale: 0.5, rotate: 10 }}
+            className="fixed inset-0 z-[300] pointer-events-none flex items-center justify-center"
+          >
           <div className="bg-black/90 backdrop-blur-md border-2 neon-border-cyan rounded-2xl p-8 shadow-2xl">
             {/* Achievement Header */}
             <motion.div
@@ -141,7 +225,8 @@ export function KonamiCode() {
             ))}
           </div>
         </motion.div>
-      )}
-    </AnimatePresence>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

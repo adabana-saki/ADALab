@@ -24,6 +24,9 @@ const CyberGrid = dynamic(() => import('@/components/effects/CyberGrid').then(mo
 const ScanLines = dynamic(() => import('@/components/effects/ScanLines').then(mod => ({ default: mod.ScanLines })), { ssr: false });
 const MouseGlow = dynamic(() => import('@/components/effects/MouseGlow').then(mod => ({ default: mod.MouseGlow })), { ssr: false });
 const DynamicIsland = dynamic(() => import('@/components/effects/DynamicIsland').then(mod => ({ default: mod.DynamicIsland })), { ssr: false });
+const KonamiCode = dynamic(() => import('@/components/effects/KonamiCode').then(mod => ({ default: mod.KonamiCode })), { ssr: false });
+const RippleEffect = dynamic(() => import('@/components/effects/RippleEffect').then(mod => ({ default: mod.RippleEffect })), { ssr: false });
+const ParallaxLayers = dynamic(() => import('@/components/effects/ParallaxScroll').then(mod => ({ default: mod.ParallaxLayers })), { ssr: false });
 
 export default function Home() {
   useEffect(() => {
@@ -58,6 +61,10 @@ export default function Home() {
           e.preventDefault();
           scrollToSection('news');
           break;
+        case 'f':
+          e.preventDefault();
+          scrollToSection('faq');
+          break;
         case 'c':
           e.preventDefault();
           scrollToSection('contact');
@@ -78,12 +85,15 @@ export default function Home() {
   return (
     <>
       {/* Background Effects - Optimized */}
+      <ParallaxLayers />
       <NeuralNetwork />
       <AnimatedBackground />
       <CyberGrid />
       <ScanLines />
       <MouseGlow />
       <DynamicIsland />
+      <KonamiCode />
+      <RippleEffect />
 
       <SkipToContent />
       <ScrollProgress />
