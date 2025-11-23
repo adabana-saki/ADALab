@@ -24,6 +24,8 @@ const CyberGrid = dynamic(() => import('@/components/effects/CyberGrid').then(mo
 const ScanLines = dynamic(() => import('@/components/effects/ScanLines').then(mod => ({ default: mod.ScanLines })), { ssr: false });
 const MouseGlow = dynamic(() => import('@/components/effects/MouseGlow').then(mod => ({ default: mod.MouseGlow })), { ssr: false });
 const DynamicIsland = dynamic(() => import('@/components/effects/DynamicIsland').then(mod => ({ default: mod.DynamicIsland })), { ssr: false });
+const MatrixRain = dynamic(() => import('@/components/effects/MatrixRain').then(mod => ({ default: mod.MatrixRain })), { ssr: false });
+const CommandPalette = dynamic(() => import('@/components/CommandPalette').then(mod => ({ default: mod.CommandPalette })), { ssr: false });
 
 export default function Home() {
   useEffect(() => {
@@ -78,12 +80,14 @@ export default function Home() {
   return (
     <>
       {/* Background Effects - Optimized */}
+      <MatrixRain />
       <NeuralNetwork />
       <AnimatedBackground />
       <CyberGrid />
       <ScanLines />
       <MouseGlow />
       <DynamicIsland />
+      <CommandPalette />
 
       <SkipToContent />
       <ScrollProgress />

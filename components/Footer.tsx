@@ -4,20 +4,37 @@ import { motion } from 'framer-motion';
 import { Mail, Github, Twitter, Heart } from 'lucide-react';
 import { SiDiscord } from 'react-icons/si';
 import Link from 'next/link';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-const footerLinks = {
-  company: [
-    { name: 'About', href: '#about' },
-    { name: 'Products', href: '#projects' },
-    { name: 'Technologies', href: '#technologies' },
-    { name: 'Contact', href: '#contact' },
-  ],
-  legal: [
-    { name: 'Company Info', href: '/company' },
-    { name: 'FAQ', href: '/faq' },
-    { name: 'Privacy Policy', href: '/privacy' },
-    { name: 'Terms of Service', href: '/terms' },
-  ],
+const footerLinksData = {
+  company: {
+    ja: [
+      { name: '会社概要', href: '#about' },
+      { name: 'プロダクト', href: '#projects' },
+      { name: '技術', href: '#technologies' },
+      { name: 'お問い合わせ', href: '#contact' },
+    ],
+    en: [
+      { name: 'About', href: '#about' },
+      { name: 'Products', href: '#projects' },
+      { name: 'Technologies', href: '#technologies' },
+      { name: 'Contact', href: '#contact' },
+    ],
+  },
+  legal: {
+    ja: [
+      { name: '会社情報', href: '/company' },
+      { name: 'よくある質問', href: '/faq' },
+      { name: 'プライバシーポリシー', href: '/privacy' },
+      { name: '利用規約', href: '/terms' },
+    ],
+    en: [
+      { name: 'Company Info', href: '/company' },
+      { name: 'FAQ', href: '/faq' },
+      { name: 'Privacy Policy', href: '/privacy' },
+      { name: 'Terms of Service', href: '/terms' },
+    ],
+  },
   social: [
     { name: 'GitHub', href: 'https://github.com/adabana-saki', icon: Github },
     { name: 'X', href: 'https://x.com/ADA_Lab_tech', icon: Twitter },
@@ -27,6 +44,27 @@ const footerLinks = {
 };
 
 export function Footer() {
+  const { language } = useLanguage();
+  const companyLinks = footerLinksData.company[language];
+  const legalLinks = footerLinksData.legal[language];
+
+  const content = {
+    ja: {
+      description: 'あなたの"ほしい"を、カタチに。シンプルで使いやすいアプリを開発しています。',
+      company: '会社',
+      legal: '法的情報',
+      connect: 'つながる',
+      madeWith: '日本で作られました',
+    },
+    en: {
+      description: 'Simple tools for everyday needs. We develop easy-to-use apps.',
+      company: 'Company',
+      legal: 'Legal',
+      connect: 'Connect',
+      madeWith: 'Made in Japan',
+    },
+  };
+
   const scrollToSection = (href: string) => {
     if (href.startsWith('#')) {
       const element = document.querySelector(href);
@@ -49,11 +87,7 @@ export function Footer() {
           >
             <h3 className="text-2xl font-bold gradient-text mb-4">ADA Lab</h3>
             <p className="text-muted-foreground text-sm mb-4">
-              あなたの"ほしい"を、カタチに。
-              シンプルで使いやすいアプリを開発しています。
-            </p>
-            <p className="text-muted-foreground text-sm">
-              Simple tools for everyday needs
+              {content[language].description}
             </p>
           </motion.div>
 
@@ -64,9 +98,9 @@ export function Footer() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <h4 className="font-semibold mb-4">Company</h4>
+            <h4 className="font-semibold mb-4">{content[language].company}</h4>
             <ul className="space-y-2">
-              {footerLinks.company.map((link) => (
+              {companyLinks.map((link) => (
                 <li key={link.name}>
                   <a
                     href={link.href}
@@ -90,9 +124,9 @@ export function Footer() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            <h4 className="font-semibold mb-4">Legal</h4>
+            <h4 className="font-semibold mb-4">{content[language].legal}</h4>
             <ul className="space-y-2">
-              {footerLinks.legal.map((link) => (
+              {legalLinks.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
@@ -112,9 +146,9 @@ export function Footer() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <h4 className="font-semibold mb-4">Connect</h4>
+            <h4 className="font-semibold mb-4">{content[language].connect}</h4>
             <div className="flex gap-3 mb-4">
-              {footerLinks.social.map((social) => (
+              {footerLinksData.social.map((social) => (
                 <a
                   key={social.name}
                   href={social.href}
@@ -148,7 +182,7 @@ export function Footer() {
             © {new Date().getFullYear()} ADA Lab. All rights reserved.
           </p>
           <p className="text-muted-foreground text-sm flex items-center gap-1">
-            Made with <Heart size={14} className="text-red-500 fill-red-500" /> in Japan
+            {language === 'ja' ? '作られました' : 'Made with'} <Heart size={14} className="text-red-500 fill-red-500" /> {language === 'ja' ? '日本で' : 'in Japan'}
           </p>
         </motion.div>
       </div>
