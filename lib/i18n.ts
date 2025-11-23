@@ -7,6 +7,7 @@ export interface TranslationSchema {
     services: string;
     technologies: string;
     projects: string;
+    news: string;
     process: string;
     contact: string;
     getInTouch: string;
@@ -55,6 +56,7 @@ export const translations: Record<Language, TranslationSchema> = {
       services: 'Services',
       technologies: 'Technologies',
       projects: 'Products',
+      news: 'News',
       process: 'Process',
       contact: 'Contact',
       getInTouch: 'お問い合わせ',
@@ -120,6 +122,7 @@ export const translations: Record<Language, TranslationSchema> = {
       services: 'Services',
       technologies: 'Technologies',
       projects: 'Products',
+      news: 'News',
       process: 'Process',
       contact: 'Contact',
       getInTouch: 'Get in Touch',

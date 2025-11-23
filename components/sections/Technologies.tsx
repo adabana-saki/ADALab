@@ -3,8 +3,96 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { TECHNOLOGIES } from '@/lib/constants';
+import {
+  SiReact,
+  SiNextdotjs,
+  SiTypescript,
+  SiJavascript,
+  SiTailwindcss,
+  SiCss3,
+  SiNodedotjs,
+  SiPython,
+  SiFastapi,
+  SiDjango,
+  SiFlask,
+  SiGo,
+  SiRubyonrails,
+  SiPostgresql,
+  SiMysql,
+  SiMongodb,
+  SiSqlite,
+  SiFirebase,
+  SiFlutter,
+  SiKotlin,
+  SiVercel,
+  SiAmazonwebservices,
+  SiGooglecloud,
+  SiCloudflare,
+  SiDocker,
+  SiKubernetes,
+  SiGithubactions,
+  SiTerraform,
+  SiOpenai,
+  SiHuggingface,
+  SiPytorch,
+  SiGit,
+  SiFigma,
+  SiNotion,
+  SiVisualstudiocode,
+  SiLinux,
+} from 'react-icons/si';
+import { FaJava, FaMicrosoft } from 'react-icons/fa';
+import { Code2 } from 'lucide-react';
 
 type Category = keyof typeof TECHNOLOGIES;
+
+// 技術名からアイコンへのマッピング
+const techIcons: Record<string, React.ElementType> = {
+  'React': SiReact,
+  'Next.js': SiNextdotjs,
+  'TypeScript': SiTypescript,
+  'JavaScript': SiJavascript,
+  'Tailwind CSS': SiTailwindcss,
+  'CSS/SCSS': SiCss3,
+  'Node.js': SiNodedotjs,
+  'Python': SiPython,
+  'FastAPI': SiFastapi,
+  'Django': SiDjango,
+  'Flask': SiFlask,
+  'Go': SiGo,
+  'Java': FaJava,
+  'C# / .NET': FaMicrosoft,
+  'Ruby on Rails': SiRubyonrails,
+  'REST API': Code2,
+  'Discord.js': Code2,
+  'PostgreSQL': SiPostgresql,
+  'MySQL': SiMysql,
+  'MongoDB': SiMongodb,
+  'SQLite': SiSqlite,
+  'Firebase Firestore': SiFirebase,
+  'React Native': SiReact,
+  'Flutter': SiFlutter,
+  'Kotlin / Android': SiKotlin,
+  'Vercel': SiVercel,
+  'AWS': SiAmazonwebservices,
+  'Google Cloud': SiGooglecloud,
+  'Cloudflare': SiCloudflare,
+  'Docker': SiDocker,
+  'Kubernetes': SiKubernetes,
+  'GitHub Actions': SiGithubactions,
+  'Terraform': SiTerraform,
+  'OpenAI API': SiOpenai,
+  'Claude API': Code2,
+  'Gemini API': SiGooglecloud,
+  'LangChain': Code2,
+  'Hugging Face': SiHuggingface,
+  'PyTorch': SiPytorch,
+  'Git': SiGit,
+  'Figma': SiFigma,
+  'Notion': SiNotion,
+  'VS Code': SiVisualstudiocode,
+  'Linux': SiLinux,
+};
 
 const categories: { id: Category; name: string }[] = [
   { id: 'frontend', name: 'Frontend' },
@@ -73,21 +161,25 @@ export function Technologies() {
           className="max-w-4xl mx-auto"
         >
           <div className="flex flex-wrap justify-center gap-3">
-            {TECHNOLOGIES[activeCategory].map((tech, index) => (
-              <motion.div
-                key={tech}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-                className="group relative"
-              >
-                <div className="px-5 py-3 rounded-xl bg-gradient-to-br from-muted/80 to-muted/40 border border-border/50 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 transition-all cursor-default">
-                  <span className="font-medium text-foreground group-hover:text-primary transition-colors">
-                    {tech}
-                  </span>
-                </div>
-              </motion.div>
-            ))}
+            {TECHNOLOGIES[activeCategory].map((tech, index) => {
+              const Icon = techIcons[tech] || Code2;
+              return (
+                <motion.div
+                  key={tech}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  className="group relative"
+                >
+                  <div className="px-5 py-3 rounded-xl bg-gradient-to-br from-muted/80 to-muted/40 border border-border/50 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 transition-all cursor-default flex items-center gap-2">
+                    <Icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <span className="font-medium text-foreground group-hover:text-primary transition-colors">
+                      {tech}
+                    </span>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </motion.div>
 
