@@ -1,17 +1,16 @@
 import type { Metadata, Viewport } from 'next';
-import { Orbitron, Inter, Noto_Sans_JP } from 'next/font/google';
+import { Audiowide, Inter, Noto_Sans_JP } from 'next/font/google';
 import './globals.css';
 import { StructuredData } from '@/components/StructuredData';
 import { WebVitals } from '@/components/WebVitals';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
-import { ReCaptchaScript } from '@/components/ReCaptcha';
 
-const orbitron = Orbitron({
+const audiowide = Audiowide({
   subsets: ['latin'],
-  variable: '--font-orbitron',
-  weight: ['400', '500', '600', '700', '800', '900'],
+  variable: '--font-audiowide',
+  weight: ['400'],
   display: 'swap',
 });
 
@@ -77,7 +76,7 @@ export const metadata: Metadata = {
     alternateLocale: ['en_US'],
     images: [
       {
-        url: '/api/og?title=ADA%20Lab&description=あなたの"ほしい"を、カタチに',
+        url: '/og-image.png',
         width: 1200,
         height: 630,
         alt: 'ADA Lab - あなたの"ほしい"を、カタチに',
@@ -89,7 +88,7 @@ export const metadata: Metadata = {
     title: 'ADA Lab | あなたの"ほしい"を、カタチに',
     description:
       'シンプルで使いやすいアプリを開発する個人開発チーム。Rem bot、Naviなど、かゆいところに手が届くプロダクトを提供。',
-    images: ['/api/og?title=ADA%20Lab&description=あなたの"ほしい"を、カタチに'],
+    images: ['/og-image.png'],
     creator: '@saki_18191',
   },
   alternates: {
@@ -122,7 +121,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ja" className={`scroll-smooth ${orbitron.variable} ${inter.variable} ${notoSansJP.variable}`}>
+    <html lang="ja" className={`scroll-smooth ${audiowide.variable} ${inter.variable} ${notoSansJP.variable}`}>
       <head>
         <StructuredData />
       </head>
@@ -134,7 +133,6 @@ export default function RootLayout({
           メインコンテンツへスキップ
         </a>
         <GoogleAnalytics />
-        <ReCaptchaScript />
         <ThemeProvider>
           <LanguageProvider>
             <WebVitals />

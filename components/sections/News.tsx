@@ -26,26 +26,10 @@ const newsTypeConfig: Record<NewsType, { icon: typeof Bell; color: string; label
 const newsItems: NewsItem[] = [
   {
     id: '1',
-    type: 'release',
-    title: 'Rem bot v2.0 リリース',
-    description: '読み上げ機能の大幅改善、新しいゲームコマンドを追加しました。',
-    date: '2024-01-15',
-    product: 'Rem bot',
-  },
-  {
-    id: '2',
-    type: 'update',
-    title: 'Rem bot v2.1 アップデート',
-    description: 'リマインド機能の安定性向上、UIの改善を行いました。',
-    date: '2024-01-20',
-    product: 'Rem bot',
-  },
-  {
-    id: '3',
     type: 'announcement',
     title: 'ADA Lab ホームページ公開',
     description: '新しいホームページを公開しました。プロダクト情報やお問い合わせはこちらから。',
-    date: '2024-01-10',
+    date: '2025-11-23',
   },
 ];
 

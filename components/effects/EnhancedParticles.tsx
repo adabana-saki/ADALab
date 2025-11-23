@@ -21,7 +21,7 @@ export function EnhancedParticles() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
   const mouseRef = useRef({ x: 0, y: 0, moving: false });
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number | undefined>(undefined);
   const [particleCount, setParticleCount] = useState(0);
 
   useEffect(() => {
