@@ -46,10 +46,6 @@ jobs:
         run: npm audit --audit-level=critical
         continue-on-error: false
 
-      - name: Run npm audit (High - informational)
-        run: npm audit --audit-level=high
-        continue-on-error: true
-
       - name: Run npm audit (All levels - informational)
         run: npm audit --audit-level=moderate
         continue-on-error: true
