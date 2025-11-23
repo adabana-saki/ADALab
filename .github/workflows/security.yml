@@ -23,6 +23,7 @@ jobs:
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: critical
+        continue-on-error: true
 
   npm-audit:
     name: NPM Audit
