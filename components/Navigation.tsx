@@ -2,18 +2,26 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Globe, Sun, Moon } from 'lucide-react';
+import { Menu, X, Globe } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useTheme } from '@/contexts/ThemeContext';
+import dynamic from 'next/dynamic';
+
+const ThemeToggle = dynamic(
+  () => import('./ThemeToggle').then((mod) => mod.ThemeToggle),
+  { ssr: false }
+);
 
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const { language, setLanguage, t } = useLanguage();
-  const { theme, setTheme } = useTheme();
+  const pathname = usePathname();
+  const isHomePage = pathname === '/';
 
   const navItems = [
     { name: t.nav.home, href: '#home', id: 'home' },
@@ -48,7 +56,7 @@ export function Navigation() {
               }
             });
           },
-          { threshold: 0.3, rootMargin: '-20% 0px -50% 0px' }
+          { threshold: 0.1, rootMargin: '-10% 0px -60% 0px' }
         );
         observer.observe(element);
         observers.push(observer);
@@ -83,19 +91,32 @@ export function Navigation() {
         <nav className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <motion.a
-              href="#home"
-              onClick={(e) => {
-                e.preventDefault();
-                scrollToSection('#home');
-              }}
-              className="text-xl sm:text-2xl md:text-2xl logo-text cursor-pointer"
-              data-text="ADA LAB"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              ADA LAB
-            </motion.a>
+            {isHomePage ? (
+              <motion.a
+                href="#home"
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToSection('#home');
+                }}
+                className="text-xl sm:text-2xl md:text-2xl logo-text cursor-pointer"
+                data-text="ADA LAB"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                ADA LAB
+              </motion.a>
+            ) : (
+              <Link href="/">
+                <motion.span
+                  className="text-xl sm:text-2xl md:text-2xl logo-text cursor-pointer"
+                  data-text="ADA LAB"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  ADA LAB
+                </motion.span>
+              </Link>
+            )}
 
             {/* Desktop Navigation */}
             <ul className="hidden md:flex items-center space-x-8">
@@ -124,26 +145,16 @@ export function Navigation() {
               ))}
             </ul>
 
-            {/* Theme, Language Toggle & CTA Button (Desktop) */}
+            {/* Theme Toggle, Language Toggle & CTA Button (Desktop) */}
             <div className="hidden md:flex items-center gap-3">
-              <button
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="p-2 rounded-lg bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all group"
-                aria-label="Toggle theme"
-              >
-                {theme === 'dark' ? (
-                  <Sun className="w-4 h-4 text-neon-cyan group-hover:text-neon-fuchsia transition-colors" />
-                ) : (
-                  <Moon className="w-4 h-4 text-neon-cyan group-hover:text-neon-fuchsia transition-colors" />
-                )}
-              </button>
+              <ThemeToggle />
               <button
                 onClick={() => setLanguage(language === 'ja' ? 'en' : 'ja')}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all group"
                 aria-label="Toggle language"
               >
                 <Globe className="w-4 h-4 text-neon-cyan group-hover:text-neon-fuchsia transition-colors" />
-                <span className="text-sm font-medium">{language === 'ja' ? 'EN' : 'JP'}</span>
+                <span className="text-sm font-medium">{language === 'ja' ? 'JP' : 'EN'}</span>
               </button>
               <Button
                 onClick={() => scrollToSection('#contact')}
@@ -198,27 +209,17 @@ export function Navigation() {
                 transition={{ delay: navItems.length * 0.1 }}
                 className="flex flex-col gap-4 w-full max-w-xs mt-4"
               >
-                <div className="flex gap-3 w-full">
-                  <button
-                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                    className="flex-1 flex items-center justify-center gap-3 px-6 py-4 rounded-lg bg-white/5 backdrop-blur-md border-2 border-white/10 hover:border-neon-cyan/50 hover:bg-white/10 transition-all group active:scale-95"
-                    aria-label="Toggle theme"
-                  >
-                    {theme === 'dark' ? (
-                      <Sun className="w-6 h-6 text-neon-cyan group-hover:text-neon-fuchsia transition-colors" />
-                    ) : (
-                      <Moon className="w-6 h-6 text-neon-cyan group-hover:text-neon-fuchsia transition-colors" />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => setLanguage(language === 'ja' ? 'en' : 'ja')}
-                    className="flex-1 flex items-center justify-center gap-3 px-6 py-4 rounded-lg bg-white/5 backdrop-blur-md border-2 border-white/10 hover:border-neon-cyan/50 hover:bg-white/10 transition-all group active:scale-95"
-                    aria-label="Toggle language"
-                  >
-                    <Globe className="w-6 h-6 text-neon-cyan group-hover:text-neon-fuchsia transition-colors" />
-                    <span className="text-lg font-medium">{language === 'ja' ? 'EN' : 'JP'}</span>
-                  </button>
+                <div className="flex justify-center">
+                  <ThemeToggle />
                 </div>
+                <button
+                  onClick={() => setLanguage(language === 'ja' ? 'en' : 'ja')}
+                  className="flex items-center justify-center gap-3 px-8 py-4 rounded-lg bg-white/5 backdrop-blur-md border-2 border-white/10 hover:border-neon-cyan/50 hover:bg-white/10 transition-all group active:scale-95"
+                  aria-label="Toggle language"
+                >
+                  <Globe className="w-6 h-6 text-neon-cyan group-hover:text-neon-fuchsia transition-colors" />
+                  <span className="text-lg font-medium">{language === 'ja' ? 'JP' : 'EN'}</span>
+                </button>
                 <Button
                   onClick={() => scrollToSection('#contact')}
                   variant="default"

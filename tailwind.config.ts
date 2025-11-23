@@ -78,6 +78,7 @@ const config: Config = {
         'scan': 'scan 8s linear infinite',
         'neon-flicker': 'neon-flicker 1.5s infinite',
         'cyber-slide': 'cyber-slide 20s linear infinite',
+        'scan-line': 'scan-line 8s ease-in-out infinite',
       },
       keyframes: {
         'fade-in': {
@@ -138,6 +139,12 @@ const config: Config = {
           '0%': { backgroundPosition: '0% 50%' },
           '50%': { backgroundPosition: '100% 50%' },
           '100%': { backgroundPosition: '0% 50%' },
+        },
+        'scan-line': {
+          '0%': { transform: 'translateY(-100vh)', opacity: '0' },
+          '10%': { opacity: '1' },
+          '90%': { opacity: '1' },
+          '100%': { transform: 'translateY(100vh)', opacity: '0' },
         },
       },
     },

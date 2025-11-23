@@ -10,6 +10,7 @@ const shortcuts = [
   { keys: ['T'], description: 'Technologies セクションへ移動' },
   { keys: ['P'], description: 'Projects セクションへ移動' },
   { keys: ['N'], description: 'News セクションへ移動' },
+  { keys: ['F'], description: 'FAQ セクションへ移動' },
   { keys: ['C'], description: 'Contact セクションへ移動' },
   { keys: ['Ctrl', '↑'], description: 'ページトップへスクロール' },
   { keys: ['?'], description: 'このヘルプを表示' },
