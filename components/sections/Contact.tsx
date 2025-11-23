@@ -1,14 +1,14 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import { Mail, Github, Twitter, Send, AlertCircle, CheckCircle, Info } from 'lucide-react';
+import { useState } from 'react';
+import { Mail, Github, Twitter, Send, AlertCircle, CheckCircle } from 'lucide-react';
 import { FaDiscord } from 'react-icons/fa';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Toast } from '../ui/toast';
-import { executeRecaptcha } from '../ReCaptcha';
+import emailjs from '@emailjs/browser';
 
 const socialLinks = [
   { icon: Mail, label: 'Email', href: 'mailto:info.adalabtech@gmail.com' },
@@ -41,26 +41,11 @@ export function Contact() {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [remaining, setRemaining] = useState<number | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error'; isVisible: boolean }>({
     message: '',
     type: 'success',
     isVisible: false,
   });
-
-  // 残り回数を取得
-  useEffect(() => {
-    const fetchRemaining = async () => {
-      try {
-        const res = await fetch('/api/contact/remaining');
-        const data = await res.json();
-        setRemaining(data.remaining);
-      } catch {
-        setRemaining(null);
-      }
-    };
-    fetchRemaining();
-  }, [isSubmitted]); // 送信後にも更新
 
   const validateField = (name: string, value: string): string | undefined => {
     switch (name) {
@@ -109,30 +94,51 @@ export function Contact() {
     setIsSubmitting(true);
 
     try {
-      // reCAPTCHAトークン取得
-      const recaptchaToken = await executeRecaptcha('contact');
+      // EmailJS設定
+      const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+      const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+      const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
 
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, recaptchaToken }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setIsSubmitted(true);
-        setFormData({ name: '', email: '', inquiryType: '', message: '' });
-        setErrors({});
-        setTouched({});
-      } else {
-        setToast({
-          message: data.message || '送信に失敗しました。もう一度お試しください。',
-          type: 'error',
-          isVisible: true,
-        });
+      if (!serviceId || !templateId || !publicKey) {
+        throw new Error('EmailJS is not configured');
       }
-    } catch {
+
+      // 管理者への通知メール
+      await emailjs.send(
+        serviceId,
+        templateId,
+        {
+          name: formData.name,
+          email: formData.email,
+          inquiry_type: formData.inquiryType || '未選択',
+          message: formData.message,
+          time: new Date().toLocaleString('ja-JP'),
+        },
+        publicKey
+      );
+
+      // 自動返信テンプレートがあれば送信
+      const autoReplyTemplateId = process.env.NEXT_PUBLIC_EMAILJS_AUTOREPLY_TEMPLATE_ID;
+      if (autoReplyTemplateId) {
+        await emailjs.send(
+          serviceId,
+          autoReplyTemplateId,
+          {
+            name: formData.name,
+            email: formData.email,
+            inquiry_type: formData.inquiryType || '未選択',
+            message: formData.message,
+          },
+          publicKey
+        );
+      }
+
+      setIsSubmitted(true);
+      setFormData({ name: '', email: '', inquiryType: '', message: '' });
+      setErrors({});
+      setTouched({});
+    } catch (error) {
+      console.error('EmailJS error:', error);
       setToast({
         message: '送信に失敗しました。もう一度お試しください。',
         type: 'error',
@@ -286,21 +292,6 @@ export function Contact() {
               </div>
             ) : (
             <form onSubmit={handleSubmit} className="glass p-8 rounded-2xl" noValidate>
-              {/* 残り回数表示 */}
-              {remaining !== null && (
-                <div className={`mb-6 p-3 rounded-lg flex items-center gap-2 text-sm ${
-                  remaining === 0
-                    ? 'bg-red-500/10 text-red-500'
-                    : remaining <= 10
-                    ? 'bg-yellow-500/10 text-yellow-600'
-                    : 'bg-primary/10 text-primary'
-                }`}>
-                  <Info size={16} />
-                  <span>
-                    本日の残り送信可能回数: <strong>{remaining}</strong>回
-                  </span>
-                </div>
-              )}
               <div className="space-y-6">
                 {/* Name */}
                 <div>
@@ -406,7 +397,7 @@ export function Contact() {
                   type="submit"
                   size="lg"
                   className="w-full"
-                  disabled={isSubmitting || remaining === 0}
+                  disabled={isSubmitting}
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">

@@ -91,8 +91,9 @@ export async function generateStaticParams() {
   return Object.keys(posts).map((slug) => ({ slug }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const post = posts[params.slug];
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const post = posts[slug];
   if (!post) return { title: '記事が見つかりません' };
 
   return {
@@ -101,8 +102,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = posts[params.slug];
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = posts[slug];
 
   if (!post) {
     notFound();

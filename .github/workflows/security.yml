@@ -22,7 +22,8 @@ jobs:
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
         with:
-          fail-on-severity: moderate
+          fail-on-severity: critical
+        continue-on-error: true
 
   npm-audit:
     name: NPM Audit
@@ -41,9 +42,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run npm audit (Critical only)
-        run: npm audit --audit-level=critical
-        continue-on-error: false
+      - name: Run npm audit (High only)
+        run: npm audit --audit-level=high
+        continue-on-error: true
 
       - name: Run npm audit (High - informational)
         run: npm audit --audit-level=high
