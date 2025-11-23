@@ -1,36 +1,69 @@
-import { Metadata } from 'next';
+'use client';
+
 import Link from 'next/link';
 import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
 import { Bot, Smartphone, ArrowRight } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-export const metadata: Metadata = {
-  title: '製品一覧',
-  description: 'ADA Labが開発するプロダクト一覧。Rem bot、Naviなど、シンプルで使いやすいアプリを提供します。',
+const productsData = {
+  ja: [
+    {
+      slug: 'rem',
+      name: 'Rem bot',
+      tagline: 'Discord多機能Bot',
+      description: 'リマインダー、タスク管理、サーバー管理など、Discordライフを便利にする多機能Bot',
+      icon: Bot,
+      color: 'from-cyan-500 to-blue-500',
+      features: ['リマインダー', 'タスク管理', 'ロール管理', '自動応答'],
+    },
+    {
+      slug: 'navi',
+      name: 'Navi',
+      tagline: '片手操作アプリ',
+      description: 'スマートフォンを片手で快適に操作するためのユーティリティアプリ',
+      icon: Smartphone,
+      color: 'from-purple-500 to-pink-500',
+      features: ['片手操作最適化', 'カスタムジェスチャー', 'クイックアクション', 'ウィジェット'],
+    },
+  ],
+  en: [
+    {
+      slug: 'rem',
+      name: 'Rem bot',
+      tagline: 'Multi-functional Discord Bot',
+      description: 'A feature-rich bot for reminders, task management, server management, and more to enhance your Discord experience',
+      icon: Bot,
+      color: 'from-cyan-500 to-blue-500',
+      features: ['Reminders', 'Task Management', 'Role Management', 'Auto Response'],
+    },
+    {
+      slug: 'navi',
+      name: 'Navi',
+      tagline: 'One-handed Operation App',
+      description: 'A utility app for comfortable one-handed smartphone operation',
+      icon: Smartphone,
+      color: 'from-purple-500 to-pink-500',
+      features: ['One-hand Optimization', 'Custom Gestures', 'Quick Actions', 'Widgets'],
+    },
+  ],
 };
 
-const products = [
-  {
-    slug: 'rem',
-    name: 'Rem bot',
-    tagline: 'Discord多機能Bot',
-    description: 'リマインダー、タスク管理、サーバー管理など、Discordライフを便利にする多機能Bot',
-    icon: Bot,
-    color: 'from-cyan-500 to-blue-500',
-    features: ['リマインダー', 'タスク管理', 'ロール管理', '自動応答'],
-  },
-  {
-    slug: 'navi',
-    name: 'Navi',
-    tagline: '片手操作アプリ',
-    description: 'スマートフォンを片手で快適に操作するためのユーティリティアプリ',
-    icon: Smartphone,
-    color: 'from-purple-500 to-pink-500',
-    features: ['片手操作最適化', 'カスタムジェスチャー', 'クイックアクション', 'ウィジェット'],
-  },
-];
-
 export default function ProductsPage() {
+  const { language } = useLanguage();
+  const products = productsData[language];
+
+  const content = {
+    ja: {
+      subtitle: 'シンプルで使いやすいプロダクト',
+      viewDetails: '詳細を見る',
+    },
+    en: {
+      subtitle: 'Simple and easy-to-use products',
+      viewDetails: 'View Details',
+    },
+  };
+
   return (
     <>
       <Navigation />
@@ -41,7 +74,7 @@ export default function ProductsPage() {
               <span className="gradient-text">Products</span>
             </h1>
             <p className="text-lg text-muted-foreground mb-12">
-              シンプルで使いやすいプロダクト
+              {content[language].subtitle}
             </p>
 
             <div className="grid md:grid-cols-2 gap-6">
@@ -73,7 +106,7 @@ export default function ProductsPage() {
                   </div>
 
                   <div className="flex items-center gap-2 text-primary group-hover:translate-x-1 transition-transform">
-                    詳細を見る
+                    {content[language].viewDetails}
                     <ArrowRight className="w-4 h-4" />
                   </div>
                 </Link>

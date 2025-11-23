@@ -9,6 +9,7 @@ import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Toast } from '../ui/toast';
 import emailjs from '@emailjs/browser';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const socialLinks = [
   { icon: Mail, label: 'Email', href: 'mailto:info.adalabtech@gmail.com' },
@@ -17,12 +18,20 @@ const socialLinks = [
   { icon: FaDiscord, label: 'Discord', href: 'https://discord.com/users/adabana_saki' },
 ];
 
-const inquiryTypes = [
-  'プロダクトに関するお問い合わせ',
-  'バグ報告・機能要望',
-  'パートナーシップ',
-  'その他',
-];
+const inquiryTypesData = {
+  ja: [
+    'プロダクトに関するお問い合わせ',
+    'バグ報告・機能要望',
+    'パートナーシップ',
+    'その他',
+  ],
+  en: [
+    'Product Inquiry',
+    'Bug Report / Feature Request',
+    'Partnership',
+    'Other',
+  ],
+};
 
 interface FormErrors {
   name?: string;
@@ -31,6 +40,74 @@ interface FormErrors {
 }
 
 export function Contact() {
+  const { language } = useLanguage();
+  const inquiryTypes = inquiryTypesData[language];
+
+  const content = {
+    ja: {
+      subtitle: 'プロダクトに関するお問い合わせ、ご質問などお気軽にご連絡ください',
+      contactUs: 'お気軽にご連絡ください',
+      email: 'メールアドレス',
+      hours: '対応時間',
+      operator: '運営者',
+      name: 'お名前',
+      namePlaceholder: '山田太郎',
+      emailLabel: 'メールアドレス',
+      inquiryType: 'お問い合わせ種別',
+      selectPlaceholder: '選択してください',
+      message: 'メッセージ',
+      messagePlaceholder: 'プロダクトに関するご質問やフィードバックをお書きください',
+      submit: '送信する',
+      submitting: '送信中...',
+      submitted: '送信完了',
+      thankYou: 'お問い合わせありがとうございます。',
+      confirmEmail: '確認メールをお送りしましたのでご確認ください。',
+      willContact: '内容を確認次第、ご連絡いたします。',
+      newInquiry: '新しいお問い合わせ',
+      formUnavailable: 'お問い合わせフォームは現在ご利用いただけません。',
+      contactByEmail: 'メールにてお問い合わせください: ',
+      checkInput: '入力内容を確認してください',
+      sendFailed: '送信に失敗しました。もう一度お試しください。',
+      nameRequired: 'お名前を入力してください',
+      nameMinLength: 'お名前は2文字以上で入力してください',
+      emailRequired: 'メールアドレスを入力してください',
+      emailInvalid: '有効なメールアドレスを入力してください',
+      messageRequired: 'メッセージを入力してください',
+      messageMinLength: 'メッセージは10文字以上で入力してください',
+    },
+    en: {
+      subtitle: 'Feel free to contact us with any questions about our products',
+      contactUs: 'Get in Touch',
+      email: 'Email',
+      hours: 'Hours',
+      operator: 'Operator',
+      name: 'Name',
+      namePlaceholder: 'John Doe',
+      emailLabel: 'Email',
+      inquiryType: 'Inquiry Type',
+      selectPlaceholder: 'Please select',
+      message: 'Message',
+      messagePlaceholder: 'Please write your questions or feedback about our products',
+      submit: 'Send Message',
+      submitting: 'Sending...',
+      submitted: 'Message Sent',
+      thankYou: 'Thank you for your inquiry.',
+      confirmEmail: 'Please check your email for confirmation.',
+      willContact: 'We will contact you as soon as we review your message.',
+      newInquiry: 'New Inquiry',
+      formUnavailable: 'The contact form is currently unavailable.',
+      contactByEmail: 'Please contact us by email: ',
+      checkInput: 'Please check your input',
+      sendFailed: 'Failed to send. Please try again.',
+      nameRequired: 'Please enter your name',
+      nameMinLength: 'Name must be at least 2 characters',
+      emailRequired: 'Please enter your email',
+      emailInvalid: 'Please enter a valid email address',
+      messageRequired: 'Please enter a message',
+      messageMinLength: 'Message must be at least 10 characters',
+    },
+  };
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -56,18 +133,19 @@ export function Contact() {
   }, []);
 
   const validateField = (name: string, value: string): string | undefined => {
+    const c = content[language];
     switch (name) {
       case 'name':
-        if (!value.trim()) return 'お名前を入力してください';
-        if (value.length < 2) return 'お名前は2文字以上で入力してください';
+        if (!value.trim()) return c.nameRequired;
+        if (value.length < 2) return c.nameMinLength;
         break;
       case 'email':
-        if (!value.trim()) return 'メールアドレスを入力してください';
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return '有効なメールアドレスを入力してください';
+        if (!value.trim()) return c.emailRequired;
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return c.emailInvalid;
         break;
       case 'message':
-        if (!value.trim()) return 'メッセージを入力してください';
-        if (value.length < 10) return 'メッセージは10文字以上で入力してください';
+        if (!value.trim()) return c.messageRequired;
+        if (value.length < 10) return c.messageMinLength;
         break;
     }
     return undefined;
@@ -91,7 +169,7 @@ export function Contact() {
 
     if (!validateForm()) {
       setToast({
-        message: '入力内容を確認してください',
+        message: content[language].checkInput,
         type: 'error',
         isVisible: true,
       });
@@ -148,7 +226,7 @@ export function Contact() {
     } catch (error) {
       console.error('EmailJS error:', error);
       setToast({
-        message: '送信に失敗しました。もう一度お試しください。',
+        message: content[language].sendFailed,
         type: 'error',
         isVisible: true,
       });
@@ -184,8 +262,8 @@ export function Contact() {
             Get in <span className="gradient-text">Touch</span>
           </h2>
           <p className="text-muted-foreground">
-            お問い合わせフォームは現在ご利用いただけません。<br />
-            メールにてお問い合わせください: <a href="mailto:info.adalabtech@gmail.com" className="text-primary hover:underline">info.adalabtech@gmail.com</a>
+            {content[language].formUnavailable}<br />
+            {content[language].contactByEmail}<a href="mailto:info.adalabtech@gmail.com" className="text-primary hover:underline">info.adalabtech@gmail.com</a>
           </p>
         </div>
       </section>
@@ -218,7 +296,7 @@ export function Contact() {
             Get in <span className="gradient-text">Touch</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            プロダクトに関するお問い合わせ、ご質問などお気軽にご連絡ください
+            {content[language].subtitle}
           </p>
         </motion.div>
 
@@ -231,11 +309,11 @@ export function Contact() {
             transition={{ duration: 0.6 }}
           >
             <div className="glass p-8 rounded-2xl">
-              <h3 className="text-2xl font-bold mb-6">お気軽にご連絡ください</h3>
+              <h3 className="text-2xl font-bold mb-6">{content[language].contactUs}</h3>
 
               <div className="space-y-6 mb-8">
                 <div>
-                  <h4 className="font-semibold mb-2">メールアドレス</h4>
+                  <h4 className="font-semibold mb-2">{content[language].email}</h4>
                   <a
                     href="mailto:info.adalabtech@gmail.com"
                     className="text-primary hover:underline"
@@ -245,14 +323,14 @@ export function Contact() {
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">対応時間</h4>
+                  <h4 className="font-semibold mb-2">{content[language].hours}</h4>
                   <p className="text-muted-foreground">
                     8:00 - 24:00（JST）
                   </p>
                 </div>
 
                 <div>
-                  <h4 className="font-semibold mb-2">運営者</h4>
+                  <h4 className="font-semibold mb-2">{content[language].operator}</h4>
                   <p className="text-muted-foreground">
                     Adabana Saki
                   </p>
@@ -299,19 +377,19 @@ export function Contact() {
                 >
                   <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
                 </motion.div>
-                <h3 className="text-2xl font-bold mb-2">送信完了</h3>
+                <h3 className="text-2xl font-bold mb-2">{content[language].submitted}</h3>
                 <p className="text-muted-foreground mb-4">
-                  お問い合わせありがとうございます。<br />
-                  確認メールをお送りしましたのでご確認ください。
+                  {content[language].thankYou}<br />
+                  {content[language].confirmEmail}
                 </p>
                 <p className="text-sm text-muted-foreground mb-6">
-                  内容を確認次第、ご連絡いたします。
+                  {content[language].willContact}
                 </p>
                 <Button
                   variant="outline"
                   onClick={() => setIsSubmitted(false)}
                 >
-                  新しいお問い合わせ
+                  {content[language].newInquiry}
                 </Button>
               </div>
             ) : (
@@ -320,7 +398,7 @@ export function Contact() {
                 {/* Name */}
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium mb-2">
-                    お名前 <span className="text-red-500">*</span>
+                    {content[language].name} <span className="text-red-500">*</span>
                   </label>
                   <Input
                     id="name"
@@ -330,7 +408,7 @@ export function Contact() {
                     value={formData.name}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    placeholder="山田太郎"
+                    placeholder={content[language].namePlaceholder}
                     aria-invalid={!!errors.name}
                     aria-describedby={errors.name ? 'name-error' : undefined}
                     className={errors.name && touched.name ? 'border-red-500 focus:ring-red-500' : ''}
@@ -346,7 +424,7 @@ export function Contact() {
                 {/* Email */}
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium mb-2">
-                    メールアドレス <span className="text-red-500">*</span>
+                    {content[language].emailLabel} <span className="text-red-500">*</span>
                   </label>
                   <Input
                     id="email"
@@ -372,7 +450,7 @@ export function Contact() {
                 {/* Inquiry Type */}
                 <div>
                   <label htmlFor="inquiryType" className="block text-sm font-medium mb-2">
-                    お問い合わせ種別
+                    {content[language].inquiryType}
                   </label>
                   <select
                     id="inquiryType"
@@ -381,7 +459,7 @@ export function Contact() {
                     onChange={handleChange}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   >
-                    <option value="">選択してください</option>
+                    <option value="">{content[language].selectPlaceholder}</option>
                     {inquiryTypes.map((type) => (
                       <option key={type} value={type}>
                         {type}
@@ -393,7 +471,7 @@ export function Contact() {
                 {/* Message */}
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium mb-2">
-                    メッセージ <span className="text-red-500">*</span>
+                    {content[language].message} <span className="text-red-500">*</span>
                   </label>
                   <Textarea
                     id="message"
@@ -402,7 +480,7 @@ export function Contact() {
                     value={formData.message}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    placeholder="プロダクトに関するご質問やフィードバックをお書きください"
+                    placeholder={content[language].messagePlaceholder}
                     rows={5}
                     aria-invalid={!!errors.message}
                     aria-describedby={errors.message ? 'message-error' : undefined}
@@ -430,11 +508,11 @@ export function Contact() {
                         transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                         className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
                       />
-                      送信中...
+                      {content[language].submitting}
                     </span>
                   ) : (
                     <>
-                      送信する
+                      {content[language].submit}
                       <Send size={18} className="ml-2" />
                     </>
                   )}
