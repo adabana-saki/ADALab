@@ -1,39 +1,73 @@
-import { Metadata } from 'next';
+'use client';
+
 import Link from 'next/link';
 import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
 import { Calendar, ArrowRight } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-export const metadata: Metadata = {
-  title: 'ブログ',
-  description: 'ADA Labの最新情報、技術記事、プロダクトアップデートをお届けします。',
+const postsData = {
+  ja: [
+    {
+      slug: 'rem-bot-v2-release',
+      title: 'Rem bot v2.0 リリース',
+      description: '新機能の紹介と改善点について',
+      date: '2024-01-15',
+      category: 'リリース',
+    },
+    {
+      slug: 'nextjs-performance-tips',
+      title: 'Next.js パフォーマンス最適化のコツ',
+      description: 'Webサイトを高速化するためのテクニック',
+      date: '2024-01-10',
+      category: '技術',
+    },
+    {
+      slug: 'adalab-launch',
+      title: 'ADA Lab 公式サイト公開',
+      description: '新しいウェブサイトとプロダクトラインナップ',
+      date: '2024-01-01',
+      category: 'お知らせ',
+    },
+  ],
+  en: [
+    {
+      slug: 'rem-bot-v2-release',
+      title: 'Rem bot v2.0 Released',
+      description: 'Introducing new features and improvements',
+      date: '2024-01-15',
+      category: 'Release',
+    },
+    {
+      slug: 'nextjs-performance-tips',
+      title: 'Next.js Performance Optimization Tips',
+      description: 'Techniques to speed up your website',
+      date: '2024-01-10',
+      category: 'Tech',
+    },
+    {
+      slug: 'adalab-launch',
+      title: 'ADA Lab Official Site Launch',
+      description: 'New website and product lineup',
+      date: '2024-01-01',
+      category: 'News',
+    },
+  ],
 };
 
-const posts = [
-  {
-    slug: 'rem-bot-v2-release',
-    title: 'Rem bot v2.0 リリース',
-    description: '新機能の紹介と改善点について',
-    date: '2024-01-15',
-    category: 'リリース',
-  },
-  {
-    slug: 'nextjs-performance-tips',
-    title: 'Next.js パフォーマンス最適化のコツ',
-    description: 'Webサイトを高速化するためのテクニック',
-    date: '2024-01-10',
-    category: '技術',
-  },
-  {
-    slug: 'adalab-launch',
-    title: 'ADA Lab 公式サイト公開',
-    description: '新しいウェブサイトとプロダクトラインナップ',
-    date: '2024-01-01',
-    category: 'お知らせ',
-  },
-];
-
 export default function BlogPage() {
+  const { language } = useLanguage();
+  const posts = postsData[language];
+
+  const content = {
+    ja: {
+      subtitle: '最新情報、技術記事、プロダクトアップデート',
+    },
+    en: {
+      subtitle: 'Latest news, tech articles, and product updates',
+    },
+  };
+
   return (
     <>
       <Navigation />
@@ -44,7 +78,7 @@ export default function BlogPage() {
               <span className="gradient-text">Blog</span>
             </h1>
             <p className="text-lg text-muted-foreground mb-12">
-              最新情報、技術記事、プロダクトアップデート
+              {content[language].subtitle}
             </p>
 
             <div className="space-y-6">

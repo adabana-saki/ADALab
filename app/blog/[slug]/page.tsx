@@ -1,23 +1,29 @@
-import { Metadata } from 'next';
+'use client';
+
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
 import { Calendar, ArrowLeft, Tag } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { use } from 'react';
 
-const posts: Record<string, {
+interface PostContent {
   title: string;
   description: string;
   date: string;
   category: string;
   content: string;
-}> = {
+}
+
+const postsData: Record<string, { ja: PostContent; en: PostContent }> = {
   'rem-bot-v2-release': {
-    title: 'Rem bot v2.0 リリース',
-    description: '新機能の紹介と改善点について',
-    date: '2024-01-15',
-    category: 'リリース',
-    content: `
+    ja: {
+      title: 'Rem bot v2.0 リリース',
+      description: '新機能の紹介と改善点について',
+      date: '2024-01-15',
+      category: 'リリース',
+      content: `
 ## 新機能
 
 Rem bot v2.0では、多くの新機能と改善を行いました。
@@ -32,14 +38,38 @@ Rem bot v2.0では、多くの新機能と改善を行いました。
 ### アップデート方法
 
 既存のユーザーは自動的にv2.0に移行されます。新規導入は[こちら](/products/rem)から。
-    `,
+      `,
+    },
+    en: {
+      title: 'Rem bot v2.0 Released',
+      description: 'Introducing new features and improvements',
+      date: '2024-01-15',
+      category: 'Release',
+      content: `
+## New Features
+
+Rem bot v2.0 brings many new features and improvements.
+
+### Key Changes
+
+- **Slash Command Support**: All commands now support slash commands
+- **Enhanced Reminders**: Support for recurring reminders and natural language input
+- **Dashboard**: Web-based settings configuration now available
+- **Performance Improvements**: 50% faster response times
+
+### How to Update
+
+Existing users will be automatically migrated to v2.0. New users can get started [here](/products/rem).
+      `,
+    },
   },
   'nextjs-performance-tips': {
-    title: 'Next.js パフォーマンス最適化のコツ',
-    description: 'Webサイトを高速化するためのテクニック',
-    date: '2024-01-10',
-    category: '技術',
-    content: `
+    ja: {
+      title: 'Next.js パフォーマンス最適化のコツ',
+      description: 'Webサイトを高速化するためのテクニック',
+      date: '2024-01-10',
+      category: '技術',
+      content: `
 ## はじめに
 
 Next.jsアプリケーションのパフォーマンスを最適化するためのテクニックを紹介します。
@@ -59,14 +89,43 @@ dynamic importを使用して、必要なコンポーネントのみを読み込
 ### まとめ
 
 これらのテクニックを組み合わせることで、大幅なパフォーマンス改善が期待できます。
-    `,
+      `,
+    },
+    en: {
+      title: 'Next.js Performance Optimization Tips',
+      description: 'Techniques to speed up your website',
+      date: '2024-01-10',
+      category: 'Tech',
+      content: `
+## Introduction
+
+Here are some techniques to optimize the performance of your Next.js applications.
+
+### 1. Image Optimization
+
+Use the next/image component to automatically optimize images.
+
+### 2. Code Splitting
+
+Use dynamic imports to load only the components you need.
+
+### 3. Caching Strategy
+
+Set appropriate Cache-Control headers to cache static assets.
+
+### Summary
+
+By combining these techniques, you can expect significant performance improvements.
+      `,
+    },
   },
   'adalab-launch': {
-    title: 'ADA Lab 公式サイト公開',
-    description: '新しいウェブサイトとプロダクトラインナップ',
-    date: '2024-01-01',
-    category: 'お知らせ',
-    content: `
+    ja: {
+      title: 'ADA Lab 公式サイト公開',
+      description: '新しいウェブサイトとプロダクトラインナップ',
+      date: '2024-01-01',
+      category: 'お知らせ',
+      content: `
 ## ADA Lab 始動
 
 ADA Labの公式サイトを公開しました。
@@ -83,32 +142,54 @@ ADA Labの公式サイトを公開しました。
 ### 今後の展開
 
 今後もユーザーの声を聞きながら、新しいプロダクトや機能を開発していきます。
-    `,
+      `,
+    },
+    en: {
+      title: 'ADA Lab Official Site Launch',
+      description: 'New website and product lineup',
+      date: '2024-01-01',
+      category: 'News',
+      content: `
+## ADA Lab Launches
+
+We've launched the official ADA Lab website.
+
+### Mission
+
+With our motto "Simple tools for everyday needs," we develop simple and easy-to-use products.
+
+### Product Lineup
+
+- **Rem bot**: Multi-functional Discord Bot
+- **Navi**: One-handed operation app
+
+### Future Plans
+
+We will continue to listen to user feedback and develop new products and features.
+      `,
+    },
   },
 };
 
-export async function generateStaticParams() {
-  return Object.keys(posts).map((slug) => ({ slug }));
-}
+export default function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
+  const { language } = useLanguage();
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params;
-  const post = posts[slug];
-  if (!post) return { title: '記事が見つかりません' };
-
-  return {
-    title: post.title,
-    description: post.description,
-  };
-}
-
-export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  const post = posts[slug];
-
-  if (!post) {
+  const postData = postsData[slug];
+  if (!postData) {
     notFound();
   }
+
+  const post = postData[language];
+
+  const content = {
+    ja: {
+      backToBlog: 'ブログ一覧に戻る',
+    },
+    en: {
+      backToBlog: 'Back to Blog',
+    },
+  };
 
   return (
     <>
@@ -121,7 +202,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              ブログ一覧に戻る
+              {content[language].backToBlog}
             </Link>
 
             <header className="mb-8">

@@ -3,37 +3,54 @@
 import { motion } from 'framer-motion';
 import { Code2, Sparkles, Rocket, Zap, Target, Heart } from 'lucide-react';
 import { CounterAnimation } from '../effects/CounterAnimation';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-const features = [
-  {
-    icon: Code2,
-    title: 'テクノロジードリブン',
-    description:
-      '最新技術を駆使し、革新的なプロダクトを生み出し続けます',
-    size: 'normal',
-  },
-  {
-    icon: Sparkles,
-    title: 'ユーザーファースト',
-    description:
-      '使う人の体験を第一に考え、愛されるプロダクトを作ります',
-    size: 'normal',
-  },
-  {
-    icon: Rocket,
-    title: 'スピード',
-    description:
-      '迅速なリリースと改善サイクルで、アイデアを素早く形にします',
-    size: 'normal',
-  },
-  {
-    icon: Zap,
-    title: 'シンプル',
-    description:
-      '複雑さを排除し、誰でも使いやすいプロダクトを提供します',
-    size: 'normal',
-  },
-];
+const featuresData = {
+  ja: [
+    {
+      icon: Code2,
+      title: 'テクノロジードリブン',
+      description: '最新技術を駆使し、革新的なプロダクトを生み出し続けます',
+    },
+    {
+      icon: Sparkles,
+      title: 'ユーザーファースト',
+      description: '使う人の体験を第一に考え、愛されるプロダクトを作ります',
+    },
+    {
+      icon: Rocket,
+      title: 'スピード',
+      description: '迅速なリリースと改善サイクルで、アイデアを素早く形にします',
+    },
+    {
+      icon: Zap,
+      title: 'シンプル',
+      description: '複雑さを排除し、誰でも使いやすいプロダクトを提供します',
+    },
+  ],
+  en: [
+    {
+      icon: Code2,
+      title: 'Technology Driven',
+      description: 'Leveraging cutting-edge technology to create innovative products',
+    },
+    {
+      icon: Sparkles,
+      title: 'User First',
+      description: 'Prioritizing user experience to build products people love',
+    },
+    {
+      icon: Rocket,
+      title: 'Speed',
+      description: 'Rapid releases and improvement cycles to quickly turn ideas into reality',
+    },
+    {
+      icon: Zap,
+      title: 'Simple',
+      description: 'Eliminating complexity to provide easy-to-use products for everyone',
+    },
+  ],
+};
 
 const stats = [
   { value: 2, suffix: '', label: 'Products' },
@@ -43,6 +60,24 @@ const stats = [
 ];
 
 export function About() {
+  const { language } = useLanguage();
+  const features = featuresData[language];
+
+  const content = {
+    ja: {
+      description: 'あなたの"ほしい"を、カタチに。日常の「あったらいいな」を形にするプロダクトカンパニーです。',
+      mission: '素早く作り、素早く届け、成長させる。完璧を目指すよりも、まず価値を届けることを大切にしています。',
+      philosophy: 'ユーザーからのフィードバックを大切に',
+      philosophyDesc: '継続的な改善を重ね、本当に必要とされるプロダクトを追求します。',
+    },
+    en: {
+      description: 'Simple tools for everyday needs. A product company that turns everyday "nice-to-haves" into reality.',
+      mission: 'Build fast, ship fast, and scale. We prioritize delivering value over perfection.',
+      philosophy: 'We Value User Feedback',
+      philosophyDesc: 'Through continuous improvement, we pursue products that are truly needed.',
+    },
+  };
+
   return (
     <section id="about" className="py-20 md:py-32 bg-background relative overflow-hidden">
       {/* Background decoration */}
@@ -62,8 +97,7 @@ export function About() {
             About <span className="gradient-text">ADA Lab</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            あなたの&quot;ほしい&quot;を、カタチに。
-            日常の「あったらいいな」を形にするプロダクトカンパニーです。
+            {content[language].description}
           </p>
         </motion.div>
 
@@ -90,8 +124,7 @@ export function About() {
                   Build. Ship. <span className="gradient-text">Scale.</span>
                 </h3>
                 <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-                  素早く作り、素早く届け、成長させる。
-                  完璧を目指すよりも、まず価値を届けることを大切にしています。
+                  {content[language].mission}
                 </p>
               </div>
             </div>
@@ -174,9 +207,9 @@ export function About() {
                   <Heart className="text-white" size={28} />
                 </div>
                 <div className="text-center md:text-left">
-                  <h3 className="text-xl md:text-2xl font-bold mb-2">ユーザーからのフィードバックを大切に</h3>
+                  <h3 className="text-xl md:text-2xl font-bold mb-2">{content[language].philosophy}</h3>
                   <p className="text-muted-foreground">
-                    継続的な改善を重ね、本当に必要とされるプロダクトを追求します。
+                    {content[language].philosophyDesc}
                   </p>
                 </div>
               </div>
