@@ -46,7 +46,7 @@ import { Code2 } from 'lucide-react';
 type Category = keyof typeof TECHNOLOGIES;
 
 // 技術名からアイコンへのマッピング
-const techIcons: Record<string, React.ElementType> = {
+const techIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   'React': SiReact,
   'Next.js': SiNextdotjs,
   'TypeScript': SiTypescript,

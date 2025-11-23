@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 export function ChromaticAberration() {
   const [intensity, setIntensity] = useState(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number | undefined>(undefined);
 
   // Separate effect for mouse tracking
   useEffect(() => {
