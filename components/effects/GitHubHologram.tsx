@@ -23,21 +23,26 @@ function StatItem({ label, value, maxValue, color, delay }: StatItemProps) {
   const percentage = Math.min((value / maxValue) * 100, 100);
 
   useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+
     const timer = setTimeout(() => {
       let current = 0;
       const increment = value / 30;
-      const interval = setInterval(() => {
+      intervalId = setInterval(() => {
         current += increment;
         if (current >= value) {
           setDisplayValue(value);
-          clearInterval(interval);
+          if (intervalId) clearInterval(intervalId);
         } else {
           setDisplayValue(Math.floor(current));
         }
       }, 30);
-      return () => clearInterval(interval);
     }, delay * 1000);
-    return () => clearTimeout(timer);
+
+    return () => {
+      clearTimeout(timer);
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [value, delay]);
 
   return (
@@ -87,10 +92,21 @@ export function GitHubHologram() {
       try {
         // Fetch user data
         const userResponse = await fetch('https://api.github.com/users/adabana-saki');
+        if (!userResponse.ok) {
+          throw new Error(`HTTP error: ${userResponse.status}`);
+        }
         const userData = await userResponse.json();
+
+        // Validate required fields
+        if (!userData.created_at) {
+          throw new Error('Invalid user data');
+        }
 
         // Fetch repos to calculate total stars
         const reposResponse = await fetch('https://api.github.com/users/adabana-saki/repos?per_page=100');
+        if (!reposResponse.ok) {
+          throw new Error(`HTTP error: ${reposResponse.status}`);
+        }
         const reposData = await reposResponse.json();
 
         const totalStars = Array.isArray(reposData)
@@ -117,8 +133,6 @@ export function GitHubHologram() {
           followers: 0,
           accountAge: 365,
         });
-      } finally {
-        // Stats loaded
       }
     }
 

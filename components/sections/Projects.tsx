@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import { Github, ChevronDown, Check, ExternalLink } from 'lucide-react';
+import { Github, ChevronDown, Check, ArrowRight } from 'lucide-react';
 import { FaDiscord } from 'react-icons/fa';
 import Link from 'next/link';
 import { Card, CardContent } from '../ui/card';
@@ -165,7 +165,7 @@ export function Projects() {
                           <Link href={project.id === '1' ? '/products/rem' : '/products/navi'}>
                             <Button variant="outline" size="sm" className="w-full mt-2">
                               詳細を見る
-                              <ExternalLink size={14} className="ml-2" />
+                              <ArrowRight size={14} className="ml-2" />
                             </Button>
                           </Link>
                         </div>

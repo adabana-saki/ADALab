@@ -20,6 +20,7 @@ export function KonamiCode() {
   const [show, setShow] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     let position = 0;
@@ -35,8 +36,13 @@ export function KonamiCode() {
           setShow(true);
           position = 0;
 
+          // Clear previous timeout if exists
+          if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+          }
+
           // Hide after 10 seconds
-          setTimeout(() => {
+          timeoutRef.current = setTimeout(() => {
             setShow(false);
             document.body.classList.remove('konami-active');
           }, 10000);
@@ -56,6 +62,10 @@ export function KonamiCode() {
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      document.body.classList.remove('konami-active');
     };
   }, []);
 
