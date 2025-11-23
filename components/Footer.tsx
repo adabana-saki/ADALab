@@ -44,7 +44,7 @@ const footerLinksData = {
 };
 
 export function Footer() {
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
   const companyLinks = footerLinksData.company[language];
   const legalLinks = footerLinksData.legal[language];
 
