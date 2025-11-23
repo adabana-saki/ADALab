@@ -4,7 +4,7 @@ import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Circle, Clock, Rocket } from 'lucide-react';
+import { CheckCircle2, Circle, Clock } from 'lucide-react';
 
 const roadmapData = {
   ja: [

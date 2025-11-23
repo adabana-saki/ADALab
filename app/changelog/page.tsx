@@ -4,7 +4,7 @@ import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { motion } from 'framer-motion';
-import { Tag, Calendar, Zap, Bug, Sparkles } from 'lucide-react';
+import { Calendar, Zap, Bug, Sparkles } from 'lucide-react';
 
 const changelogData = {
   ja: [

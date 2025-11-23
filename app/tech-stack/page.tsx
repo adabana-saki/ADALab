@@ -4,7 +4,6 @@ import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { motion } from 'framer-motion';
-import { ExternalLink, CheckCircle2 } from 'lucide-react';
 
 const techStack = {
   frontend: [

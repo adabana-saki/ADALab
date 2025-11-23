@@ -216,7 +216,6 @@ export function CountUp({
 }: CountUpProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
-  const controls = useAnimation();
 
   return (
     <motion.span
