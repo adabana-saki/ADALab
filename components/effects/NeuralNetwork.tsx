@@ -15,7 +15,7 @@ interface Node {
 export function NeuralNetwork() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const nodesRef = useRef<Node[]>([]);
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number | undefined>(undefined);
   const mouseRef = useRef({ x: 0, y: 0 });
   const [isMounted, setIsMounted] = useState(false);
 

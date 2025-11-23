@@ -3,14 +3,104 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { TECHNOLOGIES } from '@/lib/constants';
+import {
+  SiReact,
+  SiNextdotjs,
+  SiTypescript,
+  SiJavascript,
+  SiTailwindcss,
+  SiCss3,
+  SiNodedotjs,
+  SiPython,
+  SiFastapi,
+  SiDjango,
+  SiFlask,
+  SiGo,
+  SiRubyonrails,
+  SiPostgresql,
+  SiMysql,
+  SiMongodb,
+  SiSqlite,
+  SiFirebase,
+  SiFlutter,
+  SiKotlin,
+  SiVercel,
+  SiAmazonwebservices,
+  SiGooglecloud,
+  SiCloudflare,
+  SiDocker,
+  SiKubernetes,
+  SiGithubactions,
+  SiTerraform,
+  SiOpenai,
+  SiHuggingface,
+  SiPytorch,
+  SiGit,
+  SiFigma,
+  SiNotion,
+  SiLinux,
+} from 'react-icons/si';
+import { FaJava, FaMicrosoft } from 'react-icons/fa';
+import { Code2 } from 'lucide-react';
 
-type Category = 'frontend' | 'backend' | 'mobile' | 'cloud';
+type Category = keyof typeof TECHNOLOGIES;
 
-const categories = [
-  { id: 'frontend' as Category, name: 'Frontend' },
-  { id: 'backend' as Category, name: 'Backend' },
-  { id: 'mobile' as Category, name: 'Mobile' },
-  { id: 'cloud' as Category, name: 'Cloud & DevOps' },
+// 技術名からアイコンへのマッピング
+const techIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  'React': SiReact,
+  'Next.js': SiNextdotjs,
+  'TypeScript': SiTypescript,
+  'JavaScript': SiJavascript,
+  'Tailwind CSS': SiTailwindcss,
+  'CSS/SCSS': SiCss3,
+  'Node.js': SiNodedotjs,
+  'Python': SiPython,
+  'FastAPI': SiFastapi,
+  'Django': SiDjango,
+  'Flask': SiFlask,
+  'Go': SiGo,
+  'Java': FaJava,
+  'C# / .NET': FaMicrosoft,
+  'Ruby on Rails': SiRubyonrails,
+  'REST API': Code2,
+  'Discord.js': Code2,
+  'PostgreSQL': SiPostgresql,
+  'MySQL': SiMysql,
+  'MongoDB': SiMongodb,
+  'SQLite': SiSqlite,
+  'Firebase Firestore': SiFirebase,
+  'React Native': SiReact,
+  'Flutter': SiFlutter,
+  'Kotlin / Android': SiKotlin,
+  'Vercel': SiVercel,
+  'AWS': SiAmazonwebservices,
+  'Google Cloud': SiGooglecloud,
+  'Cloudflare': SiCloudflare,
+  'Docker': SiDocker,
+  'Kubernetes': SiKubernetes,
+  'GitHub Actions': SiGithubactions,
+  'Terraform': SiTerraform,
+  'OpenAI API': SiOpenai,
+  'Claude API': Code2,
+  'Gemini API': SiGooglecloud,
+  'LangChain': Code2,
+  'Hugging Face': SiHuggingface,
+  'PyTorch': SiPytorch,
+  'Git': SiGit,
+  'Figma': SiFigma,
+  'Notion': SiNotion,
+  'VS Code': Code2,
+  'Linux': SiLinux,
+};
+
+const categories: { id: Category; name: string }[] = [
+  { id: 'frontend', name: 'Frontend' },
+  { id: 'backend', name: 'Backend' },
+  { id: 'database', name: 'Database' },
+  { id: 'mobile', name: 'Mobile' },
+  { id: 'cloud', name: 'Cloud & DevOps' },
+  { id: 'ai', name: 'AI / ML' },
+  { id: 'tools', name: 'Tools' },
 ];
 
 export function Technologies() {
@@ -34,7 +124,7 @@ export function Technologies() {
             Tech <span className="gradient-text">Stack</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            常に最新の技術をキャッチアップし、最適なツールで開発を行っています
+            プロジェクトの要件に応じて最適な技術を選定し、品質とパフォーマンスを重視した開発を行っています
           </p>
         </motion.div>
 
@@ -44,16 +134,16 @@ export function Technologies() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="flex flex-wrap justify-center gap-4 mb-12"
+          className="flex flex-wrap justify-center gap-3 mb-12"
         >
           {categories.map((category) => (
             <button
               key={category.id}
               onClick={() => setActiveCategory(category.id)}
-              className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+              className={`px-5 py-2.5 rounded-full font-medium text-sm transition-all ${
                 activeCategory === category.id
-                  ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-lg scale-105'
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/25 scale-105'
+                  : 'bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground'
               }`}
             >
               {category.name}
@@ -61,7 +151,7 @@ export function Technologies() {
           ))}
         </motion.div>
 
-        {/* Technologies List */}
+        {/* Technologies Grid */}
         <motion.div
           key={activeCategory}
           initial={{ opacity: 0, y: 20 }}
@@ -69,37 +159,30 @@ export function Technologies() {
           transition={{ duration: 0.4 }}
           className="max-w-4xl mx-auto"
         >
-          <div className="grid gap-4">
-            {TECHNOLOGIES[activeCategory].map((tech, index) => (
-              <motion.div
-                key={tech.name}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.05 }}
-                className="glass p-6 rounded-lg"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-xl font-semibold">{tech.name}</h3>
-                  <span className="text-sm font-mono text-muted-foreground">
-                    {tech.level}%
-                  </span>
-                </div>
-                {/* Progress Bar */}
-                <div className="h-2 bg-muted rounded-full overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    whileInView={{ width: `${tech.level}%` }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 1, delay: index * 0.05 + 0.2 }}
-                    className="h-full bg-gradient-to-r from-primary via-secondary to-accent rounded-full"
-                  />
-                </div>
-              </motion.div>
-            ))}
+          <div className="flex flex-wrap justify-center gap-3">
+            {TECHNOLOGIES[activeCategory].map((tech, index) => {
+              const Icon = techIcons[tech] || Code2;
+              return (
+                <motion.div
+                  key={tech}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  className="group relative"
+                >
+                  <div className="px-5 py-3 rounded-xl bg-gradient-to-br from-muted/80 to-muted/40 border border-border/50 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10 transition-all cursor-default flex items-center gap-2">
+                    <Icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <span className="font-medium text-foreground group-hover:text-primary transition-colors">
+                      {tech}
+                    </span>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </motion.div>
 
-        {/* Additional Info */}
+        {/* Tech Count */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -108,7 +191,10 @@ export function Technologies() {
           className="mt-16 text-center"
         >
           <p className="text-muted-foreground">
-            その他にも、プロジェクトに応じて様々な技術・ツールを活用しています
+            <span className="text-primary font-semibold">
+              {Object.values(TECHNOLOGIES).flat().length}+
+            </span>{' '}
+            の技術・ツールを活用しています
           </p>
         </motion.div>
       </div>

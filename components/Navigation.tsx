@@ -18,6 +18,7 @@ export function Navigation() {
     { name: t.nav.about, href: '#about', id: 'about' },
     { name: t.nav.technologies, href: '#technologies', id: 'technologies' },
     { name: t.nav.projects, href: '#projects', id: 'projects' },
+    { name: t.nav.news, href: '#news', id: 'news' },
     { name: t.nav.contact, href: '#contact', id: 'contact' },
   ];
 
@@ -31,7 +32,7 @@ export function Navigation() {
 
   // Track active section with Intersection Observer
   useEffect(() => {
-    const sectionIds = ['home', 'about', 'technologies', 'projects', 'contact'];
+    const sectionIds = ['home', 'about', 'technologies', 'projects', 'news', 'contact'];
     const observers: IntersectionObserver[] = [];
 
     sectionIds.forEach((id) => {

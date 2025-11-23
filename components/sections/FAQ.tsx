@@ -4,9 +4,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { ChevronDown, HelpCircle } from 'lucide-react';
 
-// シンプルなマークダウンをHTMLに変換
+// シンプルなマークダウンをHTMLに変換（静的コンテンツ専用）
 function parseMarkdown(text: string): string {
-  return text
+  // HTMLエンティティをエスケープ
+  const escaped = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  return escaped
     // 太字 **text**
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     // リスト項目 - text
