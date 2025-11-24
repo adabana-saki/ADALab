@@ -100,25 +100,21 @@ export default function Home() {
       {/* Page Loader */}
       <PageLoader />
 
-      {/* Background Effects - All devices (lightweight) */}
-      <AnimatedBackground />
-      <CyberGrid />
-      <ScanLines />
-      <CinematicIntro />
-
-      {/* Desktop only effects */}
+      {/* Desktop only: all effects disabled on mobile for performance */}
       {!isMobile && (
         <>
+          <AnimatedBackground />
+          <CyberGrid />
+          <ScanLines />
           <MatrixRain />
           <MouseGlow />
           <FloatingElements />
+          <CinematicIntro />
+          <DynamicIsland />
+          <KonamiCode />
+          <CommandPalette />
         </>
       )}
-
-      {/* UI Components - All devices */}
-      <DynamicIsland />
-      <KonamiCode />
-      <CommandPalette />
 
       <SkipToContent />
       <ScrollProgress />
