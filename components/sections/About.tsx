@@ -4,10 +4,13 @@ import { motion } from 'framer-motion';
 import { Code2, Sparkles, Rocket, Zap, Target, Heart } from 'lucide-react';
 import { CounterAnimation } from '../effects/CounterAnimation';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { GitHubActivity } from '../GitHubActivity';
-import { StatusDisplay } from '../StatusDisplay';
-import { StatsDisplay } from '../StatsDisplay';
+import { GitHubHologram } from '../effects/GitHubHologram';
 import { QiitaFeed } from '../QiitaFeed';
+import { GitHubContributions } from '../GitHubContributions';
+import { WakaTimeStats } from '../WakaTimeStats';
+import { TerminalEmulator } from '../effects/TerminalEmulator';
+import { CodeSandbox } from '../effects/CodeSandbox';
+import { TwitterTimeline } from '../TwitterTimeline';
 
 const featuresData = {
   ja: [
@@ -220,15 +223,15 @@ export function About() {
             </div>
           </motion.div>
 
-          {/* GitHub Activity & Status Widgets */}
+          {/* GitHub Stats & Contributions */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.7 }}
-            className="col-span-1 md:col-span-3 lg:col-span-6"
+            className="col-span-1 md:col-span-3 lg:col-span-4"
           >
-            <GitHubActivity />
+            <GitHubHologram />
           </motion.div>
 
           <motion.div
@@ -236,30 +239,61 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.8 }}
-            className="col-span-1 md:col-span-3 lg:col-span-6"
+            className="col-span-1 md:col-span-3 lg:col-span-8"
           >
-            <StatusDisplay />
+            <GitHubContributions />
           </motion.div>
 
-          {/* Stats & Qiita Widgets */}
+          {/* WakaTime & Qiita/Twitter */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.9 }}
-            className="col-span-1 md:col-span-6 lg:col-span-12"
+            className="col-span-1 md:col-span-3 lg:col-span-6"
           >
-            <StatsDisplay />
+            <WakaTimeStats />
+          </motion.div>
+
+          <div className="col-span-1 md:col-span-3 lg:col-span-6 space-y-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 1.0 }}
+            >
+              <QiitaFeed />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 1.1 }}
+            >
+              <TwitterTimeline />
+            </motion.div>
+          </div>
+
+          {/* Interactive: Terminal & CodeSandbox */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 1.2 }}
+            className="col-span-1 md:col-span-3 lg:col-span-6"
+          >
+            <TerminalEmulator />
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 1.0 }}
-            className="col-span-1 md:col-span-6 lg:col-span-12"
+            transition={{ duration: 0.6, delay: 1.3 }}
+            className="col-span-1 md:col-span-3 lg:col-span-6"
           >
-            <QiitaFeed />
+            <CodeSandbox />
           </motion.div>
         </div>
       </div>

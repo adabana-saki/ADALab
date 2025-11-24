@@ -65,9 +65,9 @@ export function CodeSandbox() {
   };
 
   return (
-    <div className="relative">
+    <div className="relative h-full flex flex-col min-h-[400px]">
       {/* Editor */}
-      <div className="bg-black/80 rounded-xl border border-neon-purple/30 overflow-hidden">
+      <div className="bg-black/80 rounded-xl border border-neon-purple/30 overflow-hidden flex-1 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-2 border-b border-neon-purple/20">
           <div className="flex items-center gap-2">
@@ -109,11 +109,11 @@ export function CodeSandbox() {
         </div>
 
         {/* Code Editor */}
-        <div className="relative">
+        <div className="relative flex-1">
           <textarea
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            className="w-full h-48 p-4 bg-transparent text-sm font-mono text-green-400 resize-none focus:outline-none"
+            className="w-full h-full min-h-[200px] p-4 bg-transparent text-sm font-mono text-green-400 resize-none focus:outline-none"
             spellCheck={false}
           />
         </div>
