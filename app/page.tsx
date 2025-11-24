@@ -17,8 +17,7 @@ import { FAQ } from '@/components/sections/FAQ';
 import { Contact } from '@/components/sections/Contact';
 import { scrollToSection, scrollToTop } from '@/hooks/useKeyboardShortcuts';
 
-// 遅延読み込みエフェクト
-const NeuralNetwork = dynamic(() => import('@/components/effects/NeuralNetwork').then(mod => ({ default: mod.NeuralNetwork })), { ssr: false });
+// 遅延読み込みエフェクト（軽量化済み）
 const AnimatedBackground = dynamic(() => import('@/components/effects/AnimatedBackground').then(mod => ({ default: mod.AnimatedBackground })), { ssr: false });
 const CyberGrid = dynamic(() => import('@/components/effects/CyberGrid').then(mod => ({ default: mod.CyberGrid })), { ssr: false });
 const ScanLines = dynamic(() => import('@/components/effects/ScanLines').then(mod => ({ default: mod.ScanLines })), { ssr: false });
@@ -28,16 +27,11 @@ const KonamiCode = dynamic(() => import('@/components/effects/KonamiCode').then(
 const MatrixRain = dynamic(() => import('@/components/effects/MatrixRain').then(mod => ({ default: mod.MatrixRain })), { ssr: false });
 const CommandPalette = dynamic(() => import('@/components/CommandPalette').then(mod => ({ default: mod.CommandPalette })), { ssr: false });
 const FloatingElements = dynamic(() => import('@/components/effects/FloatingElements').then(mod => ({ default: mod.FloatingElements })), { ssr: false });
-const BloomEffect = dynamic(() => import('@/components/effects/BloomEffect').then(mod => ({ default: mod.BloomEffect })), { ssr: false });
-const DataStream = dynamic(() => import('@/components/effects/DataStream').then(mod => ({ default: mod.DataStream })), { ssr: false });
 const CinematicIntro = dynamic(() => import('@/components/effects/CinematicIntro').then(mod => ({ default: mod.CinematicIntro })), { ssr: false });
 const PageLoader = dynamic(() => import('@/components/PageLoader').then(mod => ({ default: mod.PageLoader })), { ssr: false });
-const GlitchEffect = dynamic(() => import('@/components/effects/GlitchEffect').then(mod => ({ default: mod.GlitchEffect })), { ssr: false });
-const ChromaticAberration = dynamic(() => import('@/components/effects/ChromaticAberration').then(mod => ({ default: mod.ChromaticAberration })), { ssr: false });
-const HolographicScene = dynamic(() => import('@/components/effects/HolographicScene').then(mod => ({ default: mod.HolographicScene })), { ssr: false });
 
 export default function Home() {
-  const [isMobile, setIsMobile] = useState(true); // Mobile-first to prevent flash of desktop effects
+  const [isMobile, setIsMobile] = useState(true); // Mobile-first
 
   useEffect(() => {
     const checkMobile = () => {
@@ -106,31 +100,21 @@ export default function Home() {
       {/* Page Loader */}
       <PageLoader />
 
-      {/* Background Effects - All devices */}
-      <AnimatedBackground />
-      <CyberGrid />
-      <ScanLines />
-      <BloomEffect />
-      <GlitchEffect />
-      <CinematicIntro />
-
-      {/* Desktop only - Heavy effects */}
+      {/* Desktop only: all effects disabled on mobile for performance */}
       {!isMobile && (
         <>
+          <AnimatedBackground />
+          <CyberGrid />
+          <ScanLines />
           <MatrixRain />
-          <NeuralNetwork />
           <MouseGlow />
-          <DataStream />
-          <HolographicScene />
           <FloatingElements />
-          <ChromaticAberration />
+          <CinematicIntro />
+          <DynamicIsland />
+          <KonamiCode />
+          <CommandPalette />
         </>
       )}
-
-      {/* UI Components - All devices */}
-      <DynamicIsland />
-      <KonamiCode />
-      <CommandPalette />
 
       <SkipToContent />
       <ScrollProgress />

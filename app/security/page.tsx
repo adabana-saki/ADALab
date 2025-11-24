@@ -180,10 +180,10 @@ export default function SecurityPage() {
                 {content[language].contactDesc}
               </p>
               <a
-                href="mailto:security@adalab.dev"
+                href="mailto:info.adalabtech@gmail.com"
                 className="text-neon-cyan hover:text-neon-cyan/80 font-mono"
               >
-                security@adalab.dev
+                info.adalabtech@gmail.com
               </a>
             </motion.div>
           </div>

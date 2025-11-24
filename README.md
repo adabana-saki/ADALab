@@ -26,7 +26,7 @@ Discord多機能Bot。リマインダー、タスク管理、ロール管理な�
 
 ## ウェブサイト
 
-公式サイト: https://adalab.dev
+公式サイト: https://adalab.pages.dev/
 
 ## お問い合わせ
 
