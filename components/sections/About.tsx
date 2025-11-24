@@ -229,9 +229,11 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.7 }}
-            className="col-span-1 md:col-span-3 lg:col-span-4"
+            className="col-span-1 md:col-span-3 lg:col-span-4 h-full"
           >
-            <GitHubHologram />
+            <div className="h-full">
+              <GitHubHologram />
+            </div>
           </motion.div>
 
           <motion.div
@@ -239,9 +241,11 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.8 }}
-            className="col-span-1 md:col-span-3 lg:col-span-8"
+            className="col-span-1 md:col-span-3 lg:col-span-8 h-full"
           >
-            <GitHubContributions />
+            <div className="h-full">
+              <GitHubContributions />
+            </div>
           </motion.div>
 
           {/* WakaTime & Qiita/Twitter */}
@@ -281,9 +285,11 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 1.2 }}
-            className="col-span-1 md:col-span-3 lg:col-span-6"
+            className="col-span-1 md:col-span-3 lg:col-span-6 h-full"
           >
-            <TerminalEmulator />
+            <div className="h-full">
+              <TerminalEmulator />
+            </div>
           </motion.div>
 
           <motion.div
@@ -291,9 +297,11 @@ export function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 1.3 }}
-            className="col-span-1 md:col-span-3 lg:col-span-6"
+            className="col-span-1 md:col-span-3 lg:col-span-6 h-full"
           >
-            <CodeSandbox />
+            <div className="h-full">
+              <CodeSandbox />
+            </div>
           </motion.div>
         </div>
       </div>

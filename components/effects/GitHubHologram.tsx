@@ -147,9 +147,9 @@ export function GitHubHologram() {
   ];
 
   return (
-    <div className="relative w-full h-full flex flex-col">
+    <div className="relative w-full h-full">
       {/* Hologram container */}
-      <div className="relative bg-black/60 backdrop-blur-xl rounded-2xl p-6 border border-neon-cyan/30 overflow-hidden flex-1 flex flex-col">
+      <div className="relative bg-black/60 backdrop-blur-xl rounded-2xl p-6 border border-neon-cyan/30 overflow-hidden h-full flex flex-col justify-center">
         {/* Animated background grid */}
         <div
           className="absolute inset-0 opacity-10"
