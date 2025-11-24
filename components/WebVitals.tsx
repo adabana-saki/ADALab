@@ -8,21 +8,10 @@ export function WebVitals() {
     // Development logging handled by browser devtools
 
     // Send to analytics in production
+    // Note: Disabled because Cloudflare Pages doesn't support API routes
+    // To enable, use a third-party analytics service (e.g., Vercel Analytics, Google Analytics)
     if (process.env.NODE_ENV === 'production') {
-      // You can send to your analytics service here
-      // Example: analytics.track('Web Vitals', metric);
-
-      const body = JSON.stringify(metric);
-      const url = '/api/vitals';
-
-      // Use `navigator.sendBeacon()` if available, falling back to `fetch()`
-      if (navigator.sendBeacon) {
-        navigator.sendBeacon(url, body);
-      } else {
-        fetch(url, { body, method: 'POST', keepalive: true }).catch((err) => {
-          console.error('Failed to send web vitals:', err);
-        });
-      }
+      // console.log('Web Vitals:', metric);
     }
   });
 
