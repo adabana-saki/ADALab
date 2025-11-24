@@ -162,12 +162,14 @@ export function Projects() {
                           )}
 
                           {/* Detail Page Link */}
-                          <Link href={project.id === '1' ? '/products/rem' : '/products/navi'}>
-                            <Button variant="outline" size="sm" className="w-full mt-2">
-                              詳細を見る
-                              <ArrowRight size={14} className="ml-2" />
+                          {project.detailPath && (
+                            <Button asChild variant="outline" size="sm" className="w-full mt-2">
+                              <Link href={project.detailPath}>
+                                詳細を見る
+                                <ArrowRight size={14} className="ml-2" />
+                              </Link>
                             </Button>
-                          </Link>
+                          )}
                         </div>
                       </motion.div>
                     )}

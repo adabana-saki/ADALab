@@ -97,7 +97,7 @@ export function Hero() {
             data-easter-egg="true"
           >
             <GlitchText className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl xl:text-[10rem]">
-              <span className="logo-text text-5xl sm:text-6xl md:text-8xl lg:text-9xl xl:text-[10rem] drop-shadow-[0_0_30px_rgba(0,245,255,0.5)]" data-text="ADA LAB">
+              <span className="logo-text drop-shadow-[0_0_30px_rgba(0,245,255,0.5)]" data-text="ADA LAB">
                 ADA LAB
               </span>
             </GlitchText>
