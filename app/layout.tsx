@@ -75,6 +75,14 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'ja_JP',
     alternateLocale: ['en_US'],
+    images: [
+      {
+        url: '/opengraph-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'ADA Lab',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
@@ -82,6 +90,7 @@ export const metadata: Metadata = {
     description:
       'シンプルで使いやすいアプリを開発する個人開発チーム。Rem bot、Naviなど、かゆいところに手が届くプロダクトを提供。',
     creator: '@ADA_Lab_tech',
+    images: ['/opengraph-image.png'],
   },
   alternates: {
     canonical: 'https://adalab.pages.dev',
