@@ -184,7 +184,7 @@ export function TerminalEmulator() {
       {/* Terminal Content */}
       <div
         ref={terminalRef}
-        className="h-80 overflow-y-auto p-4 font-mono text-sm"
+        className="h-64 overflow-y-auto p-4 font-mono text-sm"
       >
         {history.map((cmd, i) => (
           <div key={i} className="mb-2">

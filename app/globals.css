@@ -391,6 +391,76 @@
   }
 }
 
+/* Mobile Performance Optimizations */
+@media (max-width: 767px) {
+  /* Disable ALL animations and transitions on mobile */
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    animation-duration: 0s !important;
+    transition: none !important;
+    transition-duration: 0s !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Disable heavy box-shadows on mobile */
+  .glow-cyan,
+  .glow-fuchsia,
+  .glow-purple,
+  .pulse-glow {
+    box-shadow: none !important;
+    animation: none !important;
+  }
+
+  /* Simplify neon effects */
+  .neon-cyan,
+  .neon-fuchsia,
+  .neon-purple {
+    text-shadow: none !important;
+  }
+
+  .neon-border-cyan,
+  .neon-border-fuchsia {
+    box-shadow: none !important;
+  }
+
+  /* Disable bento card animations */
+  .bento-card {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .bento-card:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .bento-card::before {
+    display: none !important;
+  }
+
+  /* Disable glass effect */
+  .glass {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Disable logo text-shadow */
+  .logo-text,
+  .logo-text:hover {
+    text-shadow: none !important;
+  }
+
+  /* Disable scan animation */
+  .scan-line {
+    animation: none !important;
+  }
+}
+
 /* Tap Highlight */
 html {
   -webkit-tap-highlight-color: rgba(6, 182, 212, 0.2);
