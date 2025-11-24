@@ -168,7 +168,7 @@ export function TerminalEmulator() {
 
   return (
     <div
-      className="bg-black/90 rounded-xl border border-neon-cyan/30 overflow-hidden cursor-text h-full flex flex-col min-h-[400px]"
+      className="bg-black/90 rounded-xl border border-neon-cyan/30 overflow-hidden cursor-text h-full flex flex-col"
       onClick={() => inputRef.current?.focus()}
     >
       {/* Header */}
@@ -184,7 +184,7 @@ export function TerminalEmulator() {
       {/* Terminal Content */}
       <div
         ref={terminalRef}
-        className="flex-1 overflow-y-auto p-4 font-mono text-sm"
+        className="h-80 overflow-y-auto p-4 font-mono text-sm"
       >
         {history.map((cmd, i) => (
           <div key={i} className="mb-2">
