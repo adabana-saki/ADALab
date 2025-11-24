@@ -5,8 +5,8 @@ export function StructuredData() {
     name: 'ADA Lab',
     description:
       'ADA Labは、テクノロジーで世界を変えるプロダクトカンパニー。ADA Analytics、ADA Connect、ADA Guardなど、革新的なSaaSプロダクトを開発・運営しています。',
-    url: 'https://adalab.dev',
-    logo: 'https://adalab.dev/logo.png',
+    url: 'https://adalab.pages.dev',
+    logo: 'https://adalab.pages.dev/logo.png',
     foundingDate: '2025',
     numberOfEmployees: {
       '@type': 'QuantitativeValue',
@@ -28,13 +28,13 @@ export function StructuredData() {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'ADA Lab',
-    url: 'https://adalab.dev',
+    url: 'https://adalab.pages.dev',
     description:
       'テクノロジーで世界を変えるプロダクトカンパニー。50,000+のアクティブユーザーに支持される革新的なSaaSプロダクトを提供。',
     inLanguage: 'ja-JP',
     potentialAction: {
       '@type': 'SearchAction',
-      target: 'https://adalab.dev/search?q={search_term_string}',
+      target: 'https://adalab.pages.dev/search?q={search_term_string}',
       'query-input': 'required name=search_term_string',
     },
   };
@@ -104,31 +104,31 @@ export function StructuredData() {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://adalab.dev',
+        item: 'https://adalab.pages.dev',
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'About',
-        item: 'https://adalab.dev#about',
+        item: 'https://adalab.pages.dev#about',
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: 'Products',
-        item: 'https://adalab.dev#products',
+        item: 'https://adalab.pages.dev#products',
       },
       {
         '@type': 'ListItem',
         position: 4,
         name: 'Team',
-        item: 'https://adalab.dev#team',
+        item: 'https://adalab.pages.dev#team',
       },
       {
         '@type': 'ListItem',
         position: 5,
         name: 'Contact',
-        item: 'https://adalab.dev#contact',
+        item: 'https://adalab.pages.dev#contact',
       },
     ],
   };

@@ -2,7 +2,7 @@ export const SITE_CONFIG = {
   name: 'ADA Lab',
   description:
     'ADA Labは、シンプルで使いやすいアプリを開発する個人開発チームです。',
-  url: 'https://adalab.dev',
+  url: 'https://adalab.pages.dev',
   email: 'info.adalabtech@gmail.com',
 } as const;
 

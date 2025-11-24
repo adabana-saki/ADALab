@@ -36,7 +36,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://adalab.dev'),
+  metadataBase: new URL('https://adalab.pages.dev'),
   title: {
     default: 'ADA Lab | あなたの"ほしい"を、カタチに',
     template: '%s | ADA Lab',
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
     title: 'ADA Lab | あなたの"ほしい"を、カタチに',
     description:
       'シンプルで使いやすいアプリを開発する個人開発チーム。Rem bot、Naviなど、かゆいところに手が届くプロダクトを提供します。',
-    url: 'https://adalab.dev',
+    url: 'https://adalab.pages.dev',
     siteName: 'ADA Lab',
     type: 'website',
     locale: 'ja_JP',
@@ -84,7 +84,7 @@ export const metadata: Metadata = {
     creator: '@ADA_Lab_tech',
   },
   alternates: {
-    canonical: 'https://adalab.dev',
+    canonical: 'https://adalab.pages.dev',
   },
   robots: {
     index: true,
