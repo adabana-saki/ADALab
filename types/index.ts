@@ -34,6 +34,7 @@ export interface Project {
   challenges?: string[];
   results?: string[];
   gradient: string;
+  detailPath?: string;
 }
 
 export interface ContactFormData {
