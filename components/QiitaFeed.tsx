@@ -49,7 +49,7 @@ export function QiitaFeed() {
         const data = await response.json();
         setArticles(data);
       } catch (err) {
-        setError(content[language].error);
+        setError('Failed to fetch articles');
         console.error('Failed to fetch Qiita articles:', err);
       } finally {
         setIsLoading(false);
@@ -57,7 +57,7 @@ export function QiitaFeed() {
     }
 
     fetchQiitaArticles();
-  }, [language]);
+  }, []);
 
   return (
     <motion.div
@@ -78,6 +78,8 @@ export function QiitaFeed() {
               className="inline-block w-5 h-5 border-2 border-neon-cyan border-t-transparent rounded-full"
               animate={{ rotate: 360 }}
               transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+              role="status"
+              aria-label={content[language].loading}
             />
             <p className="text-sm text-muted-foreground mt-2">{content[language].loading}</p>
           </div>
@@ -122,7 +124,10 @@ export function QiitaFeed() {
                   </span>
                   <span className="flex items-center gap-1">
                     <Calendar size={12} />
-                    {new Date(article.created_at).toLocaleDateString(language === 'ja' ? 'ja-JP' : 'en-US')}
+                    {(() => {
+                      const date = new Date(article.created_at);
+                      return isNaN(date.getTime()) ? '-' : date.toLocaleDateString(language === 'ja' ? 'ja-JP' : 'en-US');
+                    })()}
                   </span>
                 </div>
               </div>
