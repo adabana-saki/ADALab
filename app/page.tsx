@@ -37,11 +37,11 @@ const ChromaticAberration = dynamic(() => import('@/components/effects/Chromatic
 const HolographicScene = dynamic(() => import('@/components/effects/HolographicScene').then(mod => ({ default: mod.HolographicScene })), { ssr: false });
 
 export default function Home() {
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(true); // Mobile-first to prevent flash of desktop effects
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768 || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
+      setIsMobile(window.innerWidth < 768);
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
