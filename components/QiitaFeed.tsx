@@ -64,14 +64,14 @@ export function QiitaFeed() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="glass p-6 rounded-2xl"
+      className="glass p-6 rounded-2xl h-full flex flex-col"
     >
       <div className="flex items-center gap-3 mb-4">
         <BookOpen className="w-5 h-5 text-neon-cyan" />
         <h3 className="text-lg font-bold">{content[language].title}</h3>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 flex-1 overflow-auto">
         {isLoading ? (
           <div className="text-center py-4">
             <motion.div

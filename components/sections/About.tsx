@@ -259,12 +259,13 @@ export function About() {
             <WakaTimeStats />
           </motion.div>
 
-          <div className="col-span-1 md:col-span-3 lg:col-span-6 space-y-4">
+          <div className="col-span-1 md:col-span-3 lg:col-span-6 flex flex-col gap-4">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 1.0 }}
+              className="flex-1"
             >
               <QiitaFeed />
             </motion.div>
@@ -274,6 +275,7 @@ export function About() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 1.1 }}
+              className="flex-1"
             >
               <TwitterTimeline />
             </motion.div>
