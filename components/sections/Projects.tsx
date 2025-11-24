@@ -19,7 +19,7 @@ export function Projects() {
   return (
     <section id="projects" className="py-20 md:py-32 bg-muted/20 relative overflow-hidden">
       {/* Background decoration */}
-      <div className="absolute top-1/4 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[120px]" />
+      <div className="hidden md:block absolute top-1/4 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[120px]" />
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}

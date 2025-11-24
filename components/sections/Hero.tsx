@@ -53,10 +53,10 @@ export function Hero() {
       {/* Secondary diagonal grid for depth */}
       <div className="absolute inset-0 bg-[linear-gradient(45deg,#ff00ff10_1px,transparent_1px)] bg-[size:4rem_4rem] animate-pulse" style={{ animationDuration: '4s' }} />
 
-      {/* Holographic rotating rings - More Visible */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border-2 border-neon-cyan/30 rounded-full animate-spin" style={{ animationDuration: '30s' }} />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] border-2 border-neon-fuchsia/25 rounded-full animate-spin" style={{ animationDuration: '40s', animationDirection: 'reverse' }} />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border-2 border-neon-purple/20 rounded-full animate-spin" style={{ animationDuration: '50s' }} />
+      {/* Holographic rotating rings - More Visible (hidden on mobile) */}
+      <div className="hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border-2 border-neon-cyan/30 rounded-full animate-spin" style={{ animationDuration: '30s' }} />
+      <div className="hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] border-2 border-neon-fuchsia/25 rounded-full animate-spin" style={{ animationDuration: '40s', animationDirection: 'reverse' }} />
+      <div className="hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border-2 border-neon-purple/20 rounded-full animate-spin" style={{ animationDuration: '50s' }} />
 
       {/* Hexagon pattern overlay - More Visible */}
       <div className="absolute inset-0 opacity-[0.08]" style={{
@@ -64,14 +64,14 @@ export function Hero() {
         backgroundSize: '60px 60px'
       }} />
 
-      {/* Cyberpunk Glow Effects - Enhanced */}
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-neon-cyan/30 rounded-full blur-[150px] animate-pulse-glow" />
-      <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-neon-fuchsia/30 rounded-full blur-[150px] animate-pulse-glow" style={{ animationDelay: '1s' }} />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-neon-purple/20 rounded-full blur-[180px] animate-pulse" style={{ animationDelay: '0.5s' }} />
+      {/* Cyberpunk Glow Effects - Enhanced (hidden on mobile) */}
+      <div className="hidden md:block absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-neon-cyan/30 rounded-full blur-[150px] animate-pulse-glow" />
+      <div className="hidden md:block absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-neon-fuchsia/30 rounded-full blur-[150px] animate-pulse-glow" style={{ animationDelay: '1s' }} />
+      <div className="hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-neon-purple/20 rounded-full blur-[180px] animate-pulse" style={{ animationDelay: '0.5s' }} />
 
-      {/* Corner accent glows */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-neon-cyan/20 rounded-full blur-[120px] animate-float" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-neon-fuchsia/20 rounded-full blur-[120px] animate-float" style={{ animationDelay: '2s' }} />
+      {/* Corner accent glows (hidden on mobile) */}
+      <div className="hidden md:block absolute top-0 right-0 w-96 h-96 bg-neon-cyan/20 rounded-full blur-[120px] animate-float" />
+      <div className="hidden md:block absolute bottom-0 left-0 w-96 h-96 bg-neon-fuchsia/20 rounded-full blur-[120px] animate-float" style={{ animationDelay: '2s' }} />
 
       {/* Data stream lines - More Visible */}
       <div className="absolute top-0 left-1/4 w-0.5 h-full bg-gradient-to-b from-transparent via-neon-cyan/40 to-transparent animate-pulse" style={{ animationDuration: '3s' }} />

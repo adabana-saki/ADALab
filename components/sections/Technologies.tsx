@@ -108,8 +108,8 @@ export function Technologies() {
 
   return (
     <section id="technologies" className="py-20 md:py-32 bg-background relative">
-      {/* Background decoration */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[150px]" />
+      {/* Background decoration (hidden on mobile) */}
+      <div className="hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[150px]" />
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}
