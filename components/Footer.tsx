@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Mail, Github, Twitter, Heart } from 'lucide-react';
+import { Mail, Github, Twitter, Heart, Gift } from 'lucide-react';
 import { SiDiscord, SiQiita } from 'react-icons/si';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -174,9 +174,18 @@ export function Footer() {
                 </a>
               ))}
             </div>
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground text-sm mb-3">
               info.adalabtech@gmail.com
             </p>
+            <a
+              href="https://www.amazon.jp/hz/wishlist/ls/1FXQCNL1IGYNG?ref_=wl_share"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm text-neon-cyan hover:text-neon-cyan/80 transition-colors"
+            >
+              <Gift size={14} />
+              {language === 'ja' ? 'ほしいものリスト' : 'Wishlist'}
+            </a>
           </motion.div>
         </div>
 

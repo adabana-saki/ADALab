@@ -75,22 +75,13 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'ja_JP',
     alternateLocale: ['en_US'],
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'ADA Lab - あなたの"ほしい"を、カタチに',
-      },
-    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'ADA Lab | あなたの"ほしい"を、カタチに',
     description:
       'シンプルで使いやすいアプリを開発する個人開発チーム。Rem bot、Naviなど、かゆいところに手が届くプロダクトを提供。',
-    images: ['/og-image.png'],
-    creator: '@saki_18191',
+    creator: '@ADA_Lab_tech',
   },
   alternates: {
     canonical: 'https://adalab.dev',
@@ -105,14 +96,6 @@ export const metadata: Metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
-  },
-  icons: {
-    icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/icon.png', type: 'image/png' },
-    ],
-    shortcut: '/icon.png',
-    apple: '/apple-touch-icon.png',
   },
 };
 
