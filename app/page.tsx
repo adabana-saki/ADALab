@@ -29,6 +29,20 @@ const RippleEffect = dynamic(() => import('@/components/effects/RippleEffect').t
 const ParallaxLayers = dynamic(() => import('@/components/effects/ParallaxScroll').then(mod => ({ default: mod.ParallaxLayers })), { ssr: false });
 const MatrixRain = dynamic(() => import('@/components/effects/MatrixRain').then(mod => ({ default: mod.MatrixRain })), { ssr: false });
 const CommandPalette = dynamic(() => import('@/components/CommandPalette').then(mod => ({ default: mod.CommandPalette })), { ssr: false });
+const TextScrambleEffect = dynamic(() => import('@/components/effects/TextScrambleEffect').then(mod => ({ default: mod.TextScrambleEffect })), { ssr: false });
+const FloatingElements = dynamic(() => import('@/components/effects/FloatingElements').then(mod => ({ default: mod.FloatingElements })), { ssr: false });
+const BloomEffect = dynamic(() => import('@/components/effects/BloomEffect').then(mod => ({ default: mod.BloomEffect })), { ssr: false });
+const DataStream = dynamic(() => import('@/components/effects/DataStream').then(mod => ({ default: mod.DataStream })), { ssr: false });
+const CinematicIntro = dynamic(() => import('@/components/effects/CinematicIntro').then(mod => ({ default: mod.CinematicIntro })), { ssr: false });
+const PageLoader = dynamic(() => import('@/components/PageLoader').then(mod => ({ default: mod.PageLoader })), { ssr: false });
+const GlitchEffect = dynamic(() => import('@/components/effects/GlitchEffect').then(mod => ({ default: mod.GlitchEffect })), { ssr: false });
+const ChromaticAberration = dynamic(() => import('@/components/effects/ChromaticAberration').then(mod => ({ default: mod.ChromaticAberration })), { ssr: false });
+const EnhancedParticles = dynamic(() => import('@/components/effects/EnhancedParticles').then(mod => ({ default: mod.EnhancedParticles })), { ssr: false });
+const LiquidCursor = dynamic(() => import('@/components/effects/LiquidCursor').then(mod => ({ default: mod.LiquidCursor })), { ssr: false });
+const ParticleBurst = dynamic(() => import('@/components/effects/ParticleBurst').then(mod => ({ default: mod.ParticleBurst })), { ssr: false });
+const WaveShader = dynamic(() => import('@/components/effects/WaveShader').then(mod => ({ default: mod.WaveShader })), { ssr: false });
+const HolographicScene = dynamic(() => import('@/components/effects/HolographicScene').then(mod => ({ default: mod.HolographicScene })), { ssr: false });
+const MagneticElements = dynamic(() => import('@/components/effects/MagneticElements').then(mod => ({ default: mod.MagneticElements })), { ssr: false });
 
 export default function Home() {
   useEffect(() => {
@@ -86,6 +100,9 @@ export default function Home() {
 
   return (
     <>
+      {/* Page Loader */}
+      <PageLoader />
+
       {/* Background Effects - Optimized */}
       <ParallaxLayers />
       <MatrixRain />
@@ -98,6 +115,19 @@ export default function Home() {
       <KonamiCode />
       <RippleEffect />
       <CommandPalette />
+      <TextScrambleEffect />
+      <FloatingElements />
+      <BloomEffect />
+      <DataStream />
+      <CinematicIntro />
+      <GlitchEffect />
+      <ChromaticAberration />
+      <EnhancedParticles />
+      <LiquidCursor />
+      <ParticleBurst />
+      <WaveShader />
+      <HolographicScene />
+      <MagneticElements />
 
       <SkipToContent />
       <ScrollProgress />
