@@ -122,7 +122,7 @@ export function QiitaFeed() {
                   </span>
                   <span className="flex items-center gap-1">
                     <Calendar size={12} />
-                    {new Date(article.created_at).toLocaleDateString('ja-JP')}
+                    {new Date(article.created_at).toLocaleDateString(language === 'ja' ? 'ja-JP' : 'en-US')}
                   </span>
                 </div>
               </div>

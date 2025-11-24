@@ -113,7 +113,7 @@ export function CodeSandbox() {
           <textarea
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            className="w-full h-48 p-4 bg-transparent text-sm font-mono text-green-400 resize-none focus:outline-none"
+            className="w-full h-64 p-4 bg-transparent text-sm font-mono text-green-400 resize-none focus:outline-none"
             spellCheck={false}
           />
         </div>
