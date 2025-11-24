@@ -36,6 +36,7 @@ export const PROJECTS: Project[] = [
     results: [
       'Coming Soon',
     ],
+    detailPath: '/products/rem',
   },
   {
     id: '2',
@@ -67,6 +68,7 @@ export const PROJECTS: Project[] = [
     results: [
       'Coming Soon',
     ],
+    detailPath: '/products/navi',
   },
 ];
 
