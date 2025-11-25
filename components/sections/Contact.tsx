@@ -66,6 +66,7 @@ export function Contact() {
       newInquiry: '新しいお問い合わせ',
       formUnavailable: 'お問い合わせフォームは現在ご利用いただけません。',
       contactByEmail: 'メールにてお問い合わせください: ',
+      followUs: 'フォローする',
       checkInput: '入力内容を確認してください',
       sendFailed: '送信に失敗しました。もう一度お試しください。',
       nameRequired: 'お名前を入力してください',
@@ -97,6 +98,7 @@ export function Contact() {
       newInquiry: 'New Inquiry',
       formUnavailable: 'The contact form is currently unavailable.',
       contactByEmail: 'Please contact us by email: ',
+      followUs: 'Follow Us',
       checkInput: 'Please check your input',
       sendFailed: 'Failed to send. Please try again.',
       nameRequired: 'Please enter your name',
@@ -339,7 +341,7 @@ export function Contact() {
 
               {/* Social Links */}
               <div>
-                <h4 className="font-semibold mb-4">Follow Us</h4>
+                <h4 className="font-semibold mb-4">{content[language].followUs}</h4>
                 <div className="flex gap-4">
                   {socialLinks.map((social) => (
                     <a

@@ -48,6 +48,10 @@ export function CommandPalette() {
       roadmap: 'ロードマップ',
       toggleTheme: 'テーマ切り替え',
       toggleLanguage: '言語切り替え',
+      noResults: '結果が見つかりません',
+      navigate: '移動',
+      select: '選択',
+      close: '閉じる',
     },
     en: {
       placeholder: 'Search commands...',
@@ -61,6 +65,10 @@ export function CommandPalette() {
       roadmap: 'Roadmap',
       toggleTheme: 'Toggle Theme',
       toggleLanguage: 'Toggle Language',
+      noResults: 'No results found',
+      navigate: 'navigate',
+      select: 'select',
+      close: 'close',
     },
   };
 
@@ -207,7 +215,7 @@ export function CommandPalette() {
               <div className="max-h-80 overflow-y-auto p-2">
                 {filteredCommands.length === 0 ? (
                   <p className="text-center text-muted-foreground py-8 text-sm">
-                    No results found
+                    {content[language].noResults}
                   </p>
                 ) : (
                   <div className="space-y-1">
@@ -231,9 +239,9 @@ export function CommandPalette() {
               </div>
 
               <div className="px-4 py-2 border-t border-white/10 text-xs text-muted-foreground">
-                <kbd className="font-mono bg-white/5 px-1.5 py-0.5 rounded">↑↓</kbd> navigate
-                <kbd className="font-mono bg-white/5 px-1.5 py-0.5 rounded ml-2">↵</kbd> select
-                <kbd className="font-mono bg-white/5 px-1.5 py-0.5 rounded ml-2">esc</kbd> close
+                <kbd className="font-mono bg-white/5 px-1.5 py-0.5 rounded">↑↓</kbd> {content[language].navigate}
+                <kbd className="font-mono bg-white/5 px-1.5 py-0.5 rounded ml-2">↵</kbd> {content[language].select}
+                <kbd className="font-mono bg-white/5 px-1.5 py-0.5 rounded ml-2">esc</kbd> {content[language].close}
               </div>
             </div>
           </motion.div>
