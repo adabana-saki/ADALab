@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useReportWebVitals } from 'next/web-vitals';
 
 export function WebVitals() {
-  useReportWebVitals((metric) => {
+  useReportWebVitals((_metric) => {
     // Development logging handled by browser devtools
 
     // Send to analytics in production

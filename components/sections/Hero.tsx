@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { Button } from '../ui/button';
 import dynamic from 'next/dynamic';
-import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { GlitchText } from '../effects/GlitchText';
 import { TypingAnimation } from '../effects/TypingAnimation';
