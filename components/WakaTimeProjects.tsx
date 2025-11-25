@@ -11,12 +11,12 @@ export function WakaTimeProjects() {
 
   const content = {
     ja: {
-      title: 'Projects',
+      title: 'Coding Time',
       viewProfile: 'WakaTimeで詳細を見る',
       loadError: 'チャートを読み込めませんでした',
     },
     en: {
-      title: 'Projects',
+      title: 'Coding Time',
       viewProfile: 'View details on WakaTime',
       loadError: 'Failed to load chart',
     },
