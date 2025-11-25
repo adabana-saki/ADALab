@@ -10,7 +10,7 @@ import { GitHubContributions } from '../GitHubContributions';
 import { WakaTimeStats } from '../WakaTimeStats';
 import { TerminalEmulator } from '../effects/TerminalEmulator';
 import { CodeSandbox } from '../effects/CodeSandbox';
-import { TwitterTimeline } from '../TwitterTimeline';
+import { WakaTimeProjects } from '../WakaTimeProjects';
 
 const featuresData = {
   ja: [
@@ -248,7 +248,7 @@ export function About() {
             </div>
           </motion.div>
 
-          {/* WakaTime & Qiita/Twitter */}
+          {/* WakaTime & Qiita/Projects */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -277,7 +277,7 @@ export function About() {
               transition={{ duration: 0.6, delay: 1.1 }}
               className="flex-1"
             >
-              <TwitterTimeline />
+              <WakaTimeProjects />
             </motion.div>
           </div>
 
