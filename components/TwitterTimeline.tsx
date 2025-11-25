@@ -2,7 +2,7 @@
 
 import { useLanguage } from '@/contexts/LanguageContext';
 import { motion } from 'framer-motion';
-import { Twitter } from 'lucide-react';
+import { Twitter as XIcon } from 'lucide-react';
 import { useEffect } from 'react';
 
 declare global {
@@ -20,11 +20,11 @@ export function TwitterTimeline() {
 
   const content = {
     ja: {
-      title: 'Twitter',
+      title: 'X',
       follow: 'フォローする',
     },
     en: {
-      title: 'Twitter',
+      title: 'X',
       follow: 'Follow',
     },
   };
@@ -53,7 +53,7 @@ export function TwitterTimeline() {
       className="glass p-6 rounded-2xl h-full flex flex-col"
     >
       <div className="flex items-center gap-3 mb-4">
-        <Twitter className="w-5 h-5 text-neon-cyan" />
+        <XIcon className="w-5 h-5 text-neon-cyan" />
         <h3 className="text-lg font-bold">{content[language].title}</h3>
       </div>
 
