@@ -39,6 +39,17 @@ export function TwitterTimeline() {
   useEffect(() => {
     if (!isMounted) return;
 
+    // 既にスクリプトが存在するかチェック
+    const existingScript = document.querySelector('script[src="https://platform.twitter.com/widgets.js"]');
+
+    if (existingScript) {
+      // 既に読み込み済みならwidgets.loadを呼ぶだけ
+      if (window.twttr) {
+        window.twttr.widgets.load();
+      }
+      return;
+    }
+
     const script = document.createElement('script');
     script.src = 'https://platform.twitter.com/widgets.js';
     script.async = true;
@@ -48,13 +59,7 @@ export function TwitterTimeline() {
       }
     };
     document.body.appendChild(script);
-
-    return () => {
-      const existingScript = document.querySelector('script[src="https://platform.twitter.com/widgets.js"]');
-      if (existingScript) {
-        document.body.removeChild(existingScript);
-      }
-    };
+    // スクリプトは削除しない（グローバルに使われるため）
   }, [isMounted]);
 
   return (
@@ -76,7 +81,7 @@ export function TwitterTimeline() {
             data-theme="dark"
             data-height="300"
             data-chrome="noheader nofooter noborders transparent"
-            href="https://x.com/ADA_Lab_tech"
+            href="https://twitter.com/ADA_Lab_tech"
           >
             {content[language].loading}
           </a>
