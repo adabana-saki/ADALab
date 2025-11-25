@@ -2,6 +2,24 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '@/contexts/LanguageContext';
+
+const uiContent = {
+  ja: {
+    achievement: 'アチーブメント解除',
+    title: 'コナミコードマスター!',
+    activated: 'ウルトラマトリックスモード発動',
+    description: '秘密の開発者モードを解除しました！',
+    escHint: 'ESCで無効化',
+  },
+  en: {
+    achievement: 'ACHIEVEMENT UNLOCKED',
+    title: 'Konami Code Master!',
+    activated: 'ULTRA MATRIX MODE ACTIVATED',
+    description: "You've unlocked the secret developer mode!",
+    escHint: 'Press ESC to disable',
+  },
+};
 
 const KONAMI_CODE = [
   'ArrowUp',
@@ -21,11 +39,23 @@ export function KonamiCode() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { language } = useLanguage();
+  const content = uiContent[language];
 
   useEffect(() => {
     let position = 0;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // ESC to disable
+      if (e.key === 'Escape' && show) {
+        setShow(false);
+        document.body.classList.remove('konami-active');
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+        return;
+      }
+
       const key = e.key.toLowerCase();
       const expected = KONAMI_CODE[position].toLowerCase();
 
@@ -67,7 +97,7 @@ export function KonamiCode() {
       }
       document.body.classList.remove('konami-active');
     };
-  }, []);
+  }, [show]);
 
   // Matrix rain effect
   useEffect(() => {
@@ -157,18 +187,18 @@ export function KonamiCode() {
             exit={{ opacity: 0, scale: 0.5, rotate: 10 }}
             className="fixed inset-0 z-[300] pointer-events-none flex items-center justify-center"
           >
-          <div className="bg-black/90 backdrop-blur-md border-2 neon-border-cyan rounded-2xl p-8 shadow-2xl">
+          <div className="relative bg-black/90 backdrop-blur-md border-2 neon-border-cyan rounded-2xl p-8 shadow-2xl overflow-hidden">
             {/* Achievement Header */}
             <motion.div
               initial={{ y: -20 }}
               animate={{ y: 0 }}
               className="text-center mb-6"
             >
-              <div className="text-sm text-neon-cyan font-mono mb-2">
-                🎮 ACHIEVEMENT UNLOCKED 🎮
-              </div>
+              <span className="text-sm text-neon-cyan font-mono mb-2 block">
+                🎮 {content.achievement} 🎮
+              </span>
               <h2 className="text-4xl font-bold holographic-text mb-2">
-                Konami Code Master!
+                {content.title}
               </h2>
               <div className="h-1 w-32 mx-auto bg-gradient-to-r from-neon-cyan via-neon-fuchsia to-neon-purple" />
             </motion.div>
@@ -183,12 +213,14 @@ export function KonamiCode() {
                   transition={{ delay: i * 0.1 }}
                   className="w-10 h-10 bg-gradient-to-br from-neon-cyan/20 to-neon-purple/20 border border-neon-cyan/50 rounded-lg flex items-center justify-center text-xs font-mono neon-cyan"
                 >
-                  {key === 'ArrowUp' && '↑'}
-                  {key === 'ArrowDown' && '↓'}
-                  {key === 'ArrowLeft' && '←'}
-                  {key === 'ArrowRight' && '→'}
-                  {key === 'b' && 'B'}
-                  {key === 'a' && 'A'}
+                  <span>
+                    {key === 'ArrowUp' && '↑'}
+                    {key === 'ArrowDown' && '↓'}
+                    {key === 'ArrowLeft' && '←'}
+                    {key === 'ArrowRight' && '→'}
+                    {key === 'b' && 'B'}
+                    {key === 'a' && 'A'}
+                  </span>
                 </motion.div>
               ))}
             </div>
@@ -201,13 +233,13 @@ export function KonamiCode() {
               className="text-center space-y-2"
             >
               <p className="text-neon-fuchsia font-medium">
-                ✨ ULTRA MATRIX MODE ACTIVATED ✨
+                ✨ {content.activated} ✨
               </p>
               <p className="text-sm text-muted-foreground">
-                You've unlocked the secret developer mode!
+                {content.description}
               </p>
               <p className="text-xs text-neon-cyan/70 font-mono">
-                Press ESC to disable
+                {content.escHint}
               </p>
             </motion.div>
 
@@ -215,7 +247,8 @@ export function KonamiCode() {
             {[...Array(12)].map((_, i) => (
               <motion.div
                 key={i}
-                className="absolute w-2 h-2 bg-neon-cyan rounded-full"
+                className="absolute w-2 h-2 bg-neon-cyan rounded-full pointer-events-none"
+                style={{ willChange: 'transform, opacity' }}
                 initial={{
                   x: '50%',
                   y: '50%',
