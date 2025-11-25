@@ -80,17 +80,22 @@ export const metadata: Metadata = {
         url: 'https://adalab.pages.dev/opengraph-image.png',
         width: 1200,
         height: 630,
-        alt: 'ADA Lab',
+        alt: 'ADA Lab - あなたの"ほしい"を、カタチに',
+        type: 'image/png',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
+    site: '@ADA_Lab_tech',
+    creator: '@ADA_Lab_tech',
     title: 'ADA Lab | あなたの"ほしい"を、カタチに',
     description:
       'シンプルで使いやすいアプリを開発する個人開発チーム。Rem bot、Naviなど、かゆいところに手が届くプロダクトを提供。',
-    creator: '@ADA_Lab_tech',
-    images: ['https://adalab.pages.dev/opengraph-image.png'],
+    images: {
+      url: 'https://adalab.pages.dev/twitter-image.png',
+      alt: 'ADA Lab - あなたの"ほしい"を、カタチに',
+    },
   },
   alternates: {
     canonical: 'https://adalab.pages.dev',
