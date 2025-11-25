@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { ChevronDown, HelpCircle } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // シンプルなマークダウンをHTMLに変換（静的コンテンツ専用）
 function parseMarkdown(text: string): string {
@@ -21,59 +22,124 @@ function parseMarkdown(text: string): string {
     .replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
 }
 
-const faqs = [
-  {
-    id: '1',
-    question: 'ADA Labとは何ですか？',
-    answer:
-      'ADA Labは、日常の「あったらいいな」を形にするプロダクトカンパニーです。シンプルで使いやすいアプリケーションを個人開発で提供しています。「あなたの"ほしい"を、カタチに。」をモットーに活動しています。',
+const faqsData = {
+  ja: [
+    {
+      id: '1',
+      question: 'ADA Labとは何ですか？',
+      answer:
+        'ADA Labは、日常の「あったらいいな」を形にするプロダクトカンパニーです。シンプルで使いやすいアプリケーションを個人開発で提供しています。「あなたの"ほしい"を、カタチに。」をモットーに活動しています。',
+    },
+    {
+      id: '2',
+      question: 'どのようなプロダクトを開発していますか？',
+      answer:
+        '現在、以下のプロダクトを開発中です：\n\n- **Rem bot**: Discordの多機能管理Bot。リマインド、投票作成、読み上げ、サーバー管理、ゲームなど\n- **Navi**: 片手でスマホを完全操作できるモバイルアプリ。満員電車でも快適に使えます\n\n今後もユーザーの声を聞きながら、新しいプロダクトを開発していきます。',
+    },
+    {
+      id: '3',
+      question: 'プロダクトは無料で使えますか？',
+      answer:
+        '基本的な機能は無料でお使いいただけます。\n\n一部の高度な機能やプレミアム機能については、将来的に有料プランを設ける可能性がありますが、コア機能は常に無料で提供する予定です。詳細は各プロダクトのページでご確認ください。',
+    },
+    {
+      id: '4',
+      question: 'Rem botをDiscordサーバーに導入するにはどうすればいいですか？',
+      answer:
+        'Rem botの導入は簡単です：\n\n1. プロダクトページの「Discordに追加」ボタンをクリック\n2. DiscordのOAuth認証画面で、導入するサーバーを選択\n3. 必要な権限を許可\n4. 完了！\n\n導入後は「/help」コマンドで使い方を確認できます。',
+    },
+    {
+      id: '5',
+      question: 'バグを見つけた場合や機能リクエストはどこに送ればいいですか？',
+      answer:
+        'バグ報告や機能リクエストは以下の方法で受け付けています：\n\n- **お問い合わせフォーム**: このサイトのContactセクションから\n- **メール**: info.adalabtech@gmail.com\n- **X**: @ADA_Lab_tech へDMまたはリプライ\n- **GitHub Issues**: 各プロダクトのリポジトリにて\n\nユーザーからのフィードバックは大歓迎です！',
+    },
+    {
+      id: '6',
+      question: 'プライバシーやデータの取り扱いはどうなっていますか？',
+      answer:
+        'ユーザーのプライバシーは最優先で保護しています。\n\n- 必要最小限のデータのみを収集\n- データは暗号化して保存\n- 第三者への提供は行いません\n- いつでもデータの削除をリクエスト可能\n\n詳細はプライバシーポリシーをご確認ください。',
+    },
+    {
+      id: '7',
+      question: 'サポートの対応時間は？',
+      answer:
+        'メールやSNSでのお問い合わせは、8:00〜24:00（日本時間）で対応しています。\n\n個人開発のため、回答には数日お時間をいただく場合がありますが、必ず返信いたします。緊急の問題（セキュリティ関連など）については優先的に対応します。',
+    },
+    {
+      id: '8',
+      question: 'どのような技術を使っていますか？',
+      answer:
+        '主に以下の技術スタックを使用しています：\n\n- **フロントエンド**: React, Next.js, TypeScript, Tailwind CSS\n- **バックエンド**: Node.js, Python, Discord.js\n- **モバイル**: React Native, Expo\n- **インフラ**: Vercel, Google Cloud, MongoDB\n\n常に最新の技術をキャッチアップし、最適なものを選択しています。',
+    },
+  ],
+  en: [
+    {
+      id: '1',
+      question: 'What is ADA Lab?',
+      answer:
+        'ADA Lab is a product company that turns everyday "nice-to-haves" into reality. We provide simple and easy-to-use applications through indie development. Our motto is "Turning your wishes into reality."',
+    },
+    {
+      id: '2',
+      question: 'What products are you developing?',
+      answer:
+        'We are currently developing the following products:\n\n- **Rem bot**: A multi-functional Discord management bot with reminders, polls, text-to-speech, server management, games, and more\n- **Navi**: A mobile app for complete one-handed smartphone control, perfect for crowded trains\n\nWe continue to develop new products based on user feedback.',
+    },
+    {
+      id: '3',
+      question: 'Are your products free to use?',
+      answer:
+        'Basic features are free to use.\n\nWhile we may introduce paid plans for some advanced or premium features in the future, core functionality will always remain free. Please check each product page for details.',
+    },
+    {
+      id: '4',
+      question: 'How do I add Rem bot to my Discord server?',
+      answer:
+        'Adding Rem bot is easy:\n\n1. Click the "Add to Discord" button on the product page\n2. Select the server you want to add it to on the Discord OAuth screen\n3. Grant the required permissions\n4. Done!\n\nAfter installation, use the "/help" command to learn how to use it.',
+    },
+    {
+      id: '5',
+      question: 'Where can I report bugs or request features?',
+      answer:
+        'We accept bug reports and feature requests through:\n\n- **Contact Form**: From the Contact section on this site\n- **Email**: info.adalabtech@gmail.com\n- **X**: DM or reply to @ADA_Lab_tech\n- **GitHub Issues**: On each product repository\n\nWe welcome feedback from our users!',
+    },
+    {
+      id: '6',
+      question: 'How do you handle privacy and data?',
+      answer:
+        'We prioritize protecting user privacy.\n\n- We collect only minimal necessary data\n- Data is stored encrypted\n- We do not share data with third parties\n- You can request data deletion at any time\n\nPlease see our Privacy Policy for details.',
+    },
+    {
+      id: '7',
+      question: 'What are your support hours?',
+      answer:
+        'We respond to email and social media inquiries from 8:00 to 24:00 (Japan Time).\n\nAs an indie developer, responses may take a few days, but we will always reply. Urgent issues (such as security concerns) are prioritized.',
+    },
+    {
+      id: '8',
+      question: 'What technologies do you use?',
+      answer:
+        'We primarily use the following tech stack:\n\n- **Frontend**: React, Next.js, TypeScript, Tailwind CSS\n- **Backend**: Node.js, Python, Discord.js\n- **Mobile**: React Native, Expo\n- **Infrastructure**: Vercel, Google Cloud, MongoDB\n\nWe constantly keep up with the latest technologies and choose the best fit for each project.',
+    },
+  ],
+};
+
+const uiContent = {
+  ja: {
+    subtitle: 'よくあるご質問にお答えします',
+    moreQuestions: 'その他のご質問がございましたら、お気軽にお問い合わせください',
+    contactUs: 'お問い合わせ →',
   },
-  {
-    id: '2',
-    question: 'どのようなプロダクトを開発していますか？',
-    answer:
-      '現在、以下のプロダクトを開発中です：\n\n- **Rem bot**: Discordの多機能管理Bot。リマインド、投票作成、読み上げ、サーバー管理、ゲームなど\n- **Navi**: 片手でスマホを完全操作できるモバイルアプリ。満員電車でも快適に使えます\n\n今後もユーザーの声を聞きながら、新しいプロダクトを開発していきます。',
+  en: {
+    subtitle: 'Answers to commonly asked questions',
+    moreQuestions: 'If you have any other questions, please feel free to contact us',
+    contactUs: 'Contact Us →',
   },
-  {
-    id: '3',
-    question: 'プロダクトは無料で使えますか？',
-    answer:
-      '基本的な機能は無料でお使いいただけます。\n\n一部の高度な機能やプレミアム機能については、将来的に有料プランを設ける可能性がありますが、コア機能は常に無料で提供する予定です。詳細は各プロダクトのページでご確認ください。',
-  },
-  {
-    id: '4',
-    question: 'Rem botをDiscordサーバーに導入するにはどうすればいいですか？',
-    answer:
-      'Rem botの導入は簡単です：\n\n1. プロダクトページの「Discordに追加」ボタンをクリック\n2. DiscordのOAuth認証画面で、導入するサーバーを選択\n3. 必要な権限を許可\n4. 完了！\n\n導入後は「/help」コマンドで使い方を確認できます。',
-  },
-  {
-    id: '5',
-    question: 'バグを見つけた場合や機能リクエストはどこに送ればいいですか？',
-    answer:
-      'バグ報告や機能リクエストは以下の方法で受け付けています：\n\n- **お問い合わせフォーム**: このサイトのContactセクションから\n- **メール**: info.adalabtech@gmail.com\n- **X**: @ADA_Lab_tech へDMまたはリプライ\n- **GitHub Issues**: 各プロダクトのリポジトリにて\n\nユーザーからのフィードバックは大歓迎です！',
-  },
-  {
-    id: '6',
-    question: 'プライバシーやデータの取り扱いはどうなっていますか？',
-    answer:
-      'ユーザーのプライバシーは最優先で保護しています。\n\n- 必要最小限のデータのみを収集\n- データは暗号化して保存\n- 第三者への提供は行いません\n- いつでもデータの削除をリクエスト可能\n\n詳細はプライバシーポリシーをご確認ください。',
-  },
-  {
-    id: '7',
-    question: 'サポートの対応時間は？',
-    answer:
-      'メールやSNSでのお問い合わせは、8:00〜24:00（日本時間）で対応しています。\n\n個人開発のため、回答には数日お時間をいただく場合がありますが、必ず返信いたします。緊急の問題（セキュリティ関連など）については優先的に対応します。',
-  },
-  {
-    id: '8',
-    question: 'どのような技術を使っていますか？',
-    answer:
-      '主に以下の技術スタックを使用しています：\n\n- **フロントエンド**: React, Next.js, TypeScript, Tailwind CSS\n- **バックエンド**: Node.js, Python, Discord.js\n- **モバイル**: React Native, Expo\n- **インフラ**: Vercel, Google Cloud, MongoDB\n\n常に最新の技術をキャッチアップし、最適なものを選択しています。',
-  },
-];
+};
 
 interface FAQItemProps {
-  faq: typeof faqs[0];
+  faq: typeof faqsData.ja[0];
   index: number;
 }
 
@@ -125,6 +191,10 @@ function FAQItem({ faq, index }: FAQItemProps) {
 }
 
 export function FAQ() {
+  const { language } = useLanguage();
+  const faqs = faqsData[language];
+  const content = uiContent[language];
+
   return (
     <section id="faq" className="py-20 md:py-32 bg-muted/20 relative overflow-hidden">
       {/* Background decoration */}
@@ -146,7 +216,7 @@ export function FAQ() {
             Frequently Asked <span className="gradient-text">Questions</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            よくあるご質問にお答えします
+            {content.subtitle}
           </p>
         </motion.div>
 
@@ -166,13 +236,13 @@ export function FAQ() {
           className="text-center mt-16"
         >
           <p className="text-lg text-muted-foreground mb-4">
-            その他のご質問がございましたら、お気軽にお問い合わせください
+            {content.moreQuestions}
           </p>
           <a
             href="#contact"
             className="text-primary hover:text-primary/80 font-semibold text-lg underline underline-offset-4"
           >
-            お問い合わせ →
+            {content.contactUs}
           </a>
         </motion.div>
       </div>

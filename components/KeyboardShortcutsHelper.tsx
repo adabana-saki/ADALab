@@ -3,22 +3,57 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Keyboard } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-const shortcuts = [
-  { keys: ['H'], description: 'ホームへ移動' },
-  { keys: ['A'], description: 'About セクションへ移動' },
-  { keys: ['T'], description: 'Technologies セクションへ移動' },
-  { keys: ['P'], description: 'Projects セクションへ移動' },
-  { keys: ['N'], description: 'News セクションへ移動' },
-  { keys: ['F'], description: 'FAQ セクションへ移動' },
-  { keys: ['C'], description: 'Contact セクションへ移動' },
-  { keys: ['Ctrl', '↑'], description: 'ページトップへスクロール' },
-  { keys: ['?'], description: 'このヘルプを表示' },
-  { keys: ['Esc'], description: 'モーダル/ヘルプを閉じる' },
-];
+const shortcutsData = {
+  ja: [
+    { keys: ['H'], description: 'ホームへ移動' },
+    { keys: ['A'], description: 'About セクションへ移動' },
+    { keys: ['T'], description: 'Technologies セクションへ移動' },
+    { keys: ['P'], description: 'Projects セクションへ移動' },
+    { keys: ['N'], description: 'News セクションへ移動' },
+    { keys: ['F'], description: 'FAQ セクションへ移動' },
+    { keys: ['C'], description: 'Contact セクションへ移動' },
+    { keys: ['Ctrl', '↑'], description: 'ページトップへスクロール' },
+    { keys: ['?'], description: 'このヘルプを表示' },
+    { keys: ['Esc'], description: 'モーダル/ヘルプを閉じる' },
+  ],
+  en: [
+    { keys: ['H'], description: 'Go to Home' },
+    { keys: ['A'], description: 'Go to About section' },
+    { keys: ['T'], description: 'Go to Technologies section' },
+    { keys: ['P'], description: 'Go to Projects section' },
+    { keys: ['N'], description: 'Go to News section' },
+    { keys: ['F'], description: 'Go to FAQ section' },
+    { keys: ['C'], description: 'Go to Contact section' },
+    { keys: ['Ctrl', '↑'], description: 'Scroll to top' },
+    { keys: ['?'], description: 'Show this help' },
+    { keys: ['Esc'], description: 'Close modal/help' },
+  ],
+};
+
+const uiContent = {
+  ja: {
+    title: 'キーボードショートカット',
+    ariaLabel: 'キーボードショートカットヘルプ',
+    tooltip: '? でヘルプ',
+    close: '閉じる',
+    footer: 'このヘルプを切り替え',
+  },
+  en: {
+    title: 'Keyboard Shortcuts',
+    ariaLabel: 'Keyboard shortcuts help',
+    tooltip: '? for help',
+    close: 'Close',
+    footer: 'to toggle this help',
+  },
+};
 
 export function KeyboardShortcutsHelper() {
   const [isOpen, setIsOpen] = useState(false);
+  const { language } = useLanguage();
+  const shortcuts = shortcutsData[language];
+  const content = uiContent[language];
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -41,7 +76,7 @@ export function KeyboardShortcutsHelper() {
       <button
         onClick={() => setIsOpen(true)}
         className="fixed bottom-6 left-6 z-[100] w-10 h-10 rounded-full bg-muted/80 backdrop-blur-sm border border-border hover:bg-muted hover:scale-105 transition-all shadow-lg flex items-center justify-center group"
-        aria-label="キーボードショートカットヘルプ"
+        aria-label={content.ariaLabel}
       >
         <Keyboard
           size={16}
@@ -51,7 +86,7 @@ export function KeyboardShortcutsHelper() {
         {/* Tooltip */}
         <div className="absolute bottom-full mb-2 left-0 px-2 py-1 bg-popover border border-border rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-md">
           <span className="text-xs text-muted-foreground">
-            ? でヘルプ
+            {content.tooltip}
           </span>
         </div>
       </button>
@@ -82,13 +117,13 @@ export function KeyboardShortcutsHelper() {
                   <div className="flex items-center gap-3">
                     <Keyboard className="text-primary" size={24} />
                     <h2 className="text-2xl font-bold">
-                      キーボードショートカット
+                      {content.title}
                     </h2>
                   </div>
                   <button
                     onClick={() => setIsOpen(false)}
                     className="p-2 rounded-lg hover:bg-muted transition-colors"
-                    aria-label="閉じる"
+                    aria-label={content.close}
                   >
                     <X size={20} />
                   </button>
@@ -124,7 +159,7 @@ export function KeyboardShortcutsHelper() {
                 {/* Footer */}
                 <div className="mt-6 pt-4 border-t border-border text-center text-sm text-muted-foreground">
                   Press <kbd className="px-2 py-1 bg-muted rounded text-xs">?</kbd>{' '}
-                  to toggle this help
+                  {content.footer}
                 </div>
               </div>
             </motion.div>
