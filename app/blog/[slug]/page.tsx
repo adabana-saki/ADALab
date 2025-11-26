@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Calendar, Clock, Tag, ArrowLeft } from 'lucide-react';
 import type { Metadata } from 'next';
+import { Navigation } from '@/components/Navigation';
+import { Footer } from '@/components/Footer';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -41,8 +43,10 @@ export default async function BlogPostPage({ params }: Props) {
   }
 
   return (
-    <main className="min-h-screen bg-background pt-24 pb-16">
-      <article className="container mx-auto px-4 max-w-3xl">
+    <>
+      <Navigation />
+      <main className="min-h-screen bg-background pt-24 pb-16">
+        <article className="container mx-auto px-4 max-w-3xl">
         {/* Back Link */}
         <Link
           href="/blog"
@@ -106,7 +110,9 @@ export default async function BlogPostPage({ params }: Props) {
             他の記事を読む
           </Link>
         </footer>
-      </article>
-    </main>
+        </article>
+      </main>
+      <Footer />
+    </>
   );
 }

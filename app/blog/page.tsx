@@ -2,6 +2,8 @@ import { getAllPosts, getAllTags } from '@/lib/blog';
 import Link from 'next/link';
 import { Calendar, Clock, Tag, ArrowRight } from 'lucide-react';
 import type { Metadata } from 'next';
+import { Navigation } from '@/components/Navigation';
+import { Footer } from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: 'Blog | ADA Lab',
@@ -13,7 +15,9 @@ export default function BlogPage() {
   const tags = getAllTags();
 
   return (
-    <main className="min-h-screen bg-background pt-24 pb-16">
+    <>
+      <Navigation />
+      <main className="min-h-screen bg-background pt-24 pb-16">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-12">
@@ -100,6 +104,8 @@ export default function BlogPage() {
           </aside>
         </div>
       </div>
-    </main>
+      </main>
+      <Footer />
+    </>
   );
 }
