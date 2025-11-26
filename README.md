@@ -6,7 +6,7 @@
 
 ADA Labの公式Webサイトのソースコードです。
 
-🌐 **サイトURL**: https://adalab.pages.dev/
+🌐 **サイトURL**: <https://adalab.pages.dev/>
 
 ## クイックスタート
 
@@ -22,7 +22,7 @@ npm install
 npm run dev
 ```
 
-http://localhost:3000 でサイトが表示されます。
+<http://localhost:3000> でサイトが表示されます。
 
 ## ブログ記事の追加
 
@@ -53,12 +53,12 @@ author: "著者名"
 
 ### 3. 確認
 
-- 一覧ページ: http://localhost:3000/blog
-- 記事ページ: http://localhost:3000/blog/my-new-post
+- 一覧ページ: <http://localhost:3000/blog>
+- 記事ページ: <http://localhost:3000/blog/my-new-post>
 
 ## プロジェクト構成
 
-```
+```text
 ├── app/                    # Next.js App Router
 │   ├── blog/              # ブログページ
 │   ├── products/          # プロダクト詳細ページ
