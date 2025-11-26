@@ -23,7 +23,7 @@ ADA Labの技術ブログへようこそ！
 
 このブログはMarkdownで記事を書くだけで自動的に公開される仕組みになっています。
 
-```
+```text
 content/blog/
   hello-world.md  ← これを追加するだけ！
 ```
@@ -32,7 +32,7 @@ content/blog/
 
 - Next.js 15
 - gray-matter（Markdown frontmatter解析）
-- next-mdx-remote（MDXレンダリング）
+- react-markdown（Markdownレンダリング）
 
 ## 今後ともよろしくお願いします
 

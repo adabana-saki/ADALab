@@ -5,6 +5,16 @@ import readingTime from 'reading-time';
 
 const BLOG_DIR = path.join(process.cwd(), 'content/blog');
 
+/** URL安全なslugパターン（英数字、ハイフン、アンダースコアのみ） */
+const SAFE_SLUG_PATTERN = /^[a-zA-Z0-9-_]+$/;
+
+/**
+ * slugが安全かどうかを検証
+ */
+function isValidSlug(slug: string): boolean {
+  return SAFE_SLUG_PATTERN.test(slug);
+}
+
 export interface BlogPost {
   slug: string;
   title: string;
@@ -17,16 +27,7 @@ export interface BlogPost {
   content: string;
 }
 
-export interface BlogMeta {
-  slug: string;
-  title: string;
-  date: string;
-  description: string;
-  tags: string[];
-  image?: string;
-  author?: string;
-  readingTime: string;
-}
+export type BlogMeta = Omit<BlogPost, 'content'>;
 
 /**
  * 全てのブログ記事のメタデータを取得（日付降順）
@@ -40,9 +41,15 @@ export function getAllPosts(): BlogMeta[] {
     (file) => (file.endsWith('.md') || file.endsWith('.mdx')) && !file.startsWith('_')
   );
 
-  const posts = files
-    .map((filename) => {
+  const posts: BlogMeta[] = files
+    .map((filename): BlogMeta | null => {
       const slug = filename.replace(/\.mdx?$/, '');
+
+      // XSS防止: 安全なslugパターンのみ許可
+      if (!isValidSlug(slug)) {
+        return null;
+      }
+
       const filePath = path.join(BLOG_DIR, filename);
       const fileContent = fs.readFileSync(filePath, 'utf-8');
       const { data, content } = matter(fileContent);
@@ -52,12 +59,13 @@ export function getAllPosts(): BlogMeta[] {
         title: data.title || 'Untitled',
         date: data.date || new Date().toISOString().split('T')[0],
         description: data.description || '',
-        tags: data.tags || [],
+        tags: Array.isArray(data.tags) ? data.tags : [],
         image: data.image,
         author: data.author,
         readingTime: readingTime(content).text,
       };
     })
+    .filter((post): post is BlogMeta => post !== null)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return posts;
@@ -67,6 +75,11 @@ export function getAllPosts(): BlogMeta[] {
  * 指定したslugの記事を取得
  */
 export function getPostBySlug(slug: string): BlogPost | null {
+  // XSS防止: 安全なslugパターンのみ許可
+  if (!isValidSlug(slug)) {
+    return null;
+  }
+
   const mdPath = path.join(BLOG_DIR, `${slug}.md`);
   const mdxPath = path.join(BLOG_DIR, `${slug}.mdx`);
 
@@ -87,7 +100,7 @@ export function getPostBySlug(slug: string): BlogPost | null {
     title: data.title || 'Untitled',
     date: data.date || new Date().toISOString().split('T')[0],
     description: data.description || '',
-    tags: data.tags || [],
+    tags: Array.isArray(data.tags) ? data.tags : [],
     image: data.image,
     author: data.author,
     readingTime: readingTime(content).text,
@@ -106,7 +119,8 @@ export function getAllSlugs(): string[] {
   return fs
     .readdirSync(BLOG_DIR)
     .filter((file) => (file.endsWith('.md') || file.endsWith('.mdx')) && !file.startsWith('_'))
-    .map((file) => file.replace(/\.mdx?$/, ''));
+    .map((file) => file.replace(/\.mdx?$/, ''))
+    .filter(isValidSlug);
 }
 
 /**
