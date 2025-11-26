@@ -30,10 +30,7 @@ export default function BlogPage() {
           <div className="lg:col-span-3">
             {posts.length === 0 ? (
               <div className="text-center py-20 bg-muted/20 rounded-lg">
-                <p className="text-muted-foreground mb-4">まだ記事がありません</p>
-                <p className="text-sm text-muted-foreground">
-                  content/blog/ にMarkdownファイルを追加してください
-                </p>
+                <p className="text-muted-foreground">記事を準備中です。お楽しみに！</p>
               </div>
             ) : (
               <div className="space-y-6">
@@ -99,16 +96,6 @@ export default function BlogPage() {
                 </div>
               )}
 
-              {/* Info */}
-              <div className="bg-muted/30 rounded-lg p-4 text-sm text-muted-foreground">
-                <p className="mb-2 font-medium">📝 記事の追加方法</p>
-                <code className="text-xs bg-background/50 px-2 py-1 rounded block mb-2">
-                  content/blog/your-post.md
-                </code>
-                <p className="text-xs">
-                  にMarkdownファイルを追加するだけ！
-                </p>
-              </div>
             </div>
           </aside>
         </div>
