@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { ArrowLeft, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Navigation } from '@/components/Navigation';
+import { Footer } from '@/components/Footer';
 
 interface FAQItem {
   question: string;
@@ -89,19 +91,21 @@ export default function FAQPage() {
   const t = content[language];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Background effects */}
-      <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 via-transparent to-neon-purple/5" />
-        <div className="scanlines opacity-10" />
-      </div>
+    <>
+      <Navigation />
+      <div className="min-h-screen bg-background pt-16">
+        {/* Background effects */}
+        <div className="fixed inset-0 -z-10">
+          <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 via-transparent to-neon-purple/5" />
+          <div className="scanlines opacity-10" />
+        </div>
 
-      <div className="container mx-auto px-4 py-16 max-w-4xl">
-        {/* Back button */}
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 mb-8 text-neon-cyan hover:text-neon-purple transition-colors"
-        >
+        <div className="container mx-auto px-4 py-16 max-w-4xl">
+          {/* Back button */}
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 mb-8 text-neon-cyan hover:text-neon-purple transition-colors"
+          >
           <ArrowLeft className="w-5 h-5" />
           <span>{language === 'ja' ? 'ホームに戻る' : 'Back to Home'}</span>
         </Link>
@@ -169,13 +173,9 @@ export default function FAQPage() {
           </Link>
         </div>
 
-        {/* Footer */}
-        <div className="mt-16 pt-8 border-t border-border text-center">
-          <p className="text-sm text-muted-foreground">
-            © 2025 ADA Lab. All rights reserved.
-          </p>
         </div>
       </div>
-    </div>
+      <Footer />
+    </>
   );
 }
