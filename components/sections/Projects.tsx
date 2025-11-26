@@ -6,7 +6,6 @@ import { Github, ChevronDown, Check, ArrowRight } from 'lucide-react';
 import { FaDiscord } from 'react-icons/fa';
 import Link from 'next/link';
 import { Card, CardContent } from '../ui/card';
-import { Button } from '../ui/button';
 import { PROJECTS } from '@/lib/projects';
 
 export function Projects() {
@@ -163,12 +162,13 @@ export function Projects() {
 
                           {/* Detail Page Link */}
                           {project.detailPath && (
-                            <Button asChild variant="outline" size="sm" className="w-full mt-2">
-                              <Link href={project.detailPath}>
-                                詳細を見る
-                                <ArrowRight size={14} className="ml-2" />
-                              </Link>
-                            </Button>
+                            <Link
+                              href={project.detailPath}
+                              className="inline-flex items-center justify-center w-full mt-2 h-9 rounded-md px-4 border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all text-sm font-medium"
+                            >
+                              詳細を見る
+                              <ArrowRight size={14} className="ml-2" />
+                            </Link>
                           )}
                         </div>
                       </motion.div>

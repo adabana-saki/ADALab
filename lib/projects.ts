@@ -44,10 +44,10 @@ export const PROJECTS: Project[] = [
     description:
       '片手でスマホを完全操作。カーソル操作で満員電車でも快適に使えるモバイルアプリ。',
     longDescription:
-      '満員電車や荷物を持っている時など、両手が使えない状況でもスマートフォンを快適に操作できるアプリ。親指一本でカーソルを動かし、タップ、スワイプ、スクロールなど全ての操作が可能。アクセシビリティの向上にも貢献します。',
+      'Android専用アプリ。満員電車や荷物を持っている時など、両手が使えない状況でもスマートフォンを快適に操作できます。親指一本でカーソルを動かし、タップ、スワイプ、スクロールなど全ての操作が可能。アクセシビリティの向上にも貢献します。',
     category: 'mobile',
     image: '/images/project-placeholder.jpg',
-    technologies: ['React Native', 'TypeScript', 'Expo'],
+    technologies: ['Kotlin', 'Android', 'Jetpack Compose'],
     features: [
       'カーソルによる精密操作',
       'ワンハンドモード',
