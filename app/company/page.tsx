@@ -2,7 +2,9 @@
 
 import { useLanguage } from '@/contexts/LanguageContext';
 import Link from 'next/link';
-import { ArrowLeft, Code, Mail, Calendar, Heart } from 'lucide-react';
+import { ArrowLeft, Code, Mail, Calendar } from 'lucide-react';
+import { Navigation } from '@/components/Navigation';
+import { Footer } from '@/components/Footer';
 
 export default function CompanyInfoPage() {
   const { language } = useLanguage();
@@ -75,7 +77,9 @@ export default function CompanyInfoPage() {
   const t = content[language];
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <Navigation />
+      <div className="min-h-screen bg-background pt-16">
       {/* Background effects */}
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-neon-cyan/5 via-transparent to-neon-purple/5" />
@@ -133,13 +137,9 @@ export default function CompanyInfoPage() {
           ))}
         </div>
 
-        {/* Footer */}
-        <div className="mt-16 pt-8 border-t border-border text-center">
-          <p className="text-sm text-muted-foreground flex items-center justify-center gap-1">
-            Made with <Heart size={14} className="text-red-500 fill-red-500" /> by ADA Lab
-          </p>
-        </div>
       </div>
-    </div>
+      </div>
+      <Footer />
+    </>
   );
 }
