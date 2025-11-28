@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Twitter, Facebook, Link2, Check, Share2 } from 'lucide-react';
+import { SITE_CONFIG } from '@/lib/constants';
 
 interface ShareButtonsProps {
   title: string;
@@ -11,7 +12,7 @@ interface ShareButtonsProps {
 export function ShareButtons({ title, slug }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
 
-  const baseUrl = 'https://adalab.pages.dev';
+  const baseUrl = SITE_CONFIG.url;
   const url = `${baseUrl}/blog/${slug}`;
   const encodedUrl = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(title);

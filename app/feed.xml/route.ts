@@ -1,10 +1,11 @@
 import { getAllPosts } from '@/lib/blog';
+import { SITE_CONFIG } from '@/lib/constants';
 
 export const dynamic = 'force-static';
 
-export async function GET() {
+export function GET() {
   const posts = getAllPosts();
-  const baseUrl = 'https://adalab.pages.dev';
+  const baseUrl = SITE_CONFIG.url;
 
   const rssItems = posts
     .map(
