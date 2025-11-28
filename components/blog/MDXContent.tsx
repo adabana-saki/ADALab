@@ -1,9 +1,30 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface MDXContentProps {
   content: string;
+}
+
+// 見出しテキストからIDを生成
+function generateId(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF-]/g, '')
+    .replace(/\s+/g, '-');
+}
+
+// childrenからテキストを抽出
+function extractText(children: React.ReactNode): string {
+  if (typeof children === 'string') return children;
+  if (Array.isArray(children)) {
+    return children.map(extractText).join('');
+  }
+  if (typeof children === 'object' && children !== null && 'props' in children) {
+    return extractText((children as { props: { children: React.ReactNode } }).props.children);
+  }
+  return '';
 }
 
 export function MDXContent({ content }: MDXContentProps) {
@@ -12,17 +33,42 @@ export function MDXContent({ content }: MDXContentProps) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          h1: ({ children }) => (
-            <h1 className="text-3xl font-bold mt-8 mb-4 pb-2 border-b border-border/50">
-              {children}
-            </h1>
-          ),
-          h2: ({ children }) => (
-            <h2 className="text-2xl font-semibold mt-8 mb-3">{children}</h2>
-          ),
-          h3: ({ children }) => (
-            <h3 className="text-xl font-semibold mt-6 mb-2">{children}</h3>
-          ),
+          h1: ({ children }) => {
+            const text = extractText(children);
+            const id = generateId(text);
+            return (
+              <h1
+                id={id}
+                className="text-3xl font-bold mt-8 mb-4 pb-2 border-b border-border/50 scroll-mt-24"
+              >
+                {children}
+              </h1>
+            );
+          },
+          h2: ({ children }) => {
+            const text = extractText(children);
+            const id = generateId(text);
+            return (
+              <h2
+                id={id}
+                className="text-2xl font-semibold mt-8 mb-3 scroll-mt-24"
+              >
+                {children}
+              </h2>
+            );
+          },
+          h3: ({ children }) => {
+            const text = extractText(children);
+            const id = generateId(text);
+            return (
+              <h3
+                id={id}
+                className="text-xl font-semibold mt-6 mb-2 scroll-mt-24"
+              >
+                {children}
+              </h3>
+            );
+          },
           p: ({ children }) => (
             <p className="mb-4 leading-relaxed">{children}</p>
           ),
@@ -78,14 +124,34 @@ export function MDXContent({ content }: MDXContentProps) {
           ),
           img: ({ src, alt }) => {
             if (!src || typeof src !== 'string') return null;
+            // 外部URLかローカルパスか判定
+            const isExternal = src.startsWith('http');
             return (
               <span className="block my-4">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={src}
-                  alt={alt || ''}
-                  className="rounded-lg max-w-full h-auto"
-                />
+                {isExternal ? (
+                  // 外部画像は通常のimgタグを使用（lazy loading付き）
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={src}
+                    alt={alt || ''}
+                    className="rounded-lg max-w-full h-auto"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ) : (
+                  // ローカル画像はnext/imageを使用
+                  <Image
+                    src={src}
+                    alt={alt || ''}
+                    width={800}
+                    height={450}
+                    className="rounded-lg max-w-full h-auto"
+                    loading="lazy"
+                    placeholder="blur"
+                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAIBAAAgEEAgMBAAAAAAAAAAAAAQIDAAQFESExBhJBUf/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCzx3Py4mCVJkgkdnlLbRB0AOh6qT/RL/0pSg//2Q=="
+                    style={{ width: '100%', height: 'auto' }}
+                  />
+                )}
               </span>
             );
           },
