@@ -1,15 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { Twitter, Facebook, Link2, Check, Share2 } from 'lucide-react';
+import { Twitter, Facebook, Link2, Check } from 'lucide-react';
 import { SITE_CONFIG } from '@/lib/constants';
 
 interface ShareButtonsProps {
   title: string;
   slug: string;
+  variant?: 'horizontal' | 'vertical';
 }
 
-export function ShareButtons({ title, slug }: ShareButtonsProps) {
+export function ShareButtons({ title, slug, variant = 'horizontal' }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
 
   const baseUrl = SITE_CONFIG.url;
@@ -45,13 +46,8 @@ export function ShareButtons({ title, slug }: ShareButtonsProps) {
   const buttonClass =
     'flex items-center justify-center w-10 h-10 rounded-full border border-border/50 hover:border-primary/50 hover:bg-primary/10 transition-all duration-300';
 
-  return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm text-muted-foreground flex items-center gap-1">
-        <Share2 size={14} />
-        共有
-      </span>
-
+  const buttons = (
+    <>
       <a
         href={shareLinks.twitter}
         target="_blank"
@@ -120,6 +116,20 @@ export function ShareButtons({ title, slug }: ShareButtonsProps) {
           <Link2 size={18} />
         )}
       </button>
+    </>
+  );
+
+  if (variant === 'vertical') {
+    return (
+      <div className="flex flex-col gap-3">
+        {buttons}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      {buttons}
     </div>
   );
 }

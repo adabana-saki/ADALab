@@ -83,18 +83,29 @@ export function getAllCategories(): Category[] {
     if (fs.existsSync(categoryPath)) {
       try {
         const content = fs.readFileSync(categoryPath, 'utf-8');
-        const data = yaml.load(content) as Category;
+        const data = yaml.load(content) as Partial<Category>;
+
+        // 必須フィールドの検証とデフォルト値
+        if (!data || typeof data !== 'object') {
+          console.warn(`Invalid category config: ${categoryPath}`);
+          continue;
+        }
 
         // 記事数をカウント
         const postsInCategory = getPostsByCategory(entry.name);
 
         categories.push({
-          ...data,
+          name: typeof data.name === 'string' ? data.name : entry.name,
           slug: entry.name,
+          description: typeof data.description === 'string' ? data.description : '',
+          color: typeof data.color === 'string' ? data.color : '#888888',
+          icon: typeof data.icon === 'string' ? data.icon : 'folder',
+          order: typeof data.order === 'number' ? data.order : 999,
           postCount: postsInCategory.length,
         });
-      } catch {
-        // カテゴリー設定ファイルのパースエラーは無視
+      } catch (error) {
+        // カテゴリー設定ファイルのパースエラーをログに記録
+        console.warn(`Failed to parse category config: ${categoryPath}`, error);
       }
     }
   }
@@ -124,13 +135,38 @@ export function getAllSeries(): Series[] {
 
   try {
     const content = fs.readFileSync(seriesPath, 'utf-8');
-    const data = yaml.load(content) as Record<string, Omit<Series, 'id'>>;
+    const data = yaml.load(content);
 
-    return Object.entries(data).map(([id, series]) => ({
-      id,
-      ...series,
-    }));
-  } catch {
+    // YAMLパース結果の検証
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+      console.warn(`Invalid series config format: ${seriesPath}`);
+      return [];
+    }
+
+    const seriesData = data as Record<string, unknown>;
+
+    return Object.entries(seriesData)
+      .map(([id, series]): Series | null => {
+        // 各シリーズエントリの検証
+        if (!series || typeof series !== 'object' || Array.isArray(series)) {
+          console.warn(`Invalid series entry: ${id}`);
+          return null;
+        }
+
+        const s = series as Record<string, unknown>;
+
+        return {
+          id,
+          title: typeof s.title === 'string' ? s.title : id,
+          description: typeof s.description === 'string' ? s.description : '',
+          posts: Array.isArray(s.posts) ? s.posts.filter((p): p is string => typeof p === 'string') : [],
+          level: typeof s.level === 'string' ? s.level : undefined,
+          completed: typeof s.completed === 'boolean' ? s.completed : undefined,
+        };
+      })
+      .filter((s): s is Series => s !== null);
+  } catch (error) {
+    console.warn(`Failed to parse series config: ${seriesPath}`, error);
     return [];
   }
 }
@@ -312,16 +348,11 @@ function parsePostFile(filePath: string, slug: string, category?: string): BlogP
 
 /**
  * 全てのslugを取得（静的生成用）
+ * 下書き記事は除外される
  */
 export function getAllSlugs(): string[] {
-  const markdownFiles = getMarkdownFiles(BLOG_DIR);
-
-  return markdownFiles
-    .map(({ filePath }) => {
-      const filename = path.basename(filePath);
-      return filename.replace(/\.mdx?$/, '');
-    })
-    .filter(isValidSlug);
+  // getAllPosts()は既に下書きを除外している
+  return getAllPosts().map((post) => post.slug);
 }
 
 /**

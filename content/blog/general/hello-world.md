@@ -3,7 +3,7 @@ title: "ADA Lab ブログを始めました"
 date: "2025-11-26"
 description: "ADA Labの技術ブログを開設しました。開発の進捗や学んだことを発信していきます。"
 tags: ["お知らせ", "ADA Lab"]
-author: "ADA Lab"
+author: "Adabana Saki"
 ---
 
 # ブログを始めました

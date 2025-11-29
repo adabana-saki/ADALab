@@ -3,7 +3,8 @@ title: "【2025年版】LazyVim完全ガイド - モダンなNeovim環境を構�
 date: "2025-11-29"
 description: "LazyVimの導入から使い方、カスタマイズまで初心者にもわかりやすく解説。Neovimを最強のエディタに変える方法を学びましょう。"
 tags: ["LazyVim", "Neovim", "Vim", "エディタ", "開発環境", "Omarchy"]
-author: "ADA Lab"
+author: "Adabana Saki"
+draft: true
 ---
 
 # LazyVim完全ガイド - モダンなNeovim環境を構築しよう
