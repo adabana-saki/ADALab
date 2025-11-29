@@ -93,13 +93,13 @@ export function MDXContent({ content }: MDXContentProps) {
             );
           },
           ul: ({ children }) => (
-            <ul className="list-disc list-inside mb-4 space-y-1">{children}</ul>
+            <ul className="list-disc pl-6 mb-4 space-y-1">{children}</ul>
           ),
           ol: ({ children }) => (
-            <ol className="list-decimal list-inside mb-4 space-y-1">{children}</ol>
+            <ol className="list-decimal pl-6 mb-4 space-y-1">{children}</ol>
           ),
           li: ({ children }) => (
-            <li className="leading-relaxed">{children}</li>
+            <li className="leading-relaxed pl-1">{children}</li>
           ),
           blockquote: ({ children }) => (
             <blockquote className="border-l-4 border-primary/50 pl-4 py-2 my-4 bg-muted/30 rounded-r italic">
