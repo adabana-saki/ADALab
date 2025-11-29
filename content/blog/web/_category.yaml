@@ -1,0 +1,15 @@
+# カテゴリー: Web開発
+# Web開発関連の記事を管理
+
+name: "Web開発"
+slug: "web"
+description: "フロントエンド、バックエンド、Web技術全般に関する記事"
+color: "#bb9af7"  # カテゴリーカラー（Purple）
+icon: "globe"
+order: 4
+
+defaultTags:
+  - Web開発
+
+relatedCategories:
+  - tools

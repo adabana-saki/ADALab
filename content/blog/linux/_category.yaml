@@ -1,0 +1,16 @@
+# カテゴリー: Linux
+# Linux全般に関する記事を管理
+
+name: "Linux"
+slug: "linux"
+description: "Linuxディストリビューション、システム管理、コマンドラインに関する記事"
+color: "#f5a524"  # カテゴリーカラー（Orange）
+icon: "terminal"
+order: 2
+
+defaultTags:
+  - Linux
+
+relatedCategories:
+  - omarchy
+  - tools

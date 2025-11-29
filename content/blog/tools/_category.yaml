@@ -1,0 +1,16 @@
+# カテゴリー: ツール
+# 開発ツール、エディタ、CLI関連の記事を管理
+
+name: "ツール"
+slug: "tools"
+description: "開発ツール、エディタ、CLIユーティリティに関する記事"
+color: "#9ece6a"  # カテゴリーカラー（Green）
+icon: "wrench"
+order: 3
+
+defaultTags:
+  - 開発ツール
+
+relatedCategories:
+  - omarchy
+  - linux
