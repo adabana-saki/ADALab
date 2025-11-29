@@ -1,0 +1,19 @@
+# カテゴリー: Omarchy
+# Omarchy関連の記事を管理
+
+name: "Omarchy"
+slug: "omarchy"
+description: "DHHが作ったモダンなLinuxディストリビューション「Omarchy」に関する記事"
+color: "#7aa2f7"  # カテゴリーカラー（Tokyo Night Blue）
+icon: "linux"     # アイコン名（lucide-reactのアイコン名）
+order: 1          # 表示順序
+
+# このカテゴリーのデフォルトタグ
+defaultTags:
+  - Omarchy
+  - Linux
+
+# 関連カテゴリー
+relatedCategories:
+  - linux
+  - tools
