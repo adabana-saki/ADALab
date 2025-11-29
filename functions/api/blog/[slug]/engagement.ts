@@ -98,21 +98,31 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       }
 
       const userLikedKey = REDIS_KEYS.userLiked(slug, visitorId);
-      const hasLiked = await redis.exists(userLikedKey);
+      const likesKey = REDIS_KEYS.likes(slug);
 
-      if (hasLiked) {
-        // いいねを取り消し
-        await Promise.all([
-          redis.del(userLikedKey),
-          redis.decr(REDIS_KEYS.likes(slug)),
-        ]);
-      } else {
-        // いいねを追加（1年間保持）
-        await Promise.all([
-          redis.set(userLikedKey, '1', { ex: 60 * 60 * 24 * 365 }),
-          redis.incr(REDIS_KEYS.likes(slug)),
-        ]);
-      }
+      // アトミックなトランザクションでいいねをトグル（競合状態を防止）
+      // WATCH/MULTI/EXECパターンの代わりにLuaスクリプトを使用
+      const luaScript = `
+        local userLikedKey = KEYS[1]
+        local likesKey = KEYS[2]
+        local hasLiked = redis.call('EXISTS', userLikedKey)
+
+        if hasLiked == 1 then
+          redis.call('DEL', userLikedKey)
+          redis.call('DECR', likesKey)
+          return 0
+        else
+          redis.call('SET', userLikedKey, '1', 'EX', 31536000)
+          redis.call('INCR', likesKey)
+          return 1
+        end
+      `;
+
+      const newHasLiked = await redis.eval(
+        luaScript,
+        [userLikedKey, likesKey],
+        []
+      ) as number;
 
       const [views, likes] = await Promise.all([
         redis.get(REDIS_KEYS.views(slug)),
@@ -123,7 +133,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         JSON.stringify({
           views: (views as number) || 0,
           likes: Math.max(0, (likes as number) || 0),
-          hasLiked: !hasLiked,
+          hasLiked: newHasLiked === 1,
         }),
         {
           headers: { 'Content-Type': 'application/json' },

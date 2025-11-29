@@ -49,39 +49,53 @@ export function BlogListClient({ posts, tags }: BlogListClientProps) {
     fetchEngagement();
   }, [posts]);
 
-  // フィルタリングとソート
-  const filteredPosts = useMemo(() => {
-    let result = [...posts];
+  // 検索クエリを正規化（メモ化して再計算を防止）
+  const normalizedQuery = useMemo(() => searchQuery.toLowerCase().trim(), [searchQuery]);
 
-    // タグフィルター
+  // 記事データを事前に正規化（大量記事での検索効率を改善）
+  const normalizedPosts = useMemo(() => {
+    return posts.map((post) => ({
+      ...post,
+      _searchableTitle: post.title.toLowerCase(),
+      _searchableDesc: post.description.toLowerCase(),
+      _searchableTags: post.tags.map((t) => t.toLowerCase()),
+      _dateTimestamp: new Date(post.date).getTime(),
+    }));
+  }, [posts]);
+
+  // フィルタリングとソート（効率化版）
+  const filteredPosts = useMemo(() => {
+    let result = normalizedPosts;
+
+    // タグフィルター（早期フィルタリングで検索対象を削減）
     if (selectedTag) {
       result = result.filter((post) => post.tags.includes(selectedTag));
     }
 
-    // 検索フィルター
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
+    // 検索フィルター（事前正規化済みデータを使用）
+    if (normalizedQuery) {
       result = result.filter(
         (post) =>
-          post.title.toLowerCase().includes(query) ||
-          post.description.toLowerCase().includes(query) ||
-          post.tags.some((tag) => tag.toLowerCase().includes(query))
+          post._searchableTitle.includes(normalizedQuery) ||
+          post._searchableDesc.includes(normalizedQuery) ||
+          post._searchableTags.some((tag) => tag.includes(normalizedQuery))
       );
     }
 
-    // ソート
+    // ソート（スコアを事前計算してソート効率を改善）
     if (sortBy === 'popular') {
-      result.sort((a, b) => {
-        const aScore = (engagement[a.slug]?.views || 0) + (engagement[a.slug]?.likes || 0) * 3;
-        const bScore = (engagement[b.slug]?.views || 0) + (engagement[b.slug]?.likes || 0) * 3;
-        return bScore - aScore;
-      });
+      // スコアを一度だけ計算
+      const scored = result.map((post) => ({
+        post,
+        score: (engagement[post.slug]?.views || 0) + (engagement[post.slug]?.likes || 0) * 3,
+      }));
+      scored.sort((a, b) => b.score - a.score);
+      return scored.map((s) => s.post);
     } else {
-      result.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      // 事前計算済みのタイムスタンプを使用
+      return [...result].sort((a, b) => b._dateTimestamp - a._dateTimestamp);
     }
-
-    return result;
-  }, [posts, selectedTag, searchQuery, sortBy, engagement]);
+  }, [normalizedPosts, selectedTag, normalizedQuery, sortBy, engagement]);
 
   // 最新記事（トップに表示）
   const featuredPost = filteredPosts[0];
