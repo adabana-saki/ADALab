@@ -10,7 +10,7 @@ title: "記事タイトル - SEOを意識した具体的なタイトル"
 date: "2025-01-01"
 description: "記事の説明文。検索結果に表示される150文字程度の要約。キーワードを含める。"
 tags: ["タグ1", "タグ2", "タグ3"]
-author: "ADA Lab"
+author: "Adabana Saki"
 # image: "/images/blog/cover.jpg"  # OGP画像（オプション）
 # draft: true  # 下書きの場合はtrue
 ---

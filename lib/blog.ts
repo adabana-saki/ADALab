@@ -312,16 +312,11 @@ function parsePostFile(filePath: string, slug: string, category?: string): BlogP
 
 /**
  * 全てのslugを取得（静的生成用）
+ * 下書き記事は除外される
  */
 export function getAllSlugs(): string[] {
-  const markdownFiles = getMarkdownFiles(BLOG_DIR);
-
-  return markdownFiles
-    .map(({ filePath }) => {
-      const filename = path.basename(filePath);
-      return filename.replace(/\.mdx?$/, '');
-    })
-    .filter(isValidSlug);
+  // getAllPosts()は既に下書きを除外している
+  return getAllPosts().map((post) => post.slug);
 }
 
 /**

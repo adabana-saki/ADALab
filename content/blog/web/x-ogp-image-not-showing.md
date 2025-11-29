@@ -3,7 +3,7 @@ title: "X（Twitter）でOGP画像が表示されない・更新されない時�
 date: "2025-11-28"
 description: "XでリンクをシェアしてもOGP画像が表示されない、または古い画像のまま更新されない問題の原因と解決方法を解説します。"
 tags: ["OGP", "X", "トラブルシューティング", "Web開発"]
-author: "ADA Lab"
+author: "Adabana Saki"
 ---
 
 # X（Twitter）でOGP画像が表示されない時の対処法

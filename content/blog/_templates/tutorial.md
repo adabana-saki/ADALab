@@ -9,7 +9,7 @@ title: "【2025年版】〇〇完全ガイド - 初心者でもわかる△△�
 date: "2025-01-01"
 description: "〇〇の使い方を初心者にもわかりやすく解説。インストールから実践的な活用法まで網羅します。"
 tags: ["〇〇", "チュートリアル", "初心者向け"]
-author: "ADA Lab"
+author: "Adabana Saki"
 # series: "series-name"  # シリーズに属する場合
 # seriesOrder: 1         # シリーズ内の順番
 # level: "初心者"        # 対象レベル: 初心者 / 中級者 / 上級者

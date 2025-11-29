@@ -3,7 +3,8 @@ title: "【2025年版】Omarchyトラブルシューティング集 - よくあ�
 date: "2025-11-29"
 description: "Omarchyで発生しやすい問題と解決方法を初心者にもわかりやすく解説。インストール、起動、ディスプレイ、日本語入力、アップデートなどのトラブルを網羅します。"
 tags: ["Omarchy", "Linux", "トラブルシューティング", "問題解決", "初心者向け"]
-author: "ADA Lab"
+author: "Adabana Saki"
+draft: true
 ---
 
 # Omarchyトラブルシューティング集 - よくある問題と解決法
