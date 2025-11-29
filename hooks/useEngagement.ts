@@ -27,14 +27,14 @@ function getVisitorId(): string {
       // crypto.randomUUID()を優先使用（より安全なランダム生成）
       visitorId = typeof crypto !== 'undefined' && crypto.randomUUID
         ? crypto.randomUUID()
-        : `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        : `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
       localStorage.setItem('visitor_id', visitorId);
     }
     return visitorId;
   } catch {
     // localStorageがブロックされている場合（プライベートモード等）
     // セッション限定の一時IDを返す
-    return `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return `temp-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
   }
 }
 

@@ -12,6 +12,34 @@ interface BlogListClientProps {
 
 type SortOption = 'latest' | 'popular';
 
+// エンゲージメント表示コンポーネント（コンポーネント外に定義してメモ化を有効に）
+interface EngagementBadgeProps {
+  data?: { views: number; likes: number };
+  isLoading: boolean;
+}
+
+function EngagementBadge({ data, isLoading }: EngagementBadgeProps) {
+  if (isLoading || !data) return null;
+  if (data.views === 0 && data.likes === 0) return null;
+
+  return (
+    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+      {data.views > 0 && (
+        <span className="flex items-center gap-1">
+          <Eye size={12} />
+          {data.views}
+        </span>
+      )}
+      {data.likes > 0 && (
+        <span className="flex items-center gap-1 text-pink-500">
+          <Heart size={12} className="fill-current" />
+          {data.likes}
+        </span>
+      )}
+    </div>
+  );
+}
+
 export function BlogListClient({ posts, tags }: BlogListClientProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -107,30 +135,6 @@ export function BlogListClient({ posts, tags }: BlogListClientProps) {
   };
 
   const hasActiveFilters = searchQuery || selectedTag;
-
-  // エンゲージメント表示ヘルパー
-  const EngagementBadge = ({ slug }: { slug: string }) => {
-    const data = engagement[slug];
-    if (isLoadingEngagement || !data) return null;
-    if (data.views === 0 && data.likes === 0) return null;
-
-    return (
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        {data.views > 0 && (
-          <span className="flex items-center gap-1">
-            <Eye size={12} />
-            {data.views}
-          </span>
-        )}
-        {data.likes > 0 && (
-          <span className="flex items-center gap-1 text-pink-500">
-            <Heart size={12} className="fill-current" />
-            {data.likes}
-          </span>
-        )}
-      </div>
-    );
-  };
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -262,7 +266,7 @@ export function BlogListClient({ posts, tags }: BlogListClientProps) {
                       </span>
                     )}
                   </div>
-                  <EngagementBadge slug={featuredPost.slug} />
+                  <EngagementBadge data={engagement[featuredPost.slug]} isLoading={isLoadingEngagement} />
                 </div>
                 <h2 className="text-xl md:text-2xl font-bold mb-3 group-hover:text-primary transition-colors">
                   {featuredPost.title}
@@ -335,7 +339,7 @@ export function BlogListClient({ posts, tags }: BlogListClientProps) {
                             </span>
                           )}
                         </div>
-                        <EngagementBadge slug={post.slug} />
+                        <EngagementBadge data={engagement[post.slug]} isLoading={isLoadingEngagement} />
                       </div>
 
                       <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors line-clamp-2">

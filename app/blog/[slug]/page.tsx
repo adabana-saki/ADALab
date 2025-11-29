@@ -1,10 +1,11 @@
-import { getPostBySlug, getAllSlugs, getAllPosts, getSeriesForPost, getRelatedPosts } from '@/lib/blog';
+import { getPostBySlug, getAllSlugs, getAllPosts, getSeriesForPost } from '@/lib/blog';
 import { MDXContent } from '@/components/blog/MDXContent';
 import { TableOfContents } from '@/components/blog/TableOfContents';
 import { ShareButtons } from '@/components/blog/ShareButtons';
 import { RelatedPosts } from '@/components/blog/RelatedPosts';
 import { SeriesNavigation } from '@/components/blog/SeriesNavigation';
 import { ArticleEngagement, ArticleLikeSection } from '@/components/blog/ArticleEngagement';
+import { ArticleWithEngagement } from './ArticleWithEngagement';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Calendar, Clock, Tag, ArrowLeft, User, BookOpen } from 'lucide-react';
@@ -50,9 +51,6 @@ export default async function BlogPostPage({ params }: Props) {
 
   // シリーズ情報を取得
   const seriesInfo = getSeriesForPost(slug);
-
-  // 関連記事を取得（RelatedPostsコンポーネントで使用）
-  const _relatedPosts = getRelatedPosts(slug, 3);
 
   return (
     <>
@@ -153,7 +151,9 @@ export default async function BlogPostPage({ params }: Props) {
                     )}
                   </div>
                   {/* エンゲージメント（ビュー数・いいね） */}
-                  <ArticleEngagement slug={post.slug} />
+                  <ArticleWithEngagement slug={post.slug} position="header">
+                    <ArticleEngagement />
+                  </ArticleWithEngagement>
                 </div>
 
                 {/* タグ */}
@@ -193,7 +193,9 @@ export default async function BlogPostPage({ params }: Props) {
               {/* 記事フッター */}
               <footer className="mt-12 pt-8 border-t border-border/50">
                 {/* いいねセクション */}
-                <ArticleLikeSection slug={post.slug} />
+                <ArticleWithEngagement slug={post.slug} position="footer">
+                  <ArticleLikeSection />
+                </ArticleWithEngagement>
 
                 {/* モバイル用シェア */}
                 <div className="xl:hidden mb-8">
