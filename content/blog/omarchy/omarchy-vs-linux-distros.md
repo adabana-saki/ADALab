@@ -3,7 +3,8 @@ title: "【2025年版】Omarchy vs Ubuntu・Fedora・Arch Linux徹底比較 - �
 date: "2025-11-29"
 description: "Omarchyと主要Linuxディストリビューション（Ubuntu、Fedora、Arch Linux）を初心者にもわかりやすく徹底比較。それぞれの特徴、メリット・デメリット、選び方を解説します。"
 tags: ["Omarchy", "Linux", "Ubuntu", "Fedora", "Arch Linux", "比較", "初心者向け"]
-author: "ADA Lab"
+author: "Adabana Saki"
+draft: true
 ---
 
 # Omarchy vs Ubuntu・Fedora・Arch Linux徹底比較

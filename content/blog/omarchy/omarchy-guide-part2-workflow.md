@@ -3,7 +3,7 @@ title: "【2025年版】Omarchy実践ガイド Part 2 - 開発ワークフロー
 date: "2025-11-29"
 description: "Omarchyの開発ツールを使いこなして、効率的な開発ワークフローを構築する方法を解説します。Neovim、Lazygit、Docker、fzfなど。"
 tags: ["Omarchy", "Linux", "開発環境", "Neovim", "Docker", "Git"]
-author: "ADA Lab"
+author: "Adabana Saki"
 ---
 
 # Omarchy実践ガイド Part 2 - 開発ワークフローを極める

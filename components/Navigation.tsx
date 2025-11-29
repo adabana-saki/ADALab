@@ -18,18 +18,14 @@ const ThemeToggle = dynamic(
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('home');
   const { language, setLanguage, t } = useLanguage();
   const pathname = usePathname();
   const isHomePage = pathname === '/';
 
+  // シンプルなナビ項目
   const navItems = [
-    { name: t.nav.home, href: '#home', id: 'home' },
-    { name: t.nav.about, href: '#about', id: 'about' },
-    { name: t.nav.technologies, href: '#technologies', id: 'technologies' },
-    { name: t.nav.projects, href: '#projects', id: 'projects' },
-    { name: t.nav.news, href: '#news', id: 'news' },
-    { name: t.nav.contact, href: '#contact', id: 'contact' },
+    { name: 'Blog', href: '/blog' },
+    { name: 'Products', href: '/products' },
   ];
 
   useEffect(() => {
@@ -40,40 +36,20 @@ export function Navigation() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Track active section with Intersection Observer
-  useEffect(() => {
-    const sectionIds = ['home', 'about', 'technologies', 'projects', 'news', 'contact'];
-    const observers: IntersectionObserver[] = [];
-
-    sectionIds.forEach((id) => {
-      const element = document.getElementById(id);
+  const scrollToContact = () => {
+    if (isHomePage) {
+      const element = document.querySelector('#contact');
       if (element) {
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                setActiveSection(id);
-              }
-            });
-          },
-          { threshold: 0.1, rootMargin: '-10% 0px -60% 0px' }
-        );
-        observer.observe(element);
-        observers.push(observer);
+        element.scrollIntoView({ behavior: 'smooth' });
+        setIsMobileMenuOpen(false);
       }
-    });
-
-    return () => {
-      observers.forEach((observer) => observer.disconnect());
-    };
-  }, []);
-
-  const scrollToSection = (href: string) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-      setIsMobileMenuOpen(false);
     }
+  };
+
+  const isActiveLink = (href: string) => {
+    if (href === '/blog') return pathname.startsWith('/blog');
+    if (href === '/products') return pathname.startsWith('/products');
+    return pathname === href;
   };
 
   return (
@@ -91,86 +67,63 @@ export function Navigation() {
         <nav className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            {isHomePage ? (
-              <motion.a
-                href="#home"
-                onClick={(e) => {
-                  e.preventDefault();
-                  scrollToSection('#home');
-                }}
-                className="text-xl sm:text-2xl md:text-2xl logo-text cursor-pointer"
+            <Link href="/">
+              <motion.span
+                className="text-xl sm:text-2xl logo-text cursor-pointer"
                 data-text="ADA LAB"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 ADA LAB
-              </motion.a>
-            ) : (
-              <Link href="/">
-                <motion.span
-                  className="text-xl sm:text-2xl md:text-2xl logo-text cursor-pointer"
-                  data-text="ADA LAB"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+              </motion.span>
+            </Link>
+
+            {/* Desktop Navigation - シンプルに */}
+            <div className="hidden md:flex items-center gap-8">
+              <ul className="flex items-center gap-1">
+                {navItems.map((item) => (
+                  <li key={item.name}>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                        isActiveLink(item.href)
+                          ? "bg-primary/10 text-primary"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      )}
+                    >
+                      {item.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+
+              {/* 右側のコントロール */}
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <button
+                  onClick={() => setLanguage(language === 'ja' ? 'en' : 'ja')}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted/50 hover:bg-muted transition-all"
+                  aria-label="Toggle language"
                 >
-                  ADA LAB
-                </motion.span>
-              </Link>
-            )}
-
-            {/* Desktop Navigation */}
-            <ul className="hidden md:flex items-center space-x-8">
-              {navItems.map((item) => (
-                <li key={item.name}>
-                  <a
-                    href={item.href}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      scrollToSection(item.href);
-                    }}
-                    className={cn(
-                      "transition-colors relative group cursor-pointer",
-                      activeSection === item.id
-                        ? "text-neon-cyan"
-                        : "text-foreground/80 hover:text-foreground"
-                    )}
-                  >
-                    {item.name}
-                    <span className={cn(
-                      "absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-primary to-secondary transition-all",
-                      activeSection === item.id ? "w-full" : "w-0 group-hover:w-full"
-                    )} />
-                  </a>
-                </li>
-              ))}
-            </ul>
-
-            {/* Theme Toggle, Language Toggle & CTA Button (Desktop) */}
-            <div className="hidden md:flex items-center gap-3">
-              <ThemeToggle />
-              <button
-                onClick={() => setLanguage(language === 'ja' ? 'en' : 'ja')}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 transition-all group"
-                aria-label="Toggle language"
-              >
-                <Globe className="w-4 h-4 text-neon-cyan group-hover:text-neon-fuchsia transition-colors" />
-                <span className="text-sm font-medium">{language === 'ja' ? 'JP' : 'EN'}</span>
-              </button>
-              <Button
-                onClick={() => scrollToSection('#contact')}
-                variant="default"
-              >
-                {t.nav.getInTouch}
-              </Button>
+                  <Globe className="w-4 h-4" />
+                  <span className="text-sm font-medium">{language.toUpperCase()}</span>
+                </button>
+                {isHomePage && (
+                  <Button onClick={scrollToContact} variant="default" size="sm">
+                    {t.nav.getInTouch}
+                  </Button>
+                )}
+              </div>
             </div>
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden text-foreground p-2 rounded-lg hover:bg-white/10 transition-all active:scale-95"
+              className="md:hidden text-foreground p-2 rounded-lg hover:bg-muted/50 transition-all"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle menu"
             >
-              {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </nav>
@@ -180,54 +133,45 @@ export function Navigation() {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, x: '100%' }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: '100%' }}
-            transition={{ type: 'tween' }}
-            className="fixed inset-0 z-40 bg-background/95 backdrop-blur-2xl md:hidden"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-x-0 top-[72px] z-40 bg-background/95 backdrop-blur-xl border-b border-border/50 md:hidden"
           >
-            <div className="flex flex-col items-center justify-center h-full space-y-6 px-6">
-              {navItems.map((item, index) => (
-                <motion.a
+            <div className="container mx-auto px-4 py-4 space-y-2">
+              {navItems.map((item) => (
+                <Link
                   key={item.name}
                   href={item.href}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    scrollToSection(item.href);
-                  }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="text-3xl font-bold text-foreground hover:text-neon-cyan transition-all cursor-pointer active:scale-95 py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={cn(
+                    "block px-4 py-3 rounded-lg text-base font-medium transition-all",
+                    isActiveLink(item.href)
+                      ? "bg-primary/10 text-primary"
+                      : "text-foreground hover:bg-muted/50"
+                  )}
                 >
                   {item.name}
-                </motion.a>
+                </Link>
               ))}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: navItems.length * 0.1 }}
-                className="flex flex-col gap-4 w-full max-w-xs mt-4"
-              >
-                <div className="flex justify-center">
-                  <ThemeToggle />
-                </div>
+
+              <div className="flex items-center gap-2 pt-2 border-t border-border/50">
+                <ThemeToggle />
                 <button
                   onClick={() => setLanguage(language === 'ja' ? 'en' : 'ja')}
-                  className="flex items-center justify-center gap-3 px-8 py-4 rounded-lg bg-white/5 backdrop-blur-md border-2 border-white/10 hover:border-neon-cyan/50 hover:bg-white/10 transition-all group active:scale-95"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50"
                   aria-label="Toggle language"
                 >
-                  <Globe className="w-6 h-6 text-neon-cyan group-hover:text-neon-fuchsia transition-colors" />
-                  <span className="text-lg font-medium">{language === 'ja' ? 'JP' : 'EN'}</span>
+                  <Globe className="w-4 h-4" />
+                  <span className="text-sm font-medium">{language.toUpperCase()}</span>
                 </button>
-                <Button
-                  onClick={() => scrollToSection('#contact')}
-                  variant="default"
-                  className="w-full py-6 text-lg"
-                >
-                  {t.nav.getInTouch}
-                </Button>
-              </motion.div>
+                {isHomePage && (
+                  <Button onClick={scrollToContact} variant="default" size="sm" className="ml-auto">
+                    {t.nav.getInTouch}
+                  </Button>
+                )}
+              </div>
             </div>
           </motion.div>
         )}

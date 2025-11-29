@@ -3,7 +3,7 @@ title: "【2025年版】Omarchyカスタマイズガイド Part 3 - 自分だけ
 date: "2025-11-29"
 description: "Omarchyのテーマ変更、Hyprland設定、キーバインドのカスタマイズなど、上級者向けのカスタマイズ方法を解説します。"
 tags: ["Omarchy", "Linux", "カスタマイズ", "Hyprland", "上級者向け"]
-author: "ADA Lab"
+author: "Adabana Saki"
 ---
 
 # Omarchyカスタマイズガイド Part 3 - 自分だけの環境を作る

@@ -3,7 +3,8 @@ title: "【2025年版】Hyprland設定大全 - タイルウィンドウマネー
 date: "2025-11-29"
 description: "Hyprlandの設定方法を初心者にもわかりやすく解説。キーバインド、アニメーション、ウィンドウルール、マルチモニターなど網羅的にカバーします。"
 tags: ["Hyprland", "Linux", "ウィンドウマネージャー", "カスタマイズ", "Omarchy"]
-author: "ADA Lab"
+author: "Adabana Saki"
+draft: true
 ---
 
 # Hyprland設定大全 - タイルウィンドウマネージャーを使いこなす

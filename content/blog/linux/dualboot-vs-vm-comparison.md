@@ -3,7 +3,8 @@ title: "【初心者向け】デュアルブート vs 仮想マシン - Linuxを
 date: "2025-11-29"
 description: "Linuxを試したい方必見！デュアルブートと仮想マシン（VM）の違い、メリット・デメリットを初心者にもわかりやすく解説。あなたに合った方法が見つかります。"
 tags: ["Linux", "デュアルブート", "仮想マシン", "VM", "初心者向け", "Omarchy"]
-author: "ADA Lab"
+author: "Adabana Saki"
+draft: true
 ---
 
 # デュアルブート vs 仮想マシン - Linuxを試す最適な方法は？
