@@ -1,0 +1,45 @@
+# ブログ全体の設定
+# このファイルでブログの共通設定を管理します
+
+# デフォルトの著者
+defaultAuthor: "ADA Lab"
+
+# カテゴリーの順序（サイドバーやナビゲーションでの表示順）
+categoryOrder:
+  - omarchy
+  - linux
+  - tools
+  - web
+  - general
+
+# シリーズの設定
+series:
+  # シリーズを有効にするか
+  enabled: true
+  # シリーズ間のナビゲーションを表示するか
+  showNavigation: true
+
+# タグの設定
+tags:
+  # 最大表示数
+  maxDisplay: 20
+  # 人気タグの閾値（この数以上の記事があるタグを人気タグとする）
+  popularThreshold: 3
+
+# 関連記事の設定
+relatedPosts:
+  # 表示する記事数
+  count: 3
+  # 同じカテゴリを優先するか
+  prioritizeCategory: true
+  # 同じシリーズを優先するか
+  prioritizeSeries: true
+
+# RSS/Atom フィードの設定
+feed:
+  # フィードに含める記事数
+  limit: 20
+  # フィードのタイトル
+  title: "ADA Lab Blog"
+  # フィードの説明
+  description: "ADA Labの技術ブログ - 開発Tips、ツール紹介、技術解説など"

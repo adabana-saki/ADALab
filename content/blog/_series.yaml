@@ -1,0 +1,29 @@
+# シリーズ（連載記事）の定義
+# シリーズに属する記事は自動的に前後のナビゲーションが表示されます
+
+omarchy-guide:
+  title: "Omarchy完全ガイド"
+  description: "DHHが作ったモダンなLinuxディストリビューション「Omarchy」を徹底解説"
+  # シリーズに含まれる記事（順序通り）
+  posts:
+    - omarchy/guide-part1-introduction
+    - omarchy/guide-part2-workflow
+    - omarchy/guide-part3-customization
+  # シリーズのカバー画像
+  # coverImage: /images/series/omarchy-guide.png
+  # 対象レベル
+  level: "初心者〜上級者"
+  # 完結しているか
+  completed: true
+
+# 今後追加予定のシリーズ例:
+#
+# nextjs-tutorial:
+#   title: "Next.js入門"
+#   description: "Next.jsを使ったWebアプリ開発を学ぶ"
+#   posts:
+#     - web/nextjs-part1-setup
+#     - web/nextjs-part2-routing
+#     - web/nextjs-part3-data-fetching
+#   level: "初心者"
+#   completed: false

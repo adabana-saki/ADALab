@@ -1,0 +1,13 @@
+# カテゴリー: 一般
+# お知らせ、雑記など分類しにくい記事を管理
+
+name: "一般"
+slug: "general"
+description: "お知らせ、雑記、その他の記事"
+color: "#565f89"  # カテゴリーカラー（Gray）
+icon: "file-text"
+order: 99
+
+defaultTags: []
+
+relatedCategories: []
