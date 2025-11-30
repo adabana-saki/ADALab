@@ -4,7 +4,7 @@ date: "2025-11-29"
 description: "fzf（ファジーファインダー）の使い方を初心者にもわかりやすく解説。ファイル検索、コマンド履歴、Git連携など、作業効率を上げる実践的なテクニックを紹介します。"
 tags: ["fzf", "ターミナル", "コマンドライン", "開発ツール", "Omarchy"]
 author: "Adabana Saki"
-draft: true
+draft: false
 ---
 
 # fzf活用テクニック集 - ファイル検索を劇的に効率化
