@@ -4,7 +4,7 @@ date: "2025-11-29"
 description: "Lazygitの使い方を初心者にもわかりやすく解説。コミット、ブランチ操作、リベース、チェリーピックなど、Git操作を劇的に効率化する方法を学びましょう。"
 tags: ["Lazygit", "Git", "ターミナル", "開発ツール", "Omarchy"]
 author: "Adabana Saki"
-draft: true
+draft: false
 ---
 
 # Lazygit使いこなし術 - Gitを視覚的に操作する最強ツール
