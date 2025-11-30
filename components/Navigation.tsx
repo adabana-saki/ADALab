@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Globe } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import dynamic from 'next/dynamic';
@@ -22,8 +21,12 @@ export function Navigation() {
   const pathname = usePathname();
   const isHomePage = pathname === '/';
 
-  // シンプルなナビ項目
+  // ナビ項目
   const navItems = [
+    { name: 'About', href: '/#about' },
+    { name: 'News', href: '/#news' },
+    { name: 'QA', href: '/#faq' },
+    { name: 'Contact', href: '/#contact' },
     { name: 'Blog', href: '/blog' },
     { name: 'Products', href: '/products' },
   ];
@@ -36,20 +39,29 @@ export function Navigation() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const scrollToContact = () => {
-    if (isHomePage) {
-      const element = document.querySelector('#contact');
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-        setIsMobileMenuOpen(false);
-      }
-    }
-  };
-
   const isActiveLink = (href: string) => {
     if (href === '/blog') return pathname.startsWith('/blog');
     if (href === '/products') return pathname.startsWith('/products');
+    if (href.startsWith('/#')) return isHomePage;
     return pathname === href;
+  };
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    // ハッシュリンクの場合
+    if (href.startsWith('/#')) {
+      const targetId = href.replace('/#', '');
+      if (isHomePage) {
+        // ホームページにいる場合はスムーズスクロール
+        e.preventDefault();
+        const element = document.getElementById(targetId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+          setIsMobileMenuOpen(false);
+        }
+      }
+      // ホームページ以外の場合はデフォルト動作（ページ遷移）
+    }
+    setIsMobileMenuOpen(false);
   };
 
   return (
@@ -85,6 +97,7 @@ export function Navigation() {
                   <li key={item.name}>
                     <Link
                       href={item.href}
+                      onClick={(e) => handleNavClick(e, item.href)}
                       className={cn(
                         "px-4 py-2 rounded-lg text-sm font-medium transition-all",
                         isActiveLink(item.href)
@@ -109,11 +122,6 @@ export function Navigation() {
                   <Globe className="w-4 h-4" />
                   <span className="text-sm font-medium">{language.toUpperCase()}</span>
                 </button>
-                {isHomePage && (
-                  <Button onClick={scrollToContact} variant="default" size="sm">
-                    {t.nav.getInTouch}
-                  </Button>
-                )}
               </div>
             </div>
 
@@ -144,7 +152,7 @@ export function Navigation() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={(e) => handleNavClick(e, item.href)}
                   className={cn(
                     "block px-4 py-3 rounded-lg text-base font-medium transition-all",
                     isActiveLink(item.href)
@@ -166,11 +174,6 @@ export function Navigation() {
                   <Globe className="w-4 h-4" />
                   <span className="text-sm font-medium">{language.toUpperCase()}</span>
                 </button>
-                {isHomePage && (
-                  <Button onClick={scrollToContact} variant="default" size="sm" className="ml-auto">
-                    {t.nav.getInTouch}
-                  </Button>
-                )}
               </div>
             </div>
           </motion.div>
