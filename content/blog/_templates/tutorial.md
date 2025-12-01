@@ -120,8 +120,8 @@ Before → After
 
 この記事を読んだ後のおすすめ:
 
-- [次に読む記事1](/blog/next-article1)
-- [次に読む記事2](/blog/next-article2)
+- [次に読む記事1](https://adalab.pages.dev/blog/next-article1)
+- [次に読む記事2](https://adalab.pages.dev/blog/next-article2)
 
 ## 参考リンク
 

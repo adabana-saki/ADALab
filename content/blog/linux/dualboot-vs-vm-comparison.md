@@ -1,10 +1,10 @@
 ---
 title: "【初心者向け】デュアルブート vs 仮想マシン - Linuxを試す最適な方法は？"
 date: "2025-11-29"
+publishDate: "2025-12-03"
 description: "Linuxを試したい方必見！デュアルブートと仮想マシン（VM）の違い、メリット・デメリットを初心者にもわかりやすく解説。あなたに合った方法が見つかります。"
 tags: ["Linux", "デュアルブート", "仮想マシン", "VM", "初心者向け", "Omarchy"]
 author: "Adabana Saki"
-draft: true
 ---
 
 # デュアルブート vs 仮想マシン - Linuxを試す最適な方法は？
@@ -460,8 +460,8 @@ Q3: 頻繁にWindowsとLinuxを切り替える？
 
 ## 関連記事
 
-- [Omarchy入門ガイド Part 1](/blog/omarchy-guide-part1-introduction)
-- [Omarchy vs 他Linuxディストロ比較](/blog/omarchy-vs-linux-distros)
+- [Omarchy入門ガイド Part 1](https://adalab.pages.dev/blog/omarchy-guide-part1-introduction)
+- [Omarchy vs 他Linuxディストロ比較](https://adalab.pages.dev/blog/omarchy-vs-linux-distros)
 
 ## 参考リンク
 

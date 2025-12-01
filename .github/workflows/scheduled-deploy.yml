@@ -1,0 +1,15 @@
+name: Scheduled Deploy
+
+on:
+  schedule:
+    # 毎日 AM 9:00 JST (UTC 0:00) にビルド
+    - cron: '0 0 * * *'
+  workflow_dispatch: # 手動実行も可能
+
+jobs:
+  trigger-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Cloudflare Pages Deploy
+        run: |
+          curl -X POST "${{ secrets.CLOUDFLARE_DEPLOY_HOOK }}"

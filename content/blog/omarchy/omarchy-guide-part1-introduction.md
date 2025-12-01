@@ -230,7 +230,7 @@ Omarchyはローリングリリースを採用しているため、常に最新�
 - Lazygitでのバージョン管理
 - Dockerの活用方法
 
-→ [Omarchy実践ガイド Part 2 - 開発ワークフローを極める](/blog/omarchy-guide-part2-workflow)
+→ [Omarchy実践ガイド Part 2 - 開発ワークフローを極める](https://adalab.pages.dev/blog/omarchy-guide-part2-workflow)
 
 ## まとめ
 
