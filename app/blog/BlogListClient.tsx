@@ -3,11 +3,13 @@
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { Calendar, Clock, Tag, User, TrendingUp, Sparkles, BookOpen, Rss, Search, X, Eye, Heart } from 'lucide-react';
-import type { BlogMeta } from '@/lib/blog';
+import type { BlogMeta, ScheduledPost } from '@/lib/blog';
+import { UpcomingPosts } from '@/components/blog/UpcomingPosts';
 
 interface BlogListClientProps {
   posts: BlogMeta[];
   tags: { name: string; count: number }[];
+  scheduledPosts?: ScheduledPost[];
 }
 
 type SortOption = 'latest' | 'popular';
@@ -40,7 +42,7 @@ function EngagementBadge({ data, isLoading }: EngagementBadgeProps) {
   );
 }
 
-export function BlogListClient({ posts, tags }: BlogListClientProps) {
+export function BlogListClient({ posts, tags, scheduledPosts = [] }: BlogListClientProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortOption>('latest');
@@ -379,6 +381,11 @@ export function BlogListClient({ posts, tags }: BlogListClientProps) {
           {/* サイドバー */}
           <aside className="lg:col-span-1">
             <div className="sticky top-24 space-y-6">
+              {/* 公開予定 */}
+              {scheduledPosts.length > 0 && (
+                <UpcomingPosts posts={scheduledPosts} />
+              )}
+
               {/* 著者情報 */}
               <div className="bg-card border border-border/50 rounded-xl p-5">
                 <div className="flex items-center gap-3 mb-4">

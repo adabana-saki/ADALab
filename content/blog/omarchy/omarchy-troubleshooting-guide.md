@@ -1,10 +1,10 @@
 ---
 title: "【2025年版】Omarchyトラブルシューティング集 - よくある問題と解決法"
 date: "2025-11-29"
+publishDate: "2025-12-05"
 description: "Omarchyで発生しやすい問題と解決方法を初心者にもわかりやすく解説。インストール、起動、ディスプレイ、日本語入力、アップデートなどのトラブルを網羅します。"
 tags: ["Omarchy", "Linux", "トラブルシューティング", "問題解決", "初心者向け"]
 author: "Adabana Saki"
-draft: true
 ---
 
 # Omarchyトラブルシューティング集 - よくある問題と解決法
@@ -590,9 +590,9 @@ Omarchyはまだ新しいプロジェクトなので、問題に遭遇するこ�
 
 ## 関連記事
 
-- [Omarchy入門ガイド Part 1](/blog/omarchy-guide-part1-introduction)
-- [Omarchyカスタマイズガイド Part 3](/blog/omarchy-guide-part3-customization)
-- [Hyprland設定大全](/blog/hyprland-configuration-guide)
+- [Omarchy入門ガイド Part 1](https://adalab.pages.dev/blog/omarchy-guide-part1-introduction)
+- [Omarchyカスタマイズガイド Part 3](https://adalab.pages.dev/blog/omarchy-guide-part3-customization)
+- [Hyprland設定大全](https://adalab.pages.dev/blog/hyprland-configuration-guide)
 
 ## 参考リンク
 

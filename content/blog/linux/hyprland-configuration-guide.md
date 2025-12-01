@@ -1,10 +1,10 @@
 ---
 title: "【2025年版】Hyprland設定大全 - タイルウィンドウマネージャーを使いこなす"
 date: "2025-11-29"
+publishDate: "2025-12-01"
 description: "Hyprlandの設定方法を初心者にもわかりやすく解説。キーバインド、アニメーション、ウィンドウルール、マルチモニターなど網羅的にカバーします。"
 tags: ["Hyprland", "Linux", "ウィンドウマネージャー", "カスタマイズ", "Omarchy"]
 author: "Adabana Saki"
-draft: true
 ---
 
 # Hyprland設定大全 - タイルウィンドウマネージャーを使いこなす
@@ -707,8 +707,8 @@ Hyprlandの主要な設定項目をまとめます：
 
 ## 関連記事
 
-- [Omarchy入門ガイド Part 1](/blog/omarchy-guide-part1-introduction)
-- [Omarchyカスタマイズガイド Part 3](/blog/omarchy-guide-part3-customization)
+- [Omarchy入門ガイド Part 1](https://adalab.pages.dev/blog/omarchy-guide-part1-introduction)
+- [Omarchyカスタマイズガイド Part 3](https://adalab.pages.dev/blog/omarchy-guide-part3-customization)
 
 ## 参考リンク
 

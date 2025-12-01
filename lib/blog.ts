@@ -37,6 +37,8 @@ export interface BlogPost {
   series?: string;
   seriesOrder?: number;
   draft?: boolean;
+  /** 公開予約日（この日以降に自動公開） */
+  publishDate?: string;
 }
 
 export type BlogMeta = Omit<BlogPost, 'content'>;
@@ -256,8 +258,16 @@ export function getAllPosts(): BlogMeta[] {
       const fileContent = fs.readFileSync(filePath, 'utf-8');
       const { data, content } = matter(fileContent);
 
-      // 下書きは除外
-      if (data.draft === true) {
+      // 下書きは除外（publishDateが設定されている場合はその日付で判定）
+      if (data.publishDate) {
+        // UTCで統一して比較（タイムゾーン差異を防止）
+        const publishDate = new Date(data.publishDate + 'T00:00:00Z');
+        const now = new Date();
+        const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+        if (publishDate > todayUTC) {
+          return null; // 公開日がまだ来ていない
+        }
+      } else if (data.draft === true) {
         return null;
       }
 
@@ -273,6 +283,7 @@ export function getAllPosts(): BlogMeta[] {
         category: category || data.category,
         series: data.series,
         seriesOrder: data.seriesOrder,
+        publishDate: data.publishDate,
       };
     })
     .filter((post): post is BlogMeta => post !== null)
@@ -343,6 +354,7 @@ function parsePostFile(filePath: string, slug: string, category?: string): BlogP
     series: data.series,
     seriesOrder: data.seriesOrder,
     draft: data.draft,
+    publishDate: data.publishDate,
   };
 }
 
@@ -414,4 +426,56 @@ export function getRelatedPosts(currentSlug: string, limit = 3): BlogMeta[] {
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
     .map((item) => item.post);
+}
+
+/**
+ * 公開予定の記事を取得（publishDateが未来の記事）
+ */
+export interface ScheduledPost {
+  slug: string;
+  title: string;
+  publishDate: string;
+  category?: string;
+}
+
+export function getScheduledPosts(): ScheduledPost[] {
+  const markdownFiles = getMarkdownFiles(BLOG_DIR);
+  // UTCで統一して比較（タイムゾーン差異を防止）
+  const now = new Date();
+  const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+
+  const scheduled: ScheduledPost[] = markdownFiles
+    .map(({ filePath, category }): ScheduledPost | null => {
+      const filename = path.basename(filePath);
+      const slug = filename.replace(/\.mdx?$/, '');
+
+      if (!isValidSlug(slug)) {
+        return null;
+      }
+
+      const fileContent = fs.readFileSync(filePath, 'utf-8');
+      const { data } = matter(fileContent);
+
+      // publishDateが設定されていて、未来の日付のもののみ
+      if (!data.publishDate) {
+        return null;
+      }
+
+      const publishDate = new Date(data.publishDate + 'T00:00:00Z');
+
+      if (publishDate <= todayUTC) {
+        return null; // すでに公開済み
+      }
+
+      return {
+        slug,
+        title: data.title || 'Untitled',
+        publishDate: data.publishDate,
+        category,
+      };
+    })
+    .filter((post): post is ScheduledPost => post !== null)
+    .sort((a, b) => new Date(a.publishDate).getTime() - new Date(b.publishDate).getTime());
+
+  return scheduled;
 }

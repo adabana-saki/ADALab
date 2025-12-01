@@ -1,11 +1,11 @@
 ---
 title: "Upstash Redis × Cloudflare Pages で作る動的機能 - 静的サイトにいいね・ビュー機能を追加"
 date: "2025-11-30"
+publishDate: "2025-12-04"
 description: "静的サイト（SSG）でも動的な機能を実装する方法を解説。Upstash RedisとCloudflare Functionsを使って、いいねボタンやビューカウンターを作ります。"
 tags: ["Upstash", "Redis", "Cloudflare", "Next.js", "サーバーレス"]
 author: "Adabana Saki"
 category: "Web開発"
-draft: true
 ---
 
 # Upstash Redis × Cloudflare Pages で作る動的機能
