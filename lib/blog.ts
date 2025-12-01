@@ -260,11 +260,11 @@ export function getAllPosts(): BlogMeta[] {
 
       // 下書きは除外（publishDateが設定されている場合はその日付で判定）
       if (data.publishDate) {
-        const publishDate = new Date(data.publishDate);
-        publishDate.setHours(0, 0, 0, 0);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        if (publishDate > today) {
+        // UTCで統一して比較（タイムゾーン差異を防止）
+        const publishDate = new Date(data.publishDate + 'T00:00:00Z');
+        const now = new Date();
+        const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+        if (publishDate > todayUTC) {
           return null; // 公開日がまだ来ていない
         }
       } else if (data.draft === true) {
@@ -440,8 +440,9 @@ export interface ScheduledPost {
 
 export function getScheduledPosts(): ScheduledPost[] {
   const markdownFiles = getMarkdownFiles(BLOG_DIR);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  // UTCで統一して比較（タイムゾーン差異を防止）
+  const now = new Date();
+  const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 
   const scheduled: ScheduledPost[] = markdownFiles
     .map(({ filePath, category }): ScheduledPost | null => {
@@ -460,10 +461,9 @@ export function getScheduledPosts(): ScheduledPost[] {
         return null;
       }
 
-      const publishDate = new Date(data.publishDate);
-      publishDate.setHours(0, 0, 0, 0);
+      const publishDate = new Date(data.publishDate + 'T00:00:00Z');
 
-      if (publishDate <= today) {
+      if (publishDate <= todayUTC) {
         return null; // すでに公開済み
       }
 

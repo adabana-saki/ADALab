@@ -56,6 +56,20 @@ author: "著者名"
 - 一覧ページ: <http://localhost:3000/blog>
 - 記事ページ: <http://localhost:3000/blog/my-new-post>
 
+### 予約投稿
+
+`publishDate`を設定すると、その日以降のビルドで自動公開されます。
+
+```markdown
+---
+title: "来週公開する記事"
+date: "2025-12-01"
+publishDate: "2025-12-08"
+---
+```
+
+毎朝9時(JST)にGitHub Actionsが定期ビルドを実行し、予約日が来た記事が自動的に公開されます。
+
 ## プロジェクト構成
 
 ```text
@@ -95,6 +109,22 @@ npm run format   # Prettierでフォーマット
 ## デプロイ
 
 mainブランチにマージすると、Cloudflare Pagesが自動でデプロイします。
+
+## GitHub Secrets
+
+予約投稿の定期ビルドを有効にするには、以下のSecretを設定してください。
+
+| Secret名 | 説明 |
+|----------|------|
+| `CLOUDFLARE_DEPLOY_HOOK` | Cloudflare PagesのDeploy Hook URL |
+
+### 設定手順
+
+1. **Cloudflare Dashboard** → Pages → プロジェクト → Settings → Builds & deployments
+2. 「Deploy hooks」セクションで新しいhookを作成
+3. 生成されたURLをコピー
+4. **GitHub** → リポジトリ → Settings → Secrets and variables → Actions
+5. 「New repository secret」で `CLOUDFLARE_DEPLOY_HOOK` を追加
 
 ## お問い合わせ
 

@@ -50,7 +50,7 @@ export function UpcomingPosts({ posts }: UpcomingPostsProps) {
                 <Clock className="h-4 w-4 text-cyan-400" />
                 <span className="text-cyan-400">{formatDate(post.publishDate)}</span>
                 <span className="rounded-full bg-cyan-500/10 px-2 py-0.5 text-xs text-cyan-300">
-                  {daysUntil === 1 ? '明日' : `${daysUntil}日後`}
+                  {daysUntil <= 0 ? '今日' : daysUntil === 1 ? '明日' : `${daysUntil}日後`}
                 </span>
               </div>
               <h4 className="line-clamp-2 text-sm font-medium text-gray-200 transition-colors group-hover:text-white">
