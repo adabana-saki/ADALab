@@ -34,8 +34,8 @@ export function LatestBlog({ posts }: LatestBlogProps) {
         </motion.div>
 
         {/* Blog Posts */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          {posts.slice(0, 3).map((post, index) => (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          {posts.slice(0, 6).map((post, index) => (
             <motion.article
               key={post.slug}
               initial={{ opacity: 0, y: 20 }}
