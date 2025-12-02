@@ -707,8 +707,8 @@ Hyprlandの主要な設定項目をまとめます：
 
 ## 関連記事
 
-- [Omarchy入門ガイド Part 1](https://adalab.pages.dev/blog/omarchy-guide-part1-introduction)
-- [Omarchyカスタマイズガイド Part 3](https://adalab.pages.dev/blog/omarchy-guide-part3-customization)
+- [Omarchy入門ガイド Part 1](/blog/omarchy-guide-part1-introduction)
+- [Omarchyカスタマイズガイド Part 3](/blog/omarchy-guide-part3-customization)
 
 ## 参考リンク
 

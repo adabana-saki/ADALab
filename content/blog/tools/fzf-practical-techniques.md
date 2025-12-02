@@ -554,8 +554,8 @@ fzfを使いこなすと、ターミナルでの作業効率が劇的に向上�
 
 ## 関連記事
 
-- [Omarchy入門ガイド Part 2](https://adalab.pages.dev/blog/omarchy-guide-part2-workflow)
-- [Lazygit使いこなし術](https://adalab.pages.dev/blog/lazygit-usage-guide)
+- [Omarchy入門ガイド Part 2](/blog/omarchy-guide-part2-workflow)
+- [Lazygit使いこなし術](/blog/lazygit-usage-guide)
 
 ## 参考リンク
 

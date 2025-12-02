@@ -460,8 +460,8 @@ Q3: 頻繁にWindowsとLinuxを切り替える？
 
 ## 関連記事
 
-- [Omarchy入門ガイド Part 1](https://adalab.pages.dev/blog/omarchy-guide-part1-introduction)
-- [Omarchy vs 他Linuxディストロ比較](https://adalab.pages.dev/blog/omarchy-vs-linux-distros)
+- [Omarchy入門ガイド Part 1](/blog/omarchy-guide-part1-introduction)
+- [Omarchy vs 他Linuxディストロ比較](/blog/omarchy-vs-linux-distros)
 
 ## 参考リンク
 

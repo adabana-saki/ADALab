@@ -47,8 +47,8 @@ author: "Adabana Saki"
 
 ## 関連記事
 
-- [関連記事1のタイトル](https://adalab.pages.dev/blog/slug1)
-- [関連記事2のタイトル](https://adalab.pages.dev/blog/slug2)
+- [関連記事1のタイトル](/blog/slug1)
+- [関連記事2のタイトル](/blog/slug2)
 
 ## 参考リンク
 

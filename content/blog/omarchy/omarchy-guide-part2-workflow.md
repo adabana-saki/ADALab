@@ -8,7 +8,7 @@ author: "Adabana Saki"
 
 # Omarchy実践ガイド Part 2 - 開発ワークフローを極める
 
-[Part 1](https://adalab.pages.dev/blog/omarchy-guide-part1-introduction)では、Omarchyの基本的なインストールと操作方法を学びました。
+[Part 1](/blog/omarchy-guide-part1-introduction)では、Omarchyの基本的なインストールと操作方法を学びました。
 
 この記事では、Omarchyに搭載されている開発ツールを使いこなして、**効率的な開発ワークフロー**を構築する方法を解説します。
 
@@ -436,7 +436,7 @@ Super + Shift + D
 - キーバインドのカスタマイズ
 - 拡張機能のインストール
 
-→ [Omarchyカスタマイズガイド Part 3 - 自分だけの環境を作る](https://adalab.pages.dev/blog/omarchy-guide-part3-customization)
+→ [Omarchyカスタマイズガイド Part 3 - 自分だけの環境を作る](/blog/omarchy-guide-part3-customization)
 
 ## まとめ
 

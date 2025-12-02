@@ -590,9 +590,9 @@ Omarchyはまだ新しいプロジェクトなので、問題に遭遇するこ�
 
 ## 関連記事
 
-- [Omarchy入門ガイド Part 1](https://adalab.pages.dev/blog/omarchy-guide-part1-introduction)
-- [Omarchyカスタマイズガイド Part 3](https://adalab.pages.dev/blog/omarchy-guide-part3-customization)
-- [Hyprland設定大全](https://adalab.pages.dev/blog/hyprland-configuration-guide)
+- [Omarchy入門ガイド Part 1](/blog/omarchy-guide-part1-introduction)
+- [Omarchyカスタマイズガイド Part 3](/blog/omarchy-guide-part3-customization)
+- [Hyprland設定大全](/blog/hyprland-configuration-guide)
 
 ## 参考リンク
 

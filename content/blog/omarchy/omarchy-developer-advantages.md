@@ -290,7 +290,7 @@ docker compose up
 
 詳しい手順は以下の記事で解説しています：
 
-→ [Omarchy入門ガイド Part 1 - 美しいLinux開発環境を始めよう](https://adalab.pages.dev/blog/omarchy-guide-part1-introduction)
+→ [Omarchy入門ガイド Part 1 - 美しいLinux開発環境を始めよう](/blog/omarchy-guide-part1-introduction)
 
 ## まとめ
 
@@ -314,9 +314,9 @@ DHHが数年かけて最適化した環境を、**インストールするだけ
 
 ## 関連記事
 
-- [Omarchy入門ガイド Part 1 - 美しいLinux開発環境を始めよう](https://adalab.pages.dev/blog/omarchy-guide-part1-introduction)
-- [Omarchy実践ガイド Part 2 - 開発ワークフローを極める](https://adalab.pages.dev/blog/omarchy-guide-part2-workflow)
-- [Omarchy vs Ubuntu・Fedora・Arch Linux徹底比較](https://adalab.pages.dev/blog/omarchy-vs-linux-distros)
+- [Omarchy入門ガイド Part 1 - 美しいLinux開発環境を始めよう](/blog/omarchy-guide-part1-introduction)
+- [Omarchy実践ガイド Part 2 - 開発ワークフローを極める](/blog/omarchy-guide-part2-workflow)
+- [Omarchy vs Ubuntu・Fedora・Arch Linux徹底比較](/blog/omarchy-vs-linux-distros)
 
 ## 参考リンク
 
