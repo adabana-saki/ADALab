@@ -557,9 +557,9 @@ Omarchyは**「意見を持った（Opinionated）」**ディストリビュー�
 
 この3部構成のガイドで、Omarchyの基本から上級テクニックまでカバーしました：
 
-- **[Part 1](https://adalab.pages.dev/blog/omarchy-guide-part1-introduction)**: インストールと基本操作
-- **[Part 2](https://adalab.pages.dev/blog/omarchy-guide-part2-workflow)**: 開発ワークフローの効率化
-- **[Part 3](https://adalab.pages.dev/blog/omarchy-guide-part3-customization)**: カスタマイズと上級設定
+- **[Part 1](/blog/omarchy-guide-part1-introduction)**: インストールと基本操作
+- **[Part 2](/blog/omarchy-guide-part2-workflow)**: 開発ワークフローの効率化
+- **[Part 3](/blog/omarchy-guide-part3-customization)**: カスタマイズと上級設定
 
 Omarchyで快適な開発ライフを！
 
