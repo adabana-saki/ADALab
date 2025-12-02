@@ -555,8 +555,8 @@ Lazygitを使えば、複雑なGit操作も視覚的に行えます。最初は�
 
 ## 関連記事
 
-- [Omarchy入門ガイド Part 2](https://adalab.pages.dev/blog/omarchy-guide-part2-workflow)
-- [LazyVim完全ガイド](https://adalab.pages.dev/blog/lazyvim-complete-guide)
+- [Omarchy入門ガイド Part 2](/blog/omarchy-guide-part2-workflow)
+- [LazyVim完全ガイド](/blog/lazyvim-complete-guide)
 
 ## 参考リンク
 

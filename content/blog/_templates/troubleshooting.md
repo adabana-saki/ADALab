@@ -111,8 +111,8 @@ uname -a
 
 ## 関連記事
 
-- [〇〇入門ガイド](https://adalab.pages.dev/blog/guide)
-- [〇〇設定大全](https://adalab.pages.dev/blog/configuration)
+- [〇〇入門ガイド](/blog/guide)
+- [〇〇設定大全](/blog/configuration)
 
 ## 参考リンク
 
