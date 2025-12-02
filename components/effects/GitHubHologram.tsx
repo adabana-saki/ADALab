@@ -87,6 +87,12 @@ export function GitHubHologram() {
     followers: 0,
     accountAge: 0,
   });
+  const [lastUpdate, setLastUpdate] = useState<string>('');
+
+  useEffect(() => {
+    setLastUpdate(new Date().toLocaleDateString());
+  }, []);
+
   useEffect(() => {
     async function fetchGitHubStats() {
       try {
@@ -216,7 +222,7 @@ export function GitHubHologram() {
               <span className="text-green-400">ACTIVE</span>
             </div>
             <span className="text-gray-500">
-              LAST_UPDATE: {new Date().toLocaleDateString()}
+              LAST_UPDATE: {lastUpdate || '---'}
             </span>
           </div>
         </motion.div>
