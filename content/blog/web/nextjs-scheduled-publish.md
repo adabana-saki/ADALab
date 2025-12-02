@@ -71,12 +71,16 @@ export function getAllPosts(): BlogMeta[] {
 
       // publishDateによる公開判定
       if (data.publishDate) {
-        const publishDate = new Date(data.publishDate);
-        publishDate.setHours(0, 0, 0, 0);  // 時刻を0時に統一
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        // UTCで統一して比較（タイムゾーン差異を防止）
+        const publishDate = new Date(data.publishDate + 'T00:00:00Z');
+        const now = new Date();
+        const todayUTC = new Date(Date.UTC(
+          now.getUTCFullYear(),
+          now.getUTCMonth(),
+          now.getUTCDate()
+        ));
 
-        if (publishDate > today) {
+        if (publishDate > todayUTC) {
           return null; // 公開日がまだ来ていない
         }
       } else if (data.draft === true) {
@@ -94,6 +98,7 @@ export function getAllPosts(): BlogMeta[] {
 **ポイント：**
 - `publishDate`が設定されている場合はそちらを優先
 - `publishDate`がない場合は従来の`draft`フラグで判定
+- **UTCで統一**することで、ビルド環境のタイムゾーンに依存しない
 - これにより既存の記事との後方互換性を維持
 
 ### 3. Cloudflare Pagesの定期ビルド設定
