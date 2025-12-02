@@ -1,3 +1,5 @@
+import Script from 'next/script';
+
 export function StructuredData() {
   const organizationSchema = {
     '@context': 'https://schema.org',
@@ -133,44 +135,24 @@ export function StructuredData() {
     ],
   };
 
+  // Combine all schemas into a single array for one script tag
+  const allSchemas = [
+    organizationSchema,
+    websiteSchema,
+    adaAnalyticsSchema,
+    adaConnectSchema,
+    adaGuardSchema,
+    breadcrumbSchema,
+  ];
+
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(organizationSchema),
-        }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(websiteSchema),
-        }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(adaAnalyticsSchema),
-        }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(adaConnectSchema),
-        }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(adaGuardSchema),
-        }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(breadcrumbSchema),
-        }}
-      />
-    </>
+    <Script
+      id="structured-data"
+      type="application/ld+json"
+      strategy="beforeInteractive"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify(allSchemas),
+      }}
+    />
   );
 }
