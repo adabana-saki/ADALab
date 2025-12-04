@@ -15,6 +15,7 @@ const STATIC_PAGES = [
   { path: '/tech-stack', changeFrequency: 'monthly', priority: 0.6 },
   { path: '/roadmap', changeFrequency: 'weekly', priority: 0.6 },
   { path: '/changelog', changeFrequency: 'weekly', priority: 0.6 },
+  { path: '/news', changeFrequency: 'weekly', priority: 0.7 },
   { path: '/faq', changeFrequency: 'monthly', priority: 0.6 },
   { path: '/security', changeFrequency: 'monthly', priority: 0.5 },
   { path: '/privacy', changeFrequency: 'yearly', priority: 0.4 },
