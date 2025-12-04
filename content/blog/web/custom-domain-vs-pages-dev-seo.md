@@ -1,6 +1,7 @@
 ---
 title: "pages.devと独自ドメインのSEO差を実体験から解説【Cloudflare Pages】"
-date: "2025-12-03T10:00:00"
+date: "2025-12-04T09:00:00"
+publishDate: "2025-12-04"
 description: "Cloudflare Pagesのpages.devドメインでSearch Consoleのサイトマップが取得できない問題に遭遇。独自ドメインとの違いをSEO観点から徹底比較します。"
 tags: ["Cloudflare", "SEO", "ドメイン", "Search Console", "Next.js"]
 category: "web"
