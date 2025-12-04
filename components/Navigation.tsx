@@ -24,11 +24,10 @@ export function Navigation() {
   // ナビ項目
   const navItems = [
     { name: 'About', href: '/#about' },
-    { name: 'News', href: '/news' },
-    { name: 'QA', href: '/#faq' },
-    { name: 'Contact', href: '/#contact' },
-    { name: 'Blog', href: '/blog' },
     { name: 'Products', href: '/products' },
+    { name: 'Blog', href: '/blog' },
+    { name: 'News', href: '/news' },
+    { name: 'Contact', href: '/#contact' },
   ];
 
   useEffect(() => {
