@@ -24,7 +24,7 @@ export function Navigation() {
   // ナビ項目
   const navItems = [
     { name: 'About', href: '/#about' },
-    { name: 'News', href: '/#news' },
+    { name: 'News', href: '/news' },
     { name: 'QA', href: '/#faq' },
     { name: 'Contact', href: '/#contact' },
     { name: 'Blog', href: '/blog' },
@@ -42,6 +42,7 @@ export function Navigation() {
   const isActiveLink = (href: string) => {
     if (href === '/blog') return pathname.startsWith('/blog');
     if (href === '/products') return pathname.startsWith('/products');
+    if (href === '/news') return pathname === '/news';
     if (href.startsWith('/#')) return isHomePage;
     return pathname === href;
   };
