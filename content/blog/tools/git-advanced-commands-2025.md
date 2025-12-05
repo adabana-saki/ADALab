@@ -451,7 +451,10 @@ git worktree    ← 複数ブランチを同時作業
 
 「こういう時に使えるコマンドがあるんだな」と頭の片隅に入れておいて、必要な時にこのページに戻ってくれば大丈夫です。
 
-基本に戻りたくなったら[【超初心者向け】Gitコマンド完全チートシート2025](/blog/git-command-cheat-sheet-2025)をどうぞ。
+## シリーズリンク
+
+- [第1弾：【超初心者向け】Gitコマンド完全チートシート2025](/blog/git-command-cheat-sheet-2025) - 基本に戻りたい方はこちら
+- [第3弾：特殊コマンド＆CI/CD入門2025](/blog/git-cicd-practical-guide-2025) - tag、hooks、GitHub Actionsで自動化
 
 一緒にGitを使いこなしていきましょう。
 
