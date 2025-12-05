@@ -1,7 +1,6 @@
 ---
 title: "【超初心者向け】Gitコマンド完全チートシート2025｜もう怖くないGit操作"
 date: "2025-12-06"
-publishDate: "2025-12-08"
 description: "Git初心者向けに、実務で本当に使うGitコマンドだけを厳選して解説。図解と具体例つきで今日から使える。"
 tags: ["Git", "GitHub", "初心者", "チートシート", "開発ツール"]
 author: "Adabana Saki"
@@ -517,6 +516,13 @@ git push     ← 共有
 怖がらずに、まずは `git status` から始めてみてください。今あなたのプロジェクトがどうなっているか、見てみるところからです。
 
 一緒にGitを使いこなしていきましょう。
+
+## 次のステップ
+
+基本を覚えたら、次は発展コマンドに挑戦してみましょう。
+
+- [第2弾：知ってると得する発展Gitコマンド集2025](/blog/git-advanced-commands-2025) - cherry-pick、rebase、stashなど
+- [第3弾：特殊コマンド＆CI/CD入門2025](/blog/git-cicd-practical-guide-2025) - tag、hooks、GitHub Actionsで自動化
 
 ## 参考リンク
 
