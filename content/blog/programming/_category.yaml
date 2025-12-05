@@ -1,0 +1,6 @@
+name: "プログラミング言語"
+slug: "programming"
+description: "プログラミング言語の解説・比較・学習ガイド"
+color: "#bb9af7"
+icon: "code"
+order: 5

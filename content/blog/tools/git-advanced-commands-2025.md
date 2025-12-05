@@ -1,6 +1,7 @@
 ---
 title: "【Git中級者への道】知ってると得する発展Gitコマンド集2025｜cherry-pick・rebase・stash完全理解"
 date: "2025-12-06"
+publishDate: "2025-12-09"
 description: "git cherry-pick、rebase、stashなど、知っていると開発効率が劇的に上がるGitコマンドを図解で丁寧に解説。仕組みから理解できる。"
 tags: ["Git", "GitHub", "中級者", "チートシート", "開発ツール", "rebase", "cherry-pick"]
 author: "Adabana Saki"
