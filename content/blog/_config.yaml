@@ -6,6 +6,7 @@ defaultAuthor: "ADA Lab"
 
 # カテゴリーの順序（サイドバーやナビゲーションでの表示順）
 categoryOrder:
+  - programming
   - omarchy
   - linux
   - tools
