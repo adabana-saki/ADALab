@@ -1,6 +1,7 @@
 ---
 title: "【初心者向け】Javaとは？AI時代に学ぶ価値と将来性をレビュー"
 date: "2025-12-06"
+publishDate: "2025-12-07"
 description: "Javaとは何かを初心者向けに解説。メリット・デメリット、AI時代における価値と学習ロードマップを紹介。"
 tags: ["Java", "プログラミング入門", "AI", "キャリア", "言語比較"]
 author: "Adabana Saki"
