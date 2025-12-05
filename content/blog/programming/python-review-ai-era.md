@@ -159,6 +159,18 @@ AIは強力な味方ですが、その力を最大限に引き出すには、基
 
 まずは小さく始めて、AIツールと一緒に学んでみてください。プログラミングの世界は、あなたが思っているよりずっと楽しいものです。
 
+## 関連記事
+
+### プログラミング言語レビューシリーズ
+- [JavaScriptとは？AI時代に学ぶ価値と将来性](/blog/javascript-review-ai-era)
+- [TypeScriptとは？AI時代に学ぶ価値と将来性](/blog/typescript-review-ai-era)
+- [Go言語とは？AI時代に学ぶ価値と将来性](/blog/go-review-ai-era)
+- [Rustとは？AI時代に学ぶ価値と将来性](/blog/rust-review-ai-era)
+- [Javaとは？AI時代に学ぶ価値と将来性](/blog/java-review-ai-era)
+- [C#とは？AI時代に学ぶ価値と将来性](/blog/csharp-review-ai-era)
+- [Rubyとは？AI時代に学ぶ価値と将来性](/blog/ruby-review-ai-era)
+- [オブジェクト指向とは？AI時代のエンジニアに必要な設計思考](/blog/object-oriented-programming-ai-era)
+
 ## 参考リンク
 
 - [Python公式サイト](https://www.python.org/)

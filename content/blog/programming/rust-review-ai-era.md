@@ -187,6 +187,18 @@ Rustは、AI時代においても「人間が深く理解すべき領域」で�
 
 まずは公式サイトでインストールし、`cargo new hello-rust` を実行してみてください。厳格なコンパイラに怒られながらも、一つずつ理解を深めていく過程は、きっとあなたを成長させてくれます。
 
+## 関連記事
+
+### プログラミング言語レビューシリーズ
+- [Pythonとは？AI時代に学ぶ価値と将来性](/blog/python-review-ai-era)
+- [JavaScriptとは？AI時代に学ぶ価値と将来性](/blog/javascript-review-ai-era)
+- [TypeScriptとは？AI時代に学ぶ価値と将来性](/blog/typescript-review-ai-era)
+- [Go言語とは？AI時代に学ぶ価値と将来性](/blog/go-review-ai-era)
+- [Javaとは？AI時代に学ぶ価値と将来性](/blog/java-review-ai-era)
+- [C#とは？AI時代に学ぶ価値と将来性](/blog/csharp-review-ai-era)
+- [Rubyとは？AI時代に学ぶ価値と将来性](/blog/ruby-review-ai-era)
+- [オブジェクト指向とは？AI時代のエンジニアに必要な設計思考](/blog/object-oriented-programming-ai-era)
+
 ## 参考リンク
 
 - [Rust公式サイト](https://www.rust-lang.org/ja)

@@ -190,6 +190,18 @@ AI時代においても、インフラ層の設計・運用は人間の判断が
 
 まずは「A Tour of Go」を開いて、`fmt.Println("Hello, Go!")` を実行してみてください。そのシンプルさに、きっと好感を持てるはずです。
 
+## 関連記事
+
+### プログラミング言語レビューシリーズ
+- [Pythonとは？AI時代に学ぶ価値と将来性](/blog/python-review-ai-era)
+- [JavaScriptとは？AI時代に学ぶ価値と将来性](/blog/javascript-review-ai-era)
+- [TypeScriptとは？AI時代に学ぶ価値と将来性](/blog/typescript-review-ai-era)
+- [Rustとは？AI時代に学ぶ価値と将来性](/blog/rust-review-ai-era)
+- [Javaとは？AI時代に学ぶ価値と将来性](/blog/java-review-ai-era)
+- [C#とは？AI時代に学ぶ価値と将来性](/blog/csharp-review-ai-era)
+- [Rubyとは？AI時代に学ぶ価値と将来性](/blog/ruby-review-ai-era)
+- [オブジェクト指向とは？AI時代のエンジニアに必要な設計思考](/blog/object-oriented-programming-ai-era)
+
 ## 参考リンク
 
 - [Go公式サイト](https://go.dev/)

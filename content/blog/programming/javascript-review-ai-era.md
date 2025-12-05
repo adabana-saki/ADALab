@@ -169,6 +169,18 @@ AI時代においても、ユーザー体験を設計し、適切なUI/UXを判�
 
 まずはブラウザを開いて、`console.log("Hello, World!")` と打ってみてください。その小さな一歩が、あなたのWeb開発者としてのキャリアの始まりです。
 
+## 関連記事
+
+### プログラミング言語レビューシリーズ
+- [Pythonとは？AI時代に学ぶ価値と将来性](/blog/python-review-ai-era)
+- [TypeScriptとは？AI時代に学ぶ価値と将来性](/blog/typescript-review-ai-era)
+- [Go言語とは？AI時代に学ぶ価値と将来性](/blog/go-review-ai-era)
+- [Rustとは？AI時代に学ぶ価値と将来性](/blog/rust-review-ai-era)
+- [Javaとは？AI時代に学ぶ価値と将来性](/blog/java-review-ai-era)
+- [C#とは？AI時代に学ぶ価値と将来性](/blog/csharp-review-ai-era)
+- [Rubyとは？AI時代に学ぶ価値と将来性](/blog/ruby-review-ai-era)
+- [オブジェクト指向とは？AI時代のエンジニアに必要な設計思考](/blog/object-oriented-programming-ai-era)
+
 ## 参考リンク
 
 - [MDN Web Docs - JavaScript](https://developer.mozilla.org/ja/docs/Web/JavaScript)

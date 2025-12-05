@@ -555,6 +555,12 @@ Lazygitを使えば、複雑なGit操作も視覚的に行えます。最初は�
 
 ## 関連記事
 
+### Git学習シリーズ
+- [【超初心者向け】Gitコマンド完全チートシート2025](/blog/git-command-cheat-sheet-2025)
+- [【Git中級者への道】発展Gitコマンド集2025](/blog/git-advanced-commands-2025)
+- [【Git実践編】特殊コマンド＆CI/CD入門2025](/blog/git-cicd-practical-guide-2025)
+
+### Omarchy関連
 - [Omarchy入門ガイド Part 2](/blog/omarchy-guide-part2-workflow)
 - [LazyVim完全ガイド](/blog/lazyvim-complete-guide)
 

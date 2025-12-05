@@ -196,6 +196,18 @@ Rubyは、その判断力を養うのに適した言語です。「楽しく」�
 
 まずは`puts "Hello, Ruby!"` を実行してみてください。そのシンプルさと温かみに、きっとRubyの魅力を感じられるはずです。
 
+## 関連記事
+
+### プログラミング言語レビューシリーズ
+- [Pythonとは？AI時代に学ぶ価値と将来性](/blog/python-review-ai-era)
+- [JavaScriptとは？AI時代に学ぶ価値と将来性](/blog/javascript-review-ai-era)
+- [TypeScriptとは？AI時代に学ぶ価値と将来性](/blog/typescript-review-ai-era)
+- [Go言語とは？AI時代に学ぶ価値と将来性](/blog/go-review-ai-era)
+- [Rustとは？AI時代に学ぶ価値と将来性](/blog/rust-review-ai-era)
+- [Javaとは？AI時代に学ぶ価値と将来性](/blog/java-review-ai-era)
+- [C#とは？AI時代に学ぶ価値と将来性](/blog/csharp-review-ai-era)
+- [オブジェクト指向とは？AI時代のエンジニアに必要な設計思考](/blog/object-oriented-programming-ai-era)
+
 ## 参考リンク
 
 - [Ruby公式サイト](https://www.ruby-lang.org/ja/)

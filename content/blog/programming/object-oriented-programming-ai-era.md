@@ -232,6 +232,20 @@ AI時代において、コードを書く作業はどんどん自動化されて
 
 一歩ずつ、自分のペースで学んでいきましょう。
 
+## 関連記事
+
+### プログラミング言語レビューシリーズ
+オブジェクト指向を学んだら、具体的な言語も選んでみましょう：
+
+- [Pythonとは？AI時代に学ぶ価値と将来性](/blog/python-review-ai-era) - 初心者におすすめ
+- [JavaScriptとは？AI時代に学ぶ価値と将来性](/blog/javascript-review-ai-era) - Web開発の必須言語
+- [TypeScriptとは？AI時代に学ぶ価値と将来性](/blog/typescript-review-ai-era) - 型で安全に開発
+- [Javaとは？AI時代に学ぶ価値と将来性](/blog/java-review-ai-era) - 企業システムの定番
+- [C#とは？AI時代に学ぶ価値と将来性](/blog/csharp-review-ai-era) - ゲーム開発ならこれ
+- [Go言語とは？AI時代に学ぶ価値と将来性](/blog/go-review-ai-era) - シンプルで高速
+- [Rustとは？AI時代に学ぶ価値と将来性](/blog/rust-review-ai-era) - 安全性と速度の両立
+- [Rubyとは？AI時代に学ぶ価値と将来性](/blog/ruby-review-ai-era) - 書いて楽しい言語
+
 ## 参考リンク
 
 - [MDN Web Docs - オブジェクト指向プログラミング](https://developer.mozilla.org/ja/docs/Learn/JavaScript/Objects/Object-oriented_programming)

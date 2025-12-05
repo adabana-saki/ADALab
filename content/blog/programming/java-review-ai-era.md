@@ -194,6 +194,18 @@ Javaを学ぶことは、そうした「システム全体を見渡す力」を�
 
 地味に見えるかもしれませんが、堅実で確かな選択です。まずはJDKをインストールして、`System.out.println("Hello, Java!")` を実行してみてください。
 
+## 関連記事
+
+### プログラミング言語レビューシリーズ
+- [Pythonとは？AI時代に学ぶ価値と将来性](/blog/python-review-ai-era)
+- [JavaScriptとは？AI時代に学ぶ価値と将来性](/blog/javascript-review-ai-era)
+- [TypeScriptとは？AI時代に学ぶ価値と将来性](/blog/typescript-review-ai-era)
+- [Go言語とは？AI時代に学ぶ価値と将来性](/blog/go-review-ai-era)
+- [Rustとは？AI時代に学ぶ価値と将来性](/blog/rust-review-ai-era)
+- [C#とは？AI時代に学ぶ価値と将来性](/blog/csharp-review-ai-era)
+- [Rubyとは？AI時代に学ぶ価値と将来性](/blog/ruby-review-ai-era)
+- [オブジェクト指向とは？AI時代のエンジニアに必要な設計思考](/blog/object-oriented-programming-ai-era)
+
 ## 参考リンク
 
 - [Oracle Java](https://www.oracle.com/java/)
