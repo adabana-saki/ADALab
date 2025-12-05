@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
-import { Calendar, Clock, Tag, User, TrendingUp, Sparkles, BookOpen, Rss, Search, X, Eye, Heart } from 'lucide-react';
+import { Calendar, Clock, Tag, User, TrendingUp, Sparkles, BookOpen, Rss, Search, X, Eye, Heart, ArrowUp, ArrowDown } from 'lucide-react';
 import type { BlogMeta, ScheduledPost } from '@/lib/blog';
 import { UpcomingPosts } from '@/components/blog/UpcomingPosts';
 
@@ -12,7 +12,8 @@ interface BlogListClientProps {
   scheduledPosts?: ScheduledPost[];
 }
 
-type SortOption = 'latest' | 'popular';
+type SortType = 'date' | 'popular';
+type SortDirection = 'desc' | 'asc';
 
 // エンゲージメント表示コンポーネント（コンポーネント外に定義してメモ化を有効に）
 interface EngagementBadgeProps {
@@ -45,9 +46,22 @@ function EngagementBadge({ data, isLoading }: EngagementBadgeProps) {
 export function BlogListClient({ posts, tags, scheduledPosts = [] }: BlogListClientProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<SortOption>('latest');
+  const [sortType, setSortType] = useState<SortType>('date');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [engagement, setEngagement] = useState<Record<string, { views: number; likes: number }>>({});
   const [isLoadingEngagement, setIsLoadingEngagement] = useState(true);
+
+  // ソートボタンのクリックハンドラー
+  const handleSortClick = (type: SortType) => {
+    if (sortType === type) {
+      // 同じタイプをクリック → 方向を反転
+      setSortDirection((prev) => (prev === 'desc' ? 'asc' : 'desc'));
+    } else {
+      // 違うタイプをクリック → タイプを変更し、デフォルトは降順
+      setSortType(type);
+      setSortDirection('desc');
+    }
+  };
 
   // エンゲージメントデータを取得
   useEffect(() => {
@@ -113,19 +127,25 @@ export function BlogListClient({ posts, tags, scheduledPosts = [] }: BlogListCli
     }
 
     // ソート（スコアを事前計算してソート効率を改善）
-    if (sortBy === 'popular') {
+    if (sortType === 'popular') {
       // スコアを一度だけ計算
       const scored = result.map((post) => ({
         post,
         score: (engagement[post.slug]?.views || 0) + (engagement[post.slug]?.likes || 0) * 3,
       }));
-      scored.sort((a, b) => b.score - a.score);
+      scored.sort((a, b) =>
+        sortDirection === 'desc' ? b.score - a.score : a.score - b.score
+      );
       return scored.map((s) => s.post);
     } else {
       // 事前計算済みのタイムスタンプを使用
-      return [...result].sort((a, b) => b._dateTimestamp - a._dateTimestamp);
+      return [...result].sort((a, b) =>
+        sortDirection === 'desc'
+          ? b._dateTimestamp - a._dateTimestamp
+          : a._dateTimestamp - b._dateTimestamp
+      );
     }
-  }, [normalizedPosts, selectedTag, normalizedQuery, sortBy, engagement]);
+  }, [normalizedPosts, selectedTag, normalizedQuery, sortType, sortDirection, engagement]);
 
   // 最新記事（トップに表示）
   const featuredPost = filteredPosts[0];
@@ -166,26 +186,32 @@ export function BlogListClient({ posts, tags, scheduledPosts = [] }: BlogListCli
           {/* ソートオプション */}
           <div className="flex gap-2">
             <button
-              onClick={() => setSortBy('latest')}
+              onClick={() => handleSortClick('date')}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                sortBy === 'latest'
+                sortType === 'date'
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
             >
               <Sparkles size={16} />
-              新着
+              {sortType === 'date' && sortDirection === 'desc' ? '新着' : '古い順'}
+              {sortType === 'date' && (
+                sortDirection === 'desc' ? <ArrowDown size={14} /> : <ArrowUp size={14} />
+              )}
             </button>
             <button
-              onClick={() => setSortBy('popular')}
+              onClick={() => handleSortClick('popular')}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                sortBy === 'popular'
+                sortType === 'popular'
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
             >
               <TrendingUp size={16} />
-              人気
+              {sortType === 'popular' && sortDirection === 'asc' ? '不人気' : '人気'}
+              {sortType === 'popular' && (
+                sortDirection === 'desc' ? <ArrowDown size={14} /> : <ArrowUp size={14} />
+              )}
             </button>
           </div>
         </div>
@@ -251,7 +277,7 @@ export function BlogListClient({ posts, tags, scheduledPosts = [] }: BlogListCli
           {/* メインコンテンツ */}
           <div className="lg:col-span-2 space-y-6">
             {/* フィーチャー記事（最新） */}
-            {featuredPost && !hasActiveFilters && sortBy === 'latest' && (
+            {featuredPost && !hasActiveFilters && sortType === 'date' && sortDirection === 'desc' && (
               <Link
                 href={`/blog/${featuredPost.slug}`}
                 className="group block bg-gradient-to-br from-primary/5 via-card to-card border border-primary/20 rounded-xl p-6 hover:border-primary/40 transition-all duration-300"
@@ -309,7 +335,7 @@ export function BlogListClient({ posts, tags, scheduledPosts = [] }: BlogListCli
 
             {/* 記事リスト */}
             <div className="space-y-4">
-              {(hasActiveFilters || sortBy === 'popular' ? filteredPosts : regularPosts).map((post) => (
+              {(hasActiveFilters || sortType === 'popular' || sortDirection === 'asc' ? filteredPosts : regularPosts).map((post) => (
                 <article
                   key={post.slug}
                   className="group bg-card border border-border/50 rounded-xl overflow-hidden hover:border-primary/30 transition-all duration-300"
