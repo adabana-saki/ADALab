@@ -517,6 +517,12 @@ git push     ← 共有
 
 一緒にGitを使いこなしていきましょう。
 
+## 次のステップ
+
+基本を覚えたら、次は発展コマンドに挑戦してみましょう。
+
+- [【Git中級者への道】知ってると得する発展Gitコマンド集2025](/blog/git-advanced-commands-2025) - cherry-pick、rebase、stashなど
+
 ## 参考リンク
 
 - [Git公式ドキュメント](https://git-scm.com/doc)
