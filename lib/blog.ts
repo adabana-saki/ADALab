@@ -39,9 +39,21 @@ export interface BlogPost {
   draft?: boolean;
   /** 公開予約日（この日以降に自動公開） */
   publishDate?: string;
+  /** PV数（人気順ソート用） */
+  views?: number;
 }
 
 export type BlogMeta = Omit<BlogPost, 'content'>;
+
+/** ソート種別 */
+export type SortType = 'date' | 'popular';
+/** ソート順 */
+export type SortOrder = 'asc' | 'desc';
+
+export interface SortOptions {
+  type: SortType;
+  order: SortOrder;
+}
 
 export interface Category {
   name: string;
@@ -60,6 +72,43 @@ export interface Series {
   posts: string[];
   level?: string;
   completed?: boolean;
+}
+
+// =============================================================================
+// ソート関連ヘルパー
+// =============================================================================
+
+/**
+ * 記事の実効的な公開日を取得（publishDateがあればそれを優先）
+ */
+function getEffectiveDate(post: BlogMeta): string {
+  return post.publishDate || post.date;
+}
+
+/**
+ * 記事をソートする
+ */
+export function sortPosts(posts: BlogMeta[], options: SortOptions = { type: 'date', order: 'desc' }): BlogMeta[] {
+  const { type, order } = options;
+
+  const sorted = [...posts].sort((a, b) => {
+    let comparison: number;
+
+    if (type === 'popular') {
+      // 人気順（views数でソート、未設定は0扱い）
+      comparison = (a.views || 0) - (b.views || 0);
+    } else {
+      // 日付順（publishDateがあればそれを優先）
+      const dateA = new Date(getEffectiveDate(a)).getTime();
+      const dateB = new Date(getEffectiveDate(b)).getTime();
+      comparison = dateA - dateB;
+    }
+
+    // 降順の場合は反転
+    return order === 'desc' ? -comparison : comparison;
+  });
+
+  return sorted;
 }
 
 // =============================================================================
@@ -240,9 +289,10 @@ function getMarkdownFiles(dir: string, category?: string): { filePath: string; c
 }
 
 /**
- * 全てのブログ記事のメタデータを取得（日付降順）
+ * 全てのブログ記事のメタデータを取得
+ * @param sortOptions ソートオプション（デフォルト: 新着順・降順）
  */
-export function getAllPosts(): BlogMeta[] {
+export function getAllPosts(sortOptions: SortOptions = { type: 'date', order: 'desc' }): BlogMeta[] {
   const markdownFiles = getMarkdownFiles(BLOG_DIR);
 
   const posts: BlogMeta[] = markdownFiles
@@ -284,12 +334,13 @@ export function getAllPosts(): BlogMeta[] {
         series: data.series,
         seriesOrder: data.seriesOrder,
         publishDate: data.publishDate,
+        views: typeof data.views === 'number' ? data.views : undefined,
       };
     })
-    .filter((post): post is BlogMeta => post !== null)
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    .filter((post): post is BlogMeta => post !== null);
 
-  return posts;
+  // publishDate優先でソート
+  return sortPosts(posts, sortOptions);
 }
 
 /**
