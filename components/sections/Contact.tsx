@@ -2,12 +2,14 @@
 
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { Mail, Github, Twitter, Send, AlertCircle, CheckCircle } from 'lucide-react';
+import { Mail, Github, Twitter, Send, AlertCircle } from 'lucide-react';
 import { FaDiscord } from 'react-icons/fa';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Toast } from '../ui/toast';
+import { FormProgress } from '../ui/ProgressIndicator';
+import { SuccessCelebration } from '../effects/SuccessCelebration';
 import emailjs from '@emailjs/browser';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -371,28 +373,23 @@ export function Contact() {
             transition={{ duration: 0.6 }}
           >
             {isSubmitted ? (
-              <div className="glass p-8 rounded-2xl text-center">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: 'spring', duration: 0.5 }}
-                >
-                  <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                </motion.div>
-                <h3 className="text-2xl font-bold mb-2">{content[language].submitted}</h3>
-                <p className="text-muted-foreground mb-4">
-                  {content[language].thankYou}<br />
-                  {content[language].confirmEmail}
-                </p>
-                <p className="text-sm text-muted-foreground mb-6">
-                  {content[language].willContact}
-                </p>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsSubmitted(false)}
-                >
-                  {content[language].newInquiry}
-                </Button>
+              <div className="glass p-8 rounded-2xl">
+                {/* ピーク・エンドの法則: 印象的な成功体験 */}
+                <SuccessCelebration
+                  isVisible={isSubmitted}
+                  title={content[language].submitted}
+                  message={content[language].thankYou}
+                  subMessage={content[language].willContact}
+                />
+                <div className="text-center mt-6">
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsSubmitted(false)}
+                    className="hover:scale-105 transition-transform"
+                  >
+                    {content[language].newInquiry}
+                  </Button>
+                </div>
               </div>
             ) : (
             <form onSubmit={handleSubmit} className="glass p-8 rounded-2xl" noValidate>
@@ -496,11 +493,21 @@ export function Contact() {
                   )}
                 </div>
 
+                {/* 目標勾配効果: 入力進捗を表示 */}
+                <FormProgress
+                  filledFields={
+                    [formData.name, formData.email, formData.message].filter(
+                      (v) => v.trim().length > 0
+                    ).length
+                  }
+                  totalFields={3}
+                />
+
                 {/* Submit Button */}
                 <Button
                   type="submit"
                   size="lg"
-                  className="w-full"
+                  className="w-full group hover:scale-[1.02] active:scale-[0.98] transition-transform"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
@@ -515,7 +522,7 @@ export function Contact() {
                   ) : (
                     <>
                       {content[language].submit}
-                      <Send size={18} className="ml-2" />
+                      <Send size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
                     </>
                   )}
                 </Button>
