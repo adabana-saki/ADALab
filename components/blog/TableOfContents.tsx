@@ -93,12 +93,24 @@ export function TableOfContents({ content, variant = 'inline' }: TableOfContents
     return () => observer.disconnect();
   }, [headings]);
 
-  // 目次内の位置をアクティブ項目に自動スクロール
+  // 目次内の位置をアクティブ項目に自動スクロール（目次コンテナ内のみ）
   useEffect(() => {
     if (variant === 'sidebar' && tocRef.current && activeId) {
-      const activeElement = tocRef.current.querySelector(`[data-heading-id="${activeId}"]`);
+      const activeElement = tocRef.current.querySelector(`[data-heading-id="${activeId}"]`) as HTMLElement | null;
       if (activeElement) {
-        activeElement.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        // scrollIntoViewはページ全体をスクロールしてしまうため、コンテナ内でのみスクロール
+        const container = tocRef.current;
+        const elementTop = activeElement.offsetTop;
+        const containerHeight = container.clientHeight;
+        const elementHeight = activeElement.clientHeight;
+
+        // 要素がコンテナの表示範囲外にある場合のみスクロール
+        if (elementTop < container.scrollTop || elementTop + elementHeight > container.scrollTop + containerHeight) {
+          container.scrollTo({
+            top: elementTop - containerHeight / 2 + elementHeight / 2,
+            behavior: 'smooth',
+          });
+        }
       }
     }
   }, [activeId, variant]);
