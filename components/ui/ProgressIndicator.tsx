@@ -90,8 +90,9 @@ interface FormProgressProps {
 
 export function FormProgress({ filledFields, totalFields, showPercentage = true }: FormProgressProps) {
   const { language } = useLanguage();
-  const percentage = Math.round((filledFields / totalFields) * 100);
-  const isComplete = filledFields === totalFields;
+  // ゼロ除算ガード
+  const percentage = totalFields > 0 ? Math.round((filledFields / totalFields) * 100) : 0;
+  const isComplete = totalFields > 0 && filledFields === totalFields;
 
   const getMessage = () => {
     if (isComplete) return language === 'ja' ? '入力完了！' : 'All done!';

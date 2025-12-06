@@ -507,7 +507,7 @@ html {
    ============================================ */
 
 /* KaTeX Math Styles */
-@import 'katex/dist/katex.min.css';
+/* Note: katex.min.css is imported in app/layout.tsx */
 
 .katex-display {
   overflow-x: auto;
