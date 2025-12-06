@@ -149,7 +149,7 @@ export function StructuredData() {
     <Script
       id="structured-data"
       type="application/ld+json"
-      strategy="beforeInteractive"
+      strategy="afterInteractive"
       dangerouslySetInnerHTML={{
         __html: JSON.stringify(allSchemas),
       }}
