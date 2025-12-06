@@ -1,7 +1,15 @@
+'use client';
+
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import Link from 'next/link';
 import Image from 'next/image';
+import { CodeBlock, parseCodeMeta } from './CodeBlock';
+import { Callout, parseCalloutType } from './Callout';
+import { Details } from './Details';
+import { MermaidDiagram } from './MermaidDiagram';
 
 interface MDXContentProps {
   content: string;
@@ -27,11 +35,42 @@ function extractText(children: React.ReactNode): string {
   return '';
 }
 
+// カスタム記法をパースしてReactコンポーネントに変換
+function parseCustomSyntax(content: string): string {
+  let result = content;
+
+  // :::note type から :::note までをパース
+  // 一時的にプレースホルダーに変換（ReactMarkdownで処理）
+  result = result.replace(
+    /:::note\s+(info|tip|warn|warning|alert|danger|success)(?:\s+([^\n]*))?\n([\s\S]*?):::/gm,
+    (_, type, title, body) => {
+      const escapedBody = body.trim();
+      const escapedTitle = title?.trim() || '';
+      return `<callout type="${type}" title="${escapedTitle}">\n\n${escapedBody}\n\n</callout>`;
+    }
+  );
+
+  // :::details タイトル から ::: までをパース
+  result = result.replace(
+    /:::details\s+([^\n]+)\n([\s\S]*?):::/gm,
+    (_, title, body) => {
+      const escapedBody = body.trim();
+      return `<details-block title="${title.trim()}">\n\n${escapedBody}\n\n</details-block>`;
+    }
+  );
+
+  return result;
+}
+
 export function MDXContent({ content }: MDXContentProps) {
+  // カスタム記法をパース
+  const parsedContent = parseCustomSyntax(content);
+
   return (
-    <div className="prose prose-invert max-w-none">
+    <div className="prose prose-invert max-w-none blog-content">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={[remarkGfm, remarkMath]}
+        rehypePlugins={[[rehypeKatex, { strict: false }]]}
         components={{
           h1: ({ children }) => {
             const text = extractText(children);
@@ -39,9 +78,11 @@ export function MDXContent({ content }: MDXContentProps) {
             return (
               <h1
                 id={id}
-                className="text-3xl font-bold mt-8 mb-4 pb-2 border-b border-border/50 scroll-mt-24"
+                className="group text-3xl font-bold mt-10 mb-4 pb-3 border-b border-border/50 scroll-mt-24"
               >
-                {children}
+                <a href={`#${id}`} className="anchor-link">
+                  {children}
+                </a>
               </h1>
             );
           },
@@ -51,9 +92,11 @@ export function MDXContent({ content }: MDXContentProps) {
             return (
               <h2
                 id={id}
-                className="text-2xl font-semibold mt-8 mb-3 scroll-mt-24"
+                className="group text-2xl font-semibold mt-10 mb-4 pb-2 border-b border-border/30 scroll-mt-24"
               >
-                {children}
+                <a href={`#${id}`} className="anchor-link">
+                  {children}
+                </a>
               </h2>
             );
           },
@@ -63,15 +106,37 @@ export function MDXContent({ content }: MDXContentProps) {
             return (
               <h3
                 id={id}
-                className="text-xl font-semibold mt-6 mb-2 scroll-mt-24"
+                className="group text-xl font-semibold mt-8 mb-3 scroll-mt-24"
               >
-                {children}
+                <a href={`#${id}`} className="anchor-link">
+                  {children}
+                </a>
               </h3>
             );
           },
-          p: ({ children }) => (
-            <p className="mb-4 leading-relaxed">{children}</p>
-          ),
+          h4: ({ children }) => {
+            const text = extractText(children);
+            const id = generateId(text);
+            return (
+              <h4
+                id={id}
+                className="group text-lg font-semibold mt-6 mb-2 scroll-mt-24"
+              >
+                <a href={`#${id}`} className="anchor-link">
+                  {children}
+                </a>
+              </h4>
+            );
+          },
+          p: ({ children }) => {
+            // カスタムコンポーネントのプレースホルダーをチェック
+            const text = extractText(children);
+
+            // 空のパラグラフをスキップ
+            if (!text.trim()) return null;
+
+            return <p className="mb-4 leading-relaxed text-gray-200">{children}</p>;
+          },
           a: ({ href, children }) => {
             const isExternal = href?.startsWith('http');
             if (isExternal) {
@@ -80,100 +145,166 @@ export function MDXContent({ content }: MDXContentProps) {
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary hover:underline"
+                  className="text-primary hover:text-primary/80 underline underline-offset-2 decoration-primary/50 hover:decoration-primary transition-colors"
                 >
                   {children}
                 </a>
               );
             }
             return (
-              <Link href={href || '#'} className="text-primary hover:underline">
+              <Link
+                href={href || '#'}
+                className="text-primary hover:text-primary/80 underline underline-offset-2 decoration-primary/50 hover:decoration-primary transition-colors"
+              >
                 {children}
               </Link>
             );
           },
           ul: ({ children }) => (
-            <ul className="list-disc pl-6 mb-4 space-y-1">{children}</ul>
+            <ul className="list-disc pl-6 mb-4 space-y-2 marker:text-primary/60">
+              {children}
+            </ul>
           ),
           ol: ({ children }) => (
-            <ol className="list-decimal pl-6 mb-4 space-y-1">{children}</ol>
+            <ol className="list-decimal pl-6 mb-4 space-y-2 marker:text-primary/60">
+              {children}
+            </ol>
           ),
           li: ({ children }) => (
-            <li className="leading-relaxed pl-1">{children}</li>
+            <li className="leading-relaxed pl-2 text-gray-200">{children}</li>
           ),
           blockquote: ({ children }) => (
-            <blockquote className="border-l-4 border-primary/50 pl-4 py-2 my-4 bg-muted/30 rounded-r italic">
-              {children}
+            <blockquote className="border-l-4 border-primary/50 pl-4 py-3 my-6 bg-primary/5 rounded-r-lg">
+              <div className="text-gray-300 italic">{children}</div>
             </blockquote>
           ),
           code: ({ className, children }) => {
-            const isInline = !className;
+            const match = /language-(\w+)(:?.+)?/.exec(className || '');
+            const isInline = !match;
+
             if (isInline) {
               return (
-                <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-primary">
+                <code className="bg-muted/80 px-1.5 py-0.5 rounded text-sm font-mono text-primary border border-border/30">
                   {children}
                 </code>
               );
             }
-            return <code className={className}>{children}</code>;
+
+            const language = match[1];
+            const meta = match[2]?.slice(1); // :以降を取得
+            const code = String(children).replace(/\n$/, '');
+
+            // Mermaidダイアグラム
+            if (language === 'mermaid') {
+              return <MermaidDiagram chart={code} />;
+            }
+
+            // 通常のコードブロック
+            const { filename, showLineNumbers, highlightLines } = parseCodeMeta(meta);
+
+            return (
+              <CodeBlock
+                code={code}
+                language={language}
+                filename={filename}
+                showLineNumbers={showLineNumbers}
+                highlightLines={highlightLines}
+              />
+            );
           },
-          pre: ({ children }) => (
-            <pre className="bg-muted/50 border border-border/50 rounded-lg p-4 overflow-x-auto mb-4 text-sm">
-              {children}
-            </pre>
-          ),
+          pre: ({ children }) => {
+            // CodeBlockコンポーネントが処理するので、ここでは単純にchildrenを返す
+            return <>{children}</>;
+          },
           img: ({ src, alt }) => {
             if (!src || typeof src !== 'string') return null;
-            // 外部URLかローカルパスか判定
             const isExternal = src.startsWith('http');
             return (
-              <span className="block my-4">
+              <figure className="my-6">
                 {isExternal ? (
-                  // 外部画像は通常のimgタグを使用（lazy loading付き）
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={src}
                     alt={alt || ''}
-                    className="rounded-lg max-w-full h-auto"
+                    className="rounded-xl max-w-full h-auto shadow-lg"
                     loading="lazy"
                     decoding="async"
                   />
                 ) : (
-                  // ローカル画像はnext/imageを使用
                   <Image
                     src={src}
                     alt={alt || ''}
                     width={800}
                     height={450}
-                    className="rounded-lg max-w-full h-auto"
+                    className="rounded-xl max-w-full h-auto shadow-lg"
                     loading="lazy"
                     placeholder="blur"
                     blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAIBAAAgEEAgMBAAAAAAAAAAAAAQIDAAQFESExBhJBUf/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCzx3Py4mCVJkgkdnlLbRB0AOh6qT/RL/0pSg//2Q=="
                     style={{ width: '100%', height: 'auto' }}
                   />
                 )}
-              </span>
+                {alt && (
+                  <figcaption className="text-center text-sm text-muted-foreground mt-3">
+                    {alt}
+                  </figcaption>
+                )}
+              </figure>
             );
           },
-          hr: () => <hr className="my-8 border-border/50" />,
+          hr: () => (
+            <hr className="my-10 border-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+          ),
           table: ({ children }) => (
-            <div className="overflow-x-auto mb-4">
-              <table className="w-full border-collapse border border-border/50">
+            <div className="overflow-x-auto my-6 rounded-lg border border-border/50">
+              <table className="w-full border-collapse">
                 {children}
               </table>
             </div>
           ),
+          thead: ({ children }) => (
+            <thead className="bg-muted/50">{children}</thead>
+          ),
           th: ({ children }) => (
-            <th className="border border-border/50 bg-muted/50 px-4 py-2 text-left font-semibold">
+            <th className="border-b border-border/50 px-4 py-3 text-left font-semibold text-foreground">
               {children}
             </th>
           ),
           td: ({ children }) => (
-            <td className="border border-border/50 px-4 py-2">{children}</td>
+            <td className="border-b border-border/30 px-4 py-3 text-gray-300">
+              {children}
+            </td>
+          ),
+          tr: ({ children }) => (
+            <tr className="hover:bg-muted/20 transition-colors">{children}</tr>
+          ),
+          strong: ({ children }) => (
+            <strong className="font-bold text-foreground">{children}</strong>
+          ),
+          em: ({ children }) => (
+            <em className="italic text-gray-300">{children}</em>
+          ),
+          del: ({ children }) => (
+            <del className="text-muted-foreground line-through">{children}</del>
+          ),
+          // カスタムコンポーネント用（HTMLタグとして処理）
+          // @ts-expect-error - カスタムHTML要素
+          callout: ({ type, title, children }) => {
+            const { type: parsedType, title: parsedTitle } = parseCalloutType(
+              title ? `${type} ${title}` : type
+            );
+            return (
+              <Callout type={parsedType} title={parsedTitle || undefined}>
+                {children}
+              </Callout>
+            );
+          },
+          // @ts-expect-error - カスタムHTML要素
+          'details-block': ({ title, children }) => (
+            <Details title={title}>{children}</Details>
           ),
         }}
       >
-        {content}
+        {parsedContent}
       </ReactMarkdown>
     </div>
   );
