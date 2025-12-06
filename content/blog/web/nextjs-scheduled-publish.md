@@ -13,6 +13,10 @@ author: "Adabana Saki"
 
 この記事では、**publishDate**フィールドを使って記事の予約投稿を実現する方法を紹介します。
 
+:::note tip 予約投稿の全体像
+記事のfrontmatterに`publishDate`を設定しておき、毎日の定期ビルドで日付を比較することで、指定日以降に自動公開される仕組みを作ります。
+:::
+
 ## 従来の問題点
 
 多くのNext.jsブログでは、記事の公開/非公開を`draft`フラグで管理しています：
@@ -24,16 +28,27 @@ draft: true  # falseに変更して公開
 ---
 ```
 
-この方法だと、公開するたびに：
+:::note warn 手動管理の問題点
+この方法だと、公開するたびに以下の手順が必要です：
 1. ファイルを編集して`draft: false`に変更
 2. コミット＆プッシュ
 3. デプロイを待つ
 
-という手順が必要で、毎日投稿するには手間がかかります。
+毎日投稿するには手間がかかりますね。
+:::
 
 ## 解決策：ビルド時の日付判定
 
 **publishDate**フィールドを導入し、ビルド時にその日付と現在日付を比較することで、自動的に公開/非公開を判定します。
+
+```mermaid
+flowchart LR
+    A[記事作成] --> B[publishDate設定]
+    B --> C[コミット&プッシュ]
+    C --> D{定期ビルド}
+    D -->|日付到来| E[記事公開]
+    D -->|まだ先| F[非公開のまま]
+```
 
 ### メリット
 
@@ -45,8 +60,7 @@ draft: true  # falseに変更して公開
 
 ### 1. 型定義にpublishDateを追加
 
-```typescript
-// lib/blog.ts
+```typescript:lib/blog.ts
 export interface BlogPost {
   slug: string;
   title: string;
@@ -59,8 +73,7 @@ export interface BlogPost {
 
 ### 2. 記事取得ロジックを修正
 
-```typescript
-// lib/blog.ts - getAllPosts関数内
+```typescript:lib/blog.ts
 export function getAllPosts(): BlogMeta[] {
   const markdownFiles = getMarkdownFiles(BLOG_DIR);
 
@@ -95,26 +108,26 @@ export function getAllPosts(): BlogMeta[] {
 }
 ```
 
-**ポイント：**
+:::note info ポイント
 - `publishDate`が設定されている場合はそちらを優先
 - `publishDate`がない場合は従来の`draft`フラグで判定
 - **UTCで統一**することで、ビルド環境のタイムゾーンに依存しない
 - これにより既存の記事との後方互換性を維持
+:::
 
 ### 3. Cloudflare Pagesの定期ビルド設定
 
 記事が自動公開されるには、毎日ビルドを実行する必要があります。
 
-#### Deploy Hookの作成
-
+:::details Deploy Hookの作成手順
 1. Cloudflare Dashboard → Pages → プロジェクト → Settings
 2. 「Builds & deployments」→「Deploy hooks」
 3. 新しいhookを作成してURLをコピー
+:::
 
 #### GitHub Actionsワークフロー
 
-```yaml
-# .github/workflows/scheduled-deploy.yml
+```yaml:.github/workflows/scheduled-deploy.yml
 name: Scheduled Deploy
 
 on:
@@ -132,12 +145,12 @@ jobs:
           curl -X POST "${{ secrets.CLOUDFLARE_DEPLOY_HOOK }}"
 ```
 
-#### GitHub Secretsの設定
-
+:::details GitHub Secretsの設定手順
 1. リポジトリ → Settings → Secrets and variables → Actions
 2. 「New repository secret」をクリック
 3. Name: `CLOUDFLARE_DEPLOY_HOOK`
 4. Value: コピーしたDeploy Hook URL
+:::
 
 ## 使い方
 
@@ -155,10 +168,23 @@ publishDate: "2025-12-08"
 
 ### 動作の流れ
 
-1. 記事を書いて`publishDate`を設定
-2. コミット＆プッシュ（この時点では非公開）
-3. 毎朝9時にGitHub Actionsが定期ビルドをトリガー
-4. `publishDate`が今日以前の記事が自動的に公開される
+```mermaid
+sequenceDiagram
+    participant A as ライター
+    participant G as GitHub
+    participant C as Cloudflare
+    participant U as ユーザー
+
+    A->>G: 記事をpush (publishDate: 12/8)
+    Note over G,C: 12/6のビルド
+    G->>C: ビルドトリガー
+    C->>C: 12/8 > 12/6 → 非公開
+
+    Note over G,C: 12/8のビルド
+    G->>C: ビルドトリガー
+    C->>C: 12/8 <= 12/8 → 公開
+    C->>U: 記事が表示される
+```
 
 ## まとめ
 
@@ -168,8 +194,8 @@ publishDate: "2025-12-08"
 | GitHub Actionsで自動コミット | 完全自動 | コミット履歴が汚れる |
 | **publishDate + 定期ビルド** | 自動＆履歴クリーン | 初期設定が必要 |
 
-一度設定してしまえば、あとは記事を書いて`publishDate`を設定するだけ。
-ブログ運営の手間を大幅に削減できます。
+:::note success おすすめ
+一度設定してしまえば、あとは記事を書いて`publishDate`を設定するだけ。ブログ運営の手間を大幅に削減できます。
+:::
 
-この方法は、Cloudflare Pages以外のホスティングサービス（Vercel、Netlifyなど）でも同様に実装できます。
-定期ビルドの方法は各サービスのドキュメントを参照してください。
+この方法は、Cloudflare Pages以外のホスティングサービス（Vercel、Netlifyなど）でも同様に実装できます。定期ビルドの方法は各サービスのドキュメントを参照してください。
