@@ -397,7 +397,7 @@ CMD ["npm", "start"]
 
 #### NG3: 不要なファイルをコピーする
 
-```dockerfile
+```text
 # .dockerignore を作ろう
 node_modules
 .git
