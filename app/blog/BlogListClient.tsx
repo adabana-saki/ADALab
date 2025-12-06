@@ -2,18 +2,43 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
-import { Calendar, Clock, Tag, User, TrendingUp, Sparkles, BookOpen, Rss, Search, X, Eye, Heart, ArrowUp, ArrowDown } from 'lucide-react';
-import type { BlogMeta, ScheduledPost } from '@/lib/blog';
+import { useSearchParams, useRouter } from 'next/navigation';
+import {
+  Calendar,
+  Clock,
+  Tag,
+  User,
+  TrendingUp,
+  Sparkles,
+  BookOpen,
+  Rss,
+  Search,
+  X,
+  Eye,
+  Heart,
+  ArrowUp,
+  ArrowDown,
+  ChevronLeft,
+  ChevronRight,
+  Grid3X3,
+  List,
+  Folder,
+} from 'lucide-react';
+import type { BlogMeta, ScheduledPost, Category } from '@/lib/blog';
 import { UpcomingPosts } from '@/components/blog/UpcomingPosts';
 
 interface BlogListClientProps {
   posts: BlogMeta[];
   tags: { name: string; count: number }[];
+  categories?: Category[];
   scheduledPosts?: ScheduledPost[];
 }
 
 type SortType = 'date' | 'popular';
 type SortDirection = 'desc' | 'asc';
+type ViewMode = 'grid' | 'list';
+
+const POSTS_PER_PAGE = 12;
 
 // エンゲージメント表示コンポーネント（コンポーネント外に定義してメモ化を有効に）
 interface EngagementBadgeProps {
@@ -43,24 +68,140 @@ function EngagementBadge({ data, isLoading }: EngagementBadgeProps) {
   );
 }
 
-export function BlogListClient({ posts, tags, scheduledPosts = [] }: BlogListClientProps) {
+// ページネーションコンポーネント
+interface PaginationProps {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}
+
+function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
+  if (totalPages <= 1) return null;
+
+  const pages: (number | string)[] = [];
+  const showPages = 5;
+
+  if (totalPages <= showPages) {
+    for (let i = 1; i <= totalPages; i++) pages.push(i);
+  } else {
+    if (currentPage <= 3) {
+      pages.push(1, 2, 3, 4, '...', totalPages);
+    } else if (currentPage >= totalPages - 2) {
+      pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+    } else {
+      pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+    }
+  }
+
+  return (
+    <div className="flex items-center justify-center gap-2 mt-8">
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="p-2 rounded-lg bg-muted/50 hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        aria-label="前のページ"
+      >
+        <ChevronLeft size={18} />
+      </button>
+
+      <div className="flex items-center gap-1">
+        {pages.map((page, i) => (
+          <button
+            key={i}
+            onClick={() => typeof page === 'number' && onPageChange(page)}
+            disabled={page === '...'}
+            className={`min-w-[40px] h-10 rounded-lg text-sm font-medium transition-colors ${
+              page === currentPage
+                ? 'bg-primary text-primary-foreground'
+                : page === '...'
+                ? 'cursor-default text-muted-foreground'
+                : 'bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {page}
+          </button>
+        ))}
+      </div>
+
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="p-2 rounded-lg bg-muted/50 hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        aria-label="次のページ"
+      >
+        <ChevronRight size={18} />
+      </button>
+    </div>
+  );
+}
+
+export function BlogListClient({
+  posts,
+  tags,
+  categories = [],
+  scheduledPosts = [],
+}: BlogListClientProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // URLパラメータから初期値を取得
+  const initialCategory = searchParams.get('category') || null;
+  const initialPage = parseInt(searchParams.get('page') || '1', 10);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(initialCategory);
   const [sortType, setSortType] = useState<SortType>('date');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [currentPage, setCurrentPage] = useState(initialPage);
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [engagement, setEngagement] = useState<Record<string, { views: number; likes: number }>>({});
   const [isLoadingEngagement, setIsLoadingEngagement] = useState(true);
+
+  // LocalStorageから表示モードを復元
+  useEffect(() => {
+    const savedViewMode = localStorage.getItem('blog-view-mode') as ViewMode;
+    if (savedViewMode) setViewMode(savedViewMode);
+  }, []);
+
+  // 表示モード変更時にLocalStorageに保存
+  const handleViewModeChange = (mode: ViewMode) => {
+    setViewMode(mode);
+    localStorage.setItem('blog-view-mode', mode);
+  };
+
+  // URLパラメータを更新
+  const updateURL = (category: string | null, page: number) => {
+    const params = new URLSearchParams();
+    if (category) params.set('category', category);
+    if (page > 1) params.set('page', page.toString());
+    const queryString = params.toString();
+    router.push(`/blog${queryString ? `?${queryString}` : ''}`, { scroll: false });
+  };
+
+  // カテゴリー変更
+  const handleCategoryChange = (category: string | null) => {
+    setSelectedCategory(category);
+    setCurrentPage(1);
+    updateURL(category, 1);
+  };
+
+  // ページ変更
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    updateURL(selectedCategory, page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // ソートボタンのクリックハンドラー
   const handleSortClick = (type: SortType) => {
     if (sortType === type) {
-      // 同じタイプをクリック → 方向を反転
       setSortDirection((prev) => (prev === 'desc' ? 'asc' : 'desc'));
     } else {
-      // 違うタイプをクリック → タイプを変更し、デフォルトは降順
       setSortType(type);
       setSortDirection('desc');
     }
+    setCurrentPage(1);
   };
 
   // エンゲージメントデータを取得
@@ -111,6 +252,11 @@ export function BlogListClient({ posts, tags, scheduledPosts = [] }: BlogListCli
   const filteredPosts = useMemo(() => {
     let result = normalizedPosts;
 
+    // カテゴリーフィルター
+    if (selectedCategory) {
+      result = result.filter((post) => post.category?.toLowerCase() === selectedCategory.toLowerCase());
+    }
+
     // タグフィルター（早期フィルタリングで検索対象を削減）
     if (selectedTag) {
       result = result.filter((post) => post.tags.includes(selectedTag));
@@ -145,21 +291,78 @@ export function BlogListClient({ posts, tags, scheduledPosts = [] }: BlogListCli
           : a._dateTimestamp - b._dateTimestamp
       );
     }
-  }, [normalizedPosts, selectedTag, normalizedQuery, sortType, sortDirection, engagement]);
+  }, [normalizedPosts, selectedCategory, selectedTag, normalizedQuery, sortType, sortDirection, engagement]);
+
+  // ページネーション計算
+  const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
+  const paginatedPosts = useMemo(() => {
+    const start = (currentPage - 1) * POSTS_PER_PAGE;
+    return filteredPosts.slice(start, start + POSTS_PER_PAGE);
+  }, [filteredPosts, currentPage]);
 
   // 最新記事（トップに表示）
-  const featuredPost = filteredPosts[0];
-  const regularPosts = filteredPosts.slice(1);
+  const showFeatured = !searchQuery && !selectedTag && !selectedCategory && sortType === 'date' && sortDirection === 'desc' && currentPage === 1;
+  const featuredPost = showFeatured ? paginatedPosts[0] : null;
+  const regularPosts = showFeatured ? paginatedPosts.slice(1) : paginatedPosts;
+
+  // カテゴリー別の記事数を計算
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    posts.forEach((post) => {
+      if (post.category) {
+        const key = post.category.toLowerCase();
+        counts[key] = (counts[key] || 0) + 1;
+      }
+    });
+    return counts;
+  }, [posts]);
 
   const clearFilters = () => {
     setSearchQuery('');
     setSelectedTag(null);
+    setSelectedCategory(null);
+    setCurrentPage(1);
+    updateURL(null, 1);
   };
 
-  const hasActiveFilters = searchQuery || selectedTag;
+  const hasActiveFilters = searchQuery || selectedTag || selectedCategory;
 
   return (
     <div className="max-w-6xl mx-auto">
+      {/* カテゴリータブ */}
+      <div className="mb-6 overflow-x-auto scrollbar-hide">
+        <div className="flex items-center gap-2 min-w-max pb-2">
+          <button
+            onClick={() => handleCategoryChange(null)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+              !selectedCategory
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted'
+            }`}
+          >
+            <Folder size={16} />
+            すべて
+            <span className="text-xs opacity-70">({posts.length})</span>
+          </button>
+          {categories.map((cat) => (
+            <button
+              key={cat.slug}
+              onClick={() => handleCategoryChange(cat.slug)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+                selectedCategory === cat.slug
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted'
+              }`}
+            >
+              <span>{cat.name}</span>
+              <span className="text-xs opacity-70">
+                ({categoryCounts[cat.slug.toLowerCase()] || 0})
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* 検索・フィルターバー */}
       <div className="bg-card border border-border/50 rounded-xl p-4 mb-8">
         <div className="flex flex-col md:flex-row gap-4">
@@ -169,7 +372,10 @@ export function BlogListClient({ posts, tags, scheduledPosts = [] }: BlogListCli
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
               placeholder="記事を検索..."
               className="w-full pl-10 pr-4 py-2.5 bg-background border border-border/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
             />
@@ -213,6 +419,32 @@ export function BlogListClient({ posts, tags, scheduledPosts = [] }: BlogListCli
                 sortDirection === 'desc' ? <ArrowDown size={14} /> : <ArrowUp size={14} />
               )}
             </button>
+
+            {/* 表示モード切替 */}
+            <div className="hidden md:flex border border-border/50 rounded-lg overflow-hidden">
+              <button
+                onClick={() => handleViewModeChange('list')}
+                className={`p-2.5 transition-colors ${
+                  viewMode === 'list'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted'
+                }`}
+                aria-label="リスト表示"
+              >
+                <List size={16} />
+              </button>
+              <button
+                onClick={() => handleViewModeChange('grid')}
+                className={`p-2.5 transition-colors ${
+                  viewMode === 'grid'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted'
+                }`}
+                aria-label="グリッド表示"
+              >
+                <Grid3X3 size={16} />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -223,7 +455,10 @@ export function BlogListClient({ posts, tags, scheduledPosts = [] }: BlogListCli
               {tags.slice(0, 10).map((tag) => (
                 <button
                   key={tag.name}
-                  onClick={() => setSelectedTag(selectedTag === tag.name ? null : tag.name)}
+                  onClick={() => {
+                    setSelectedTag(selectedTag === tag.name ? null : tag.name);
+                    setCurrentPage(1);
+                  }}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full transition-all ${
                     selectedTag === tag.name
                       ? 'bg-primary text-primary-foreground'
@@ -277,7 +512,7 @@ export function BlogListClient({ posts, tags, scheduledPosts = [] }: BlogListCli
           {/* メインコンテンツ */}
           <div className="lg:col-span-2 space-y-6">
             {/* フィーチャー記事（最新） */}
-            {featuredPost && !hasActiveFilters && sortType === 'date' && sortDirection === 'desc' && (
+            {featuredPost && (
               <Link
                 href={`/blog/${featuredPost.slug}`}
                 className="group block bg-gradient-to-br from-primary/5 via-card to-card border border-primary/20 rounded-xl p-6 hover:border-primary/40 transition-all duration-300"
@@ -334,16 +569,24 @@ export function BlogListClient({ posts, tags, scheduledPosts = [] }: BlogListCli
             )}
 
             {/* 記事リスト */}
-            <div className="space-y-4">
-              {(hasActiveFilters || sortType === 'popular' || sortDirection === 'asc' ? filteredPosts : regularPosts).map((post) => (
+            <div className={viewMode === 'grid' ? 'grid md:grid-cols-2 gap-4' : 'space-y-4'}>
+              {regularPosts.map((post) => (
                 <article
                   key={post.slug}
-                  className="group bg-card border border-border/50 rounded-xl overflow-hidden hover:border-primary/30 transition-all duration-300"
+                  className={`group bg-card border border-border/50 rounded-xl overflow-hidden hover:border-primary/30 transition-all duration-300 ${
+                    viewMode === 'grid' ? 'flex flex-col' : ''
+                  }`}
                 >
-                  <Link href={`/blog/${post.slug}`} className="flex">
+                  <Link href={`/blog/${post.slug}`} className={viewMode === 'grid' ? 'flex flex-col h-full' : 'flex'}>
                     {/* サムネイル（将来用） */}
                     {post.image && (
-                      <div className="hidden sm:block w-40 h-32 flex-shrink-0 bg-muted">
+                      <div
+                        className={
+                          viewMode === 'grid'
+                            ? 'h-40 bg-muted'
+                            : 'hidden sm:block w-40 h-32 flex-shrink-0 bg-muted'
+                        }
+                      >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={post.image}
@@ -353,7 +596,7 @@ export function BlogListClient({ posts, tags, scheduledPosts = [] }: BlogListCli
                       </div>
                     )}
 
-                    <div className="flex-1 p-5">
+                    <div className={`flex-1 p-5 ${viewMode === 'grid' ? 'flex flex-col' : ''}`}>
                       <div className="flex items-center justify-between gap-2 mb-2">
                         <div className="flex items-center gap-2">
                           {post.category && (
@@ -370,15 +613,23 @@ export function BlogListClient({ posts, tags, scheduledPosts = [] }: BlogListCli
                         <EngagementBadge data={engagement[post.slug]} isLoading={isLoadingEngagement} />
                       </div>
 
-                      <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                      <h3
+                        className={`font-semibold mb-2 group-hover:text-primary transition-colors ${
+                          viewMode === 'grid' ? 'text-base line-clamp-2' : 'text-lg line-clamp-2'
+                        }`}
+                      >
                         {post.title}
                       </h3>
 
-                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                      <p
+                        className={`text-sm text-muted-foreground mb-3 ${
+                          viewMode === 'grid' ? 'line-clamp-2 flex-1' : 'line-clamp-2'
+                        }`}
+                      >
                         {post.description}
                       </p>
 
-                      <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                      <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground mt-auto">
                         <span className="flex items-center gap-1">
                           <Calendar size={12} />
                           {post.date}
@@ -387,7 +638,7 @@ export function BlogListClient({ posts, tags, scheduledPosts = [] }: BlogListCli
                           <Clock size={12} />
                           {post.readingTime}
                         </span>
-                        {post.tags.length > 0 && (
+                        {post.tags.length > 0 && viewMode !== 'grid' && (
                           <div className="flex gap-1">
                             {post.tags.slice(0, 2).map((tag) => (
                               <span key={tag} className="text-primary/80">
@@ -402,6 +653,13 @@ export function BlogListClient({ posts, tags, scheduledPosts = [] }: BlogListCli
                 </article>
               ))}
             </div>
+
+            {/* ページネーション */}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
           </div>
 
           {/* サイドバー */}
@@ -461,7 +719,10 @@ export function BlogListClient({ posts, tags, scheduledPosts = [] }: BlogListCli
                     {tags.slice(0, 15).map((tag) => (
                       <button
                         key={tag.name}
-                        onClick={() => setSelectedTag(selectedTag === tag.name ? null : tag.name)}
+                        onClick={() => {
+                          setSelectedTag(selectedTag === tag.name ? null : tag.name);
+                          setCurrentPage(1);
+                        }}
                         className={`px-3 py-1.5 text-xs rounded-lg transition-colors ${
                           selectedTag === tag.name
                             ? 'bg-primary text-primary-foreground'
