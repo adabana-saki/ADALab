@@ -501,3 +501,222 @@ html {
   background-color: rgba(6, 182, 212, 0.3);
   color: #fff;
 }
+
+/* ============================================
+   Blog Content Styles
+   ============================================ */
+
+/* KaTeX Math Styles */
+@import 'katex/dist/katex.min.css';
+
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 1rem 0;
+}
+
+.katex {
+  font-size: 1.1em;
+}
+
+/* Blog Content Typography */
+.blog-content {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: hsl(var(--foreground));
+}
+
+.blog-content > *:first-child {
+  margin-top: 0;
+}
+
+/* Anchor Links */
+.anchor-link {
+  color: inherit;
+  text-decoration: none;
+  position: relative;
+}
+
+.anchor-link::before {
+  content: '#';
+  position: absolute;
+  left: -1.5rem;
+  color: hsl(var(--primary) / 0);
+  transition: color 0.2s ease;
+  font-weight: normal;
+}
+
+.group:hover .anchor-link::before {
+  color: hsl(var(--primary) / 0.6);
+}
+
+/* Code Block Styles */
+.code-block-content pre {
+  margin: 0 !important;
+  padding: 1rem !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+.code-block-content code {
+  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, Monaco, 'Courier New', monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.code-block-content .line {
+  display: block;
+  min-height: 1.5em;
+}
+
+/* Shiki Theme Overrides */
+.code-block-content .shiki {
+  background-color: transparent !important;
+}
+
+/* Diff Code Styles */
+.diff-code .line.add {
+  background-color: rgba(34, 197, 94, 0.15);
+}
+
+.diff-code .line.remove {
+  background-color: rgba(239, 68, 68, 0.15);
+}
+
+/* Mermaid Diagram Styles */
+.mermaid-svg svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.mermaid-svg .node rect,
+.mermaid-svg .node circle,
+.mermaid-svg .node ellipse,
+.mermaid-svg .node polygon {
+  stroke-width: 2px;
+}
+
+.mermaid-svg .edgePath .path {
+  stroke-width: 2px;
+}
+
+/* Table Styles in Blog */
+.blog-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+.blog-content th {
+  background: hsl(var(--muted) / 0.5);
+  font-weight: 600;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid hsl(var(--border) / 0.5);
+}
+
+.blog-content td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid hsl(var(--border) / 0.3);
+}
+
+.blog-content tr:hover {
+  background: hsl(var(--muted) / 0.2);
+}
+
+/* Blockquote Styles */
+.blog-content blockquote {
+  position: relative;
+  margin: 1.5rem 0;
+  padding: 1rem 1.5rem;
+  background: hsl(var(--primary) / 0.05);
+  border-left: 4px solid hsl(var(--primary) / 0.5);
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.blog-content blockquote p {
+  margin: 0;
+  color: hsl(var(--foreground) / 0.9);
+  font-style: italic;
+}
+
+/* Footnotes Styles */
+.blog-content .footnotes {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid hsl(var(--border) / 0.5);
+  font-size: 0.875rem;
+}
+
+.blog-content .footnotes h2 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.blog-content .footnotes ol {
+  padding-left: 1.5rem;
+}
+
+.blog-content .footnotes li {
+  margin-bottom: 0.5rem;
+}
+
+.blog-content sup a {
+  color: hsl(var(--primary));
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.blog-content sup a:hover {
+  text-decoration: underline;
+}
+
+/* Task List Styles */
+.blog-content input[type="checkbox"] {
+  margin-right: 0.5rem;
+  accent-color: hsl(var(--primary));
+}
+
+/* Image Caption */
+.blog-content figure {
+  margin: 2rem 0;
+}
+
+.blog-content figcaption {
+  text-align: center;
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+  margin-top: 0.75rem;
+}
+
+/* Horizontal Rule */
+.blog-content hr {
+  margin: 3rem 0;
+  border: none;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    hsl(var(--border)),
+    transparent
+  );
+}
+
+/* Print Styles for Blog */
+@media print {
+  .blog-content {
+    color: #000;
+    background: #fff;
+  }
+
+  .blog-content pre,
+  .blog-content code {
+    background: #f5f5f5 !important;
+    color: #333 !important;
+  }
+
+  .blog-content a {
+    color: #0066cc;
+    text-decoration: underline;
+  }
+}

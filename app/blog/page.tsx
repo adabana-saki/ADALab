@@ -1,4 +1,5 @@
-import { getAllPosts, getAllTags, getScheduledPosts } from '@/lib/blog';
+import { Suspense } from 'react';
+import { getAllPosts, getAllTags, getAllCategories, getScheduledPosts } from '@/lib/blog';
 import type { Metadata } from 'next';
 import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
 export default function BlogPage() {
   const posts = getAllPosts();
   const tags = getAllTags();
+  const categories = getAllCategories();
   const scheduledPosts = getScheduledPosts();
 
   return (
@@ -35,7 +37,14 @@ export default function BlogPage() {
             </p>
           </div>
 
-          <BlogListClient posts={posts} tags={tags} scheduledPosts={scheduledPosts} />
+          <Suspense fallback={<div className="text-center py-10">Loading...</div>}>
+            <BlogListClient
+              posts={posts}
+              tags={tags}
+              categories={categories}
+              scheduledPosts={scheduledPosts}
+            />
+          </Suspense>
         </div>
       </main>
       <Footer />
