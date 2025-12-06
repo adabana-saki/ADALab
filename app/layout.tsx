@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Audiowide, Inter, Noto_Sans_JP } from 'next/font/google';
 import './globals.css';
+import 'katex/dist/katex.min.css';
 import { StructuredData } from '@/components/StructuredData';
 import { WebVitals } from '@/components/WebVitals';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';

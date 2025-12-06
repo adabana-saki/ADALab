@@ -265,7 +265,8 @@ export function parseCodeMeta(meta: string | undefined): {
     const parts = highlightMatch[1].split(',');
     for (const part of parts) {
       if (part.includes('-')) {
-        const [start, end] = part.split('-').map(Number);
+        const [start, end] = part.split("-").map(Number);
+        if (isNaN(start) || isNaN(end) || start > end) continue;
         for (let i = start; i <= end; i++) {
           highlightLines.push(i);
         }

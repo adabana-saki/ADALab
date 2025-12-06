@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Ripple {
@@ -27,6 +27,15 @@ export function RippleContainer({
   disabled = false,
 }: RippleContainerProps) {
   const [ripples, setRipples] = useState<Ripple[]>([]);
+  const timeoutRefs = useRef<Map<number, NodeJS.Timeout>>(new Map());
+
+  // メモリリーク防止: コンポーネントアンマウント時にタイムアウトをクリア
+  useEffect(() => {
+    return () => {
+      timeoutRefs.current.forEach((timeout) => clearTimeout(timeout));
+      timeoutRefs.current.clear();
+    };
+  }, []);
 
   const createRipple = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
@@ -51,9 +60,11 @@ export function RippleContainer({
       setRipples((prev) => [...prev, ripple]);
 
       // アニメーション完了後にリップルを削除
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         setRipples((prev) => prev.filter((r) => r.id !== ripple.id));
+        timeoutRefs.current.delete(ripple.id);
       }, duration);
+      timeoutRefs.current.set(ripple.id, timeoutId);
     },
     [disabled, duration]
   );
@@ -100,7 +111,7 @@ interface GlowEffectProps {
 export function GlowEffect({
   children,
   className = '',
-  glowColor = 'var(--neon-cyan)',
+  glowColor = 'hsl(var(--primary))',
   intensity = 20,
 }: GlowEffectProps) {
   const [isHovered, setIsHovered] = useState(false);
@@ -158,15 +169,16 @@ interface FocusRingProps {
 export function FocusRing({
   children,
   className = '',
-  ringColor = 'var(--neon-cyan)',
+  ringColor = 'hsl(var(--primary))',
 }: FocusRingProps) {
   const [isFocused, setIsFocused] = useState(false);
 
   return (
     <motion.div
       className={`relative ${className}`}
-      onFocus={() => setIsFocused(true)}
-      onBlur={() => setIsFocused(false)}
+      // onFocusCaptureで子要素のフォーカスイベントをキャプチャ
+      onFocusCapture={() => setIsFocused(true)}
+      onBlurCapture={() => setIsFocused(false)}
       animate={{
         outline: isFocused ? `2px solid ${ringColor}` : 'none',
         outlineOffset: isFocused ? '2px' : '0px',
@@ -215,14 +227,14 @@ export function PulseEffect({
   children,
   className = '',
   isActive = true,
-  color = 'var(--neon-cyan)',
+  color = 'hsl(var(--primary))',
 }: PulseEffectProps) {
   return (
     <div className={`relative ${className}`}>
       {children}
       {isActive && (
         <motion.div
-          className="absolute inset-0 rounded-inherit pointer-events-none"
+          className="absolute inset-0 pointer-events-none"
           style={{ borderRadius: 'inherit' }}
           animate={{
             boxShadow: [
