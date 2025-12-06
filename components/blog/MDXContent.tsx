@@ -180,7 +180,10 @@ export function MDXContent({ content }: MDXContentProps) {
           ),
           code: ({ className, children }) => {
             const match = /language-(\w+)(:?.+)?/.exec(className || '');
-            const isInline = !match;
+            const code = String(children).replace(/\n$/, '');
+
+            // 複数行のコードはブロックコードとして処理（ASCIIアートや図表を含む）
+            const isInline = !code.includes('\n') && !match;
 
             if (isInline) {
               return (
@@ -190,9 +193,8 @@ export function MDXContent({ content }: MDXContentProps) {
               );
             }
 
-            const language = match[1];
-            const meta = match[2]?.slice(1); // :以降を取得
-            const code = String(children).replace(/\n$/, '');
+            const language = match?.[1] || 'plaintext';
+            const meta = match?.[2]?.slice(1); // :以降を取得
 
             // Mermaidダイアグラム
             if (language === 'mermaid') {
