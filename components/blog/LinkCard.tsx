@@ -45,7 +45,12 @@ export function LinkCard({ url }: LinkCardProps) {
     fetchOGP();
   }, [url]);
 
-  const hostname = new URL(url).hostname;
+  let hostname = url;
+  try {
+    hostname = new URL(url).hostname;
+  } catch {
+    // 不正なURLの場合はフォールバック
+  }
 
   if (isLoading) {
     return (

@@ -144,9 +144,11 @@ export function BlogListClient({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // URLパラメータから初期値を取得
+  // URLパラメータから初期値を取得（バリデーション付き）
   const initialCategory = searchParams.get('category') || null;
-  const initialPage = parseInt(searchParams.get('page') || '1', 10);
+  const rawPage = searchParams.get('page');
+  const parsedPage = rawPage ? Number.parseInt(rawPage, 10) : 1;
+  const initialPage = Number.isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage;
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
@@ -295,6 +297,15 @@ export function BlogListClient({
 
   // ページネーション計算
   const totalPages = Math.ceil(filteredPosts.length / POSTS_PER_PAGE);
+
+  // フィルター変更時にページ番号をクランプ
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) {
+      setCurrentPage(totalPages);
+      updateURL(selectedCategory, totalPages);
+    }
+  }, [totalPages, currentPage, selectedCategory]);
+
   const paginatedPosts = useMemo(() => {
     const start = (currentPage - 1) * POSTS_PER_PAGE;
     return filteredPosts.slice(start, start + POSTS_PER_PAGE);
