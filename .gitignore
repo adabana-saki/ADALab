@@ -44,3 +44,7 @@ next-env.d.ts
 
 # docs (internal)
 docs/
+
+# generated files
+public/fonts/
+public/og/
