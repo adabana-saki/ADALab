@@ -130,10 +130,12 @@ export function CodeBlock({
     const highlight = async () => {
       try {
         const { codeToHtml } = await import('shiki');
-        const html = await codeToHtml(code, {
+        let html = await codeToHtml(code, {
           lang: language === 'plaintext' ? 'text' : language,
           theme: 'github-dark-dimmed',
         });
+        // Shikiの出力から行間の改行を削除（display: blockとの重複を防ぐ）
+        html = html.replace(/<\/span>\n<span class="line">/g, '</span><span class="line">');
         setHighlightedCode(html);
       } catch {
         // フォールバック: プレーンテキスト

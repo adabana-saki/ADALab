@@ -558,12 +558,12 @@ html {
 .code-block-content code {
   font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Menlo, Monaco, 'Courier New', monospace;
   font-size: 0.875rem;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
 .code-block-content .line {
   display: block;
-  min-height: 1.5em;
+  white-space: pre;
 }
 
 /* Shiki Theme Overrides */
