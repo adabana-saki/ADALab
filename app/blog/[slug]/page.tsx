@@ -22,7 +22,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = getPostBySlug(slug);
   if (!post) return { title: 'Not Found' };
 
-  const ogImageUrl = `https://adalab.pages.dev/og/${slug}/og-image.png`;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://adalab.pages.dev';
+  const ogImageUrl = `${baseUrl}/og/${slug}/og-image.png`;
 
   return {
     title: `${post.title} | ADA Lab Blog`,

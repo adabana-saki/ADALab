@@ -3,6 +3,7 @@ import sharp from 'sharp';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import matter from 'gray-matter';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,32 +15,34 @@ function getAllPosts() {
   const posts = [];
 
   function scanDir(dir, category = '') {
-    const items = fs.readdirSync(dir);
-    for (const item of items) {
+    let items;
+    try {
+      items = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+
+    for (const dirent of items) {
       // _で始まるファイル/ディレクトリはスキップ
-      if (item.startsWith('_')) continue;
+      if (dirent.name.startsWith('_')) continue;
 
-      const fullPath = path.join(dir, item);
-      const stat = fs.statSync(fullPath);
+      const fullPath = path.join(dir, dirent.name);
 
-      if (stat.isDirectory()) {
-        scanDir(fullPath, item);
-      } else if (item.endsWith('.md')) {
-        const content = fs.readFileSync(fullPath, 'utf-8');
-        // Windows環境の改行コード(CRLF)にも対応
-        const frontmatterMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-
-        if (frontmatterMatch) {
-          const frontmatter = frontmatterMatch[1];
-          const titleMatch = frontmatter.match(/^title:\s*["']?(.+?)["']?\s*$/m);
-          const title = titleMatch ? titleMatch[1] : item.replace('.md', '');
-          const slug = item.replace('.md', '');
+      if (dirent.isDirectory()) {
+        scanDir(fullPath, dirent.name);
+      } else if (dirent.name.endsWith('.md')) {
+        try {
+          const content = fs.readFileSync(fullPath, 'utf-8');
+          const { data } = matter(content);
+          const slug = dirent.name.replace('.md', '');
 
           posts.push({
             slug,
-            title,
-            category: category || 'blog',
+            title: data.title || slug,
+            category: category || data.category || 'blog',
           });
+        } catch {
+          // ファイル読み込みエラーはスキップ
         }
       }
     }
@@ -52,30 +55,42 @@ function getAllPosts() {
 // フォントをキャッシュ
 let cachedFont = null;
 
+// 信頼できるフォントソースのURL
+const TRUSTED_FONT_URL = 'https://github.com/googlefonts/noto-cjk/raw/main/Sans/OTF/Japanese/NotoSansCJKjp-Bold.otf';
+const MIN_FONT_SIZE = 100000; // 100KB
+const MAX_FONT_SIZE = 50000000; // 50MB
+
 async function loadFont() {
   if (cachedFont) return cachedFont;
 
-  // ローカルフォントを確認
-  const fontPath = path.join(rootDir, 'public', 'fonts', 'NotoSansJP-Bold.ttf');
-  if (fs.existsSync(fontPath)) {
-    cachedFont = fs.readFileSync(fontPath);
-    return cachedFont;
+  // ローカルフォントを確認 (.otf拡張子)
+  const fontPath = path.join(rootDir, 'public', 'fonts', 'NotoSansCJKjp-Bold.otf');
+  try {
+    if (fs.existsSync(fontPath)) {
+      cachedFont = fs.readFileSync(fontPath);
+      return cachedFont;
+    }
+  } catch {
+    // ファイルが存在しない場合はダウンロード
   }
 
-  // Google Fonts APIからフォントをダウンロード
+  // GitHubからフォントをダウンロード
   console.log('Downloading font...');
-  const response = await fetch('https://github.com/googlefonts/noto-cjk/raw/main/Sans/OTF/Japanese/NotoSansCJKjp-Bold.otf');
+  const response = await fetch(TRUSTED_FONT_URL);
   if (!response.ok) {
     throw new Error(`Failed to download font: ${response.status}`);
   }
   cachedFont = Buffer.from(await response.arrayBuffer());
 
+  // フォントサイズのバリデーション
+  if (cachedFont.length < MIN_FONT_SIZE || cachedFont.length > MAX_FONT_SIZE) {
+    throw new Error(`Downloaded font has unexpected size: ${cachedFont.length} bytes`);
+  }
+
   // フォントディレクトリを作成して保存
   const fontDir = path.join(rootDir, 'public', 'fonts');
-  if (!fs.existsSync(fontDir)) {
-    fs.mkdirSync(fontDir, { recursive: true });
-  }
-  fs.writeFileSync(fontPath.replace('.ttf', '.otf'), cachedFont);
+  fs.mkdirSync(fontDir, { recursive: true });
+  fs.writeFileSync(fontPath, cachedFont);
 
   return cachedFont;
 }
@@ -125,7 +140,6 @@ async function generateOGImage(post, outputDir, fontData) {
                 justifyContent: 'center',
                 padding: '60px 80px',
                 maxWidth: '100%',
-                zIndex: 1,
               },
               children: [
                 // カテゴリーバッジ
@@ -268,9 +282,7 @@ async function generateOGImage(post, outputDir, fontData) {
 
   // 出力ディレクトリを作成
   const slugOutputDir = path.join(outputDir, slug);
-  if (!fs.existsSync(slugOutputDir)) {
-    fs.mkdirSync(slugOutputDir, { recursive: true });
-  }
+  fs.mkdirSync(slugOutputDir, { recursive: true });
 
   // 画像を保存
   const outputPath = path.join(slugOutputDir, 'og-image.png');
@@ -290,9 +302,7 @@ async function main() {
   const outputDir = path.join(rootDir, 'public', 'og');
 
   // 出力ディレクトリを作成
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-  }
+  fs.mkdirSync(outputDir, { recursive: true });
 
   console.log(`Found ${posts.length} posts.`);
 
