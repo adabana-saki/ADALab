@@ -1,6 +1,6 @@
 ---
 title: "【Git実践編】特殊コマンド＆CI/CD入門2025｜GitHub Actionsで自動化デビュー"
-date: "2025-12-06"
+date: "2025-12-09"
 publishDate: "2025-12-09"
 description: "git tag、git submodule、git hooksなどの特殊コマンドと、GitHub Actionsを使ったCI/CDの基本を初心者向けに解説。実装例つき。"
 tags: ["Git", "GitHub", "CI/CD", "GitHub Actions", "自動化", "開発ツール"]

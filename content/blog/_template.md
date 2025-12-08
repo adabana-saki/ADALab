@@ -1,6 +1,7 @@
 ---
 title: "記事タイトル"
 date: "2024-01-01"
+publishDate: "2024-01-01"
 description: "記事の説明文（一覧ページに表示されます）"
 tags: ["タグ1", "タグ2"]
 author: "著者名"
