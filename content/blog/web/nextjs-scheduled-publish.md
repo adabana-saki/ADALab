@@ -1,6 +1,6 @@
 ---
 title: "Next.js + Cloudflare Pagesで記事の予約投稿を実装する"
-date: "2025-12-01"
+date: "2025-12-02"
 publishDate: "2025-12-02"
 description: "ブログ記事の公開を自動化！publishDateフィールドとCloudflareの定期ビルドを組み合わせて、手間なく予約投稿を実現する方法を解説します。"
 tags: ["Next.js", "Cloudflare", "自動化", "ブログ", "GitHub Actions"]
