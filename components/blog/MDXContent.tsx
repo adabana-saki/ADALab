@@ -135,7 +135,7 @@ export function MDXContent({ content }: MDXContentProps) {
             // 空のパラグラフをスキップ
             if (!text.trim()) return null;
 
-            return <p className="mb-4 leading-relaxed text-gray-200">{children}</p>;
+            return <p className="mb-4 leading-relaxed text-gray-800 dark:text-gray-200">{children}</p>;
           },
           a: ({ href, children }) => {
             const isExternal = href?.startsWith('http');
@@ -171,11 +171,11 @@ export function MDXContent({ content }: MDXContentProps) {
             </ol>
           ),
           li: ({ children }) => (
-            <li className="leading-relaxed pl-2 text-gray-200">{children}</li>
+            <li className="leading-relaxed pl-2 text-gray-800 dark:text-gray-200">{children}</li>
           ),
           blockquote: ({ children }) => (
             <blockquote className="border-l-4 border-primary/50 pl-4 py-3 my-6 bg-primary/5 rounded-r-lg">
-              <div className="text-gray-300 italic">{children}</div>
+              <div className="text-gray-700 dark:text-gray-300 italic">{children}</div>
             </blockquote>
           ),
           code: ({ className, children }) => {
@@ -272,7 +272,7 @@ export function MDXContent({ content }: MDXContentProps) {
             </th>
           ),
           td: ({ children }) => (
-            <td className="border-b border-border/30 px-4 py-3 text-gray-300">
+            <td className="border-b border-border/30 px-4 py-3 text-gray-700 dark:text-gray-300">
               {children}
             </td>
           ),
@@ -283,7 +283,7 @@ export function MDXContent({ content }: MDXContentProps) {
             <strong className="font-bold text-foreground">{children}</strong>
           ),
           em: ({ children }) => (
-            <em className="italic text-gray-300">{children}</em>
+            <em className="italic text-gray-700 dark:text-gray-300">{children}</em>
           ),
           del: ({ children }) => (
             <del className="text-muted-foreground line-through">{children}</del>
