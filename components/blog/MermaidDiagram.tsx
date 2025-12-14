@@ -154,7 +154,7 @@ export function MermaidDiagram({ chart, caption }: MermaidDiagramProps) {
           <div className="flex items-center gap-1">
             <button
               onClick={handleRefresh}
-              className="p-1.5 rounded-md hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+              className="p-1.5 rounded-md hover:bg-white/10 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
               aria-label="Refresh diagram"
               title="Refresh"
             >
@@ -162,7 +162,7 @@ export function MermaidDiagram({ chart, caption }: MermaidDiagramProps) {
             </button>
             <button
               onClick={() => setIsFullscreen(!isFullscreen)}
-              className="p-1.5 rounded-md hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+              className="p-1.5 rounded-md hover:bg-white/10 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
               aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
               title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
             >

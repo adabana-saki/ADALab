@@ -185,7 +185,7 @@ export function CodeBlock({
         {/* コピーボタン */}
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all bg-white/5 hover:bg-white/10 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
           aria-label={copied ? 'Copied!' : 'Copy code'}
         >
           {copied ? (

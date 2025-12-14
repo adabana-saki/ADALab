@@ -53,7 +53,7 @@ export function UpcomingPosts({ posts }: UpcomingPostsProps) {
     <div className="rounded-xl border border-cyan-500/20 bg-gray-900/50 p-6 backdrop-blur-sm">
       <div className="mb-4 flex items-center gap-2">
         <Calendar className="h-5 w-5 text-cyan-400" />
-        <h3 className="text-lg font-bold text-white">公開予定</h3>
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white">公開予定</h3>
       </div>
 
       <div className="space-y-3">
@@ -67,7 +67,7 @@ export function UpcomingPosts({ posts }: UpcomingPostsProps) {
               <span className="text-cyan-400">{formatDate(post.publishDate)}</span>
               <DaysUntilBadge publishDate={post.publishDate} />
             </div>
-            <h4 className="line-clamp-2 text-sm font-medium text-gray-200 transition-colors group-hover:text-white">
+            <h4 className="line-clamp-2 text-sm font-medium text-gray-800 dark:text-gray-200 transition-colors dark:group-hover:text-white group-hover:text-gray-900">
               {post.title}
             </h4>
           </div>

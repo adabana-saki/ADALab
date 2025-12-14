@@ -26,7 +26,7 @@ const calloutConfig: Record<
     bgColor: 'bg-blue-500/10',
     borderColor: 'border-blue-500/50',
     iconColor: 'text-blue-400',
-    titleColor: 'text-blue-300',
+    titleColor: 'text-blue-700 dark:text-blue-300',
     defaultTitle: 'Info',
   },
   tip: {
@@ -34,7 +34,7 @@ const calloutConfig: Record<
     bgColor: 'bg-green-500/10',
     borderColor: 'border-green-500/50',
     iconColor: 'text-green-400',
-    titleColor: 'text-green-300',
+    titleColor: 'text-green-700 dark:text-green-300',
     defaultTitle: 'Tip',
   },
   warn: {
@@ -42,7 +42,7 @@ const calloutConfig: Record<
     bgColor: 'bg-yellow-500/10',
     borderColor: 'border-yellow-500/50',
     iconColor: 'text-yellow-400',
-    titleColor: 'text-yellow-300',
+    titleColor: 'text-yellow-700 dark:text-yellow-300',
     defaultTitle: 'Warning',
   },
   warning: {
@@ -50,7 +50,7 @@ const calloutConfig: Record<
     bgColor: 'bg-yellow-500/10',
     borderColor: 'border-yellow-500/50',
     iconColor: 'text-yellow-400',
-    titleColor: 'text-yellow-300',
+    titleColor: 'text-yellow-700 dark:text-yellow-300',
     defaultTitle: 'Warning',
   },
   alert: {
@@ -58,7 +58,7 @@ const calloutConfig: Record<
     bgColor: 'bg-red-500/10',
     borderColor: 'border-red-500/50',
     iconColor: 'text-red-400',
-    titleColor: 'text-red-300',
+    titleColor: 'text-red-700 dark:text-red-300',
     defaultTitle: 'Alert',
   },
   danger: {
@@ -66,7 +66,7 @@ const calloutConfig: Record<
     bgColor: 'bg-red-500/10',
     borderColor: 'border-red-500/50',
     iconColor: 'text-red-400',
-    titleColor: 'text-red-300',
+    titleColor: 'text-red-700 dark:text-red-300',
     defaultTitle: 'Danger',
   },
   success: {
@@ -74,7 +74,7 @@ const calloutConfig: Record<
     bgColor: 'bg-emerald-500/10',
     borderColor: 'border-emerald-500/50',
     iconColor: 'text-emerald-400',
-    titleColor: 'text-emerald-300',
+    titleColor: 'text-emerald-700 dark:text-emerald-300',
     defaultTitle: 'Success',
   },
 };
@@ -99,7 +99,7 @@ export function Callout({ type = 'info', title, children }: CalloutProps) {
                 {displayTitle}
               </p>
             )}
-            <div className="text-gray-300 text-sm leading-relaxed prose-p:my-2 first:prose-p:mt-0 last:prose-p:mb-0">
+            <div className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed prose-p:my-2 first:prose-p:mt-0 last:prose-p:mb-0">
               {children}
             </div>
           </div>
