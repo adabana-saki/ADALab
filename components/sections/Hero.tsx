@@ -8,6 +8,9 @@ import { useEffect, useState } from 'react';
 import { GlitchText } from '../effects/GlitchText';
 import { TypingAnimation } from '../effects/TypingAnimation';
 import { MagneticButton } from '../effects/MagneticButton';
+import { GradientText } from '../effects/GradientText';
+import { RevealText } from '../effects/RevealText';
+import { DotPattern } from '../effects/DotPattern';
 import { scrollToSection } from '@/hooks/useKeyboardShortcuts';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -42,6 +45,15 @@ export function Hero() {
 
       {/* 3D Floating Logo */}
       {showParticles && <FloatingLogo3D />}
+
+      {/* Dot Pattern Background */}
+      <DotPattern
+        dotSize={1.5}
+        gap={25}
+        dotColor="#00f5ff"
+        fadeEdges={true}
+        animate={showParticles}
+      />
 
       {/* Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/10" />
@@ -121,9 +133,13 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.7 }}
           >
-            <span className="bg-gradient-to-r from-neon-cyan via-white to-neon-fuchsia bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(0,245,255,0.3)]">
+            <GradientText
+              colors={['#00f5ff', '#ffffff', '#ff00ff', '#00f5ff']}
+              animationDuration={4}
+              className="drop-shadow-[0_0_20px_rgba(0,245,255,0.3)]"
+            >
               Build. Ship. Scale.
-            </span>
+            </GradientText>
           </motion.p>
 
           <motion.div
