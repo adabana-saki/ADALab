@@ -97,6 +97,50 @@ publishDate: "2025-12-08"
 | アニメーション | Framer Motion |
 | ホスティング | Cloudflare Pages |
 
+## アニメーションコンポーネント
+
+このサイトには27以上の高品質なアニメーションコンポーネントが含まれています：
+
+### テキストアニメーション
+- **GlitchText** - グリッチエフェクト付きテキスト
+- **TypingAnimation** - タイピングアニメーション
+- **GradientText** - グラデーションアニメーション付きテキスト
+- **ShimmerText** - シマーエフェクト付きテキスト
+- **RevealText** - テキストリビールアニメーション
+- **TextScramble** - テキストスクランブルエフェクト
+
+### ボタンエフェクト
+- **MagneticButton** - 磁気エフェクト付きボタン
+- **ShinyButton** - 光沢エフェクト付きボタン
+
+### 背景エフェクト
+- **AnimatedBackground** - アニメーション背景
+- **CyberGrid** - サイバーグリッド
+- **MatrixRain** - マトリックス風レインエフェクト
+- **DotPattern** - ドットパターン背景
+- **WaveBackground** - 波のような背景エフェクト
+- **ScanLines** - スキャンラインエフェクト
+- **MouseGlow** - マウス追従グローエフェクト
+
+### カードエフェクト
+- **SpotlightCard** - スポットライトエフェクト付きカード
+
+### その他のエフェクト
+- **FloatingElements** - 浮遊エレメント
+- **FloatingLogo3D** - 3D浮遊ロゴ
+- **ParticleField** - パーティクルフィールド
+- **CinematicIntro** - シネマティックイントロ
+- **CounterAnimation** - カウンターアニメーション
+- **DynamicIsland** - ダイナミックアイランド
+- **CodeSandbox** - コードサンドボックス
+- **TerminalEmulator** - ターミナルエミュレーター
+- **GitHubHologram** - GitHub ホログラム
+- **KonamiCode** - コナミコマンドイースターエッグ
+- **RippleEffect** - リップルエフェクト
+- **SuccessCelebration** - 成功お祝いエフェクト
+
+すべてのコンポーネントは、propsを通じて高度にカスタマイズ可能です。
+
 ## スクリプト
 
 ```bash

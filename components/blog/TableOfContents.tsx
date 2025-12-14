@@ -24,10 +24,15 @@ export function TableOfContents({ content, variant = 'inline' }: TableOfContents
   // Markdownから見出しを抽出（useMemoでメモ化）
   const headings = useMemo(() => {
     const items: TocItem[] = [];
+
+    // コードブロックを除外してから見出しを抽出
+    // ```で囲まれた部分を一時的に削除
+    const contentWithoutCodeBlocks = content.replace(/```[\s\S]*?```/g, '');
+
     const headingRegex = /^(#{1,3})\s+(.+)$/gm;
     let match;
 
-    while ((match = headingRegex.exec(content)) !== null) {
+    while ((match = headingRegex.exec(contentWithoutCodeBlocks)) !== null) {
       const level = match[1].length;
       const text = match[2].trim();
       const id = text
