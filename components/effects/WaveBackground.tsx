@@ -25,8 +25,11 @@ export function WaveBackground({
         <motion.div
           key={wave}
           className="absolute inset-0"
-          initial={{ y: 0 }}
-          animate={{ y: [-20, 20, -20] }}
+          initial={{ y: 0, scale: 1 + wave * 0.1 }}
+          animate={{
+            y: [-20, 20, -20],
+            scale: 1 + wave * 0.1,
+          }}
           transition={{
             duration: animationDuration + wave * 2,
             repeat: Infinity,
@@ -35,8 +38,7 @@ export function WaveBackground({
           }}
           style={{
             background: `radial-gradient(ellipse at 50% ${50 + wave * 10}%, ${waveColor} 0%, transparent 50%)`,
-            opacity: waveOpacity - wave * 0.02,
-            transform: `scale(${1 + wave * 0.1})`,
+            opacity: Math.max(0, waveOpacity - wave * 0.02),
           }}
         />
       ))}
