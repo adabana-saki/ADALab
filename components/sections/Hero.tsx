@@ -9,7 +9,6 @@ import { GlitchText } from '../effects/GlitchText';
 import { TypingAnimation } from '../effects/TypingAnimation';
 import { MagneticButton } from '../effects/MagneticButton';
 import { GradientText } from '../effects/GradientText';
-import { RevealText } from '../effects/RevealText';
 import { DotPattern } from '../effects/DotPattern';
 import { scrollToSection } from '@/hooks/useKeyboardShortcuts';
 import { useLanguage } from '@/contexts/LanguageContext';
