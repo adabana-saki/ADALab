@@ -21,17 +21,19 @@ export function TextScramble({
   const [isScrambling, setIsScrambling] = useState(false);
 
   useEffect(() => {
+    let intervalId: NodeJS.Timeout | undefined;
+
     const startTimeout = setTimeout(() => {
       setIsScrambling(true);
       let frame = 0;
       const targetText = children;
       const maxFrames = targetText.length * 3;
 
-      const scrambleInterval = setInterval(() => {
+      intervalId = setInterval(() => {
         if (frame >= maxFrames) {
           setDisplayText(targetText);
           setIsScrambling(false);
-          clearInterval(scrambleInterval);
+          clearInterval(intervalId!);
           return;
         }
 
@@ -53,13 +55,12 @@ export function TextScramble({
         setDisplayText(scrambled);
         frame++;
       }, scrambleSpeed);
-
-      return () => {
-        clearInterval(scrambleInterval);
-      };
     }, startDelay);
 
-    return () => clearTimeout(startTimeout);
+    return () => {
+      clearTimeout(startTimeout);
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [children, scrambleSpeed, characters, startDelay]);
 
   return (
