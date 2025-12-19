@@ -25,6 +25,7 @@ export function Navigation() {
   const navItems = [
     { name: 'About', href: '/#about' },
     { name: 'Products', href: '/products' },
+    { name: 'Games', href: '/games' },
     { name: 'Blog', href: '/blog' },
     { name: 'News', href: '/news' },
     { name: 'Contact', href: '/#contact' },
@@ -41,6 +42,7 @@ export function Navigation() {
   const isActiveLink = (href: string) => {
     if (href === '/blog') return pathname.startsWith('/blog');
     if (href === '/products') return pathname.startsWith('/products');
+    if (href === '/games') return pathname.startsWith('/games');
     if (href === '/news') return pathname === '/news';
     if (href.startsWith('/#')) return isHomePage;
     return pathname === href;
