@@ -14,6 +14,9 @@ import {
   Trophy,
   Zap,
   Flame,
+  Clock,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
 
 // ゲーム設定
@@ -21,7 +24,13 @@ const FIELD_COL = 10;
 const FIELD_ROW = 20;
 const BLOCK_SIZE = 28;
 const TETRO_SIZE = 4;
-const PREVIEW_BLOCK_SIZE = 18;
+const PREVIEW_BLOCK_SIZE = 16;
+const NEXT_COUNT = 3; // 表示するネクストの数
+
+// 時間経過による加速設定
+const TIME_ACCELERATION_INTERVAL = 30000; // 30秒ごとに加速
+const TIME_ACCELERATION_AMOUNT = 50; // 50msずつ速くなる
+const MIN_SPEED = 50; // 最低速度
 
 // レベルごとの落下速度（ミリ秒）
 const LEVEL_SPEEDS = [800, 720, 640, 560, 480, 400, 320, 240, 160, 100, 80, 60, 50, 40, 30];
@@ -56,7 +65,96 @@ interface GameStats {
   level: number;
   combo: number;
   highScore: number;
+  backToBack: number;
+  tSpins: number;
+  tetrises: number;
+  playTime: number;
 }
+
+// サウンドエンジン
+class SoundEngine {
+  private audioContext: AudioContext | null = null;
+  private enabled: boolean = true;
+
+  init() {
+    if (typeof window !== 'undefined' && !this.audioContext) {
+      this.audioContext = new (window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    }
+  }
+
+  setEnabled(enabled: boolean) {
+    this.enabled = enabled;
+  }
+
+  private playTone(frequency: number, duration: number, type: OscillatorType = 'square', volume: number = 0.1) {
+    if (!this.enabled || !this.audioContext) return;
+
+    const oscillator = this.audioContext.createOscillator();
+    const gainNode = this.audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(this.audioContext.destination);
+
+    oscillator.frequency.value = frequency;
+    oscillator.type = type;
+    gainNode.gain.setValueAtTime(volume, this.audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+
+    oscillator.start();
+    oscillator.stop(this.audioContext.currentTime + duration);
+  }
+
+  move() {
+    this.playTone(200, 0.05, 'square', 0.05);
+  }
+
+  rotate() {
+    this.playTone(300, 0.08, 'square', 0.08);
+  }
+
+  drop() {
+    this.playTone(150, 0.1, 'square', 0.1);
+  }
+
+  lineClear(lines: number) {
+    const baseFreq = 400;
+    for (let i = 0; i < lines; i++) {
+      setTimeout(() => {
+        this.playTone(baseFreq + i * 100, 0.15, 'sine', 0.15);
+      }, i * 50);
+    }
+  }
+
+  tetris() {
+    // 特別なサウンド
+    [523, 659, 784, 1047].forEach((freq, i) => {
+      setTimeout(() => this.playTone(freq, 0.2, 'sine', 0.2), i * 80);
+    });
+  }
+
+  tSpin() {
+    this.playTone(600, 0.1, 'sine', 0.15);
+    setTimeout(() => this.playTone(800, 0.15, 'sine', 0.15), 100);
+  }
+
+  levelUp() {
+    [400, 500, 600, 800].forEach((freq, i) => {
+      setTimeout(() => this.playTone(freq, 0.1, 'sine', 0.1), i * 60);
+    });
+  }
+
+  gameOver() {
+    [400, 350, 300, 250, 200].forEach((freq, i) => {
+      setTimeout(() => this.playTone(freq, 0.2, 'sawtooth', 0.1), i * 100);
+    });
+  }
+
+  hold() {
+    this.playTone(250, 0.08, 'triangle', 0.1);
+  }
+}
+
+const soundEngine = new SoundEngine();
 
 export function TetrisGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -66,13 +164,20 @@ export function TetrisGame() {
     level: 1,
     combo: 0,
     highScore: 0,
+    backToBack: 0,
+    tSpins: 0,
+    tetrises: 0,
+    playTime: 0,
   });
   const [gameOver, setGameOver] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [isStarted, setIsStarted] = useState(false);
-  const [nextPiece, setNextPiece] = useState<number>(1);
+  const [nextPieces, setNextPieces] = useState<number[]>([1, 2, 3]);
   const [holdPiece, setHoldPiece] = useState<number | null>(null);
   const [canHold, setCanHold] = useState(true);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [lastAction, setLastAction] = useState<string>('');
+  const [timeBonus, setTimeBonus] = useState(0);
 
   // ゲーム状態をrefで管理
   const gameState = useRef({
@@ -81,24 +186,33 @@ export function TetrisGame() {
     tetroType: 0,
     tetroX: 0,
     tetroY: 0,
-    nextType: 0,
+    nextQueue: [] as number[],
     holdType: null as number | null,
     canHold: true,
-    stats: { score: 0, lines: 0, level: 1, combo: 0, highScore: 0 },
+    stats: { score: 0, lines: 0, level: 1, combo: 0, highScore: 0, backToBack: 0, tSpins: 0, tetrises: 0, playTime: 0 },
     gameOver: false,
     isPaused: false,
-    lastDrop: 0,
+    lastRotation: false, // T-Spin検出用
+    lastKick: false, // T-Spin検出用
+    startTime: 0,
+    timeAcceleration: 0,
   });
 
   // ハイスコア読み込み
   useEffect(() => {
-    const saved = localStorage.getItem('tetris-highscore');
+    const saved = localStorage.getItem('tetris-highscore-v2');
     if (saved) {
       const highScore = parseInt(saved, 10);
       gameState.current.stats.highScore = highScore;
       setStats((s) => ({ ...s, highScore }));
     }
+    soundEngine.init();
   }, []);
+
+  // サウンド設定
+  useEffect(() => {
+    soundEngine.setEnabled(soundEnabled);
+  }, [soundEnabled]);
 
   // フィールド初期化
   const initField = useCallback(() => {
@@ -109,23 +223,37 @@ export function TetrisGame() {
     return field;
   }, []);
 
-  // ランダムなテトロミノタイプを取得
-  const getRandomType = useCallback(() => {
-    return Math.floor(Math.random() * (TETRO_TYPES.length - 1)) + 1;
+  // 7-bag方式でピースを生成
+  const generateBag = useCallback(() => {
+    const bag = [1, 2, 3, 4, 5, 6, 7];
+    for (let i = bag.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [bag[i], bag[j]] = [bag[j], bag[i]];
+    }
+    return bag;
   }, []);
 
+  // ネクストキューを補充
+  const refillQueue = useCallback(() => {
+    while (gameState.current.nextQueue.length < NEXT_COUNT + 1) {
+      gameState.current.nextQueue.push(...generateBag());
+    }
+  }, [generateBag]);
+
   // 新しいテトロミノを生成
-  const spawnTetro = useCallback((type?: number) => {
-    const t = type ?? gameState.current.nextType;
-    gameState.current.tetroType = t;
-    gameState.current.tetro = TETRO_TYPES[t].map((row) => [...row]);
+  const spawnTetro = useCallback(() => {
+    refillQueue();
+    const type = gameState.current.nextQueue.shift()!;
+    gameState.current.tetroType = type;
+    gameState.current.tetro = TETRO_TYPES[type].map((row) => [...row]);
     gameState.current.tetroX = Math.floor(FIELD_COL / 2 - TETRO_SIZE / 2);
     gameState.current.tetroY = 0;
-    gameState.current.nextType = getRandomType();
     gameState.current.canHold = true;
-    setNextPiece(gameState.current.nextType);
+    gameState.current.lastRotation = false;
+    gameState.current.lastKick = false;
+    setNextPieces([...gameState.current.nextQueue.slice(0, NEXT_COUNT)]);
     setCanHold(true);
-  }, [getRandomType]);
+  }, [refillQueue]);
 
   // 衝突判定
   const checkCollision = useCallback((mx: number, my: number, newTetro?: TetroType) => {
@@ -167,6 +295,32 @@ export function TetrisGame() {
     return newTetro;
   }, []);
 
+  // T-Spin検出
+  const detectTSpin = useCallback(() => {
+    const { tetroType, tetroX, tetroY, field, lastRotation } = gameState.current;
+
+    // T-pieceでない場合はfalse
+    if (tetroType !== 4 || !lastRotation) return false;
+
+    // Tピースの4つのコーナーをチェック
+    const corners = [
+      [tetroY, tetroX],
+      [tetroY, tetroX + 2],
+      [tetroY + 2, tetroX],
+      [tetroY + 2, tetroX + 2],
+    ];
+
+    let filledCorners = 0;
+    for (const [cy, cx] of corners) {
+      if (cy < 0 || cy >= FIELD_ROW || cx < 0 || cx >= FIELD_COL || field[cy]?.[cx]) {
+        filledCorners++;
+      }
+    }
+
+    // 3つ以上のコーナーが埋まっていればT-Spin
+    return filledCorners >= 3;
+  }, []);
+
   // ウォールキック（回転時の壁蹴り）
   const tryRotate = useCallback(() => {
     const rotated = rotate(gameState.current.tetro);
@@ -175,6 +329,9 @@ export function TetrisGame() {
       if (!checkCollision(kick, 0, rotated)) {
         gameState.current.tetro = rotated;
         gameState.current.tetroX += kick;
+        gameState.current.lastRotation = true;
+        gameState.current.lastKick = kick !== 0;
+        soundEngine.rotate();
         return true;
       }
     }
@@ -191,6 +348,7 @@ export function TetrisGame() {
         }
       }
     }
+    soundEngine.drop();
   }, []);
 
   // ライン消去チェック
@@ -206,6 +364,9 @@ export function TetrisGame() {
       }
     }
 
+    // T-Spin検出
+    const isTSpin = detectTSpin();
+
     if (lineCount > 0) {
       // ラインを消去
       for (const y of linesToClear) {
@@ -213,8 +374,49 @@ export function TetrisGame() {
         field.unshift(Array(FIELD_COL).fill(0));
       }
 
-      // スコア計算（コンボボーナス付き）
-      const basePoints = [0, 100, 300, 500, 800][lineCount] || 0;
+      // アクション表示
+      let action = '';
+      let basePoints = 0;
+
+      if (isTSpin) {
+        stats.tSpins++;
+        if (lineCount === 1) {
+          action = 'T-SPIN SINGLE!';
+          basePoints = 800;
+        } else if (lineCount === 2) {
+          action = 'T-SPIN DOUBLE!';
+          basePoints = 1200;
+        } else if (lineCount === 3) {
+          action = 'T-SPIN TRIPLE!';
+          basePoints = 1600;
+        }
+        soundEngine.tSpin();
+      } else if (lineCount === 4) {
+        action = 'TETRIS!';
+        basePoints = 800;
+        stats.tetrises++;
+        soundEngine.tetris();
+      } else {
+        basePoints = [0, 100, 300, 500][lineCount] || 0;
+        if (lineCount >= 2) {
+          action = ['', 'SINGLE', 'DOUBLE', 'TRIPLE'][lineCount];
+        }
+        soundEngine.lineClear(lineCount);
+      }
+
+      // Back-to-Back判定（テトリスまたはT-Spin）
+      const isSpecial = lineCount === 4 || isTSpin;
+      if (isSpecial && stats.backToBack > 0) {
+        basePoints = Math.floor(basePoints * 1.5);
+        action = 'B2B ' + action;
+      }
+      if (isSpecial) {
+        stats.backToBack++;
+      } else {
+        stats.backToBack = 0;
+      }
+
+      // スコア計算
       const levelBonus = stats.level;
       const comboBonus = stats.combo * 50;
       const points = (basePoints + comboBonus) * levelBonus;
@@ -223,16 +425,22 @@ export function TetrisGame() {
       stats.lines += lineCount;
       stats.combo++;
 
+      if (action) {
+        setLastAction(action);
+        setTimeout(() => setLastAction(''), 1500);
+      }
+
       // レベルアップ（10ライン毎）
       const newLevel = Math.floor(stats.lines / 10) + 1;
       if (newLevel > stats.level) {
         stats.level = Math.min(newLevel, LEVEL_SPEEDS.length);
+        soundEngine.levelUp();
       }
 
       // ハイスコア更新
       if (stats.score > stats.highScore) {
         stats.highScore = stats.score;
-        localStorage.setItem('tetris-highscore', stats.score.toString());
+        localStorage.setItem('tetris-highscore-v2', stats.score.toString());
       }
 
       setStats({ ...stats });
@@ -245,7 +453,7 @@ export function TetrisGame() {
     }
 
     return lineCount;
-  }, []);
+  }, [detectTSpin]);
 
   // ホールド機能
   const holdTetro = useCallback(() => {
@@ -258,9 +466,15 @@ export function TetrisGame() {
     gameState.current.canHold = false;
     setHoldPiece(currentType);
     setCanHold(false);
+    soundEngine.hold();
 
     if (holdType) {
-      spawnTetro(holdType);
+      // ホールドから取り出し
+      gameState.current.tetroType = holdType;
+      gameState.current.tetro = TETRO_TYPES[holdType].map((row) => [...row]);
+      gameState.current.tetroX = Math.floor(FIELD_COL / 2 - TETRO_SIZE / 2);
+      gameState.current.tetroY = 0;
+      gameState.current.lastRotation = false;
     } else {
       spawnTetro();
     }
@@ -271,7 +485,8 @@ export function TetrisGame() {
     const ghostY = getGhostY();
     const dropDistance = ghostY - gameState.current.tetroY;
     gameState.current.tetroY = ghostY;
-    gameState.current.stats.score += dropDistance * 2; // ハードドロップボーナス
+    gameState.current.stats.score += dropDistance * 2;
+    gameState.current.lastRotation = false;
     setStats({ ...gameState.current.stats });
 
     fixTetro();
@@ -281,8 +496,16 @@ export function TetrisGame() {
     if (checkCollision(0, 0)) {
       gameState.current.gameOver = true;
       setGameOver(true);
+      soundEngine.gameOver();
     }
   }, [getGhostY, fixTetro, checkLines, spawnTetro, checkCollision]);
+
+  // 現在のゲームスピードを計算
+  const getCurrentSpeed = useCallback(() => {
+    const baseSpeed = LEVEL_SPEEDS[Math.min(gameState.current.stats.level - 1, LEVEL_SPEEDS.length - 1)];
+    const timeReduction = gameState.current.timeAcceleration;
+    return Math.max(baseSpeed - timeReduction, MIN_SPEED);
+  }, []);
 
   // 描画
   const draw = useCallback(() => {
@@ -371,7 +594,6 @@ export function TetrisGame() {
     ctx.fillStyle = TETRO_COLORS[color];
     ctx.fillRect(px + inset, py + inset, size - inset * 2, size - inset * 2);
 
-    // 3D効果
     ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
     ctx.fillRect(px + inset, py + inset, size - inset * 2, 3);
     ctx.fillRect(px + inset, py + inset, 3, size - inset * 2);
@@ -382,7 +604,7 @@ export function TetrisGame() {
   };
 
   // ミニプレビュー描画
-  const drawPreview = (canvasId: string, type: number | null) => {
+  const drawPreview = useCallback((canvasId: string, type: number | null, size: number = PREVIEW_BLOCK_SIZE) => {
     const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
     if (!canvas || type === null) return;
     const ctx = canvas.getContext('2d');
@@ -399,24 +621,23 @@ export function TetrisGame() {
       for (let y = 0; y < TETRO_SIZE; y++) {
         for (let x = 0; x < TETRO_SIZE; x++) {
           if (tetro[y][x]) {
-            const px = (x + offsetX) * PREVIEW_BLOCK_SIZE;
-            const py = (y + offsetY) * PREVIEW_BLOCK_SIZE;
+            const px = (x + offsetX) * size;
+            const py = (y + offsetY) * size;
             ctx.fillStyle = TETRO_COLORS[type];
-            ctx.fillRect(px + 1, py + 1, PREVIEW_BLOCK_SIZE - 2, PREVIEW_BLOCK_SIZE - 2);
+            ctx.fillRect(px + 1, py + 1, size - 2, size - 2);
           }
         }
       }
     }
-  };
+  }, []);
 
   // プレビュー更新
   useEffect(() => {
-    drawPreview('next-canvas', nextPiece);
-  }, [nextPiece]);
-
-  useEffect(() => {
-    drawPreview('hold-canvas', holdPiece);
-  }, [holdPiece]);
+    drawPreview('hold-canvas', holdPiece, 18);
+    nextPieces.forEach((piece, index) => {
+      drawPreview(`next-canvas-${index}`, piece, 14);
+    });
+  }, [holdPiece, nextPieces, drawPreview]);
 
   // 落下処理
   const drop = useCallback(() => {
@@ -424,6 +645,7 @@ export function TetrisGame() {
 
     if (!checkCollision(0, 1)) {
       gameState.current.tetroY++;
+      gameState.current.lastRotation = false;
     } else {
       fixTetro();
       checkLines();
@@ -432,6 +654,7 @@ export function TetrisGame() {
       if (checkCollision(0, 0)) {
         gameState.current.gameOver = true;
         setGameOver(true);
+        soundEngine.gameOver();
       }
     }
     draw();
@@ -468,15 +691,24 @@ export function TetrisGame() {
 
       switch (e.code) {
         case 'ArrowLeft':
-          if (!checkCollision(-1, 0)) gameState.current.tetroX--;
+          if (!checkCollision(-1, 0)) {
+            gameState.current.tetroX--;
+            gameState.current.lastRotation = false;
+            soundEngine.move();
+          }
           break;
         case 'ArrowRight':
-          if (!checkCollision(1, 0)) gameState.current.tetroX++;
+          if (!checkCollision(1, 0)) {
+            gameState.current.tetroX++;
+            gameState.current.lastRotation = false;
+            soundEngine.move();
+          }
           break;
         case 'ArrowDown':
           if (!checkCollision(0, 1)) {
             gameState.current.tetroY++;
-            gameState.current.stats.score += 1; // ソフトドロップボーナス
+            gameState.current.stats.score += 1;
+            gameState.current.lastRotation = false;
             setStats({ ...gameState.current.stats });
           }
           break;
@@ -493,7 +725,6 @@ export function TetrisGame() {
           holdTetro();
           break;
         case 'KeyZ':
-          // 逆回転（3回回転）
           tryRotate();
           tryRotate();
           tryRotate();
@@ -501,6 +732,7 @@ export function TetrisGame() {
       }
       draw();
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [isStarted, checkCollision, tryRotate, hardDrop, holdTetro, draw]
   );
 
@@ -513,12 +745,18 @@ export function TetrisGame() {
       level: 1,
       combo: 0,
       highScore: gameState.current.stats.highScore,
+      backToBack: 0,
+      tSpins: 0,
+      tetrises: 0,
+      playTime: 0,
     };
     gameState.current.holdType = null;
     gameState.current.canHold = true;
     gameState.current.gameOver = false;
     gameState.current.isPaused = false;
-    gameState.current.nextType = getRandomType();
+    gameState.current.nextQueue = [];
+    gameState.current.startTime = Date.now();
+    gameState.current.timeAcceleration = 0;
 
     setStats({ ...gameState.current.stats });
     setHoldPiece(null);
@@ -526,10 +764,13 @@ export function TetrisGame() {
     setGameOver(false);
     setIsPaused(false);
     setIsStarted(true);
+    setLastAction('');
+    setTimeBonus(0);
 
+    refillQueue();
     spawnTetro();
     draw();
-  }, [initField, getRandomType, spawnTetro, draw]);
+  }, [initField, refillQueue, spawnTetro, draw]);
 
   // Canvas初期化
   useEffect(() => {
@@ -563,10 +804,31 @@ export function TetrisGame() {
   useEffect(() => {
     if (!isStarted || gameOver || isPaused) return;
 
-    const speed = LEVEL_SPEEDS[Math.min(stats.level - 1, LEVEL_SPEEDS.length - 1)];
+    const speed = getCurrentSpeed();
     const interval = setInterval(drop, speed);
     return () => clearInterval(interval);
-  }, [isStarted, gameOver, isPaused, stats.level, drop]);
+  }, [isStarted, gameOver, isPaused, stats.level, timeBonus, drop, getCurrentSpeed]);
+
+  // 時間経過による加速
+  useEffect(() => {
+    if (!isStarted || gameOver || isPaused) return;
+
+    const timer = setInterval(() => {
+      const elapsed = Date.now() - gameState.current.startTime;
+      const newAcceleration = Math.floor(elapsed / TIME_ACCELERATION_INTERVAL) * TIME_ACCELERATION_AMOUNT;
+
+      if (newAcceleration !== gameState.current.timeAcceleration) {
+        gameState.current.timeAcceleration = newAcceleration;
+        setTimeBonus(newAcceleration);
+      }
+
+      // プレイ時間更新
+      gameState.current.stats.playTime = Math.floor(elapsed / 1000);
+      setStats({ ...gameState.current.stats });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isStarted, gameOver, isPaused]);
 
   // モバイルコントロール
   const handleMobileControl = (action: string) => {
@@ -574,13 +836,24 @@ export function TetrisGame() {
 
     switch (action) {
       case 'left':
-        if (!checkCollision(-1, 0)) gameState.current.tetroX--;
+        if (!checkCollision(-1, 0)) {
+          gameState.current.tetroX--;
+          gameState.current.lastRotation = false;
+          soundEngine.move();
+        }
         break;
       case 'right':
-        if (!checkCollision(1, 0)) gameState.current.tetroX++;
+        if (!checkCollision(1, 0)) {
+          gameState.current.tetroX++;
+          gameState.current.lastRotation = false;
+          soundEngine.move();
+        }
         break;
       case 'down':
-        if (!checkCollision(0, 1)) gameState.current.tetroY++;
+        if (!checkCollision(0, 1)) {
+          gameState.current.tetroY++;
+          gameState.current.lastRotation = false;
+        }
         break;
       case 'rotate':
         tryRotate();
@@ -595,6 +868,13 @@ export function TetrisGame() {
     draw();
   };
 
+  // 時間フォーマット
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   return (
     <div className="flex flex-col lg:flex-row items-center lg:items-start gap-6">
       {/* 左サイドパネル */}
@@ -607,11 +887,10 @@ export function TetrisGame() {
           </div>
           <canvas
             id="hold-canvas"
-            width={PREVIEW_BLOCK_SIZE * 4}
-            height={PREVIEW_BLOCK_SIZE * 4}
+            width={72}
+            height={72}
             className={`rounded ${!canHold ? 'opacity-40' : ''}`}
           />
-          <div className="text-[10px] text-muted-foreground mt-1 text-center">C / Shift</div>
         </div>
 
         {/* レベル */}
@@ -622,12 +901,24 @@ export function TetrisGame() {
           </div>
           <div className="text-2xl font-bold text-primary">{stats.level}</div>
         </div>
+
+        {/* 時間 */}
+        <div className="bg-card border border-border rounded-lg p-3">
+          <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1">
+            <Clock size={12} />
+            Time
+          </div>
+          <div className="text-lg font-mono text-foreground">{formatTime(stats.playTime)}</div>
+          {timeBonus > 0 && (
+            <div className="text-xs text-red-500">+{timeBonus}ms</div>
+          )}
+        </div>
       </div>
 
       {/* メインゲーム */}
       <div className="flex flex-col items-center gap-4 order-1 lg:order-2">
         {/* スコアボード */}
-        <div className="flex gap-4">
+        <div className="flex gap-3 flex-wrap justify-center">
           <div className="bg-card border border-border rounded-lg px-4 py-2 text-center">
             <div className="text-xs text-muted-foreground uppercase tracking-wider">Score</div>
             <div className="text-xl font-bold text-primary">{stats.score.toLocaleString()}</div>
@@ -645,11 +936,18 @@ export function TetrisGame() {
           </div>
         </div>
 
-        {/* コンボ表示 */}
-        {stats.combo > 1 && (
-          <div className="flex items-center gap-2 text-orange-500 animate-pulse">
-            <Flame size={20} />
-            <span className="font-bold">{stats.combo}x COMBO!</span>
+        {/* アクション表示 */}
+        {(lastAction || stats.combo > 1) && (
+          <div className="flex flex-col items-center gap-1">
+            {lastAction && (
+              <div className="text-lg font-bold text-cyan-400 animate-pulse">{lastAction}</div>
+            )}
+            {stats.combo > 1 && (
+              <div className="flex items-center gap-2 text-orange-500">
+                <Flame size={16} />
+                <span className="font-bold">{stats.combo}x COMBO</span>
+              </div>
+            )}
           </div>
         )}
 
@@ -665,7 +963,7 @@ export function TetrisGame() {
               <div className="text-center">
                 <Pause size={48} className="mx-auto mb-2 text-white" />
                 <div className="text-2xl font-bold text-white mb-2">PAUSED</div>
-                <div className="text-sm text-gray-400">Press P or ESC to resume</div>
+                <div className="text-sm text-gray-400">Press P to resume</div>
               </div>
             </div>
           )}
@@ -675,24 +973,32 @@ export function TetrisGame() {
         <div className="text-center text-xs text-muted-foreground hidden md:block">
           <p className="flex flex-wrap justify-center gap-x-3 gap-y-1">
             <span><kbd className="px-1.5 py-0.5 bg-muted rounded">←→</kbd> Move</span>
-            <span><kbd className="px-1.5 py-0.5 bg-muted rounded">↓</kbd> Soft Drop</span>
-            <span><kbd className="px-1.5 py-0.5 bg-muted rounded">Space</kbd> Hard Drop</span>
-            <span><kbd className="px-1.5 py-0.5 bg-muted rounded">↑/X</kbd> Rotate</span>
+            <span><kbd className="px-1.5 py-0.5 bg-muted rounded">↓</kbd> Soft</span>
+            <span><kbd className="px-1.5 py-0.5 bg-muted rounded">Space</kbd> Hard</span>
+            <span><kbd className="px-1.5 py-0.5 bg-muted rounded">↑</kbd> Rotate</span>
             <span><kbd className="px-1.5 py-0.5 bg-muted rounded">C</kbd> Hold</span>
-            <span><kbd className="px-1.5 py-0.5 bg-muted rounded">P</kbd> Pause</span>
           </p>
         </div>
 
-        {/* スタート/リスタートボタン */}
-        {(!isStarted || gameOver) && (
+        {/* コントロールボタン */}
+        <div className="flex gap-2">
+          {(!isStarted || gameOver) && (
+            <button
+              onClick={startGame}
+              className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors"
+            >
+              {gameOver ? <RotateCcw size={20} /> : <Play size={20} />}
+              {gameOver ? 'Retry' : 'Start'}
+            </button>
+          )}
           <button
-            onClick={startGame}
-            className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors"
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors"
+            title={soundEnabled ? 'Mute' : 'Unmute'}
           >
-            {gameOver ? <RotateCcw size={20} /> : <Play size={20} />}
-            {gameOver ? 'Play Again' : 'Start Game'}
+            {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
           </button>
-        )}
+        </div>
       </div>
 
       {/* 右サイドパネル */}
@@ -700,26 +1006,45 @@ export function TetrisGame() {
         {/* ネクスト */}
         <div className="bg-card border border-border rounded-lg p-3">
           <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Next</div>
-          <canvas
-            id="next-canvas"
-            width={PREVIEW_BLOCK_SIZE * 4}
-            height={PREVIEW_BLOCK_SIZE * 4}
-            className="rounded"
-          />
+          <div className="flex lg:flex-col gap-2">
+            {nextPieces.map((_, index) => (
+              <canvas
+                key={index}
+                id={`next-canvas-${index}`}
+                width={56}
+                height={56}
+                className={`rounded ${index === 0 ? '' : 'opacity-60'}`}
+              />
+            ))}
+          </div>
         </div>
 
         {/* 統計 */}
         <div className="bg-card border border-border rounded-lg p-3">
           <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Stats</div>
           <div className="text-xs space-y-1">
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-4">
               <span className="text-muted-foreground">Speed</span>
-              <span>{LEVEL_SPEEDS[Math.min(stats.level - 1, LEVEL_SPEEDS.length - 1)]}ms</span>
+              <span>{getCurrentSpeed()}ms</span>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between gap-4">
               <span className="text-muted-foreground">Combo</span>
               <span className={stats.combo > 0 ? 'text-orange-500' : ''}>{stats.combo}x</span>
             </div>
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">T-Spins</span>
+              <span className={stats.tSpins > 0 ? 'text-purple-500' : ''}>{stats.tSpins}</span>
+            </div>
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">Tetrises</span>
+              <span className={stats.tetrises > 0 ? 'text-cyan-500' : ''}>{stats.tetrises}</span>
+            </div>
+            {stats.backToBack > 1 && (
+              <div className="flex justify-between gap-4">
+                <span className="text-muted-foreground">B2B</span>
+                <span className="text-yellow-500">{stats.backToBack - 1}x</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
