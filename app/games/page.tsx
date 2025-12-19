@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Gamepad2, Play } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -16,7 +17,7 @@ const games = [
     id: 'tetris',
     title: 'Tetris',
     description: 'クラシックなテトリス。ブロックを回転させてラインを消そう！',
-    color: 'from-cyan-500 to-blue-500',
+    thumbnail: '/images/games/tetris-thumbnail.png',
   },
 ];
 
@@ -45,10 +46,13 @@ export default function GamesPage() {
               className="group relative bg-card border border-border rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10"
             >
               {/* サムネイル */}
-              <div
-                className={`h-40 bg-gradient-to-br ${game.color} flex items-center justify-center`}
-              >
-                <Gamepad2 size={48} className="text-white/80" />
+              <div className="h-40 relative overflow-hidden">
+                <Image
+                  src={game.thumbnail}
+                  alt={game.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                />
               </div>
 
               {/* コンテンツ */}
