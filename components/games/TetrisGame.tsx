@@ -17,6 +17,8 @@ import {
   Clock,
   Volume2,
   VolumeX,
+  Medal,
+  X,
 } from 'lucide-react';
 
 // ゲーム設定
@@ -70,6 +72,17 @@ interface GameStats {
   tetrises: number;
   playTime: number;
 }
+
+interface LeaderboardEntry {
+  nickname: string;
+  score: number;
+  lines: number;
+  level: number;
+  date: string;
+}
+
+const LEADERBOARD_KEY = 'tetris-leaderboard-v1';
+const MAX_LEADERBOARD_ENTRIES = 10;
 
 // サウンドエンジン
 class SoundEngine {
@@ -178,6 +191,11 @@ export function TetrisGame() {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [lastAction, setLastAction] = useState<string>('');
   const [timeBonus, setTimeBonus] = useState(0);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [showNicknameInput, setShowNicknameInput] = useState(false);
+  const [nickname, setNickname] = useState('');
+  const [pendingScore, setPendingScore] = useState<{ score: number; lines: number; level: number } | null>(null);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   // ゲーム状態をrefで管理
   const gameState = useRef({
@@ -198,16 +216,67 @@ export function TetrisGame() {
     timeAcceleration: 0,
   });
 
-  // ハイスコア読み込み
+  // ハイスコア・リーダーボード読み込み
   useEffect(() => {
-    const saved = localStorage.getItem('tetris-highscore-v2');
-    if (saved) {
-      const highScore = parseInt(saved, 10);
+    const savedHighScore = localStorage.getItem('tetris-highscore-v2');
+    if (savedHighScore) {
+      const highScore = parseInt(savedHighScore, 10);
       gameState.current.stats.highScore = highScore;
       setStats((s) => ({ ...s, highScore }));
     }
+
+    const savedLeaderboard = localStorage.getItem(LEADERBOARD_KEY);
+    if (savedLeaderboard) {
+      try {
+        setLeaderboard(JSON.parse(savedLeaderboard));
+      } catch {
+        setLeaderboard([]);
+      }
+    }
+
+    const savedNickname = localStorage.getItem('tetris-nickname');
+    if (savedNickname) {
+      setNickname(savedNickname);
+    }
+
     soundEngine.init();
   }, []);
+
+  // リーダーボードにスコアを追加
+  const addToLeaderboard = useCallback((entry: LeaderboardEntry) => {
+    setLeaderboard(prev => {
+      const newLeaderboard = [...prev, entry]
+        .sort((a, b) => b.score - a.score)
+        .slice(0, MAX_LEADERBOARD_ENTRIES);
+      localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(newLeaderboard));
+      return newLeaderboard;
+    });
+  }, []);
+
+  // スコアがランキング入りするかチェック
+  const isRankingScore = useCallback((score: number) => {
+    if (leaderboard.length < MAX_LEADERBOARD_ENTRIES) return true;
+    return score > (leaderboard[leaderboard.length - 1]?.score || 0);
+  }, [leaderboard]);
+
+  // ニックネーム送信
+  const submitNickname = useCallback(() => {
+    if (!pendingScore || !nickname.trim()) return;
+
+    const entry: LeaderboardEntry = {
+      nickname: nickname.trim().slice(0, 12),
+      score: pendingScore.score,
+      lines: pendingScore.lines,
+      level: pendingScore.level,
+      date: new Date().toISOString().split('T')[0],
+    };
+
+    addToLeaderboard(entry);
+    localStorage.setItem('tetris-nickname', nickname.trim().slice(0, 12));
+    setShowNicknameInput(false);
+    setPendingScore(null);
+    setShowLeaderboard(true);
+  }, [pendingScore, nickname, addToLeaderboard]);
 
   // サウンド設定
   useEffect(() => {
@@ -497,8 +566,18 @@ export function TetrisGame() {
       gameState.current.gameOver = true;
       setGameOver(true);
       soundEngine.gameOver();
+      // ランキング入りチェック
+      const finalScore = gameState.current.stats.score;
+      if (isRankingScore(finalScore)) {
+        setPendingScore({
+          score: finalScore,
+          lines: gameState.current.stats.lines,
+          level: gameState.current.stats.level,
+        });
+        setShowNicknameInput(true);
+      }
     }
-  }, [getGhostY, fixTetro, checkLines, spawnTetro, checkCollision]);
+  }, [getGhostY, fixTetro, checkLines, spawnTetro, checkCollision, isRankingScore]);
 
   // 現在のゲームスピードを計算
   const getCurrentSpeed = useCallback(() => {
@@ -655,10 +734,20 @@ export function TetrisGame() {
         gameState.current.gameOver = true;
         setGameOver(true);
         soundEngine.gameOver();
+        // ランキング入りチェック
+        const finalScore = gameState.current.stats.score;
+        if (isRankingScore(finalScore)) {
+          setPendingScore({
+            score: finalScore,
+            lines: gameState.current.stats.lines,
+            level: gameState.current.stats.level,
+          });
+          setShowNicknameInput(true);
+        }
       }
     }
     draw();
-  }, [checkCollision, fixTetro, checkLines, spawnTetro, draw]);
+  }, [checkCollision, fixTetro, checkLines, spawnTetro, draw, isRankingScore]);
 
   // キー入力
   const handleKeyDown = useCallback(
@@ -1090,6 +1179,134 @@ export function TetrisGame() {
           </button>
         </div>
       </div>
+
+      {/* ニックネーム入力モーダル */}
+      {showNicknameInput && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-card border border-border rounded-xl p-6 max-w-sm w-full">
+            <div className="flex items-center gap-2 mb-4">
+              <Trophy className="text-yellow-500" size={24} />
+              <h3 className="text-xl font-bold">ランキング入り！</h3>
+            </div>
+            <p className="text-muted-foreground mb-4">
+              スコア: <span className="text-primary font-bold">{pendingScore?.score.toLocaleString()}</span>
+            </p>
+            <div className="mb-4">
+              <label className="block text-sm text-muted-foreground mb-2">
+                ニックネームを入力 (最大12文字)
+              </label>
+              <input
+                type="text"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && submitNickname()}
+                maxLength={12}
+                placeholder="あなたの名前"
+                className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                autoFocus
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={submitNickname}
+                disabled={!nickname.trim()}
+                className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                登録
+              </button>
+              <button
+                onClick={() => {
+                  setShowNicknameInput(false);
+                  setPendingScore(null);
+                }}
+                className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg font-medium transition-colors"
+              >
+                スキップ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* リーダーボードモーダル */}
+      {showLeaderboard && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-card border border-border rounded-xl p-6 max-w-md w-full max-h-[80vh] overflow-auto">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Medal className="text-yellow-500" size={24} />
+                <h3 className="text-xl font-bold">ランキング</h3>
+              </div>
+              <button
+                onClick={() => setShowLeaderboard(false)}
+                className="p-1 hover:bg-muted rounded-lg transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            {leaderboard.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">
+                まだ記録がありません
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {leaderboard.map((entry, index) => (
+                  <div
+                    key={index}
+                    className={`flex items-center gap-3 p-3 rounded-lg ${
+                      index === 0
+                        ? 'bg-yellow-500/20 border border-yellow-500/50'
+                        : index === 1
+                        ? 'bg-gray-400/20 border border-gray-400/50'
+                        : index === 2
+                        ? 'bg-orange-600/20 border border-orange-600/50'
+                        : 'bg-muted/50'
+                    }`}
+                  >
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
+                      index === 0
+                        ? 'bg-yellow-500 text-black'
+                        : index === 1
+                        ? 'bg-gray-400 text-black'
+                        : index === 2
+                        ? 'bg-orange-600 text-white'
+                        : 'bg-muted text-muted-foreground'
+                    }`}>
+                      {index + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium truncate">{entry.nickname}</div>
+                      <div className="text-xs text-muted-foreground">
+                        Lv.{entry.level} / {entry.lines}ライン / {entry.date}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-primary">{entry.score.toLocaleString()}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            <button
+              onClick={() => setShowLeaderboard(false)}
+              className="w-full mt-4 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors"
+            >
+              閉じる
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ランキング表示ボタン */}
+      {leaderboard.length > 0 && !showNicknameInput && !showLeaderboard && (
+        <button
+          onClick={() => setShowLeaderboard(true)}
+          className="fixed bottom-4 right-4 p-3 bg-card border border-border rounded-full shadow-lg hover:bg-muted transition-colors z-30 md:bottom-8 md:right-8"
+          title="ランキングを見る"
+        >
+          <Medal size={24} className="text-yellow-500" />
+        </button>
+      )}
     </div>
   );
 }
