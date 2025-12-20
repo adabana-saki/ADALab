@@ -4,6 +4,17 @@ import { Resvg, initWasm } from '@resvg/resvg-wasm';
 import resvgWasm from '@resvg/resvg-wasm/index_bg.wasm';
 
 let wasmInitialized = false;
+let wasmInitPromise: Promise<void> | null = null;
+
+async function ensureWasmInitialized() {
+  if (wasmInitialized) return;
+  if (!wasmInitPromise) {
+    wasmInitPromise = initWasm(resvgWasm).then(() => {
+      wasmInitialized = true;
+    });
+  }
+  await wasmInitPromise;
+}
 
 // フォントをキャッシュ
 let cachedFont: ArrayBuffer | null = null;
@@ -207,15 +218,14 @@ export const onRequestGet: PagesFunction = async (context) => {
   const { request } = context;
   const url = new URL(request.url);
 
-  const title = url.searchParams.get('title') || 'ADA Lab';
+  const rawTitle = url.searchParams.get('title') || 'ADA Lab';
+  // 長すぎるタイトルは切り詰め
+  const title = rawTitle.length > 80 ? rawTitle.slice(0, 77) + '...' : rawTitle;
   const category = url.searchParams.get('category') || undefined;
 
   try {
-    // WASM初期化
-    if (!wasmInitialized) {
-      await initWasm(resvgWasm);
-      wasmInitialized = true;
-    }
+    // WASM初期化（並行リクエスト対応）
+    await ensureWasmInitialized();
 
     // フォント読み込み
     const fontData = await loadFont();
