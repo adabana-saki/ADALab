@@ -16,6 +16,12 @@ interface NewsItem {
 const newsData: Record<'ja' | 'en', NewsItem[]> = {
   ja: [
     {
+      date: '2025-12-20',
+      type: 'announcement',
+      title: 'ミニゲーム「テトリス」を公開しました',
+      content: 'ブラウザで遊べるクラシックテトリスを公開しました。時間経過による加速、T-Spin、Back-to-Backボーナス、ニックネーム付きランキング機能など、本格的な機能を搭載しています。',
+    },
+    {
       date: '2025-12-04',
       type: 'info',
       title: '独自ドメインへの移行を検討中',
@@ -35,6 +41,12 @@ const newsData: Record<'ja' | 'en', NewsItem[]> = {
     },
   ],
   en: [
+    {
+      date: '2025-12-20',
+      type: 'announcement',
+      title: 'Mini Game "Tetris" Released',
+      content: 'We have released a classic Tetris game playable in browser. Features include time-based acceleration, T-Spin, Back-to-Back bonuses, and a nickname-based leaderboard.',
+    },
     {
       date: '2025-12-04',
       type: 'info',

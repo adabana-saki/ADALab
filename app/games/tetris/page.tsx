@@ -10,6 +10,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Tetris | ADA Lab Games',
     description: 'ブラウザで遊べるクラシックテトリス',
+    images: ['/images/games/tetris-thumbnail.png'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    images: ['/images/games/tetris-thumbnail.png'],
   },
 };
 
