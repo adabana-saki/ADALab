@@ -22,10 +22,8 @@ import {
   Ghost,
   Music,
   Palette,
-  Target,
   Timer,
   Infinity,
-  Calendar,
   Settings,
 } from 'lucide-react';
 
@@ -50,20 +48,18 @@ const MAX_LOCK_MOVES = 15; // 最大移動回数
 const PERFECT_CLEAR_BONUS = 3000;
 
 // ゲームモード
-type GameMode = 'endless' | 'sprint' | 'marathon' | 'zen' | 'daily';
+type GameMode = 'endless' | 'sprint';
 const SPRINT_LINES = 40;
-const MARATHON_MAX_LEVEL = 15;
 
 // レベルごとの落下速度（ミリ秒）
 const LEVEL_SPEEDS = [800, 720, 640, 560, 480, 400, 320, 240, 160, 100, 80, 60, 50, 40, 30];
 
 // BGMトラック
-type BgmTrack = 'none' | 'generated' | 'block-dance-1' | 'block-dance-2';
+type BgmTrack = 'none' | 'block-dance-1' | 'block-dance-2';
 const BGM_TRACKS: { id: BgmTrack; label: string; src?: string }[] = [
-  { id: 'none', label: 'なし' },
-  { id: 'generated', label: '生成音楽' },
-  { id: 'block-dance-1', label: 'ブロックのダンス 1', src: '/audio/block-dance-1.mp3' },
-  { id: 'block-dance-2', label: 'ブロックのダンス 2', src: '/audio/block-dance-2.mp3' },
+  { id: 'none', label: 'OFF' },
+  { id: 'block-dance-1', label: 'BGM 1', src: '/audio/block-dance-1.mp3' },
+  { id: 'block-dance-2', label: 'BGM 2', src: '/audio/block-dance-2.mp3' },
 ];
 
 // テーマ
@@ -142,8 +138,6 @@ class SoundEngine {
   private audioContext: AudioContext | null = null;
   private enabled: boolean = true;
   private bgmEnabled: boolean = true;
-  private bgmOscillators: OscillatorNode[] = [];
-  private bgmGain: GainNode | null = null;
   private bgmPlaying: boolean = false;
   private bgmTrack: BgmTrack = 'none';
   private audioElement: HTMLAudioElement | null = null;
@@ -244,58 +238,22 @@ class SoundEngine {
   startBgm() {
     if (!this.bgmEnabled || this.bgmPlaying || this.bgmTrack === 'none') return;
 
-    if (this.bgmTrack === 'generated') {
-      // 生成音楽（Web Audio API）
-      if (!this.audioContext) return;
+    // MP3ファイル再生
+    const track = BGM_TRACKS.find(t => t.id === this.bgmTrack);
+    if (!track?.src) return;
 
-      this.bgmGain = this.audioContext.createGain();
-      this.bgmGain.gain.value = 0.03;
-      this.bgmGain.connect(this.audioContext.destination);
-
-      const notes = [262, 330, 392, 523, 392, 330];
-      let noteIndex = 0;
-
-      const playNote = () => {
-        if (!this.bgmPlaying || !this.audioContext || !this.bgmGain) return;
-
-        const osc = this.audioContext.createOscillator();
-        osc.type = 'sine';
-        osc.frequency.value = notes[noteIndex];
-        osc.connect(this.bgmGain);
-        osc.start();
-        osc.stop(this.audioContext.currentTime + 0.2);
-
-        noteIndex = (noteIndex + 1) % notes.length;
-        setTimeout(playNote, 250);
-      };
-
-      this.bgmPlaying = true;
-      playNote();
-    } else {
-      // MP3ファイル再生
-      const track = BGM_TRACKS.find(t => t.id === this.bgmTrack);
-      if (!track?.src) return;
-
-      this.audioElement = new Audio(track.src);
-      this.audioElement.loop = true; // ループ再生
-      this.audioElement.volume = 0.5;
-      this.audioElement.play().catch(() => {
-        // 自動再生がブロックされた場合は無視
-      });
-      this.bgmPlaying = true;
-    }
+    this.audioElement = new Audio(track.src);
+    this.audioElement.loop = true; // ループ再生
+    this.audioElement.volume = 0.5;
+    this.audioElement.play().catch(() => {
+      // 自動再生がブロックされた場合は無視
+    });
+    this.bgmPlaying = true;
   }
 
   stopBgm() {
     this.bgmPlaying = false;
 
-    // 生成音楽の停止
-    this.bgmOscillators.forEach(osc => {
-      try { osc.stop(); } catch {}
-    });
-    this.bgmOscillators = [];
-
-    // MP3の停止
     if (this.audioElement) {
       this.audioElement.pause();
       this.audioElement.currentTime = 0;
@@ -307,7 +265,6 @@ class SoundEngine {
     if (this.audioElement) {
       this.audioElement.pause();
     }
-    // 生成音楽の場合は一時停止困難なのでそのまま
   }
 
   resumeBgm() {
@@ -318,21 +275,6 @@ class SoundEngine {
 }
 
 const soundEngine = new SoundEngine();
-
-// デイリーチャレンジ用シード生成
-function getDailySeed(): number {
-  const today = new Date();
-  return today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-}
-
-// シード付き乱数生成
-function seededRandom(seed: number): () => number {
-  let s = seed;
-  return () => {
-    s = (s * 1103515245 + 12345) & 0x7fffffff;
-    return s / 0x7fffffff;
-  };
-}
 
 export function TetrisGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -728,12 +670,8 @@ export function TetrisGame() {
         setStats({ ...stats });
         setLineClearAnim(null);
 
-        // モード別クリア判定
+        // スプリントモードクリア判定
         if (mode === 'sprint' && stats.lines >= SPRINT_LINES) {
-          gameState.current.gameOver = true;
-          setGameOver(true);
-          setGameComplete(true);
-        } else if (mode === 'marathon' && stats.level >= MARATHON_MAX_LEVEL) {
           gameState.current.gameOver = true;
           setGameOver(true);
           setGameComplete(true);
@@ -772,8 +710,6 @@ export function TetrisGame() {
   }, [spawnTetro]);
 
   const handleGameOver = useCallback(() => {
-    if (gameState.current.mode === 'zen') return; // 禅モードはゲームオーバーなし
-
     gameState.current.gameOver = true;
     setGameOver(true);
     soundEngine.gameOver();
@@ -1074,14 +1010,7 @@ export function TetrisGame() {
     setShowModeSelect(false);
     setGameMode(mode);
     gameState.current.mode = mode;
-
-    // デイリーチャレンジ用シード
-    if (mode === 'daily') {
-      const seed = getDailySeed();
-      gameState.current.randomFunc = seededRandom(seed);
-    } else {
-      gameState.current.randomFunc = Math.random;
-    }
+    gameState.current.randomFunc = Math.random;
 
     // カウントダウン開始
     setCountdown(3);
@@ -1273,9 +1202,6 @@ export function TetrisGame() {
     const labels: Record<GameMode, string> = {
       endless: 'エンドレス',
       sprint: `スプリント (${SPRINT_LINES}ライン)`,
-      marathon: `マラソン (Lv.${MARATHON_MAX_LEVEL})`,
-      zen: '禅モード',
-      daily: 'デイリーチャレンジ',
     };
     return labels[mode];
   };
@@ -1310,7 +1236,7 @@ export function TetrisGame() {
         {isStarted && (
           <div className="bg-card border border-border rounded-lg p-3">
             <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1">
-              <Target size={12} />Mode
+              <Timer size={12} />Mode
             </div>
             <div className="text-sm font-medium">{getModeLabel(gameMode)}</div>
             {gameMode === 'sprint' && (
@@ -1388,7 +1314,11 @@ export function TetrisGame() {
           <button onClick={() => setSoundEnabled(!soundEnabled)} className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors" title={soundEnabled ? 'Mute SE' : 'Unmute SE'}>
             {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
           </button>
-          <button onClick={() => setShowSettings(true)} className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors" title={bgmTrack !== 'none' ? `BGM: ${BGM_TRACKS.find(t => t.id === bgmTrack)?.label}` : 'BGM Off'}>
+          <button onClick={() => {
+            const currentIndex = BGM_TRACKS.findIndex(t => t.id === bgmTrack);
+            const nextIndex = (currentIndex + 1) % BGM_TRACKS.length;
+            handleBgmTrackChange(BGM_TRACKS[nextIndex].id);
+          }} className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors" title={`BGM: ${BGM_TRACKS.find(t => t.id === bgmTrack)?.label}`}>
             <Music size={20} className={bgmTrack !== 'none' ? 'text-primary' : ''} />
           </button>
           <button onClick={() => setShowSettings(true)} className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors" title="Settings">
@@ -1462,9 +1392,6 @@ export function TetrisGame() {
               {([
                 { mode: 'endless' as GameMode, icon: Infinity, label: 'エンドレス', desc: '限界までプレイ' },
                 { mode: 'sprint' as GameMode, icon: Timer, label: 'スプリント', desc: `${SPRINT_LINES}ライン最速クリア` },
-                { mode: 'marathon' as GameMode, icon: Target, label: 'マラソン', desc: `レベル${MARATHON_MAX_LEVEL}まで耐久` },
-                { mode: 'zen' as GameMode, icon: Ghost, label: '禅モード', desc: 'ゲームオーバーなし練習' },
-                { mode: 'daily' as GameMode, icon: Calendar, label: 'デイリー', desc: '今日の共通シード' },
               ]).map(({ mode, icon: Icon, label, desc }) => (
                 <button
                   key={mode}
