@@ -57,6 +57,15 @@ const MARATHON_MAX_LEVEL = 15;
 // レベルごとの落下速度（ミリ秒）
 const LEVEL_SPEEDS = [800, 720, 640, 560, 480, 400, 320, 240, 160, 100, 80, 60, 50, 40, 30];
 
+// BGMトラック
+type BgmTrack = 'none' | 'generated' | 'block-dance-1' | 'block-dance-2';
+const BGM_TRACKS: { id: BgmTrack; label: string; src?: string }[] = [
+  { id: 'none', label: 'なし' },
+  { id: 'generated', label: '生成音楽' },
+  { id: 'block-dance-1', label: 'ブロックのダンス 1', src: '/audio/block-dance-1.mp3' },
+  { id: 'block-dance-2', label: 'ブロックのダンス 2', src: '/audio/block-dance-2.mp3' },
+];
+
 // テーマ
 type ThemeType = 'classic' | 'neon' | 'pastel' | 'monochrome';
 const THEMES: Record<ThemeType, { colors: string[]; bg: string; grid: string }> = {
@@ -136,6 +145,8 @@ class SoundEngine {
   private bgmOscillators: OscillatorNode[] = [];
   private bgmGain: GainNode | null = null;
   private bgmPlaying: boolean = false;
+  private bgmTrack: BgmTrack = 'none';
+  private audioElement: HTMLAudioElement | null = null;
 
   init() {
     if (typeof window !== 'undefined' && !this.audioContext) {
@@ -152,6 +163,19 @@ class SoundEngine {
     if (!enabled) {
       this.stopBgm();
     }
+  }
+
+  setBgmTrack(track: BgmTrack) {
+    const wasPlaying = this.bgmPlaying;
+    this.stopBgm();
+    this.bgmTrack = track;
+    if (wasPlaying && track !== 'none') {
+      this.startBgm();
+    }
+  }
+
+  getBgmTrack() {
+    return this.bgmTrack;
   }
 
   private playTone(frequency: number, duration: number, type: OscillatorType = 'square', volume: number = 0.1) {
@@ -218,40 +242,78 @@ class SoundEngine {
   countdownGo() { this.playTone(880, 0.3, 'sine', 0.3); }
 
   startBgm() {
-    if (!this.bgmEnabled || !this.audioContext || this.bgmPlaying) return;
+    if (!this.bgmEnabled || this.bgmPlaying || this.bgmTrack === 'none') return;
 
-    this.bgmGain = this.audioContext.createGain();
-    this.bgmGain.gain.value = 0.03;
-    this.bgmGain.connect(this.audioContext.destination);
+    if (this.bgmTrack === 'generated') {
+      // 生成音楽（Web Audio API）
+      if (!this.audioContext) return;
 
-    // シンプルなアルペジオBGM
-    const notes = [262, 330, 392, 523, 392, 330];
-    let noteIndex = 0;
+      this.bgmGain = this.audioContext.createGain();
+      this.bgmGain.gain.value = 0.03;
+      this.bgmGain.connect(this.audioContext.destination);
 
-    const playNote = () => {
-      if (!this.bgmPlaying || !this.audioContext || !this.bgmGain) return;
+      const notes = [262, 330, 392, 523, 392, 330];
+      let noteIndex = 0;
 
-      const osc = this.audioContext.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.value = notes[noteIndex];
-      osc.connect(this.bgmGain);
-      osc.start();
-      osc.stop(this.audioContext.currentTime + 0.2);
+      const playNote = () => {
+        if (!this.bgmPlaying || !this.audioContext || !this.bgmGain) return;
 
-      noteIndex = (noteIndex + 1) % notes.length;
-      setTimeout(playNote, 250);
-    };
+        const osc = this.audioContext.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = notes[noteIndex];
+        osc.connect(this.bgmGain);
+        osc.start();
+        osc.stop(this.audioContext.currentTime + 0.2);
 
-    this.bgmPlaying = true;
-    playNote();
+        noteIndex = (noteIndex + 1) % notes.length;
+        setTimeout(playNote, 250);
+      };
+
+      this.bgmPlaying = true;
+      playNote();
+    } else {
+      // MP3ファイル再生
+      const track = BGM_TRACKS.find(t => t.id === this.bgmTrack);
+      if (!track?.src) return;
+
+      this.audioElement = new Audio(track.src);
+      this.audioElement.loop = true; // ループ再生
+      this.audioElement.volume = 0.5;
+      this.audioElement.play().catch(() => {
+        // 自動再生がブロックされた場合は無視
+      });
+      this.bgmPlaying = true;
+    }
   }
 
   stopBgm() {
     this.bgmPlaying = false;
+
+    // 生成音楽の停止
     this.bgmOscillators.forEach(osc => {
       try { osc.stop(); } catch {}
     });
     this.bgmOscillators = [];
+
+    // MP3の停止
+    if (this.audioElement) {
+      this.audioElement.pause();
+      this.audioElement.currentTime = 0;
+      this.audioElement = null;
+    }
+  }
+
+  pauseBgm() {
+    if (this.audioElement) {
+      this.audioElement.pause();
+    }
+    // 生成音楽の場合は一時停止困難なのでそのまま
+  }
+
+  resumeBgm() {
+    if (this.audioElement && this.bgmPlaying) {
+      this.audioElement.play().catch(() => {});
+    }
   }
 }
 
@@ -287,6 +349,7 @@ export function TetrisGame() {
   const [canHold, setCanHold] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [bgmEnabled, setBgmEnabled] = useState(false);
+  const [bgmTrack, setBgmTrack] = useState<BgmTrack>('none');
   const [lastAction, setLastAction] = useState<string>('');
   const [timeBonus, setTimeBonus] = useState(0);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
@@ -359,6 +422,15 @@ export function TetrisGame() {
     const savedGhost = localStorage.getItem('tetris-ghost');
     if (savedGhost !== null) setGhostEnabled(savedGhost === 'true');
 
+    const savedBgmTrack = localStorage.getItem('tetris-bgm-track') as BgmTrack;
+    if (savedBgmTrack && BGM_TRACKS.some(t => t.id === savedBgmTrack)) {
+      setBgmTrack(savedBgmTrack);
+      soundEngine.setBgmTrack(savedBgmTrack);
+      if (savedBgmTrack !== 'none') {
+        setBgmEnabled(true);
+      }
+    }
+
     soundEngine.init();
   }, []);
 
@@ -403,12 +475,30 @@ export function TetrisGame() {
 
   useEffect(() => {
     soundEngine.setBgmEnabled(bgmEnabled);
-    if (bgmEnabled && isStarted && !gameOver && !isPaused) {
+    soundEngine.setBgmTrack(bgmTrack);
+    if (bgmEnabled && bgmTrack !== 'none' && isStarted && !gameOver && !isPaused) {
       soundEngine.startBgm();
-    } else {
+    } else if (!isStarted || gameOver) {
       soundEngine.stopBgm();
+    } else if (isPaused) {
+      soundEngine.pauseBgm();
     }
-  }, [bgmEnabled, isStarted, gameOver, isPaused]);
+  }, [bgmEnabled, bgmTrack, isStarted, gameOver, isPaused]);
+
+  // BGMトラック変更時に保存
+  useEffect(() => {
+    localStorage.setItem('tetris-bgm-track', bgmTrack);
+  }, [bgmTrack]);
+
+  // BGMトラック変更ハンドラ
+  const handleBgmTrackChange = useCallback((track: BgmTrack) => {
+    setBgmTrack(track);
+    if (track !== 'none') {
+      setBgmEnabled(true);
+    } else {
+      setBgmEnabled(false);
+    }
+  }, []);
 
   // テーマ保存
   useEffect(() => {
@@ -1041,8 +1131,8 @@ export function TetrisGame() {
     spawnTetro();
     draw();
 
-    if (bgmEnabled) soundEngine.startBgm();
-  }, [initField, refillQueue, spawnTetro, draw, bgmEnabled]);
+    if (bgmEnabled && bgmTrack !== 'none') soundEngine.startBgm();
+  }, [initField, refillQueue, spawnTetro, draw, bgmEnabled, bgmTrack]);
 
   // Canvas初期化
   useEffect(() => {
@@ -1298,8 +1388,8 @@ export function TetrisGame() {
           <button onClick={() => setSoundEnabled(!soundEnabled)} className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors" title={soundEnabled ? 'Mute SE' : 'Unmute SE'}>
             {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
           </button>
-          <button onClick={() => setBgmEnabled(!bgmEnabled)} className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors" title={bgmEnabled ? 'BGM Off' : 'BGM On'}>
-            <Music size={20} className={bgmEnabled ? 'text-primary' : ''} />
+          <button onClick={() => setShowSettings(true)} className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors" title={bgmTrack !== 'none' ? `BGM: ${BGM_TRACKS.find(t => t.id === bgmTrack)?.label}` : 'BGM Off'}>
+            <Music size={20} className={bgmTrack !== 'none' ? 'text-primary' : ''} />
           </button>
           <button onClick={() => setShowSettings(true)} className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors" title="Settings">
             <Settings size={20} />
@@ -1396,7 +1486,7 @@ export function TetrisGame() {
       {/* 設定モーダル */}
       {showSettings && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-card border border-border rounded-xl p-6 max-w-sm w-full">
+          <div className="bg-card border border-border rounded-xl p-6 max-w-sm w-full max-h-[80vh] overflow-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold">設定</h3>
               <button onClick={() => setShowSettings(false)} className="p-1 hover:bg-muted rounded-lg"><X size={20} /></button>
@@ -1413,6 +1503,23 @@ export function TetrisGame() {
                 >
                   {ghostEnabled ? 'ON' : 'OFF'}
                 </button>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Music size={16} />
+                  <span className="font-medium">BGM</span>
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                  {BGM_TRACKS.map(track => (
+                    <button
+                      key={track.id}
+                      onClick={() => handleBgmTrackChange(track.id)}
+                      className={`p-2 rounded-lg border transition-colors text-left ${bgmTrack === track.id ? 'bg-primary/20 border-primary' : 'bg-muted border-border'}`}
+                    >
+                      {track.label}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-2">
