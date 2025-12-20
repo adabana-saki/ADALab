@@ -29,13 +29,11 @@ category: "Web開発"
 
 D1を選ぶ理由:
 
-```
-✅ 完全無料（制限緩い）
-✅ 自動停止なし
-✅ SQLite互換（馴染みやすい）
-✅ Cloudflare Pagesと統合済み
-✅ グローバルレプリケーション
-```
+- 完全無料（制限緩い）
+- 自動停止なし
+- SQLite互換（馴染みやすい）
+- Cloudflare Pagesと統合済み
+- グローバルレプリケーション
 
 ### D1の制限（無料枠）
 
@@ -50,7 +48,7 @@ D1を選ぶ理由:
 
 ## 実装の全体像
 
-```
+```plaintext
 【アーキテクチャ】
 
 ┌─────────────┐    ┌──────────────────┐    ┌─────────────┐
@@ -81,7 +79,7 @@ npx wrangler d1 create my-game-db
 
 出力:
 
-```
+```plaintext
 ✅ Successfully created DB 'my-game-db'
 
 [[d1_databases]]
@@ -528,13 +526,11 @@ export function GameLeaderboard() {
 
 Cloudflare D1を使えば、**完全無料**でゲームランキングを実装できます。
 
-```
-✅ 無料で永続的（停止リスクなし）
-✅ SQLite互換で学習コスト低い
-✅ Cloudflare Pagesと統合で簡単
-✅ オフライン対応も実装可能
-✅ CI/CDでマイグレーション自動化
-```
+- 無料で永続的（停止リスクなし）
+- SQLite互換で学習コスト低い
+- Cloudflare Pagesと統合で簡単
+- オフライン対応も実装可能
+- CI/CDでマイグレーション自動化
 
 SupabaseやFirebaseの無料枠制限が気になる方は、D1を試してみてください。
 
