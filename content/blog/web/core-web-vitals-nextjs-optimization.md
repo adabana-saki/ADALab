@@ -1,6 +1,6 @@
 ---
 title: "Core Web Vitalsを劇的改善！Next.jsパフォーマンス最適化テクニック"
-date: "2025-12-20T16:00:00"
+date: "2025-12-21"
 description: "GoogleのCore Web Vitals（LCP・FID・CLS）をNext.jsで改善する具体的な方法を解説。画像最適化、フォント読み込み、遅延ロードなど実践的なテクニックを紹介。"
 tags: ["Core Web Vitals", "パフォーマンス", "Next.js", "LCP", "CLS", "SEO"]
 category: "web"

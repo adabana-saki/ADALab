@@ -1,7 +1,7 @@
 ---
 title: "Cloudflare D1でゲームランキングを実装 - 完全無料のサーバーレスDB入門"
-date: "2025-12-21T16:00:00"
-publishDate: "2025-12-21T16:00:00"
+date: "2025-12-21"
+publishDate: "2025-12-22"
 description: "Cloudflare D1を使ってゲームのグローバルランキング機能を実装する方法を解説。SQLiteベースのサーバーレスDBで、無料かつ永続的なデータ管理を実現します。"
 tags: ["Cloudflare", "D1", "SQLite", "Next.js", "サーバーレス", "ゲーム開発"]
 author: "Adabana Saki"
