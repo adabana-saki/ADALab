@@ -7,6 +7,7 @@ import { SeriesNavigation } from '@/components/blog/SeriesNavigation';
 import { ArticleEngagement, ArticleLikeSection } from '@/components/blog/ArticleEngagement';
 import { ArticleWithEngagement } from './ArticleWithEngagement';
 import { ArticleStructuredData } from '@/components/ArticleStructuredData';
+import { GiscusComments } from '@/components/blog/GiscusComments';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Calendar, Clock, Tag, ArrowLeft, User, BookOpen } from 'lucide-react';
@@ -247,6 +248,9 @@ export default async function BlogPostPage({ params }: Props) {
                   currentTags={post.tags}
                   allPosts={allPosts}
                 />
+
+                {/* コメント */}
+                <GiscusComments />
 
                 {/* 戻るリンク */}
                 <div className="mt-8 text-center">
