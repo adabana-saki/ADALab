@@ -6,6 +6,7 @@ import { RelatedPosts } from '@/components/blog/RelatedPosts';
 import { SeriesNavigation } from '@/components/blog/SeriesNavigation';
 import { ArticleEngagement, ArticleLikeSection } from '@/components/blog/ArticleEngagement';
 import { ArticleWithEngagement } from './ArticleWithEngagement';
+import { ArticleStructuredData } from '@/components/ArticleStructuredData';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Calendar, Clock, Tag, ArrowLeft, User, BookOpen } from 'lucide-react';
@@ -71,6 +72,14 @@ export default async function BlogPostPage({ params }: Props) {
 
   return (
     <>
+      <ArticleStructuredData
+        title={post.title}
+        description={post.description}
+        slug={post.slug}
+        date={post.date}
+        author={post.author}
+        tags={post.tags}
+      />
       <Navigation />
       <main className="min-h-screen bg-background pt-24 pb-16">
         <div className="container mx-auto px-4">
