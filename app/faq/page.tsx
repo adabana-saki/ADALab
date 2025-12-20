@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
+import { FAQStructuredData } from '@/components/FAQStructuredData';
 
 interface FAQItem {
   question: string;
@@ -92,6 +93,7 @@ export default function FAQPage() {
 
   return (
     <>
+      <FAQStructuredData faqs={t.faqs} />
       <Navigation />
       <div className="min-h-screen bg-background pt-16">
         {/* Background effects */}

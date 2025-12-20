@@ -17,7 +17,7 @@ const ThemeToggle = dynamic(
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage, t: _t } = useLanguage();
   const pathname = usePathname();
   const isHomePage = pathname === '/';
 

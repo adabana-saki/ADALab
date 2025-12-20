@@ -4,11 +4,9 @@ export interface TranslationSchema {
   nav: {
     home: string;
     about: string;
-    services: string;
     technologies: string;
     projects: string;
     news: string;
-    process: string;
     contact: string;
     getInTouch: string;
   };
@@ -26,11 +24,9 @@ export const translations: Record<Language, TranslationSchema> = {
     nav: {
       home: 'Home',
       about: 'About',
-      services: 'Services',
       technologies: 'Technologies',
       projects: 'Products',
       news: 'News',
-      process: 'Process',
       contact: 'Contact',
       getInTouch: 'お問い合わせ',
     },
@@ -46,11 +42,9 @@ export const translations: Record<Language, TranslationSchema> = {
     nav: {
       home: 'Home',
       about: 'About',
-      services: 'Services',
       technologies: 'Technologies',
       projects: 'Products',
       news: 'News',
-      process: 'Process',
       contact: 'Contact',
       getInTouch: 'Get in Touch',
     },

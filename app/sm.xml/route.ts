@@ -3,7 +3,7 @@ import { getAllPosts } from '@/lib/blog';
 
 export const dynamic = 'force-static';
 
-const BASE_URL = 'https://adalab.pages.dev';
+const BASE_URL = 'https://adalabtech.com';
 
 const STATIC_PAGES = [
   { path: '', changeFrequency: 'weekly', priority: 1.0 },

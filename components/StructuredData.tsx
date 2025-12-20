@@ -6,14 +6,10 @@ export function StructuredData() {
     '@type': 'Organization',
     name: 'ADA Lab',
     description:
-      'ADA Labは、テクノロジーで世界を変えるプロダクトカンパニー。ADA Analytics、ADA Connect、ADA Guardなど、革新的なSaaSプロダクトを開発・運営しています。',
-    url: 'https://adalab.pages.dev',
-    logo: 'https://adalab.pages.dev/logo.png',
+      'ADA Labは、シンプルで使いやすいアプリやサービスを開発する個人開発チーム。Rem bot（Discord多機能Bot）やNavi（片手操作アプリ）など、日常の「あったらいいな」を形にしています。',
+    url: 'https://adalabtech.com',
+    logo: 'https://adalabtech.com/logo.png',
     foundingDate: '2025',
-    numberOfEmployees: {
-      '@type': 'QuantitativeValue',
-      value: 15,
-    },
     sameAs: [
       'https://github.com/adabana-saki',
       'https://x.com/ADA_Lab_tech',
@@ -22,6 +18,7 @@ export function StructuredData() {
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'Customer Service',
+      email: 'info.adalabtech@gmail.com',
       availableLanguage: ['Japanese', 'English'],
     },
   };
@@ -30,72 +27,72 @@ export function StructuredData() {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'ADA Lab',
-    url: 'https://adalab.pages.dev',
+    alternateName: 'ADA Lab - あなたの"ほしい"を、カタチに',
+    url: 'https://adalabtech.com',
     description:
-      'テクノロジーで世界を変えるプロダクトカンパニー。50,000+のアクティブユーザーに支持される革新的なSaaSプロダクトを提供。',
+      'シンプルで使いやすいアプリを開発する個人開発チーム。Discord Bot、モバイルアプリなど、使いやすさを追求したプロダクトを提供。',
     inLanguage: 'ja-JP',
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: 'https://adalab.pages.dev/search?q={search_term_string}',
-      'query-input': 'required name=search_term_string',
+    publisher: {
+      '@type': 'Organization',
+      name: 'ADA Lab',
     },
   };
 
-  const adaAnalyticsSchema = {
+  const remBotSchema = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'ADA Analytics',
-    applicationCategory: 'BusinessApplication',
+    name: 'Rem bot',
+    applicationCategory: 'UtilitiesApplication',
+    applicationSubCategory: 'Discord Bot',
     operatingSystem: 'Web',
     offers: {
       '@type': 'Offer',
       price: '0',
       priceCurrency: 'JPY',
+      availability: 'https://schema.org/InStock',
     },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.8',
-      ratingCount: '2500',
+    description:
+      'リマインダー、タスク管理、ロール管理、自動応答など多彩な機能を備えたDiscord多機能Bot。無料で導入でき、サーバー管理を効率化します。',
+    featureList: [
+      'リマインダー機能',
+      'タスク管理',
+      'ロール管理',
+      '自動応答',
+      '繰り返し設定',
+    ],
+    url: 'https://adalabtech.com/products/rem',
+    author: {
+      '@type': 'Organization',
+      name: 'ADA Lab',
     },
-    description: 'AIを活用した高度なデータ分析プラットフォーム',
   };
 
-  const adaConnectSchema = {
+  const naviAppSchema = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: 'ADA Connect',
-    applicationCategory: 'CommunicationApplication',
-    operatingSystem: 'Web',
+    name: 'Navi',
+    applicationCategory: 'UtilitiesApplication',
+    applicationSubCategory: 'One-handed Operation App',
+    operatingSystem: 'Android',
     offers: {
       '@type': 'Offer',
       price: '0',
       priceCurrency: 'JPY',
+      availability: 'https://schema.org/PreOrder',
     },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.7',
-      ratingCount: '1800',
+    description:
+      'スマートフォンを片手で快適に操作するためのユーティリティアプリ。カスタムジェスチャー、クイックアクション、ウィジェットで操作効率を向上。',
+    featureList: [
+      '片手操作最適化',
+      'カスタムジェスチャー',
+      'クイックアクション',
+      'ウィジェット',
+    ],
+    url: 'https://adalabtech.com/products/navi',
+    author: {
+      '@type': 'Organization',
+      name: 'ADA Lab',
     },
-    description: 'リアルタイムコラボレーションツール',
-  };
-
-  const adaGuardSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
-    name: 'ADA Guard',
-    applicationCategory: 'SecurityApplication',
-    operatingSystem: 'Web',
-    offers: {
-      '@type': 'Offer',
-      price: '0',
-      priceCurrency: 'JPY',
-    },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.9',
-      ratingCount: '3200',
-    },
-    description: '次世代セキュリティ監視システム',
   };
 
   const breadcrumbSchema = {
@@ -106,31 +103,31 @@ export function StructuredData() {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://adalab.pages.dev',
+        item: 'https://adalabtech.com',
       },
       {
         '@type': 'ListItem',
         position: 2,
-        name: 'About',
-        item: 'https://adalab.pages.dev#about',
+        name: 'Products',
+        item: 'https://adalabtech.com/products',
       },
       {
         '@type': 'ListItem',
         position: 3,
-        name: 'Products',
-        item: 'https://adalab.pages.dev#products',
+        name: 'Blog',
+        item: 'https://adalabtech.com/blog',
       },
       {
         '@type': 'ListItem',
         position: 4,
-        name: 'Team',
-        item: 'https://adalab.pages.dev#team',
+        name: 'About',
+        item: 'https://adalabtech.com/company',
       },
       {
         '@type': 'ListItem',
         position: 5,
         name: 'Contact',
-        item: 'https://adalab.pages.dev#contact',
+        item: 'https://adalabtech.com/#contact',
       },
     ],
   };
@@ -139,9 +136,8 @@ export function StructuredData() {
   const allSchemas = [
     organizationSchema,
     websiteSchema,
-    adaAnalyticsSchema,
-    adaConnectSchema,
-    adaGuardSchema,
+    remBotSchema,
+    naviAppSchema,
     breadcrumbSchema,
   ];
 
