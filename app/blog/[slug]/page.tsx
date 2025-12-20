@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = getPostBySlug(slug);
   if (!post) return { title: 'Not Found' };
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://adalab.pages.dev';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://adalabtech.com';
   const ogImageUrl = `${baseUrl}/og/${slug}/og-image.png`;
 
   return {

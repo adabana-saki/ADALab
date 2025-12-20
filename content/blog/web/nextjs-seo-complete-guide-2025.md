@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   description: 'ADA Labが開発するプロダクト一覧。Rem botやNaviなど。',
   keywords: ['Discord Bot', 'アプリ開発', 'ADA Lab'],
   alternates: {
-    canonical: 'https://adalab.pages.dev/products',
+    canonical: 'https://adalabtech.com/products',
   },
   openGraph: {
     title: 'Products | ADA Lab',
@@ -118,8 +118,8 @@ export function StructuredData() {
     '@type': 'Organization',
     name: 'ADA Lab',
     description: 'シンプルで使いやすいアプリを開発する個人開発チーム',
-    url: 'https://adalab.pages.dev',
-    logo: 'https://adalab.pages.dev/logo.png',
+    url: 'https://adalabtech.com',
+    logo: 'https://adalabtech.com/logo.png',
     sameAs: [
       'https://github.com/adabana-saki',
       'https://x.com/ADA_Lab_tech',
@@ -185,7 +185,7 @@ const articleSchema = {
   '@type': 'Article',
   headline: post.title,
   description: post.description,
-  image: `https://adalab.pages.dev/og/${post.slug}/og-image.png`,
+  image: `https://adalabtech.com/og/${post.slug}/og-image.png`,
   datePublished: post.date,
   dateModified: post.updatedAt || post.date,
   author: {
@@ -197,7 +197,7 @@ const articleSchema = {
     name: 'ADA Lab',
     logo: {
       '@type': 'ImageObject',
-      url: 'https://adalab.pages.dev/logo.png',
+      url: 'https://adalabtech.com/logo.png',
     },
   },
 };
@@ -217,7 +217,7 @@ import { MetadataRoute } from 'next';
 import { getAllPosts } from '@/lib/blog';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://adalab.pages.dev';
+  const baseUrl = 'https://adalabtech.com';
   const posts = getAllPosts();
 
   // 静的ページ
@@ -253,7 +253,7 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/api/', '/_next/'],
     },
-    sitemap: 'https://adalab.pages.dev/sitemap.xml',
+    sitemap: 'https://adalabtech.com/sitemap.xml',
   };
 }
 ```

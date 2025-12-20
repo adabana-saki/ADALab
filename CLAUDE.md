@@ -59,6 +59,6 @@ main (本番)
 ## プロジェクト情報
 
 - **デプロイ先**: Cloudflare Pages (Git連携)
-- **URL**: https://adalab.pages.dev
+- **URL**: https://adalabtech.com
 - **フレームワーク**: Next.js 15.1 + React 19
 - **言語**: TypeScript

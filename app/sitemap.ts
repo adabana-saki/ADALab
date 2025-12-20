@@ -4,7 +4,7 @@ import { getAllPosts } from '@/lib/blog';
 export const dynamic = 'force-static';
 
 // 静的ページの定義（ビルド時に一度だけ評価）
-const BASE_URL = 'https://adalab.pages.dev';
+const BASE_URL = 'https://adalabtech.com';
 
 const STATIC_PAGES = [
   { path: '', changeFrequency: 'weekly' as const, priority: 1.0 },

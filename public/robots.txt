@@ -4,4 +4,4 @@ Allow: /
 Disallow: /api/
 Disallow: /_next/
 
-Sitemap: https://adalab.pages.dev/sitemap.xml
+Sitemap: https://adalabtech.com/sitemap.xml

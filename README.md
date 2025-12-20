@@ -1,12 +1,12 @@
 # ADA Lab 公式サイト
 
-[![Cloudflare Pages](https://img.shields.io/badge/Deploy-Cloudflare%20Pages-orange)](https://adalab.pages.dev/)
+[![Cloudflare Pages](https://img.shields.io/badge/Deploy-Cloudflare%20Pages-orange)](https://adalabtech.com/)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue)](https://www.typescriptlang.org/)
 
 ADA Labの公式Webサイトのソースコードです。
 
-🌐 **サイトURL**: <https://adalab.pages.dev/>
+🌐 **サイトURL**: <https://adalabtech.com/>
 
 ## クイックスタート
 

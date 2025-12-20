@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 
-const baseUrl = 'https://adalab.pages.dev';
+const baseUrl = 'https://adalabtech.com';
 
 export const metadata: Metadata = {
   title: '利用規約',

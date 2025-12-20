@@ -7,8 +7,8 @@ export function StructuredData() {
     name: 'ADA Lab',
     description:
       'ADA Labは、シンプルで使いやすいアプリやサービスを開発する個人開発チーム。Rem bot（Discord多機能Bot）やNavi（片手操作アプリ）など、日常の「あったらいいな」を形にしています。',
-    url: 'https://adalab.pages.dev',
-    logo: 'https://adalab.pages.dev/logo.png',
+    url: 'https://adalabtech.com',
+    logo: 'https://adalabtech.com/logo.png',
     foundingDate: '2025',
     sameAs: [
       'https://github.com/adabana-saki',
@@ -28,7 +28,7 @@ export function StructuredData() {
     '@type': 'WebSite',
     name: 'ADA Lab',
     alternateName: 'ADA Lab - あなたの"ほしい"を、カタチに',
-    url: 'https://adalab.pages.dev',
+    url: 'https://adalabtech.com',
     description:
       'シンプルで使いやすいアプリを開発する個人開発チーム。Discord Bot、モバイルアプリなど、使いやすさを追求したプロダクトを提供。',
     inLanguage: 'ja-JP',
@@ -60,7 +60,7 @@ export function StructuredData() {
       '自動応答',
       '繰り返し設定',
     ],
-    url: 'https://adalab.pages.dev/products/rem',
+    url: 'https://adalabtech.com/products/rem',
     author: {
       '@type': 'Organization',
       name: 'ADA Lab',
@@ -88,7 +88,7 @@ export function StructuredData() {
       'クイックアクション',
       'ウィジェット',
     ],
-    url: 'https://adalab.pages.dev/products/navi',
+    url: 'https://adalabtech.com/products/navi',
     author: {
       '@type': 'Organization',
       name: 'ADA Lab',
@@ -103,31 +103,31 @@ export function StructuredData() {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://adalab.pages.dev',
+        item: 'https://adalabtech.com',
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Products',
-        item: 'https://adalab.pages.dev/products',
+        item: 'https://adalabtech.com/products',
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: 'Blog',
-        item: 'https://adalab.pages.dev/blog',
+        item: 'https://adalabtech.com/blog',
       },
       {
         '@type': 'ListItem',
         position: 4,
         name: 'About',
-        item: 'https://adalab.pages.dev/company',
+        item: 'https://adalabtech.com/company',
       },
       {
         '@type': 'ListItem',
         position: 5,
         name: 'Contact',
-        item: 'https://adalab.pages.dev/#contact',
+        item: 'https://adalabtech.com/#contact',
       },
     ],
   };

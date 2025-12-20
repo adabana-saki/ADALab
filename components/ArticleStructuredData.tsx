@@ -19,7 +19,7 @@ export function ArticleStructuredData({
   author = 'Adabana Saki',
   tags = [],
 }: ArticleStructuredDataProps) {
-  const baseUrl = 'https://adalab.pages.dev';
+  const baseUrl = 'https://adalabtech.com';
 
   const articleSchema = {
     '@context': 'https://schema.org',
