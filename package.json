@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/generate-og-images.mjs && next build",
     "build:cloudflare": "npx @cloudflare/next-on-pages",
     "preview": "npx wrangler pages dev .vercel/output/static --compatibility-date=2024-01-01",
     "start": "next start",

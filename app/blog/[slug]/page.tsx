@@ -25,8 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post) return { title: 'Not Found' };
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://adalabtech.com';
-  // 動的OGP画像生成API
-  const ogImageUrl = `${baseUrl}/api/og?title=${encodeURIComponent(post.title)}${post.category ? `&category=${encodeURIComponent(post.category)}` : ''}`;
+  const ogImageUrl = `${baseUrl}/og/${slug}/og-image.png`;
 
   return {
     title: `${post.title} | ADA Lab Blog`,
