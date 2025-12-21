@@ -133,6 +133,7 @@ class SoundEngine {
   private bgmPlaying: boolean = false;
   private bgmTrack: BgmTrack = 'none';
   private audioElement: HTMLAudioElement | null = null;
+  private bgmVolume: number = 0.5;
 
   init() {
     if (typeof window !== 'undefined' && !this.audioContext) {
@@ -162,6 +163,17 @@ class SoundEngine {
 
   getBgmTrack() {
     return this.bgmTrack;
+  }
+
+  setBgmVolume(volume: number) {
+    this.bgmVolume = Math.max(0, Math.min(1, volume));
+    if (this.audioElement) {
+      this.audioElement.volume = this.bgmVolume;
+    }
+  }
+
+  getBgmVolume() {
+    return this.bgmVolume;
   }
 
   private playTone(frequency: number, duration: number, type: OscillatorType = 'square', volume: number = 0.1) {
@@ -236,7 +248,7 @@ class SoundEngine {
 
     this.audioElement = new Audio(track.src);
     this.audioElement.loop = true; // ループ再生
-    this.audioElement.volume = 0.5;
+    this.audioElement.volume = this.bgmVolume;
     this.audioElement.play().catch(() => {
       // 自動再生がブロックされた場合は無視
     });
@@ -284,6 +296,7 @@ export function TetrisGame() {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [bgmEnabled, setBgmEnabled] = useState(false);
   const [bgmTrack, setBgmTrack] = useState<BgmTrack>('none');
+  const [bgmVolume, setBgmVolume] = useState(0.5);
   const [lastAction, setLastAction] = useState<string>('');
   const [timeBonus, setTimeBonus] = useState(0);
   const [showNicknameInput, setShowNicknameInput] = useState(false);
@@ -370,6 +383,15 @@ export function TetrisGame() {
       }
     }
 
+    const savedBgmVolume = localStorage.getItem('tetris-bgm-volume');
+    if (savedBgmVolume !== null) {
+      const vol = parseFloat(savedBgmVolume);
+      if (!isNaN(vol)) {
+        setBgmVolume(vol);
+        soundEngine.setBgmVolume(vol);
+      }
+    }
+
     soundEngine.init();
   }, []);
 
@@ -413,6 +435,12 @@ export function TetrisGame() {
   useEffect(() => {
     localStorage.setItem('tetris-bgm-track', bgmTrack);
   }, [bgmTrack]);
+
+  // BGM音量変更時に保存
+  useEffect(() => {
+    localStorage.setItem('tetris-bgm-volume', bgmVolume.toString());
+    soundEngine.setBgmVolume(bgmVolume);
+  }, [bgmVolume]);
 
   // BGMトラック変更ハンドラ
   const handleBgmTrackChange = useCallback((track: BgmTrack) => {
@@ -844,13 +872,14 @@ export function TetrisGame() {
 
   const drawPreview = useCallback((canvasId: string, type: number | null, size: number = PREVIEW_BLOCK_SIZE) => {
     const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
-    if (!canvas || type === null) return;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     const colors = getColors();
+    // キャンバスをクリア（type === null でもクリアする）
     ctx.fillStyle = THEMES[theme].grid;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    if (type > 0) {
+    if (type !== null && type > 0) {
       const tetro = TETRO_TYPES[type];
       const offsetX = type === 1 ? 0 : type === 5 ? 0.5 : 0.5;
       const offsetY = type === 1 ? 0.5 : type === 5 ? 1 : 0.5;
@@ -1320,6 +1349,33 @@ export function TetrisGame() {
           </div>
         </div>
 
+        {/* スコアボード */}
+        <div className="bg-card border-2 border-primary/30 rounded-lg p-3">
+          <div className="text-xs text-primary uppercase tracking-wider mb-2 flex items-center gap-1 font-bold">
+            <Trophy size={12} />Scoreboard
+          </div>
+          <div className="space-y-2">
+            <div className="text-center p-2 bg-primary/10 rounded-lg">
+              <div className="text-xs text-muted-foreground">Score</div>
+              <div className="text-xl font-bold text-primary">{stats.score.toLocaleString()}</div>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-center">
+              <div className="p-1.5 bg-muted/50 rounded">
+                <div className="text-[10px] text-muted-foreground">Lines</div>
+                <div className="text-sm font-bold">{stats.lines}</div>
+              </div>
+              <div className="p-1.5 bg-muted/50 rounded">
+                <div className="text-[10px] text-muted-foreground">Level</div>
+                <div className="text-sm font-bold text-cyan-500">{stats.level}</div>
+              </div>
+            </div>
+            <div className="text-center p-2 bg-yellow-500/10 rounded-lg border border-yellow-500/30">
+              <div className="text-[10px] text-muted-foreground">High Score</div>
+              <div className="text-lg font-bold text-yellow-500">{stats.highScore.toLocaleString()}</div>
+            </div>
+          </div>
+        </div>
+
         <div className="bg-card border border-border rounded-lg p-3">
           <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Stats</div>
           <div className="text-xs space-y-1">
@@ -1418,7 +1474,7 @@ export function TetrisGame() {
                   <Music size={16} />
                   <span className="font-medium">BGM</span>
                 </div>
-                <div className="grid grid-cols-1 gap-2">
+                <div className="grid grid-cols-1 gap-2 mb-3">
                   {BGM_TRACKS.map(track => (
                     <button
                       key={track.id}
@@ -1428,6 +1484,18 @@ export function TetrisGame() {
                       {track.label}
                     </button>
                   ))}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Volume2 size={14} className="text-muted-foreground" />
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={bgmVolume * 100}
+                    onChange={(e) => setBgmVolume(parseInt(e.target.value) / 100)}
+                    className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                  />
+                  <span className="text-xs text-muted-foreground w-8 text-right">{Math.round(bgmVolume * 100)}%</span>
                 </div>
               </div>
               <div>
