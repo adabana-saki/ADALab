@@ -1,2 +1,0 @@
-# Redirect pages.dev to custom domain
-https://adalab.pages.dev/* https://adalabtech.com/:splat 301
