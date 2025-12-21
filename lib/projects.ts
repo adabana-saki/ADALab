@@ -9,7 +9,7 @@ export const PROJECTS: Project[] = [
     longDescription:
       'YouTube Shorts、TikTok、Instagramリールなど、主要なショート動画プラットフォームをブロック。時間制限設定や集中モード、ブロック統計表示など、デジタルウェルビーイングをサポートする機能を搭載しています。',
     category: 'web',
-    image: '/images/project-placeholder.jpg',
+    image: '/images/products/ShortShield.png',
     technologies: ['JavaScript', 'Chrome Extension API', 'Firefox WebExtensions'],
     features: [
       'ショート動画ブロック',
@@ -41,7 +41,7 @@ export const PROJECTS: Project[] = [
     longDescription:
       'ワンクリックでページ全体をAIが要約。ChatGPT、Claude、Geminiなど複数のAIモデルに対応し、長文記事も3行で把握できます。多言語対応で、英語のページも日本語で要約可能。',
     category: 'web',
-    image: '/images/project-placeholder.jpg',
+    image: '/images/products/Sumio.png',
     technologies: ['TypeScript', 'Chrome Extension API', 'OpenAI API', 'Anthropic API'],
     features: [
       'ワンクリック要約',
@@ -73,7 +73,7 @@ export const PROJECTS: Project[] = [
     longDescription:
       'Discordサーバーの運営に必要な機能をオールインワンで提供する多機能Bot。複数のBotを導入する必要がなく、Rem bot一つで様々なニーズに対応できます。シンプルなコマンドで直感的に操作でき、日本語対応で使いやすさを追求しています。',
     category: 'web',
-    image: '/images/project-placeholder.jpg',
+    image: '/images/products/Rembot.png',
     technologies: ['Discord.js', 'Node.js', 'TypeScript', 'MongoDB', 'Google Cloud'],
     features: [
       'リマインダー機能',
@@ -105,7 +105,7 @@ export const PROJECTS: Project[] = [
     longDescription:
       'Android専用アプリ。満員電車や荷物を持っている時など、両手が使えない状況でもスマートフォンを快適に操作できます。親指一本でカーソルを動かし、タップ、スワイプ、スクロールなど全ての操作が可能。アクセシビリティの向上にも貢献します。',
     category: 'mobile',
-    image: '/images/project-placeholder.jpg',
+    image: '/images/products/Navi.png',
     technologies: ['Kotlin', 'Android', 'Jetpack Compose'],
     features: [
       'カーソルによる精密操作',
@@ -137,7 +137,7 @@ export const PROJECTS: Project[] = [
     longDescription:
       'カメラを向けるだけで瞬時にQRコードを認識。Wi-Fi接続情報のQRコード化、スキャン履歴の自動保存、複数QRコードの一括生成など、QRコードに関するあらゆるニーズに対応するユーティリティアプリです。',
     category: 'mobile',
-    image: '/images/project-placeholder.jpg',
+    image: '/images/products/QRaft.png',
     technologies: ['Kotlin', 'Android', 'CameraX', 'ML Kit'],
     features: [
       '高速読み取り',
