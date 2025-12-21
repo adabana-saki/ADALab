@@ -12,77 +12,53 @@ export default function PrivacyPolicyPage() {
   const content = {
     ja: {
       title: 'プライバシーポリシー',
-      lastUpdated: '最終更新日: 2025年11月18日',
+      lastUpdated: '最終更新日: 2025年12月21日',
       sections: [
         {
-          title: '1. 個人情報の収集',
-          content: '当社は、お問い合わせフォームやサービスの利用を通じて、お客様の氏名、メールアドレス、電話番号などの個人情報を収集する場合があります。これらの情報は、お客様へのサービス提供、お問い合わせへの対応、および当社サービスの改善のためにのみ使用されます。',
+          title: '収集する情報',
+          content: 'お問い合わせフォームから送信されたメールアドレスや名前を収集することがあります。これらはお問い合わせへの返信にのみ使用します。',
         },
         {
-          title: '2. 個人情報の利用目的',
-          content: '収集した個人情報は、以下の目的で利用します：\n• お客様へのサービス提供\n• お問い合わせへの対応\n• メールマガジンやお知らせの配信\n• サービスの改善および新サービスの開発\n• 利用状況の分析',
+          title: 'アクセス解析',
+          content: '当サイトではCloudflare Web Analyticsを使用しています。これはプライバシーに配慮した解析ツールで、Cookieを使用せず、個人を特定する情報は収集しません。',
         },
         {
-          title: '3. 個人情報の第三者提供',
-          content: '当社は、法令に基づく場合を除き、お客様の同意なく個人情報を第三者に提供することはありません。',
+          title: '各サービスでのデータ',
+          content: '• Rem bot: Discordサーバー内のコマンド使用履歴を一時保存（サーバー退出時に削除）\n• ブラウザ拡張機能: すべてのデータはローカル保存、外部送信なし\n• モバイルアプリ: 詳細は各アプリのプライバシーポリシーを参照',
         },
         {
-          title: '4. 個人情報の管理',
-          content: '当社は、個人情報の正確性および安全性を確保するため、適切な管理体制を整備し、個人情報への不正アクセス、紛失、破壊、改ざん、漏洩などを防止します。',
+          title: '第三者への提供',
+          content: '法令に基づく場合を除き、個人情報を第三者に提供することはありません。',
         },
         {
-          title: '5. Cookie の使用',
-          content: '当サイトでは、サービスの利便性向上のため Cookie を使用しています。Cookie により、お客様のブラウザを識別し、より良いユーザー体験を提供することができます。Cookie の使用を希望されない場合は、ブラウザの設定から無効化することができます。',
-        },
-        {
-          title: '6. 個人情報の開示・訂正・削除',
-          content: 'お客様は、当社が保有するご自身の個人情報について、開示、訂正、削除を請求することができます。詳細については、お問い合わせフォームよりご連絡ください。',
-        },
-        {
-          title: '7. プライバシーポリシーの変更',
-          content: '当社は、法令の変更や事業内容の変更に伴い、本プライバシーポリシーを変更する場合があります。変更後のプライバシーポリシーは、本ページに掲載した時点から効力を生じるものとします。',
-        },
-        {
-          title: '8. お問い合わせ',
-          content: 'プライバシーポリシーに関するお問い合わせは、当サイトのお問い合わせフォームよりご連絡ください。',
+          title: 'お問い合わせ',
+          content: 'プライバシーに関するご質問は info.adalabtech@gmail.com までお気軽にどうぞ。',
         },
       ],
     },
     en: {
       title: 'Privacy Policy',
-      lastUpdated: 'Last Updated: November 18, 2025',
+      lastUpdated: 'Last Updated: December 21, 2025',
       sections: [
         {
-          title: '1. Collection of Personal Information',
-          content: 'We may collect personal information such as your name, email address, and phone number through contact forms and service usage. This information is used solely for providing services, responding to inquiries, and improving our services.',
+          title: 'Information We Collect',
+          content: 'We may collect your email address and name when you use our contact form. This is only used to respond to your inquiry.',
         },
         {
-          title: '2. Purpose of Use',
-          content: 'Collected personal information is used for the following purposes:\n• Providing services to customers\n• Responding to inquiries\n• Sending newsletters and notifications\n• Service improvement and new service development\n• Usage analysis',
+          title: 'Analytics',
+          content: 'This site uses Cloudflare Web Analytics, a privacy-focused analytics tool that doesn\'t use cookies and doesn\'t collect personally identifiable information.',
         },
         {
-          title: '3. Third-Party Disclosure',
-          content: 'We will not provide personal information to third parties without customer consent, except as required by law.',
+          title: 'Data in Our Services',
+          content: '• Rem bot: Temporarily stores command usage history within Discord servers (deleted when bot leaves)\n• Browser extensions: All data stored locally, nothing sent externally\n• Mobile apps: See each app\'s privacy policy for details',
         },
         {
-          title: '4. Information Security',
-          content: 'We maintain appropriate management systems to ensure the accuracy and security of personal information, preventing unauthorized access, loss, destruction, falsification, and leakage.',
+          title: 'Third-Party Sharing',
+          content: 'We do not share personal information with third parties, except as required by law.',
         },
         {
-          title: '5. Use of Cookies',
-          content: 'This site uses cookies to improve service convenience. Cookies allow us to identify your browser and provide a better user experience. You can disable cookies through your browser settings if you prefer.',
-        },
-        {
-          title: '6. Disclosure, Correction, and Deletion',
-          content: 'You may request disclosure, correction, or deletion of your personal information held by us. Please contact us through the inquiry form for details.',
-        },
-        {
-          title: '7. Policy Changes',
-          content: 'We may change this privacy policy in accordance with legal changes or business changes. The updated policy becomes effective when posted on this page.',
-        },
-        {
-          title: '8. Contact',
-          content: 'For inquiries regarding this privacy policy, please contact us through our inquiry form.',
+          title: 'Contact',
+          content: 'Privacy questions? Email us at info.adalabtech@gmail.com.',
         },
       ],
     },

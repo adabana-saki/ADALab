@@ -12,85 +12,69 @@ export default function TermsOfServicePage() {
   const content = {
     ja: {
       title: '利用規約',
-      lastUpdated: '最終更新日: 2025年11月18日',
+      lastUpdated: '最終更新日: 2025年12月21日',
       sections: [
         {
           title: '1. はじめに',
-          content: 'この利用規約（以下「本規約」）は、株式会社ADA Lab（以下「当社」）が提供するサービス（以下「本サービス」）の利用条件を定めるものです。本サービスをご利用いただく際には、本規約に同意いただいたものとみなします。',
+          content: 'この利用規約は、ADA Lab（運営: Adabana Saki）が提供するサービスの利用条件を定めるものです。各サービスをご利用いただく際には、本規約に同意いただいたものとみなします。',
         },
         {
-          title: '2. サービスの内容',
-          content: '本サービスは、Web開発、モバイルアプリ開発、UI/UXデザインなどのソフトウェア開発サービスを提供します。サービスの詳細については、個別の契約により定めるものとします。',
+          title: '2. 提供サービス',
+          content: 'ADA Labでは以下のサービスを提供しています：\n• Rem bot（Discord Bot）\n• ShortShield（ブラウザ拡張機能）\n• Sumio（ブラウザ拡張機能）\n• Navi（Androidアプリ）\n• QRaft（モバイルアプリ）\n\n各サービスの詳細は製品ページをご確認ください。',
         },
         {
-          title: '3. ユーザーの責任',
-          content: 'ユーザーは、以下の事項を遵守するものとします：\n• 法令および本規約を遵守すること\n• 正確な情報を提供すること\n• アカウント情報を適切に管理すること\n• 第三者の権利を侵害しないこと\n• 本サービスの運営を妨げる行為をしないこと',
+          title: '3. 禁止事項',
+          content: '以下の行為は禁止します：\n• サービスの不正利用や悪用\n• 他のユーザーへの迷惑行為\n• サービスの改ざんやリバースエンジニアリング\n• 法令に違反する行為',
         },
         {
-          title: '4. 知的財産権',
-          content: '本サービスに関する知的財産権は、当社または正当な権利者に帰属します。ユーザーは、当社の事前の書面による許可なく、本サービスのコンテンツを複製、転載、配布することはできません。',
+          title: '4. 免責事項',
+          content: '各サービスは「現状のまま」提供されます。サービスの利用により生じた損害について、運営者は故意または重過失がある場合を除き責任を負いません。\n\n無料サービスについては、予告なく終了する場合があります。',
         },
         {
-          title: '5. 免責事項',
-          content: '当社は、本サービスの内容の正確性、完全性、有用性について保証するものではありません。また、本サービスの利用により生じた損害について、当社は一切の責任を負いません。ただし、当社の故意または重過失による場合はこの限りではありません。',
+          title: '5. プライバシー',
+          content: '個人情報の取り扱いについてはプライバシーポリシーをご確認ください。',
         },
         {
-          title: '6. サービスの変更・中断',
-          content: '当社は、ユーザーへの事前通知なく、本サービスの内容を変更、追加、削除、または一時的に中断することができます。これによりユーザーに生じた損害について、当社は一切の責任を負いません。',
+          title: '6. 規約の変更',
+          content: '本規約は予告なく変更される場合があります。重要な変更がある場合は、サイト上でお知らせします。',
         },
         {
-          title: '7. 契約の解除',
-          content: 'ユーザーが本規約に違反した場合、当社は事前の通知なく、本サービスの利用を停止または契約を解除することができます。',
-        },
-        {
-          title: '8. 準拠法および管轄裁判所',
-          content: '本規約は日本法に準拠し、本規約に関する紛争については、東京地方裁判所を第一審の専属的合意管轄裁判所とします。',
-        },
-        {
-          title: '9. お問い合わせ',
-          content: '本規約に関するお問い合わせは、当サイトのお問い合わせフォームよりご連絡ください。',
+          title: '7. お問い合わせ',
+          content: 'ご質問はお問い合わせフォームまたは info.adalabtech@gmail.com までお気軽にどうぞ。',
         },
       ],
     },
     en: {
       title: 'Terms of Service',
-      lastUpdated: 'Last Updated: November 18, 2025',
+      lastUpdated: 'Last Updated: December 21, 2025',
       sections: [
         {
           title: '1. Introduction',
-          content: 'These Terms of Service ("Terms") define the conditions for using services ("Services") provided by ADA Lab Inc. ("Company"). By using our Services, you agree to these Terms.',
+          content: 'These Terms of Service define the conditions for using services provided by ADA Lab (operated by Adabana Saki). By using our services, you agree to these terms.',
         },
         {
-          title: '2. Service Description',
-          content: 'Our Services include software development services such as web development, mobile app development, and UI/UX design. Specific details shall be defined in individual contracts.',
+          title: '2. Services',
+          content: 'ADA Lab provides the following services:\n• Rem bot (Discord Bot)\n• ShortShield (Browser Extension)\n• Sumio (Browser Extension)\n• Navi (Android App)\n• QRaft (Mobile App)\n\nSee product pages for details.',
         },
         {
-          title: '3. User Responsibilities',
-          content: 'Users must comply with the following:\n• Comply with laws and these Terms\n• Provide accurate information\n• Properly manage account information\n• Not infringe on third-party rights\n• Not interfere with service operations',
+          title: '3. Prohibited Actions',
+          content: 'The following are prohibited:\n• Misuse or abuse of services\n• Harassment of other users\n• Tampering with or reverse engineering services\n• Violating any laws',
         },
         {
-          title: '4. Intellectual Property',
-          content: 'Intellectual property rights related to our Services belong to the Company or legitimate rights holders. Users may not reproduce, reprint, or distribute service content without prior written permission.',
+          title: '4. Disclaimer',
+          content: 'Services are provided "as is". We are not liable for damages from service use, except in cases of intentional or gross negligence.\n\nFree services may be discontinued without notice.',
         },
         {
-          title: '5. Disclaimer',
-          content: 'We do not guarantee the accuracy, completeness, or usefulness of our Services. We shall not be liable for any damages arising from service use, except in cases of intentional or gross negligence.',
+          title: '5. Privacy',
+          content: 'See our Privacy Policy for how we handle personal information.',
         },
         {
-          title: '6. Service Changes and Interruptions',
-          content: 'We may change, add, delete, or temporarily interrupt service content without prior notice. We shall not be liable for any damages resulting from such actions.',
+          title: '6. Changes',
+          content: 'These terms may change without notice. Significant changes will be announced on our site.',
         },
         {
-          title: '7. Contract Termination',
-          content: 'If users violate these Terms, we may suspend service use or terminate the contract without prior notice.',
-        },
-        {
-          title: '8. Governing Law and Jurisdiction',
-          content: 'These Terms are governed by Japanese law. Tokyo District Court shall have exclusive jurisdiction as the court of first instance for disputes.',
-        },
-        {
-          title: '9. Contact',
-          content: 'For inquiries regarding these Terms, please contact us through our inquiry form.',
+          title: '7. Contact',
+          content: 'Questions? Contact us via the inquiry form or info.adalabtech@gmail.com.',
         },
       ],
     },
