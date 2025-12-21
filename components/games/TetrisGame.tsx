@@ -1373,6 +1373,13 @@ export function TetrisGame() {
               <div className="text-[10px] text-muted-foreground">High Score</div>
               <div className="text-lg font-bold text-yellow-500">{stats.highScore.toLocaleString()}</div>
             </div>
+            <button
+              onClick={() => setShowLeaderboard(true)}
+              className="w-full flex items-center justify-center gap-1 p-1.5 bg-muted/50 hover:bg-muted rounded text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Medal size={12} />
+              ランキング
+            </button>
           </div>
         </div>
 
