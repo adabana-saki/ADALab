@@ -41,6 +41,7 @@ export function WakaTimeProjects() {
             <span className="text-sm">{content[language].loadError}</span>
           </div>
         ) : (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src="https://wakatime.com/share/@5128a5cc-3786-4b8f-8216-337972168b60/6185441d-0ea1-48c3-b012-e1f8c50d2836.svg"
             alt="WakaTime Projects"

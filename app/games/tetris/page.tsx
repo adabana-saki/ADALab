@@ -1,26 +1,47 @@
 import { Metadata } from 'next';
 import { TetrisGame } from '@/components/games/TetrisGame';
+import { GameStructuredData } from '@/components/games/GameStructuredData';
+import { SITE_CONFIG } from '@/lib/constants';
 import { Gamepad2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Tetris | ADA Lab Games',
+  title: 'Tetris',
   description:
-    'ブラウザで遊べるクラシックテトリス。キーボードまたはタッチ操作で楽しめます。',
+    'ブラウザで遊べるクラシックテトリス。キーボードまたはタッチ操作で楽しめます。T-Spin、Back-to-Backボーナス、ランキング機能搭載。',
+  keywords: ['テトリス', 'Tetris', 'ブラウザゲーム', '無料', 'パズルゲーム', 'ADA Lab'],
+  alternates: {
+    canonical: `${SITE_CONFIG.url}/games/tetris`,
+  },
   openGraph: {
     title: 'Tetris | ADA Lab Games',
-    description: 'ブラウザで遊べるクラシックテトリス',
+    description: 'ブラウザで遊べるクラシックテトリス。T-Spin、Back-to-Backボーナス搭載。',
+    url: `${SITE_CONFIG.url}/games/tetris`,
     images: ['/images/games/tetris-thumbnail.png'],
+    type: 'website',
+    locale: 'ja_JP',
   },
   twitter: {
     card: 'summary_large_image',
+    title: 'Tetris | ADA Lab Games',
+    description: 'ブラウザで遊べるクラシックテトリス',
     images: ['/images/games/tetris-thumbnail.png'],
   },
 };
 
 export default function TetrisPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+    <>
+      <GameStructuredData
+        name="Tetris"
+        description="ブラウザで遊べるクラシックテトリス。キーボードまたはタッチ操作で楽しめます。T-Spin、Back-to-Backボーナス、ランキング機能搭載。"
+        url={`${SITE_CONFIG.url}/games/tetris`}
+        image={`${SITE_CONFIG.url}/images/games/tetris-thumbnail.png`}
+        genre={['Puzzle', 'Arcade']}
+        playMode="SinglePlayer"
+        applicationCategory="Game"
+      />
+      <main className="min-h-screen bg-gradient-to-b from-background to-muted/20">
       <div className="container mx-auto px-4 py-4">
         {/* ナビゲーション */}
         <Link
@@ -71,5 +92,6 @@ export default function TetrisPage() {
         </div>
       </div>
     </main>
+    </>
   );
 }

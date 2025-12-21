@@ -10,6 +10,7 @@ import { ArticleStructuredData } from '@/components/ArticleStructuredData';
 import { GiscusComments } from '@/components/blog/GiscusComments';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Calendar, Clock, Tag, ArrowLeft, User, BookOpen } from 'lucide-react';
 import type { Metadata } from 'next';
 import { Navigation } from '@/components/Navigation';
@@ -92,10 +93,12 @@ export default async function BlogPostPage({ params }: Props) {
                 {/* 著者カード */}
                 <div className="bg-card border border-border/50 rounded-xl p-5">
                   <div className="flex items-center gap-3 mb-3">
-                    <img
+                    <Image
                       src="/images/adabanasaki.png"
                       alt="Adabana Saki"
-                      className="w-10 h-10 rounded-full object-cover"
+                      width={40}
+                      height={40}
+                      className="rounded-full object-cover"
                     />
                     <div>
                       <p className="font-medium text-sm">{post.author || 'Adabana Saki'}</p>
