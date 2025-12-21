@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
-
-const baseUrl = 'https://adalabtech.com';
+import { SITE_CONFIG } from '@/lib/constants';
 
 export const metadata: Metadata = {
   title: {
@@ -12,12 +11,12 @@ export const metadata: Metadata = {
   description: 'ブラウザで遊べるミニゲームコレクション。テトリスなど、無料で楽しめるゲームを公開しています。',
   keywords: ['ゲーム', 'ブラウザゲーム', 'テトリス', '無料ゲーム', 'ADA Lab'],
   alternates: {
-    canonical: `${baseUrl}/games`,
+    canonical: `${SITE_CONFIG.url}/games`,
   },
   openGraph: {
     title: 'Games | ADA Lab',
     description: 'ブラウザで遊べるミニゲームコレクション',
-    url: `${baseUrl}/games`,
+    url: `${SITE_CONFIG.url}/games`,
     type: 'website',
     locale: 'ja_JP',
   },

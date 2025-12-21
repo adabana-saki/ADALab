@@ -1,3 +1,5 @@
+import type { PagesFunction } from '@cloudflare/workers-types';
+
 // Redirect pages.dev to custom domain
 export const onRequest: PagesFunction = async (context) => {
   const url = new URL(context.request.url);
