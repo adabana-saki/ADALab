@@ -4,7 +4,7 @@ import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { motion } from 'framer-motion';
-import { Shield, Lock, Eye, Server, FileCheck, AlertTriangle } from 'lucide-react';
+import { Lock, Eye, Server, FileCheck } from 'lucide-react';
 
 export default function SecurityPage() {
   const { language } = useLanguage();
@@ -17,33 +17,23 @@ export default function SecurityPage() {
       sections: [
         {
           icon: Lock,
-          title: 'データ暗号化',
-          description: 'すべての通信はTLS 1.3で暗号化され、保存データはAES-256で保護されています。',
-        },
-        {
-          icon: Shield,
-          title: 'アクセス制御',
-          description: '最小権限の原則に基づき、必要最小限のアクセス権限のみを付与しています。',
-        },
-        {
-          icon: Eye,
-          title: 'プライバシー保護',
-          description: '個人情報は目的外使用せず、第三者への提供は法令に基づく場合のみ行います。',
+          title: 'HTTPS通信',
+          description: 'すべての通信はHTTPS（TLS 1.3）で暗号化されています。',
         },
         {
           icon: Server,
-          title: 'インフラセキュリティ',
-          description: 'Cloudflareの DDoS保護、WAF、Bot管理を活用し、インフラを保護しています。',
+          title: 'Cloudflare保護',
+          description: 'Cloudflare PagesでホスティングしているためDDoS保護とWAFが適用されています。',
+        },
+        {
+          icon: Eye,
+          title: 'プライバシー優先',
+          description: '不要な個人情報は収集しません。アクセス解析もCookieを使わないCloudflare Web Analyticsを採用。',
         },
         {
           icon: FileCheck,
-          title: 'コード品質',
-          description: '自動化されたセキュリティスキャン、依存関係の脆弱性チェックを実施しています。',
-        },
-        {
-          icon: AlertTriangle,
-          title: 'インシデント対応',
-          description: 'セキュリティインシデント発生時は24時間以内に影響範囲を特定し、対応します。',
+          title: 'オープンソース',
+          description: 'サイトのソースコードはGitHubで公開しています。透明性を大切にしています。',
         },
       ],
       certifications: 'セキュリティ対策',
@@ -52,43 +42,33 @@ export default function SecurityPage() {
     },
     en: {
       title: 'Security Policy',
-      subtitle: 'Our commitment to protecting your data',
+      subtitle: 'How we protect your data',
       lastUpdated: 'Last Updated',
       sections: [
         {
           icon: Lock,
-          title: 'Data Encryption',
-          description: 'All communications are encrypted with TLS 1.3, and stored data is protected with AES-256.',
-        },
-        {
-          icon: Shield,
-          title: 'Access Control',
-          description: 'We follow the principle of least privilege, granting only minimum necessary access rights.',
-        },
-        {
-          icon: Eye,
-          title: 'Privacy Protection',
-          description: 'Personal information is not used beyond its intended purpose and is only shared with third parties as required by law.',
+          title: 'HTTPS Encryption',
+          description: 'All communications are encrypted with HTTPS (TLS 1.3).',
         },
         {
           icon: Server,
-          title: 'Infrastructure Security',
-          description: 'We utilize Cloudflare DDoS protection, WAF, and Bot management to secure our infrastructure.',
+          title: 'Cloudflare Protection',
+          description: 'Hosted on Cloudflare Pages with DDoS protection and WAF enabled.',
+        },
+        {
+          icon: Eye,
+          title: 'Privacy First',
+          description: 'We don\'t collect unnecessary personal data. Our analytics (Cloudflare Web Analytics) doesn\'t use cookies.',
         },
         {
           icon: FileCheck,
-          title: 'Code Quality',
-          description: 'We perform automated security scans and dependency vulnerability checks.',
-        },
-        {
-          icon: AlertTriangle,
-          title: 'Incident Response',
-          description: 'We identify the scope of impact within 24 hours of a security incident and respond accordingly.',
+          title: 'Open Source',
+          description: 'Our site\'s source code is public on GitHub. Transparency matters to us.',
         },
       ],
       certifications: 'Security Measures',
       contact: 'Security Inquiries',
-      contactDesc: 'If you discover a security issue, please contact us at:',
+      contactDesc: 'Found a security issue? Please contact us at:',
     },
   };
 
@@ -118,7 +98,7 @@ export default function SecurityPage() {
                 {content[language].subtitle}
               </p>
               <p className="text-sm text-muted-foreground">
-                {content[language].lastUpdated}: 2024-01-01
+                {content[language].lastUpdated}: 2025-12-21
               </p>
             </motion.div>
 
