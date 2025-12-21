@@ -12,8 +12,8 @@ const techStack = {
       version: '15.1',
       color: '#ffffff',
       reason: {
-        ja: 'App Routerによる最新のReact機能とSSR/SSGの柔軟な選択',
-        en: 'Latest React features with App Router and flexible SSR/SSG options',
+        ja: 'App Router + Static Export による高速な静的サイト生成',
+        en: 'Fast static site generation with App Router + Static Export',
       },
     },
     {
@@ -21,13 +21,13 @@ const techStack = {
       version: '19',
       color: '#61DAFB',
       reason: {
-        ja: 'コンポーネントベースのUI構築と豊富なエコシステム',
-        en: 'Component-based UI development with rich ecosystem',
+        ja: '最新のReact機能とServer Components対応',
+        en: 'Latest React features with Server Components support',
       },
     },
     {
       name: 'TypeScript',
-      version: '5.x',
+      version: '5.6',
       color: '#3178C6',
       reason: {
         ja: '型安全性によるバグ防止と開発体験の向上',
@@ -39,8 +39,8 @@ const techStack = {
       version: '3.4',
       color: '#06B6D4',
       reason: {
-        ja: '高速なスタイリングとカスタマイズ性',
-        en: 'Rapid styling with high customizability',
+        ja: 'ユーティリティファーストによる高速スタイリング',
+        en: 'Rapid styling with utility-first approach',
       },
     },
     {
@@ -48,37 +48,55 @@ const techStack = {
       version: '11.x',
       color: '#0055FF',
       reason: {
-        ja: '宣言的なアニメーションAPIと優れたパフォーマンス',
-        en: 'Declarative animation API with excellent performance',
+        ja: '宣言的アニメーションAPIとジェスチャー対応',
+        en: 'Declarative animation API with gesture support',
+      },
+    },
+    {
+      name: 'Three.js',
+      version: '0.170',
+      color: '#049EF4',
+      reason: {
+        ja: 'React Three Fiberによる3D背景エフェクト',
+        en: '3D background effects with React Three Fiber',
       },
     },
   ],
-  backend: [
+  content: [
     {
-      name: 'Node.js',
-      version: '20 LTS',
-      color: '#339933',
+      name: 'React Markdown',
+      version: '10.x',
+      color: '#ffffff',
       reason: {
-        ja: 'JavaScriptランタイムの統一とnpmエコシステム',
-        en: 'Unified JavaScript runtime with npm ecosystem',
+        ja: 'ブログ記事のMarkdownレンダリング',
+        en: 'Markdown rendering for blog posts',
       },
     },
     {
-      name: 'Prisma',
-      version: '5.x',
-      color: '#2D3748',
+      name: 'Shiki',
+      version: '3.x',
+      color: '#FF4785',
       reason: {
-        ja: '型安全なORMとマイグレーション管理',
-        en: 'Type-safe ORM with migration management',
+        ja: 'シンタックスハイライト（VS Code互換）',
+        en: 'Syntax highlighting (VS Code compatible)',
       },
     },
     {
-      name: 'PostgreSQL',
-      version: '16',
-      color: '#4169E1',
+      name: 'KaTeX',
+      version: '0.16',
+      color: '#329B85',
       reason: {
-        ja: '信頼性の高いリレーショナルデータベース',
-        en: 'Reliable relational database',
+        ja: '数式レンダリング（LaTeX記法対応）',
+        en: 'Math rendering with LaTeX syntax',
+      },
+    },
+    {
+      name: 'Mermaid',
+      version: '11.x',
+      color: '#FF3670',
+      reason: {
+        ja: 'フローチャート・ダイアグラム生成',
+        en: 'Flowchart and diagram generation',
       },
     },
   ],
@@ -88,17 +106,8 @@ const techStack = {
       version: '-',
       color: '#F38020',
       reason: {
-        ja: '高速なエッジデプロイとグローバルCDN',
-        en: 'Fast edge deployment with global CDN',
-      },
-    },
-    {
-      name: 'Docker',
-      version: '24.x',
-      color: '#2496ED',
-      reason: {
-        ja: 'コンテナ化による環境の一貫性',
-        en: 'Environment consistency through containerization',
+        ja: 'エッジデプロイ・グローバルCDN・DDoS保護',
+        en: 'Edge deployment, global CDN, DDoS protection',
       },
     },
     {
@@ -106,8 +115,46 @@ const techStack = {
       version: '-',
       color: '#2088FF',
       reason: {
-        ja: 'CI/CDパイプラインの自動化',
-        en: 'CI/CD pipeline automation',
+        ja: 'CI/CD・Lighthouse CI・セキュリティスキャン',
+        en: 'CI/CD, Lighthouse CI, security scanning',
+      },
+    },
+    {
+      name: 'Upstash Redis',
+      version: '-',
+      color: '#00E9A3',
+      reason: {
+        ja: 'サーバーレスRedisによるレート制限',
+        en: 'Rate limiting with serverless Redis',
+      },
+    },
+  ],
+  monitoring: [
+    {
+      name: 'Sentry',
+      version: '10.x',
+      color: '#362D59',
+      reason: {
+        ja: 'エラー監視・Session Replay・パフォーマンス計測',
+        en: 'Error monitoring, Session Replay, performance tracking',
+      },
+    },
+    {
+      name: 'Google Analytics',
+      version: 'GA4',
+      color: '#E37400',
+      reason: {
+        ja: 'アクセス解析・ユーザー行動分析',
+        en: 'Traffic analytics and user behavior analysis',
+      },
+    },
+    {
+      name: 'UptimeRobot',
+      version: '-',
+      color: '#3BD671',
+      reason: {
+        ja: '24時間稼働監視・ダウンタイム通知',
+        en: '24/7 uptime monitoring and downtime alerts',
       },
     },
   ],
@@ -118,7 +165,7 @@ const techStack = {
       color: '#4B32C3',
       reason: {
         ja: 'コード品質の維持とベストプラクティスの強制',
-        en: 'Code quality maintenance and best practices enforcement',
+        en: 'Code quality maintenance and best practices',
       },
     },
     {
@@ -135,8 +182,17 @@ const techStack = {
       version: '9.x',
       color: '#ffffff',
       reason: {
-        ja: 'Git hooksによる品質管理の自動化',
-        en: 'Quality control automation with Git hooks',
+        ja: 'Git hooksによるコミット前チェック',
+        en: 'Pre-commit checks with Git hooks',
+      },
+    },
+    {
+      name: 'CodeQL',
+      version: '-',
+      color: '#00A4EF',
+      reason: {
+        ja: '静的解析によるセキュリティ脆弱性検出',
+        en: 'Security vulnerability detection with static analysis',
       },
     },
   ],
@@ -145,14 +201,16 @@ const techStack = {
 const categories = {
   ja: {
     frontend: 'フロントエンド',
-    backend: 'バックエンド',
-    infrastructure: 'インフラストラクチャ',
+    content: 'コンテンツ処理',
+    infrastructure: 'インフラ・ホスティング',
+    monitoring: '監視・分析',
     tools: '開発ツール',
   },
   en: {
     frontend: 'Frontend',
-    backend: 'Backend',
-    infrastructure: 'Infrastructure',
+    content: 'Content Processing',
+    infrastructure: 'Infrastructure & Hosting',
+    monitoring: 'Monitoring & Analytics',
     tools: 'Development Tools',
   },
 };
