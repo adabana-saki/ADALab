@@ -12,6 +12,8 @@ const STATIC_PAGES = [
   { path: '/products', changeFrequency: 'weekly' as const, priority: 0.8 },
   { path: '/products/rem', changeFrequency: 'weekly' as const, priority: 0.8 },
   { path: '/products/navi', changeFrequency: 'weekly' as const, priority: 0.8 },
+  { path: '/games', changeFrequency: 'weekly' as const, priority: 0.8 },
+  { path: '/games/tetris', changeFrequency: 'monthly' as const, priority: 0.7 },
   { path: '/company', changeFrequency: 'monthly' as const, priority: 0.7 },
   { path: '/tech-stack', changeFrequency: 'monthly' as const, priority: 0.6 },
   { path: '/roadmap', changeFrequency: 'weekly' as const, priority: 0.6 },

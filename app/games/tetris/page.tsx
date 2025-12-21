@@ -3,17 +3,28 @@ import { TetrisGame } from '@/components/games/TetrisGame';
 import { Gamepad2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
+const baseUrl = 'https://adalabtech.com';
+
 export const metadata: Metadata = {
-  title: 'Tetris | ADA Lab Games',
+  title: 'Tetris',
   description:
-    'ブラウザで遊べるクラシックテトリス。キーボードまたはタッチ操作で楽しめます。',
+    'ブラウザで遊べるクラシックテトリス。キーボードまたはタッチ操作で楽しめます。T-Spin、Back-to-Backボーナス、ランキング機能搭載。',
+  keywords: ['テトリス', 'Tetris', 'ブラウザゲーム', '無料', 'パズルゲーム', 'ADA Lab'],
+  alternates: {
+    canonical: `${baseUrl}/games/tetris`,
+  },
   openGraph: {
     title: 'Tetris | ADA Lab Games',
-    description: 'ブラウザで遊べるクラシックテトリス',
+    description: 'ブラウザで遊べるクラシックテトリス。T-Spin、Back-to-Backボーナス搭載。',
+    url: `${baseUrl}/games/tetris`,
     images: ['/images/games/tetris-thumbnail.png'],
+    type: 'website',
+    locale: 'ja_JP',
   },
   twitter: {
     card: 'summary_large_image',
+    title: 'Tetris | ADA Lab Games',
+    description: 'ブラウザで遊べるクラシックテトリス',
     images: ['/images/games/tetris-thumbnail.png'],
   },
 };

@@ -1,16 +1,6 @@
-import { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Gamepad2, Play } from 'lucide-react';
-
-export const metadata: Metadata = {
-  title: 'Games | ADA Lab',
-  description: 'ブラウザで遊べるミニゲームコレクション。',
-  openGraph: {
-    title: 'Games | ADA Lab',
-    description: 'ブラウザで遊べるミニゲームコレクション',
-  },
-};
 
 const games = [
   {
