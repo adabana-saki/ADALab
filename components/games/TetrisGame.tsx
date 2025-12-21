@@ -776,6 +776,21 @@ export function TetrisGame() {
     const colors = getColors();
     const { field, tetro, tetroType, tetroX, tetroY, gameOver: isGameOver } = gameState.current;
 
+    // フィールドが初期化されていない場合はカウントダウンのみ描画
+    if (!field || field.length === 0) {
+      ctx.fillStyle = THEMES[theme].bg;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      if (countdown !== null) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = 'bold 72px sans-serif';
+        ctx.fillStyle = countdown === 0 ? '#22c55e' : '#06b6d4';
+        ctx.textAlign = 'center';
+        ctx.fillText(countdown === 0 ? 'GO!' : countdown.toString(), canvas.width / 2, canvas.height / 2 + 20);
+      }
+      return;
+    }
+
     // 背景
     ctx.fillStyle = THEMES[theme].bg;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
