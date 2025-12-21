@@ -4,15 +4,7 @@ import { motion } from 'framer-motion';
 import { Megaphone, Wrench, AlertTriangle, Info, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
-
-type NewsType = 'announcement' | 'maintenance' | 'important' | 'info';
-
-interface NewsItem {
-  date: string;
-  type: NewsType;
-  title: string;
-  content: string;
-}
+import { getLatestNews, type NewsType } from '@/lib/news';
 
 const newsTypeConfig: Record<NewsType, { icon: typeof Megaphone; color: string; bgColor: string; label: Record<'ja' | 'en', string> }> = {
   announcement: {
@@ -41,50 +33,6 @@ const newsTypeConfig: Record<NewsType, { icon: typeof Megaphone; color: string; 
   },
 };
 
-// お知らせデータ（/news/page.tsxと同期）
-const newsData: Record<'ja' | 'en', NewsItem[]> = {
-  ja: [
-    {
-      date: '2025-12-04',
-      type: 'info',
-      title: '独自ドメインへの移行を検討中',
-      content: 'SEO対策強化のため、独自ドメインへの移行を検討しています。',
-    },
-    {
-      date: '2025-12-01',
-      type: 'announcement',
-      title: 'ブログ機能をリリースしました',
-      content: '技術ブログ機能を公開しました。技術情報を発信していきます。',
-    },
-    {
-      date: '2025-11-26',
-      type: 'announcement',
-      title: 'ADA Lab 公式サイトを公開しました',
-      content: 'ADA Labの公式サイトを公開しました。',
-    },
-  ],
-  en: [
-    {
-      date: '2025-12-04',
-      type: 'info',
-      title: 'Considering Migration to Custom Domain',
-      content: 'We are considering migrating to a custom domain for better SEO.',
-    },
-    {
-      date: '2025-12-01',
-      type: 'announcement',
-      title: 'Blog Feature Released',
-      content: 'We have launched our technical blog.',
-    },
-    {
-      date: '2025-11-26',
-      type: 'announcement',
-      title: 'ADA Lab Official Site Launched',
-      content: 'We have launched the official ADA Lab website.',
-    },
-  ],
-};
-
 const content = {
   ja: {
     title: 'News',
@@ -100,7 +48,7 @@ const content = {
 
 export function News() {
   const { language } = useLanguage();
-  const news = newsData[language].slice(0, 3); // 最新3件を表示
+  const news = getLatestNews(language, 3);
   const t = content[language];
 
   return (

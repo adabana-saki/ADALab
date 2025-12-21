@@ -32,6 +32,7 @@ export function WakaTimeStats() {
 
       <div className="space-y-4 flex-1">
         <div className="overflow-hidden rounded-lg bg-black/30 p-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="https://wakatime.com/share/@5128a5cc-3786-4b8f-8216-337972168b60/76fa8c4a-ca7c-43b9-b3da-d56cba668940.svg"
             alt="WakaTime Coding Activity"
@@ -39,6 +40,7 @@ export function WakaTimeStats() {
           />
         </div>
         <div className="overflow-hidden rounded-lg bg-black/30 p-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="https://wakatime.com/share/@5128a5cc-3786-4b8f-8216-337972168b60/022cdbbe-3e09-452b-8d35-4abb2fbb86c6.svg"
             alt="WakaTime Languages"

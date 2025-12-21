@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { TetrisGame } from '@/components/games/TetrisGame';
+import { GameStructuredData } from '@/components/games/GameStructuredData';
 import { Gamepad2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
@@ -31,7 +32,17 @@ export const metadata: Metadata = {
 
 export default function TetrisPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+    <>
+      <GameStructuredData
+        name="Tetris"
+        description="ブラウザで遊べるクラシックテトリス。キーボードまたはタッチ操作で楽しめます。T-Spin、Back-to-Backボーナス、ランキング機能搭載。"
+        url={`${baseUrl}/games/tetris`}
+        image={`${baseUrl}/images/games/tetris-thumbnail.png`}
+        genre={['Puzzle', 'Arcade']}
+        playMode="SinglePlayer"
+        applicationCategory="Game"
+      />
+      <main className="min-h-screen bg-gradient-to-b from-background to-muted/20">
       <div className="container mx-auto px-4 py-4">
         {/* ナビゲーション */}
         <Link
@@ -82,5 +93,6 @@ export default function TetrisPage() {
         </div>
       </div>
     </main>
+    </>
   );
 }

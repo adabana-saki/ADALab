@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
   Calendar,
@@ -684,10 +685,12 @@ export function BlogListClient({
               {/* 著者情報 */}
               <div className="bg-card border border-border/50 rounded-xl p-5">
                 <div className="flex items-center gap-3 mb-4">
-                  <img
+                  <Image
                     src="/images/adabanasaki.png"
                     alt="Adabana Saki"
-                    className="w-12 h-12 rounded-full object-cover"
+                    width={48}
+                    height={48}
+                    className="rounded-full object-cover"
                   />
                   <div>
                     <h3 className="font-semibold">Adabana Saki</h3>

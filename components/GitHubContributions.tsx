@@ -31,6 +31,7 @@ export function GitHubContributions() {
       </div>
 
       <div className="overflow-x-auto pb-2 flex-1 flex items-center">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="https://ghchart.rshah.org/00d4aa/adabana-saki"
           alt="GitHub Contributions"
