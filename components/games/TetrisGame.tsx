@@ -1136,6 +1136,13 @@ export function TetrisGame() {
     return () => clearInterval(interval);
   }, [lineClearAnim, draw]);
 
+  // カウントダウン描画
+  useEffect(() => {
+    if (countdown !== null) {
+      draw();
+    }
+  }, [countdown, draw]);
+
   // スワイプ操作
   const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
