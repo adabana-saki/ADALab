@@ -303,6 +303,7 @@ export function TetrisGame() {
   const [nickname, setNickname] = useState('');
   const [pendingScore, setPendingScore] = useState<{ score: number; lines: number; level: number; time: number } | null>(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 新機能の状態
   const [ghostEnabled, setGhostEnabled] = useState(true);
@@ -397,7 +398,8 @@ export function TetrisGame() {
 
   // リーダーボード送信（D1 API経由）
   const submitNickname = useCallback(async () => {
-    if (!pendingScore || !nickname.trim()) return;
+    if (!pendingScore || !nickname.trim() || isSubmitting) return;
+    setIsSubmitting(true);
     const entry = {
       nickname: nickname.trim().slice(0, 12),
       score: pendingScore.score,
@@ -407,12 +409,16 @@ export function TetrisGame() {
       mode: gameState.current.mode as 'endless' | 'sprint',
       time: pendingScore.time,
     };
-    await submitScore(entry);
-    localStorage.setItem('tetris-nickname', nickname.trim().slice(0, 12));
-    setShowNicknameInput(false);
-    setPendingScore(null);
-    setShowLeaderboard(true);
-  }, [pendingScore, nickname, submitScore]);
+    try {
+      await submitScore(entry);
+      localStorage.setItem('tetris-nickname', nickname.trim().slice(0, 12));
+      setShowNicknameInput(false);
+      setPendingScore(null);
+      setShowLeaderboard(true);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [pendingScore, nickname, submitScore, isSubmitting]);
 
   // サウンド設定
   useEffect(() => {
@@ -1563,7 +1569,7 @@ export function TetrisGame() {
               />
             </div>
             <div className="flex gap-2">
-              <button onClick={submitNickname} disabled={!nickname.trim()} className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              <button onClick={submitNickname} disabled={!nickname.trim() || isSubmitting} className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 登録
               </button>
               <button onClick={() => { setShowNicknameInput(false); setPendingScore(null); }} className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg font-medium transition-colors">
