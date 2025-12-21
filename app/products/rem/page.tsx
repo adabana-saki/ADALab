@@ -94,6 +94,7 @@ export default function RemPage() {
     ja: {
       backToProducts: '製品一覧に戻る',
       tagline: 'Discord多機能Bot',
+      releaseDate: '2025年1月末 リリース予定',
       inviteBot: 'Botを招待',
       supportServer: 'サポートサーバー',
       featuresTitle: '機能',
@@ -102,6 +103,7 @@ export default function RemPage() {
     en: {
       backToProducts: 'Back to Products',
       tagline: 'Multi-functional Discord Bot',
+      releaseDate: 'Launching end of January 2025',
       inviteBot: 'Invite Bot',
       supportServer: 'Support Server',
       featuresTitle: 'Features',
@@ -135,8 +137,11 @@ export default function RemPage() {
                 />
               </div>
               <h1 className="text-4xl md:text-5xl font-bold mb-4">Rem bot</h1>
-              <p className="text-xl text-muted-foreground mb-8">
+              <p className="text-xl text-muted-foreground mb-2">
                 {content[language].tagline}
+              </p>
+              <p className="text-sm text-primary font-medium mb-8">
+                {content[language].releaseDate}
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <a

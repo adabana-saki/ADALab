@@ -14,7 +14,7 @@ export default function CompanyInfoPage() {
       title: 'About ADA Lab',
       subtitle: 'あなたの"ほしい"を、カタチに。',
       info: [
-        { icon: Code, label: '運営', value: '個人開発' },
+        { icon: Code, label: '運営', value: 'Adabana Saki' },
         { icon: Calendar, label: '活動開始', value: '2025年' },
         { icon: Mail, label: 'メール', value: 'info.adalabtech@gmail.com' },
       ],
@@ -29,11 +29,11 @@ export default function CompanyInfoPage() {
         },
         {
           title: '受託開発について',
-          content: 'ご依頼をお受けする場合もあります。\n\n• 納期に余裕がある案件\n• 企画からコーディングまで一貫して任せていただける案件\n\nデザインのみ、コーディングのみといった部分的なご依頼は基本的にお受けしていません。',
+          content: 'ご依頼をお受けする場合もあります。\n\n• 納期に余裕がある案件\n• 企画からコーディングまで一貫して任せていただける案件\n• コーディングのみのご依頼\n\nデザインのみのご依頼は基本的にお受けしていません。',
         },
         {
           title: '現在のプロダクト',
-          content: '• Rem bot - Discord多機能管理Bot（開発中）\n• Navi - 片手操作モバイルアプリ（開発中）\n\n自分たちが使いたいものを、自分たちのペースで作っています。',
+          content: '• Rem bot - Discord多機能管理Bot（2025年1月末リリース予定）\n• ShortShield - ショート動画ブロック拡張機能（開発中）\n• Sumio - AI要約ブラウザ拡張機能（開発中）\n• Navi - 片手操作モバイルアプリ（開発中）\n• QRaft - QRコードユーティリティ（開発中）\n\n自分たちが使いたいものを、自分たちのペースで作っています。',
         },
         {
           title: 'お問い合わせ',
@@ -45,7 +45,7 @@ export default function CompanyInfoPage() {
       title: 'About ADA Lab',
       subtitle: 'Simple tools for everyday needs.',
       info: [
-        { icon: Code, label: 'Operation', value: 'Independent Development' },
+        { icon: Code, label: 'Operated by', value: 'Adabana Saki' },
         { icon: Calendar, label: 'Started', value: '2025' },
         { icon: Mail, label: 'Email', value: 'info.adalabtech@gmail.com' },
       ],
@@ -60,11 +60,11 @@ export default function CompanyInfoPage() {
         },
         {
           title: 'About Commissions',
-          content: 'We occasionally accept project requests.\n\n• Projects with flexible timelines\n• Projects where we handle everything from planning to coding\n\nWe generally don\'t accept partial work like design-only or coding-only requests.',
+          content: 'We occasionally accept project requests.\n\n• Projects with flexible timelines\n• Projects where we handle everything from planning to coding\n• Coding-only requests\n\nWe generally don\'t accept design-only requests.',
         },
         {
           title: 'Current Products',
-          content: '• Rem bot - Discord multi-function management Bot (In Development)\n• Navi - One-hand operation mobile app (In Development)\n\nWe build what we want to use, at our own pace.',
+          content: '• Rem bot - Discord multi-function Bot (Launching end of Jan 2025)\n• ShortShield - Short video blocker extension (In Development)\n• Sumio - AI summary browser extension (In Development)\n• Navi - One-hand operation mobile app (In Development)\n• QRaft - QR code utility app (In Development)\n\nWe build what we want to use, at our own pace.',
         },
         {
           title: 'Contact',

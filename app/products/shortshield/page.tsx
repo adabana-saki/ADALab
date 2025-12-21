@@ -94,6 +94,7 @@ export default function ShortShieldPage() {
     ja: {
       backToProducts: '製品一覧に戻る',
       tagline: 'ショート動画の誘惑から解放される',
+      releaseDate: 'D-U-N-S番号取得後リリース予定',
       comingSoon: 'Coming Soon',
       featuresTitle: '機能',
       faqTitle: 'よくある質問',
@@ -101,6 +102,7 @@ export default function ShortShieldPage() {
     en: {
       backToProducts: 'Back to Products',
       tagline: 'Break free from short video addiction',
+      releaseDate: 'Launching after D-U-N-S acquisition',
       comingSoon: 'Coming Soon',
       featuresTitle: 'Features',
       faqTitle: 'FAQ',
@@ -133,8 +135,11 @@ export default function ShortShieldPage() {
                 />
               </div>
               <h1 className="text-4xl md:text-5xl font-bold mb-4">ShortShield</h1>
-              <p className="text-xl text-muted-foreground mb-8">
+              <p className="text-xl text-muted-foreground mb-2">
                 {content[language].tagline}
+              </p>
+              <p className="text-sm text-primary font-medium mb-8">
+                {content[language].releaseDate}
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <span className="inline-flex items-center gap-2 px-6 py-3 bg-muted text-muted-foreground rounded-lg">

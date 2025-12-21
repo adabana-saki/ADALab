@@ -9,85 +9,71 @@ import { CheckCircle2, Circle, Clock } from 'lucide-react';
 const roadmapData = {
   ja: [
     {
-      quarter: 'Q1 2024',
-      status: 'completed',
-      title: '基盤構築',
-      items: [
-        { text: 'ADA Lab公式サイト公開', done: true },
-        { text: 'Rem bot v1.0リリース', done: true },
-        { text: '多言語対応', done: true },
-      ],
-    },
-    {
-      quarter: 'Q2 2024',
+      quarter: '2025年1月末',
       status: 'in-progress',
-      title: '機能拡張',
+      title: 'Discord Bot',
       items: [
-        { text: 'Rem bot v2.0 - AI機能追加', done: false },
-        { text: 'Naviアプリ正式リリース', done: false },
-        { text: 'ユーザーダッシュボード', done: false },
+        { text: 'Rem bot - Discord多機能管理Bot', done: false },
       ],
     },
     {
-      quarter: 'Q3 2024',
+      quarter: 'D-U-N-S番号取得後',
       status: 'planned',
-      title: 'エコシステム',
+      title: 'モバイルアプリ',
       items: [
-        { text: 'API公開', done: false },
-        { text: 'プラグインシステム', done: false },
-        { text: 'コミュニティ機能', done: false },
+        { text: 'Navi - スマホカーソル操作アプリ (Android)', done: false },
       ],
     },
     {
-      quarter: 'Q4 2024',
+      quarter: 'D-U-N-S番号取得後',
       status: 'planned',
-      title: '次世代',
+      title: 'ブラウザ拡張機能',
       items: [
-        { text: '新プロダクト発表', done: false },
-        { text: 'エンタープライズ対応', done: false },
-        { text: 'グローバル展開', done: false },
+        { text: 'ShortShield - ショート動画・SNSブロック (Chrome/Edge/Firefox)', done: false },
+        { text: 'Sumio - サイト要約・比較サービス (Chrome/Edge/Firefox)', done: false },
+      ],
+    },
+    {
+      quarter: '近日公開',
+      status: 'planned',
+      title: 'CLIツール',
+      items: [
+        { text: 'dedupr - ファイル重複削除ツール', done: false },
       ],
     },
   ],
   en: [
     {
-      quarter: 'Q1 2024',
-      status: 'completed',
-      title: 'Foundation',
-      items: [
-        { text: 'Launch ADA Lab official site', done: true },
-        { text: 'Release Rem bot v1.0', done: true },
-        { text: 'Multilingual support', done: true },
-      ],
-    },
-    {
-      quarter: 'Q2 2024',
+      quarter: 'End of Jan 2025',
       status: 'in-progress',
-      title: 'Feature Expansion',
+      title: 'Discord Bot',
       items: [
-        { text: 'Rem bot v2.0 - AI features', done: false },
-        { text: 'Navi app official release', done: false },
-        { text: 'User dashboard', done: false },
+        { text: 'Rem bot - Multi-functional Discord Bot', done: false },
       ],
     },
     {
-      quarter: 'Q3 2024',
+      quarter: 'After D-U-N-S Acquisition',
       status: 'planned',
-      title: 'Ecosystem',
+      title: 'Mobile Apps',
       items: [
-        { text: 'Public API', done: false },
-        { text: 'Plugin system', done: false },
-        { text: 'Community features', done: false },
+        { text: 'Navi - One-handed Cursor App (Android)', done: false },
       ],
     },
     {
-      quarter: 'Q4 2024',
+      quarter: 'After D-U-N-S Acquisition',
       status: 'planned',
-      title: 'Next Generation',
+      title: 'Browser Extensions',
       items: [
-        { text: 'New product announcement', done: false },
-        { text: 'Enterprise support', done: false },
-        { text: 'Global expansion', done: false },
+        { text: 'ShortShield - Short Video & SNS Blocker (Chrome/Edge/Firefox)', done: false },
+        { text: 'Sumio - Site Summary & Comparison (Chrome/Edge/Firefox)', done: false },
+      ],
+    },
+    {
+      quarter: 'Coming Soon',
+      status: 'planned',
+      title: 'CLI Tools',
+      items: [
+        { text: 'dedupr - File Deduplication Tool', done: false },
       ],
     },
   ],

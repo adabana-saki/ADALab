@@ -9,8 +9,20 @@ import { Calendar, Zap, Bug, Sparkles } from 'lucide-react';
 const changelogData = {
   ja: [
     {
+      version: '2.1.0',
+      date: '2025-12-21',
+      type: 'major',
+      title: 'プロダクトページ追加',
+      changes: [
+        { type: 'feature', text: 'ShortShield, Sumio, QRaft製品ページを追加' },
+        { type: 'feature', text: '各製品ページに画像を追加' },
+        { type: 'improvement', text: 'ライトモード対応を強化' },
+        { type: 'improvement', text: 'FAQ導線を改善' },
+      ],
+    },
+    {
       version: '2.0.0',
-      date: '2024-01-15',
+      date: '2025-12-01',
       type: 'major',
       title: 'メジャーアップデート',
       changes: [
@@ -22,7 +34,7 @@ const changelogData = {
     },
     {
       version: '1.1.0',
-      date: '2024-01-10',
+      date: '2025-11-15',
       type: 'minor',
       title: 'マイナーアップデート',
       changes: [
@@ -33,7 +45,7 @@ const changelogData = {
     },
     {
       version: '1.0.0',
-      date: '2024-01-01',
+      date: '2025-11-01',
       type: 'major',
       title: '初回リリース',
       changes: [
@@ -45,8 +57,20 @@ const changelogData = {
   ],
   en: [
     {
+      version: '2.1.0',
+      date: '2025-12-21',
+      type: 'major',
+      title: 'Product Pages Added',
+      changes: [
+        { type: 'feature', text: 'Added ShortShield, Sumio, QRaft product pages' },
+        { type: 'feature', text: 'Added images to all product pages' },
+        { type: 'improvement', text: 'Enhanced light mode support' },
+        { type: 'improvement', text: 'Improved FAQ navigation' },
+      ],
+    },
+    {
       version: '2.0.0',
-      date: '2024-01-15',
+      date: '2025-12-01',
       type: 'major',
       title: 'Major Update',
       changes: [
@@ -58,7 +82,7 @@ const changelogData = {
     },
     {
       version: '1.1.0',
-      date: '2024-01-10',
+      date: '2025-11-15',
       type: 'minor',
       title: 'Minor Update',
       changes: [
@@ -69,7 +93,7 @@ const changelogData = {
     },
     {
       version: '1.0.0',
-      date: '2024-01-01',
+      date: '2025-11-01',
       type: 'major',
       title: 'Initial Release',
       changes: [

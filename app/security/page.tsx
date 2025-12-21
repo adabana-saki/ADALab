@@ -118,7 +118,7 @@ export default function SecurityPage() {
                 {content[language].subtitle}
               </p>
               <p className="text-sm text-muted-foreground">
-                {content[language].lastUpdated}: 2024-01-01
+                {content[language].lastUpdated}: 2025-12-21
               </p>
             </motion.div>
 
