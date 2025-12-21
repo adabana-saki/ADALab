@@ -7,32 +7,50 @@ import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const footerLinksData = {
-  company: {
+  products: {
     ja: [
-      { name: '会社概要', href: '#about' },
-      { name: 'プロダクト', href: '/products' },
-      { name: 'ブログ', href: '/blog' },
-      { name: 'お問い合わせ', href: '#contact' },
+      { name: 'すべてのプロダクト', href: '/products' },
+      { name: 'Rem bot', href: '/products/rem' },
+      { name: 'Navi', href: '/products/navi' },
+      { name: 'ゲーム', href: '/games' },
     ],
     en: [
-      { name: 'About', href: '#about' },
-      { name: 'Products', href: '/products' },
+      { name: 'All Products', href: '/products' },
+      { name: 'Rem bot', href: '/products/rem' },
+      { name: 'Navi', href: '/products/navi' },
+      { name: 'Games', href: '/games' },
+    ],
+  },
+  company: {
+    ja: [
+      { name: '会社情報', href: '/company' },
+      { name: 'ブログ', href: '/blog' },
+      { name: 'ニュース', href: '/news' },
+      { name: 'ロードマップ', href: '/roadmap' },
+      { name: '技術スタック', href: '/tech-stack' },
+    ],
+    en: [
+      { name: 'About Us', href: '/company' },
       { name: 'Blog', href: '/blog' },
-      { name: 'Contact', href: '#contact' },
+      { name: 'News', href: '/news' },
+      { name: 'Roadmap', href: '/roadmap' },
+      { name: 'Tech Stack', href: '/tech-stack' },
     ],
   },
   legal: {
     ja: [
-      { name: '会社情報', href: '/company' },
       { name: 'よくある質問', href: '/faq' },
       { name: 'プライバシーポリシー', href: '/privacy' },
       { name: '利用規約', href: '/terms' },
+      { name: 'セキュリティ', href: '/security' },
+      { name: '更新履歴', href: '/changelog' },
     ],
     en: [
-      { name: 'Company Info', href: '/company' },
       { name: 'FAQ', href: '/faq' },
       { name: 'Privacy Policy', href: '/privacy' },
       { name: 'Terms of Service', href: '/terms' },
+      { name: 'Security', href: '/security' },
+      { name: 'Changelog', href: '/changelog' },
     ],
   },
   social: [
@@ -46,45 +64,40 @@ const footerLinksData = {
 
 export function Footer() {
   const { language } = useLanguage();
+  const productLinks = footerLinksData.products[language];
   const companyLinks = footerLinksData.company[language];
   const legalLinks = footerLinksData.legal[language];
 
   const content = {
     ja: {
       description: 'あなたの"ほしい"を、カタチに。シンプルで使いやすいアプリを開発しています。',
+      products: 'プロダクト',
       company: '会社',
-      legal: '法的情報',
+      legal: 'サポート',
       connect: 'つながる',
       madeWith: '日本で作られました',
     },
     en: {
       description: 'Simple tools for everyday needs. We develop easy-to-use apps.',
+      products: 'Products',
       company: 'Company',
-      legal: 'Legal',
+      legal: 'Support',
       connect: 'Connect',
       madeWith: 'Made in Japan',
     },
   };
 
-  const scrollToSection = (href: string) => {
-    if (href.startsWith('#')) {
-      const element = document.querySelector(href);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  };
-
   return (
     <footer className="bg-background border-t border-border relative z-10">
       <div className="container mx-auto px-4 py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 mb-8">
           {/* Brand */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
+            className="col-span-2 md:col-span-1"
           >
             <h3 className="text-2xl font-bold gradient-text mb-4">ADA Lab</h3>
             <p className="text-muted-foreground text-sm mb-4">
@@ -92,36 +105,45 @@ export function Footer() {
             </p>
           </motion.div>
 
-          {/* Company Links */}
+          {/* Products Links */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
+            <h4 className="font-semibold mb-4">{content[language].products}</h4>
+            <ul className="space-y-2">
+              {productLinks.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className="text-muted-foreground hover:text-foreground transition-colors text-sm"
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+
+          {/* Company Links */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
             <h4 className="font-semibold mb-4">{content[language].company}</h4>
             <ul className="space-y-2">
               {companyLinks.map((link) => (
                 <li key={link.name}>
-                  {link.href.startsWith('#') ? (
-                    <a
-                      href={link.href}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        scrollToSection(link.href);
-                      }}
-                      className="text-muted-foreground hover:text-foreground transition-colors text-sm cursor-pointer"
-                    >
-                      {link.name}
-                    </a>
-                  ) : (
-                    <Link
-                      href={link.href}
-                      className="text-muted-foreground hover:text-foreground transition-colors text-sm"
-                    >
-                      {link.name}
-                    </Link>
-                  )}
+                  <Link
+                    href={link.href}
+                    className="text-muted-foreground hover:text-foreground transition-colors text-sm"
+                  >
+                    {link.name}
+                  </Link>
                 </li>
               ))}
             </ul>

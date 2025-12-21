@@ -1,0 +1,52 @@
+name: D1 Migration
+
+on:
+  push:
+    branches: ['main']
+    paths:
+      - 'db/**'
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "migrate" to confirm'
+        required: true
+        default: ''
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  migrate:
+    name: Run D1 Migration
+    runs-on: ubuntu-latest
+    # 手動実行時は確認が必要
+    if: github.event_name == 'push' || github.event.inputs.confirm == 'migrate'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Wrangler
+        run: npm install -g wrangler
+
+      - name: Run D1 Migration
+        run: |
+          echo "Running D1 migration..."
+          wrangler d1 execute adalab_db --remote --file=./db/schema.sql
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Migration Summary
+        run: |
+          echo "## D1 Migration Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Database: adalab_db" >> $GITHUB_STEP_SUMMARY
+          echo "- Schema: db/schema.sql" >> $GITHUB_STEP_SUMMARY
+          echo "- Triggered by: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY

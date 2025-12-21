@@ -1,1 +1,6 @@
 compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "adalab_db"
+database_id = "3b59394e-a0a8-4bf1-ad66-0295c72c7db8"

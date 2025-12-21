@@ -37,7 +37,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://adalab.pages.dev'),
+  metadataBase: new URL('https://adalabtech.com'),
   title: {
     default: 'ADA Lab | あなたの"ほしい"を、カタチに',
     template: '%s | ADA Lab',
@@ -71,14 +71,14 @@ export const metadata: Metadata = {
     title: 'ADA Lab | あなたの"ほしい"を、カタチに',
     description:
       'シンプルで使いやすいアプリを開発する個人開発チーム。Rem bot、Naviなど、かゆいところに手が届くプロダクトを提供します。',
-    url: 'https://adalab.pages.dev',
+    url: 'https://adalabtech.com',
     siteName: 'ADA Lab',
     type: 'website',
     locale: 'ja_JP',
     alternateLocale: ['en_US'],
     images: [
       {
-        url: 'https://adalab.pages.dev/opengraph-image.png',
+        url: 'https://adalabtech.com/opengraph-image.png',
         width: 1200,
         height: 630,
         alt: 'ADA Lab - あなたの"ほしい"を、カタチに',
@@ -94,12 +94,12 @@ export const metadata: Metadata = {
     description:
       'シンプルで使いやすいアプリを開発する個人開発チーム。Rem bot、Naviなど、かゆいところに手が届くプロダクトを提供。',
     images: {
-      url: 'https://adalab.pages.dev/twitter-image.png',
+      url: 'https://adalabtech.com/twitter-image.png',
       alt: 'ADA Lab - あなたの"ほしい"を、カタチに',
     },
   },
   alternates: {
-    canonical: 'https://adalab.pages.dev',
+    canonical: 'https://adalabtech.com',
   },
   robots: {
     index: true,

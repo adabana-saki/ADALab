@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useEffect, useState, useCallback } from 'react';
+import { useTetrisLeaderboard } from '@/hooks/useTetrisLeaderboard';
 import {
   RotateCw,
   ArrowLeft,
@@ -114,15 +115,7 @@ interface GameStats {
   perfectClears: number;
 }
 
-interface LeaderboardEntry {
-  nickname: string;
-  score: number;
-  lines: number;
-  level: number;
-  date: string;
-  mode: GameMode;
-  time?: number;
-}
+// LeaderboardEntry is imported from useTetrisLeaderboard hook
 
 interface LineClearAnimation {
   lines: number[];
@@ -130,8 +123,7 @@ interface LineClearAnimation {
   maxFrames: number;
 }
 
-const LEADERBOARD_KEY = 'tetris-leaderboard-v2';
-const MAX_LEADERBOARD_ENTRIES = 10;
+// Leaderboard is now managed by useTetrisLeaderboard hook
 
 // サウンドエンジン（BGM対応）
 class SoundEngine {
@@ -294,7 +286,6 @@ export function TetrisGame() {
   const [bgmTrack, setBgmTrack] = useState<BgmTrack>('none');
   const [lastAction, setLastAction] = useState<string>('');
   const [timeBonus, setTimeBonus] = useState(0);
-  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [showNicknameInput, setShowNicknameInput] = useState(false);
   const [nickname, setNickname] = useState('');
   const [pendingScore, setPendingScore] = useState<{ score: number; lines: number; level: number; time: number } | null>(null);
@@ -309,6 +300,15 @@ export function TetrisGame() {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [lineClearAnim, setLineClearAnim] = useState<LineClearAnimation | null>(null);
   const [gameComplete, setGameComplete] = useState(false);
+
+  // グローバルリーダーボード（D1 API）
+  const {
+    leaderboard,
+    isLoading: _leaderboardLoading,
+    error: _leaderboardError,
+    submitScore,
+    isRankingScore,
+  } = useTetrisLeaderboard({ mode: gameMode });
 
   // タッチ操作用
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
@@ -350,10 +350,7 @@ export function TetrisGame() {
       setStats((s) => ({ ...s, highScore }));
     }
 
-    const savedLeaderboard = localStorage.getItem(LEADERBOARD_KEY);
-    if (savedLeaderboard) {
-      try { setLeaderboard(JSON.parse(savedLeaderboard)); } catch { setLeaderboard([]); }
-    }
+    // Leaderboard is now managed by useTetrisLeaderboard hook (D1 API)
 
     const savedNickname = localStorage.getItem('tetris-nickname');
     if (savedNickname) setNickname(savedNickname);
@@ -376,39 +373,24 @@ export function TetrisGame() {
     soundEngine.init();
   }, []);
 
-  // リーダーボード
-  const addToLeaderboard = useCallback((entry: LeaderboardEntry) => {
-    setLeaderboard(prev => {
-      const newLeaderboard = [...prev, entry]
-        .sort((a, b) => b.score - a.score)
-        .slice(0, MAX_LEADERBOARD_ENTRIES);
-      localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(newLeaderboard));
-      return newLeaderboard;
-    });
-  }, []);
-
-  const isRankingScore = useCallback((score: number) => {
-    if (leaderboard.length < MAX_LEADERBOARD_ENTRIES) return true;
-    return score > (leaderboard[leaderboard.length - 1]?.score || 0);
-  }, [leaderboard]);
-
-  const submitNickname = useCallback(() => {
+  // リーダーボード送信（D1 API経由）
+  const submitNickname = useCallback(async () => {
     if (!pendingScore || !nickname.trim()) return;
-    const entry: LeaderboardEntry = {
+    const entry = {
       nickname: nickname.trim().slice(0, 12),
       score: pendingScore.score,
       lines: pendingScore.lines,
       level: pendingScore.level,
       date: new Date().toISOString().split('T')[0],
-      mode: gameState.current.mode,
+      mode: gameState.current.mode as 'endless' | 'sprint',
       time: pendingScore.time,
     };
-    addToLeaderboard(entry);
+    await submitScore(entry);
     localStorage.setItem('tetris-nickname', nickname.trim().slice(0, 12));
     setShowNicknameInput(false);
     setPendingScore(null);
     setShowLeaderboard(true);
-  }, [pendingScore, nickname, addToLeaderboard]);
+  }, [pendingScore, nickname, submitScore]);
 
   // サウンド設定
   useEffect(() => {
