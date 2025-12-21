@@ -7,9 +7,12 @@ import { FaDiscord } from 'react-icons/fa';
 import Link from 'next/link';
 import { Card, CardContent } from '../ui/card';
 import { PROJECTS } from '@/lib/projects';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export function Projects() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const { resolvedTheme } = useTheme();
+  const isLight = resolvedTheme === 'light';
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
@@ -18,7 +21,9 @@ export function Projects() {
   return (
     <section id="projects" className="py-20 md:py-32 bg-muted/20 relative overflow-hidden">
       {/* Background decoration */}
-      <div className="hidden md:block absolute top-1/4 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[120px]" />
+      <div className={`hidden md:block absolute top-1/4 right-0 w-96 h-96 rounded-full blur-[120px] ${
+        isLight ? 'bg-primary/10' : 'bg-primary/5'
+      }`} />
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}

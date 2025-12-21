@@ -28,6 +28,7 @@ export function Navigation() {
     { name: 'Games', href: '/games' },
     { name: 'Blog', href: '/blog' },
     { name: 'News', href: '/news' },
+    { name: 'FAQ', href: '/#faq' },
     { name: 'Contact', href: '/#contact' },
   ];
 

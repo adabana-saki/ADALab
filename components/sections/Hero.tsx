@@ -12,6 +12,7 @@ import { GradientText } from '../effects/GradientText';
 import { DotPattern } from '../effects/DotPattern';
 import { scrollToSection } from '@/hooks/useKeyboardShortcuts';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 // 3D背景を動的インポート（パフォーマンス最適化）
 const ParticleField = dynamic(
@@ -27,6 +28,8 @@ const FloatingLogo3D = dynamic(
 export function Hero() {
   const [showParticles, setShowParticles] = useState(false);
   const { language, t } = useLanguage();
+  const { resolvedTheme } = useTheme();
+  const isLight = resolvedTheme === 'light';
 
   useEffect(() => {
     // モバイルではパーティクルを無効化（パフォーマンス考慮）
@@ -58,38 +61,70 @@ export function Hero() {
       <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/10" />
 
       {/* Animated Grid - More Visible */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#00f5ff15_1px,transparent_1px),linear-gradient(to_bottom,#00f5ff15_1px,transparent_1px)] bg-[size:3rem_3rem]" />
+      <div className={`absolute inset-0 bg-[size:3rem_3rem] ${
+        isLight
+          ? 'bg-[linear-gradient(to_right,#06b6d440_1px,transparent_1px),linear-gradient(to_bottom,#06b6d440_1px,transparent_1px)]'
+          : 'bg-[linear-gradient(to_right,#00f5ff15_1px,transparent_1px),linear-gradient(to_bottom,#00f5ff15_1px,transparent_1px)]'
+      }`} />
 
       {/* Secondary diagonal grid for depth */}
-      <div className="absolute inset-0 bg-[linear-gradient(45deg,#ff00ff10_1px,transparent_1px)] bg-[size:4rem_4rem] animate-pulse" style={{ animationDuration: '4s' }} />
+      <div className={`absolute inset-0 bg-[size:4rem_4rem] animate-pulse ${
+        isLight
+          ? 'bg-[linear-gradient(45deg,#d946ef30_1px,transparent_1px)]'
+          : 'bg-[linear-gradient(45deg,#ff00ff10_1px,transparent_1px)]'
+      }`} style={{ animationDuration: '4s' }} />
 
       {/* Holographic rotating rings - More Visible (hidden on mobile) */}
-      <div className="hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border-2 border-neon-cyan/30 rounded-full animate-spin" style={{ animationDuration: '30s' }} />
-      <div className="hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] border-2 border-neon-fuchsia/25 rounded-full animate-spin" style={{ animationDuration: '40s', animationDirection: 'reverse' }} />
-      <div className="hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border-2 border-neon-purple/20 rounded-full animate-spin" style={{ animationDuration: '50s' }} />
+      <div className={`hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border-2 rounded-full animate-spin ${
+        isLight ? 'border-neon-cyan/50' : 'border-neon-cyan/30'
+      }`} style={{ animationDuration: '30s' }} />
+      <div className={`hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] border-2 rounded-full animate-spin ${
+        isLight ? 'border-neon-fuchsia/40' : 'border-neon-fuchsia/25'
+      }`} style={{ animationDuration: '40s', animationDirection: 'reverse' }} />
+      <div className={`hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border-2 rounded-full animate-spin ${
+        isLight ? 'border-neon-purple/35' : 'border-neon-purple/20'
+      }`} style={{ animationDuration: '50s' }} />
 
       {/* Hexagon pattern overlay - More Visible */}
-      <div className="absolute inset-0 opacity-[0.08]" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='%2300f5ff' stroke-width='1'/%3E%3C/svg%3E")`,
+      <div className={`absolute inset-0 ${isLight ? 'opacity-[0.15]' : 'opacity-[0.08]'}`} style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='${isLight ? '%2306b6d4' : '%2300f5ff'}' stroke-width='1'/%3E%3C/svg%3E")`,
         backgroundSize: '60px 60px'
       }} />
 
       {/* Cyberpunk Glow Effects - Enhanced (hidden on mobile) */}
-      <div className="hidden md:block absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-neon-cyan/30 rounded-full blur-[150px] animate-pulse-glow" />
-      <div className="hidden md:block absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-neon-fuchsia/30 rounded-full blur-[150px] animate-pulse-glow" style={{ animationDelay: '1s' }} />
-      <div className="hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-neon-purple/20 rounded-full blur-[180px] animate-pulse" style={{ animationDelay: '0.5s' }} />
+      <div className={`hidden md:block absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full blur-[150px] animate-pulse-glow ${
+        isLight ? 'bg-neon-cyan/15' : 'bg-neon-cyan/30'
+      }`} />
+      <div className={`hidden md:block absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full blur-[150px] animate-pulse-glow ${
+        isLight ? 'bg-neon-fuchsia/15' : 'bg-neon-fuchsia/30'
+      }`} style={{ animationDelay: '1s' }} />
+      <div className={`hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[180px] animate-pulse ${
+        isLight ? 'bg-neon-purple/10' : 'bg-neon-purple/20'
+      }`} style={{ animationDelay: '0.5s' }} />
 
       {/* Corner accent glows (hidden on mobile) */}
-      <div className="hidden md:block absolute top-0 right-0 w-96 h-96 bg-neon-cyan/20 rounded-full blur-[120px] animate-float" />
-      <div className="hidden md:block absolute bottom-0 left-0 w-96 h-96 bg-neon-fuchsia/20 rounded-full blur-[120px] animate-float" style={{ animationDelay: '2s' }} />
+      <div className={`hidden md:block absolute top-0 right-0 w-96 h-96 rounded-full blur-[120px] animate-float ${
+        isLight ? 'bg-neon-cyan/10' : 'bg-neon-cyan/20'
+      }`} />
+      <div className={`hidden md:block absolute bottom-0 left-0 w-96 h-96 rounded-full blur-[120px] animate-float ${
+        isLight ? 'bg-neon-fuchsia/10' : 'bg-neon-fuchsia/20'
+      }`} style={{ animationDelay: '2s' }} />
 
       {/* Data stream lines - More Visible */}
-      <div className="absolute top-0 left-1/4 w-0.5 h-full bg-gradient-to-b from-transparent via-neon-cyan/40 to-transparent animate-pulse" style={{ animationDuration: '3s' }} />
-      <div className="absolute top-0 right-1/3 w-0.5 h-full bg-gradient-to-b from-transparent via-neon-fuchsia/40 to-transparent animate-pulse" style={{ animationDuration: '4s', animationDelay: '1s' }} />
-      <div className="absolute top-0 left-2/3 w-0.5 h-full bg-gradient-to-b from-transparent via-neon-purple/40 to-transparent animate-pulse" style={{ animationDuration: '3.5s', animationDelay: '0.5s' }} />
+      <div className={`absolute top-0 left-1/4 w-0.5 h-full bg-gradient-to-b from-transparent to-transparent animate-pulse ${
+        isLight ? 'via-neon-cyan/60' : 'via-neon-cyan/40'
+      }`} style={{ animationDuration: '3s' }} />
+      <div className={`absolute top-0 right-1/3 w-0.5 h-full bg-gradient-to-b from-transparent to-transparent animate-pulse ${
+        isLight ? 'via-neon-fuchsia/60' : 'via-neon-fuchsia/40'
+      }`} style={{ animationDuration: '4s', animationDelay: '1s' }} />
+      <div className={`absolute top-0 left-2/3 w-0.5 h-full bg-gradient-to-b from-transparent to-transparent animate-pulse ${
+        isLight ? 'via-neon-purple/60' : 'via-neon-purple/40'
+      }`} style={{ animationDuration: '3.5s', animationDelay: '0.5s' }} />
 
       {/* Horizontal scan line - More Visible */}
-      <div className="absolute left-0 w-full h-1 bg-gradient-to-r from-transparent via-neon-cyan/50 to-transparent animate-scan-line" />
+      <div className={`absolute left-0 w-full h-1 bg-gradient-to-r from-transparent to-transparent animate-scan-line ${
+        isLight ? 'via-neon-cyan/70' : 'via-neon-cyan/50'
+      }`} />
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 text-center">

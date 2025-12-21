@@ -9,7 +9,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Cloudflare](https://img.shields.io/badge/Cloudflare-Pages-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](https://pages.cloudflare.com/)
 
-<img src="public/opengraph-image.png" alt="ADA Lab" width="600">
+<img src="./public/opengraph-image.png" alt="ADA Lab" width="600">
 
 </div>
 

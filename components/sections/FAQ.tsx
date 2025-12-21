@@ -2,8 +2,9 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import { ChevronDown, HelpCircle } from 'lucide-react';
+import { ChevronDown, HelpCircle, ArrowRight } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import Link from 'next/link';
 
 // シンプルなマークダウンをHTMLに変換（静的コンテンツ専用）
 function parseMarkdown(text: string): string {
@@ -130,11 +131,13 @@ const uiContent = {
     subtitle: 'よくあるご質問にお答えします',
     moreQuestions: 'その他のご質問がございましたら、お気軽にお問い合わせください',
     contactUs: 'お問い合わせ →',
+    viewAll: 'すべてのFAQを見る',
   },
   en: {
     subtitle: 'Answers to commonly asked questions',
     moreQuestions: 'If you have any other questions, please feel free to contact us',
     contactUs: 'Contact Us →',
+    viewAll: 'View All FAQs',
   },
 };
 
@@ -227,13 +230,30 @@ export function FAQ() {
           ))}
         </div>
 
+        {/* View All FAQs Link */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="text-center mt-12"
+        >
+          <Link
+            href="/faq"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-primary/10 hover:bg-primary/20 text-primary font-semibold rounded-lg transition-colors"
+          >
+            {content.viewAll}
+            <ArrowRight size={18} />
+          </Link>
+        </motion.div>
+
         {/* Additional Help */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-center mt-16"
+          className="text-center mt-8"
         >
           <p className="text-lg text-muted-foreground mb-4">
             {content.moreQuestions}

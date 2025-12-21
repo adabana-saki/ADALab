@@ -3,11 +3,29 @@
 import Link from 'next/link';
 import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
-import { Bot, Smartphone, ArrowRight } from 'lucide-react';
+import { Bot, Smartphone, ArrowRight, Shield, Brain, QrCode } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const productsData = {
   ja: [
+    {
+      slug: 'shortshield',
+      name: 'ShortShield',
+      tagline: 'ショート動画ブロッカー',
+      description: 'ショート動画の視聴を制限し、集中力を取り戻すためのブラウザ拡張機能',
+      icon: Shield,
+      color: 'from-orange-500 to-red-500',
+      features: ['ショート動画ブロック', '時間制限設定', '集中モード', '統計表示'],
+    },
+    {
+      slug: 'sumio',
+      name: 'Sumio',
+      tagline: 'AI要約アシスタント',
+      description: '閲覧中のWebページをAIが瞬時に要約。情報収集を効率化するブラウザ拡張機能',
+      icon: Brain,
+      color: 'from-emerald-500 to-teal-500',
+      features: ['AI要約', 'ワンクリック', '多言語対応', '要約履歴'],
+    },
     {
       slug: 'rem',
       name: 'Rem bot',
@@ -26,8 +44,35 @@ const productsData = {
       color: 'from-purple-500 to-pink-500',
       features: ['片手操作最適化', 'カスタムジェスチャー', 'クイックアクション', 'ウィジェット'],
     },
+    {
+      slug: 'qraft',
+      name: 'QRaft',
+      tagline: 'QRコードユーティリティ',
+      description: 'QRコードの読み取り・生成・保存を素早く行えるオールインワンアプリ',
+      icon: QrCode,
+      color: 'from-violet-500 to-purple-500',
+      features: ['高速読み取り', 'Wi-Fi QR生成', '履歴保存', 'バッチ処理'],
+    },
   ],
   en: [
+    {
+      slug: 'shortshield',
+      name: 'ShortShield',
+      tagline: 'Short Video Blocker',
+      description: 'A browser extension to limit short video viewing and regain your focus',
+      icon: Shield,
+      color: 'from-orange-500 to-red-500',
+      features: ['Block Shorts', 'Time Limits', 'Focus Mode', 'Statistics'],
+    },
+    {
+      slug: 'sumio',
+      name: 'Sumio',
+      tagline: 'AI Summary Assistant',
+      description: 'AI instantly summarizes web pages you\'re viewing. Browser extension for efficient information gathering',
+      icon: Brain,
+      color: 'from-emerald-500 to-teal-500',
+      features: ['AI Summary', 'One-click', 'Multi-language', 'History'],
+    },
     {
       slug: 'rem',
       name: 'Rem bot',
@@ -45,6 +90,15 @@ const productsData = {
       icon: Smartphone,
       color: 'from-purple-500 to-pink-500',
       features: ['One-hand Optimization', 'Custom Gestures', 'Quick Actions', 'Widgets'],
+    },
+    {
+      slug: 'qraft',
+      name: 'QRaft',
+      tagline: 'QR Code Utility',
+      description: 'An all-in-one app for quick QR code reading, generation, and saving',
+      icon: QrCode,
+      color: 'from-violet-500 to-purple-500',
+      features: ['Fast Scan', 'Wi-Fi QR', 'History', 'Batch Processing'],
     },
   ],
 };
