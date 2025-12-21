@@ -169,6 +169,10 @@
   @apply bg-white/5 backdrop-blur-md border border-white/10;
 }
 
+.light .glass {
+  @apply bg-black/5 border-black/10;
+}
+
 /* Bento Card - Modern Grid Card Style */
 .bento-card {
   background: rgba(255, 255, 255, 0.05);
@@ -213,6 +217,20 @@
 
 .bento-card:hover::before {
   opacity: 1;
+}
+
+/* Bento Card - Light Mode */
+.light .bento-card {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.light .bento-card:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.08),
+    0 0 40px rgba(6, 182, 212, 0.05);
 }
 
 /* Glow Effect */

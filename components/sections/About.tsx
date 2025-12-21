@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Code2, Sparkles, Rocket, Zap, Target, Heart } from 'lucide-react';
 import { CounterAnimation } from '../effects/CounterAnimation';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { GitHubHologram } from '../effects/GitHubHologram';
 import { QiitaFeed } from '../QiitaFeed';
 import { GitHubContributions } from '../GitHubContributions';
@@ -68,6 +69,8 @@ const stats = [
 
 export function About() {
   const { language } = useLanguage();
+  const { resolvedTheme } = useTheme();
+  const isLight = resolvedTheme === 'light';
   const features = featuresData[language];
 
   const content = {
@@ -88,8 +91,12 @@ export function About() {
   return (
     <section id="about" className="py-20 md:py-32 bg-background relative overflow-hidden">
       {/* Background decoration */}
-      <div className="hidden md:block absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[120px]" />
-      <div className="hidden md:block absolute bottom-0 left-0 w-96 h-96 bg-secondary/5 rounded-full blur-[120px]" />
+      <div className={`hidden md:block absolute top-0 right-0 w-96 h-96 rounded-full blur-[120px] ${
+        isLight ? 'bg-primary/10' : 'bg-primary/5'
+      }`} />
+      <div className={`hidden md:block absolute bottom-0 left-0 w-96 h-96 rounded-full blur-[120px] ${
+        isLight ? 'bg-secondary/10' : 'bg-secondary/5'
+      }`} />
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Section Header */}

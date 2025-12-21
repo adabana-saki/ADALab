@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
-import { Bot, Clock, CheckSquare, Users, MessageSquare, ArrowLeft, ExternalLink } from 'lucide-react';
+import { Clock, CheckSquare, Users, MessageSquare, ArrowLeft, ExternalLink } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const featuresData = {
@@ -124,8 +125,14 @@ export default function RemPage() {
 
             {/* Hero */}
             <div className="text-center mb-16">
-              <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-500 mb-6">
-                <Bot className="w-12 h-12 text-white" />
+              <div className="relative w-48 h-48 md:w-64 md:h-64 mx-auto mb-6 rounded-3xl overflow-hidden shadow-2xl">
+                <Image
+                  src="/images/products/Rembot.png"
+                  alt="Rem bot"
+                  fill
+                  className="object-cover"
+                  priority
+                />
               </div>
               <h1 className="text-4xl md:text-5xl font-bold mb-4">Rem bot</h1>
               <p className="text-xl text-muted-foreground mb-8">

@@ -4,52 +4,52 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
-import { Hand, Zap, Layout, Settings, ArrowLeft, ExternalLink } from 'lucide-react';
+import { Zap, Wifi, History, Layers, ArrowLeft } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const featuresData = {
   ja: [
     {
-      icon: Hand,
-      title: '片手操作最適化',
-      description: '画面の端に手が届かない問題を解決。どんな画面サイズでも快適に。',
-    },
-    {
       icon: Zap,
-      title: 'クイックアクション',
-      description: 'よく使う機能をワンタップで実行。カスタマイズ自由自在。',
+      title: '高速読み取り',
+      description: 'カメラを向けるだけで瞬時に認識。複数のQRコードも連続スキャン可能。',
     },
     {
-      icon: Layout,
-      title: 'ウィジェット',
-      description: 'ホーム画面からすぐにアクセス。必要な情報をすぐに確認。',
+      icon: Wifi,
+      title: 'Wi-Fi QR生成',
+      description: 'Wi-Fi接続情報をQRコード化。友人やゲストへの共有が簡単に。',
     },
     {
-      icon: Settings,
-      title: 'カスタムジェスチャー',
-      description: 'スワイプやタップで好きなアクションを設定。あなただけの操作体系を。',
+      icon: History,
+      title: '履歴保存',
+      description: 'スキャン・生成したQRコードを自動保存。いつでも再利用可能。',
+    },
+    {
+      icon: Layers,
+      title: 'バッチ処理',
+      description: '複数のQRコードを一括生成。ビジネス利用にも対応。',
     },
   ],
   en: [
     {
-      icon: Hand,
-      title: 'One-hand Optimization',
-      description: 'Solve the problem of not being able to reach the edge of the screen. Comfortable on any screen size.',
-    },
-    {
       icon: Zap,
-      title: 'Quick Actions',
-      description: 'Execute frequently used functions with one tap. Fully customizable.',
+      title: 'Fast Scanning',
+      description: 'Instant recognition just by pointing the camera. Continuous scanning of multiple QR codes.',
     },
     {
-      icon: Layout,
-      title: 'Widgets',
-      description: 'Quick access from home screen. Check necessary information instantly.',
+      icon: Wifi,
+      title: 'Wi-Fi QR Generation',
+      description: 'Convert Wi-Fi connection info to QR code. Easy sharing with friends and guests.',
     },
     {
-      icon: Settings,
-      title: 'Custom Gestures',
-      description: 'Set your favorite actions with swipes and taps. Create your own control system.',
+      icon: History,
+      title: 'History Saving',
+      description: 'Automatically save scanned and generated QR codes. Reuse anytime.',
+    },
+    {
+      icon: Layers,
+      title: 'Batch Processing',
+      description: 'Generate multiple QR codes at once. Ready for business use.',
     },
   ],
 };
@@ -58,34 +58,34 @@ const faqsData = {
   ja: [
     {
       q: '対応デバイスは？',
-      a: 'Android 8.0以上のデバイスに対応しています。',
-    },
-    {
-      q: 'バッテリー消費は？',
-      a: 'バックグラウンド動作を最適化しており、バッテリー消費は最小限です。',
+      a: 'Android 8.0以上、iOS 14以上のデバイスに対応予定です。',
     },
     {
       q: '無料で使えますか？',
-      a: '基本機能は無料です。Pro版でより高度なカスタマイズが可能になります。',
+      a: 'はい、基本機能はすべて無料でご利用いただけます。',
+    },
+    {
+      q: 'どんな種類のQRコードに対応していますか？',
+      a: 'URL、テキスト、Wi-Fi、連絡先、位置情報など、主要なQRコード形式すべてに対応しています。',
     },
   ],
   en: [
     {
       q: 'What devices are supported?',
-      a: 'Supports devices with Android 8.0 or higher.',
-    },
-    {
-      q: 'How about battery consumption?',
-      a: 'Background operation is optimized, minimizing battery consumption.',
+      a: 'Planned to support Android 8.0+ and iOS 14+ devices.',
     },
     {
       q: 'Is it free to use?',
-      a: 'Basic features are free. Pro version enables more advanced customization.',
+      a: 'Yes, all basic features are free to use.',
+    },
+    {
+      q: 'What types of QR codes are supported?',
+      a: 'All major QR code formats including URL, text, Wi-Fi, contacts, and location.',
     },
   ],
 };
 
-export default function NaviPage() {
+export default function QRaftPage() {
   const { language } = useLanguage();
   const features = featuresData[language];
   const faqs = faqsData[language];
@@ -93,17 +93,15 @@ export default function NaviPage() {
   const content = {
     ja: {
       backToProducts: '製品一覧に戻る',
-      tagline: '片手操作特化アプリ',
-      googlePlay: 'Google Play',
-      guide: '使い方ガイド',
+      tagline: 'QRコードをもっと便利に',
+      comingSoon: 'Coming Soon',
       featuresTitle: '機能',
       faqTitle: 'よくある質問',
     },
     en: {
       backToProducts: 'Back to Products',
-      tagline: 'One-handed Operation App',
-      googlePlay: 'Google Play',
-      guide: 'User Guide',
+      tagline: 'Make QR codes more convenient',
+      comingSoon: 'Coming Soon',
       featuresTitle: 'Features',
       faqTitle: 'FAQ',
     },
@@ -127,31 +125,21 @@ export default function NaviPage() {
             <div className="text-center mb-16">
               <div className="relative w-48 h-48 md:w-64 md:h-64 mx-auto mb-6 rounded-3xl overflow-hidden shadow-2xl">
                 <Image
-                  src="/images/products/Navi.png"
-                  alt="Navi"
+                  src="/images/products/QRaft.png"
+                  alt="QRaft"
                   fill
                   className="object-cover"
                   priority
                 />
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">Navi</h1>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">QRaft</h1>
               <p className="text-xl text-muted-foreground mb-8">
                 {content[language].tagline}
               </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <a
-                  href="#"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-                >
-                  {content[language].googlePlay}
-                  <ExternalLink className="w-4 h-4" />
-                </a>
-                <a
-                  href="#"
-                  className="inline-flex items-center gap-2 px-6 py-3 border border-input rounded-lg hover:bg-accent transition-colors"
-                >
-                  {content[language].guide}
-                </a>
+                <span className="inline-flex items-center gap-2 px-6 py-3 bg-muted text-muted-foreground rounded-lg">
+                  {content[language].comingSoon}
+                </span>
               </div>
             </div>
 
@@ -161,7 +149,7 @@ export default function NaviPage() {
               <div className="grid md:grid-cols-2 gap-6">
                 {features.map((feature) => (
                   <div key={feature.title} className="glass p-6 rounded-2xl">
-                    <feature.icon className="w-8 h-8 text-accent mb-4" />
+                    <feature.icon className="w-8 h-8 text-violet-500 mb-4" />
                     <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
                     <p className="text-muted-foreground">{feature.description}</p>
                   </div>
