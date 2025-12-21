@@ -56,27 +56,23 @@ export function Projects() {
               <Card className="h-full overflow-hidden border-border/50 hover:border-primary/50 transition-all duration-300">
                 {/* Project Header - Always Visible */}
                 <div
-                  className={`h-48 bg-gradient-to-br ${project.gradient} relative overflow-hidden cursor-pointer`}
+                  className="h-48 relative overflow-hidden cursor-pointer"
                   onClick={() => toggleExpand(project.id)}
                 >
-                  <div className="absolute inset-0 bg-black/20" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-white text-center p-4 flex flex-col items-center">
-                      <div className="w-20 h-20 mb-3 relative">
-                        <Image
-                          src={project.image}
-                          alt={project.title}
-                          fill
-                          className="object-contain drop-shadow-lg"
-                        />
-                      </div>
-                      <h3 className="text-xl font-bold mb-2 drop-shadow-md">
-                        {project.title}
-                      </h3>
-                      <span className="px-3 py-1 bg-yellow-500/90 text-black text-xs font-bold rounded-full">
-                        Coming Soon
-                      </span>
-                    </div>
+                  <Image
+                    src={project.image}
+                    alt={project.title}
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <h3 className="text-xl font-bold text-white mb-2 drop-shadow-md">
+                      {project.title}
+                    </h3>
+                    <span className="px-3 py-1 bg-yellow-500/90 text-black text-xs font-bold rounded-full">
+                      Coming Soon
+                    </span>
                   </div>
                   {/* Action Icons */}
                   <div className="absolute top-4 right-4 flex gap-2">
