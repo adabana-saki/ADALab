@@ -5,6 +5,7 @@ import 'katex/dist/katex.min.css';
 import { StructuredData } from '@/components/StructuredData';
 import { WebVitals } from '@/components/WebVitals';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
+import { SentryProvider, SentryErrorBoundary } from '@/components/analytics/SentryProvider';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { KeyboardShortcutsProvider } from '@/components/KeyboardShortcutsProvider';
@@ -112,6 +113,13 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+    other: {
+      'msvalidate.01': process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION || '',
+      'yandex-verification': process.env.NEXT_PUBLIC_YANDEX_VERIFICATION || '',
+    },
+  },
 };
 
 export default function RootLayout({
@@ -130,14 +138,18 @@ export default function RootLayout({
           メインコンテンツへスキップ
         </a>
         <GoogleAnalytics />
-        <ThemeProvider>
-          <LanguageProvider>
-            <KeyboardShortcutsProvider>
-              <WebVitals />
-              {children}
-            </KeyboardShortcutsProvider>
-          </LanguageProvider>
-        </ThemeProvider>
+        <SentryProvider>
+          <SentryErrorBoundary>
+            <ThemeProvider>
+              <LanguageProvider>
+                <KeyboardShortcutsProvider>
+                  <WebVitals />
+                  {children}
+                </KeyboardShortcutsProvider>
+              </LanguageProvider>
+            </ThemeProvider>
+          </SentryErrorBoundary>
+        </SentryProvider>
       </body>
     </html>
   );
