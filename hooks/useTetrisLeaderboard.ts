@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { getDeviceId } from './useDeviceId';
 
 export interface LeaderboardEntry {
   id?: number;
@@ -9,6 +10,7 @@ export interface LeaderboardEntry {
   date: string;
   mode: 'endless' | 'sprint';
   time?: number;
+  device_id?: string;
 }
 
 interface UseTetrisLeaderboardOptions {
@@ -118,10 +120,16 @@ export function useTetrisLeaderboard({ mode }: UseTetrisLeaderboardOptions) {
     }
 
     try {
+      // デバイスIDを追加して送信
+      const entryWithDeviceId = {
+        ...entry,
+        device_id: getDeviceId(),
+      };
+
       const response = await fetch(API_BASE, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(entry),
+        body: JSON.stringify(entryWithDeviceId),
       });
 
       if (!response.ok) throw new Error('Failed to submit');

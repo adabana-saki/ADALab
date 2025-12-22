@@ -13,6 +13,7 @@ interface LeaderboardEntry {
   date: string;
   mode: 'endless' | 'sprint';
   time?: number;
+  device_id?: string;
   created_at?: string;
 }
 
@@ -54,7 +55,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   }
 };
 
-// POST: スコアを登録
+// POST: スコアを登録（デバイスIDがある場合は1ユーザー1記録）
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
 
@@ -85,22 +86,74 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     // ニックネームをサニタイズ
     const sanitizedNickname = body.nickname.trim().slice(0, 20);
+    const deviceId = body.device_id?.trim() || null;
 
-    // スコアを登録
-    await env.DB.prepare(
-      `INSERT INTO tetris_leaderboard (nickname, score, lines, level, date, mode, time)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`
-    )
-      .bind(
-        sanitizedNickname,
-        body.score,
-        body.lines || 0,
-        body.level || 1,
-        body.date || new Date().toISOString(),
-        body.mode,
-        body.time || null
+    // デバイスIDがある場合は1ユーザー1記録（UPSERTロジック）
+    if (deviceId) {
+      // 既存のレコードを確認
+      const existing = await env.DB.prepare(
+        `SELECT id, score FROM tetris_leaderboard
+         WHERE device_id = ? AND mode = ?`
       )
-      .run();
+        .bind(deviceId, body.mode)
+        .first<{ id: number; score: number }>();
+
+      if (existing) {
+        // 既存レコードがある場合
+        if (body.score > existing.score) {
+          // 新しいスコアが高い場合のみ更新
+          await env.DB.prepare(
+            `UPDATE tetris_leaderboard
+             SET nickname = ?, score = ?, lines = ?, level = ?, date = ?, time = ?
+             WHERE id = ?`
+          )
+            .bind(
+              sanitizedNickname,
+              body.score,
+              body.lines || 0,
+              body.level || 1,
+              body.date || new Date().toISOString(),
+              body.time || null,
+              existing.id
+            )
+            .run();
+        }
+        // スコアが低い場合は何もしない（成功として返す）
+      } else {
+        // 新規レコード
+        await env.DB.prepare(
+          `INSERT INTO tetris_leaderboard (nickname, score, lines, level, date, mode, time, device_id)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+        )
+          .bind(
+            sanitizedNickname,
+            body.score,
+            body.lines || 0,
+            body.level || 1,
+            body.date || new Date().toISOString(),
+            body.mode,
+            body.time || null,
+            deviceId
+          )
+          .run();
+      }
+    } else {
+      // デバイスIDがない場合は従来通り（レガシー互換）
+      await env.DB.prepare(
+        `INSERT INTO tetris_leaderboard (nickname, score, lines, level, date, mode, time)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`
+      )
+        .bind(
+          sanitizedNickname,
+          body.score,
+          body.lines || 0,
+          body.level || 1,
+          body.date || new Date().toISOString(),
+          body.mode,
+          body.time || null
+        )
+        .run();
+    }
 
     // 更新後のランキングを取得
     const result = await env.DB.prepare(
