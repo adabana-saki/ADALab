@@ -24,7 +24,6 @@ const AnimatedBackground = dynamic(() => import('@/components/effects/AnimatedBa
 const CyberGrid = dynamic(() => import('@/components/effects/CyberGrid').then(mod => ({ default: mod.CyberGrid })), { ssr: false });
 const ScanLines = dynamic(() => import('@/components/effects/ScanLines').then(mod => ({ default: mod.ScanLines })), { ssr: false });
 const MouseGlow = dynamic(() => import('@/components/effects/MouseGlow').then(mod => ({ default: mod.MouseGlow })), { ssr: false });
-const DynamicIsland = dynamic(() => import('@/components/effects/DynamicIsland').then(mod => ({ default: mod.DynamicIsland })), { ssr: false });
 const KonamiCode = dynamic(() => import('@/components/effects/KonamiCode').then(mod => ({ default: mod.KonamiCode })), { ssr: false });
 const MatrixRain = dynamic(() => import('@/components/effects/MatrixRain').then(mod => ({ default: mod.MatrixRain })), { ssr: false });
 const CommandPalette = dynamic(() => import('@/components/CommandPalette').then(mod => ({ default: mod.CommandPalette })), { ssr: false });
@@ -129,7 +128,6 @@ export function HomeContent({ latestPosts }: HomeContentProps) {
           <MouseGlow />
           <FloatingElements />
           <CinematicIntro />
-          <DynamicIsland />
           <KonamiCode />
           <CommandPalette />
         </>
