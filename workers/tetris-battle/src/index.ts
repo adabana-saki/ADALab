@@ -71,20 +71,41 @@ async function handleCreateRoom(request: Request, env: Env): Promise<Response> {
     // Consume JSON body (nickname is passed via WebSocket later)
     await request.json();
 
-    // Generate room code and use it as the DO name
-    const roomCode = generateRoomCode();
-    const id = env.TETRIS_ROOM.idFromName(roomCode);
-    const room = env.TETRIS_ROOM.get(id);
+    // Generate unique room code with collision detection
+    let roomCode: string;
+    let attempts = 0;
+    const maxAttempts = 5;
 
-    // Initialize the DO with the room code
-    await room.fetch(new Request(`https://dummy/init?roomCode=${roomCode}`));
+    while (attempts < maxAttempts) {
+      roomCode = generateRoomCode();
+      const id = env.TETRIS_ROOM.idFromName(roomCode);
+      const room = env.TETRIS_ROOM.get(id);
 
-    return new Response(JSON.stringify({
-      success: true,
-      roomId: roomCode,
-      roomCode,
-      wsUrl: `/ws/room/${roomCode}`,
-    }), {
+      // Check if room already exists
+      const infoResponse = await room.fetch(new Request(`https://dummy/info`));
+      const roomInfo = await infoResponse.json() as { roomCode?: string; playerCount: number };
+
+      // Room doesn't exist or is empty - safe to use
+      if (!roomInfo.roomCode && roomInfo.playerCount === 0) {
+        // Initialize the DO with the room code
+        await room.fetch(new Request(`https://dummy/init?roomCode=${roomCode}`));
+
+        return new Response(JSON.stringify({
+          success: true,
+          roomId: roomCode,
+          roomCode,
+          wsUrl: `/ws/room/${roomCode}`,
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      attempts++;
+    }
+
+    // Failed to generate unique code after max attempts
+    return new Response(JSON.stringify({ error: 'Failed to create room, please try again' }), {
+      status: 503,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (e) {
