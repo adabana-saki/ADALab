@@ -12,6 +12,7 @@ import { WakaTimeStats } from '../WakaTimeStats';
 import { TerminalEmulator } from '../effects/TerminalEmulator';
 import { CodeSandbox } from '../effects/CodeSandbox';
 import { WakaTimeProjects } from '../WakaTimeProjects';
+import { PROJECTS } from '@/lib/projects';
 
 const featuresData = {
   ja: [
@@ -60,10 +61,12 @@ const featuresData = {
   ],
 };
 
+// 動的に統計を計算
+const uniqueTechnologies = new Set(PROJECTS.flatMap((p) => p.technologies));
 const stats = [
-  { value: 2, suffix: '', label: 'Products' },
+  { value: PROJECTS.length, suffix: '', label: 'Products' },
   { value: 2025, suffix: '', label: 'Since' },
-  { value: 50, suffix: '+', label: 'Technologies' },
+  { value: uniqueTechnologies.size, suffix: '+', label: 'Technologies' },
   { value: 1, suffix: '', label: 'Developer' },
 ];
 
