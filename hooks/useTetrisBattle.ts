@@ -40,7 +40,7 @@ interface UseTetrisBattleOptions {
 }
 
 // Worker URL - will be configured based on environment
-const BATTLE_WORKER_URL = process.env.NEXT_PUBLIC_BATTLE_WORKER_URL || 'https://tetris-battle.adalabtech.workers.dev';
+const BATTLE_WORKER_URL = process.env.NEXT_PUBLIC_BATTLE_WORKER_URL || 'https://tetris-battle.info-adalabtech.workers.dev';
 
 export function useTetrisBattle(options: UseTetrisBattleOptions = {}) {
   const [gameStatus, setGameStatus] = useState<GameStatus>('disconnected');
