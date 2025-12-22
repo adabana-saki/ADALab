@@ -48,3 +48,4 @@ docs/
 # generated files
 public/fonts/
 public/og/
+workers/tetris-battle/node_modules/
