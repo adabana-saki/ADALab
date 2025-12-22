@@ -58,17 +58,16 @@ async function handleCreateRoom(request: Request, env: Env): Promise<Response> {
   }
 
   try {
-    const body = await request.json() as { nickname?: string };
-    const nickname = body.nickname?.trim().slice(0, 12) || 'Player';
+    // Consume JSON body (nickname is passed via WebSocket later)
+    await request.json();
 
     // Create a new Durable Object for the room
     const roomId = crypto.randomUUID();
     const id = env.TETRIS_ROOM.idFromName(roomId);
     const room = env.TETRIS_ROOM.get(id);
 
-    // Get room info (this initializes the DO)
-    const infoResponse = await room.fetch(new Request(`https://dummy/info`));
-    const roomInfo = await infoResponse.json() as { roomCode?: string };
+    // Initialize the DO
+    await room.fetch(new Request(`https://dummy/info`));
 
     return new Response(JSON.stringify({
       success: true,
@@ -92,9 +91,8 @@ async function handleJoinRoom(request: Request, env: Env): Promise<Response> {
   }
 
   try {
-    const body = await request.json() as { roomCode?: string; nickname?: string };
+    const body = await request.json() as { roomCode?: string };
     const roomCode = body.roomCode?.toUpperCase().trim();
-    const nickname = body.nickname?.trim().slice(0, 12) || 'Player';
 
     if (!roomCode) {
       return new Response(JSON.stringify({ error: 'Room code required' }), {
