@@ -811,6 +811,20 @@ export function TetrisGame() {
       ctx.stroke();
     }
 
+    // ゲームオーバー警告ライン（DANGER ZONE）
+    // 上から2行目の下に赤い破線を描画
+    const dangerLineY = 2 * BLOCK_SIZE;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(239, 68, 68, 0.6)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([8, 4]);
+    ctx.beginPath();
+    ctx.moveTo(0, dangerLineY);
+    ctx.lineTo(FIELD_COL * BLOCK_SIZE, dangerLineY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+
     // ライン消去アニメーション
     const animLines = lineClearAnim?.lines || [];
 

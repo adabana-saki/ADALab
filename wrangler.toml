@@ -4,3 +4,7 @@ compatibility_flags = ["nodejs_compat"]
 binding = "DB"
 database_name = "adalab_db"
 database_id = "3b59394e-a0a8-4bf1-ad66-0295c72c7db8"
+
+# Note: Tetris Battle uses a separate Durable Objects Worker
+# Deploy it from workers/tetris-battle/ using `wrangler deploy`
+# See: workers/tetris-battle/README.md
