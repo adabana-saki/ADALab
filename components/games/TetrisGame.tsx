@@ -812,8 +812,8 @@ export function TetrisGame() {
     }
 
     // ゲームオーバー警告ライン（DANGER ZONE）
-    // 上から2行目の下に赤い破線を描画
-    const dangerLineY = 2 * BLOCK_SIZE;
+    // 上から1行目の下に赤い破線を描画
+    const dangerLineY = 1 * BLOCK_SIZE;
     ctx.save();
     ctx.strokeStyle = 'rgba(239, 68, 68, 0.6)';
     ctx.lineWidth = 2;

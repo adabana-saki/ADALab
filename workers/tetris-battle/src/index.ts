@@ -52,6 +52,16 @@ export default {
   },
 };
 
+// Generate a 6-character room code
+function generateRoomCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Excluding similar chars (I, O, 0, 1)
+  let code = '';
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
 async function handleCreateRoom(request: Request, env: Env): Promise<Response> {
   if (request.method !== 'POST') {
     return new Response('Method not allowed', { status: 405, headers: corsHeaders });
@@ -61,19 +71,41 @@ async function handleCreateRoom(request: Request, env: Env): Promise<Response> {
     // Consume JSON body (nickname is passed via WebSocket later)
     await request.json();
 
-    // Create a new Durable Object for the room
-    const roomId = crypto.randomUUID();
-    const id = env.TETRIS_ROOM.idFromName(roomId);
-    const room = env.TETRIS_ROOM.get(id);
+    // Generate unique room code with collision detection
+    let roomCode: string;
+    let attempts = 0;
+    const maxAttempts = 5;
 
-    // Initialize the DO
-    await room.fetch(new Request(`https://dummy/info`));
+    while (attempts < maxAttempts) {
+      roomCode = generateRoomCode();
+      const id = env.TETRIS_ROOM.idFromName(roomCode);
+      const room = env.TETRIS_ROOM.get(id);
 
-    return new Response(JSON.stringify({
-      success: true,
-      roomId,
-      wsUrl: `/ws/room/${roomId}`,
-    }), {
+      // Check if room already exists
+      const infoResponse = await room.fetch(new Request(`https://dummy/info`));
+      const roomInfo = await infoResponse.json() as { roomCode?: string; playerCount: number };
+
+      // Room doesn't exist or is empty - safe to use
+      if (!roomInfo.roomCode && roomInfo.playerCount === 0) {
+        // Initialize the DO with the room code
+        await room.fetch(new Request(`https://dummy/init?roomCode=${roomCode}`));
+
+        return new Response(JSON.stringify({
+          success: true,
+          roomId: roomCode,
+          roomCode,
+          wsUrl: `/ws/room/${roomCode}`,
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      attempts++;
+    }
+
+    // Failed to generate unique code after max attempts
+    return new Response(JSON.stringify({ error: 'Failed to create room, please try again' }), {
+      status: 503,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (e) {
@@ -111,7 +143,15 @@ async function handleJoinRoom(request: Request, env: Env): Promise<Response> {
 
     // Check if room exists and has space
     const infoResponse = await room.fetch(new Request(`https://dummy/info`));
-    const roomInfo = await infoResponse.json() as { playerCount: number; gameStatus: string };
+    const roomInfo = await infoResponse.json() as { playerCount: number; gameStatus: string; roomCode?: string };
+
+    // Check if room actually exists (has been initialized)
+    if (!roomInfo.roomCode || roomInfo.playerCount === 0) {
+      return new Response(JSON.stringify({ error: 'Room not found' }), {
+        status: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     if (roomInfo.playerCount >= 2) {
       return new Response(JSON.stringify({ error: 'Room is full' }), {

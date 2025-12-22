@@ -47,6 +47,18 @@ export class TetrisRoom extends DurableObject<Env> {
       return new Response(null, { headers: corsHeaders });
     }
 
+    // Initialize room with code
+    if (url.pathname === '/init') {
+      const roomCode = url.searchParams.get('roomCode');
+      if (roomCode) {
+        this.roomState.roomCode = roomCode;
+        this.roomState.roomId = roomCode;
+      }
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // Room info endpoint
     if (url.pathname === '/info') {
       return new Response(JSON.stringify({
@@ -155,9 +167,13 @@ export class TetrisRoom extends DurableObject<Env> {
       return;
     }
 
-    // Generate room code
-    this.roomState.roomCode = this.generateRoomCode();
-    this.roomState.roomId = this.ctx.id.toString();
+    // Use existing room code if set (from init), otherwise generate new one
+    if (!this.roomState.roomCode) {
+      this.roomState.roomCode = this.generateRoomCode();
+    }
+    if (!this.roomState.roomId) {
+      this.roomState.roomId = this.roomState.roomCode;
+    }
     this.roomState.hostId = session.playerId;
 
     // Add player
