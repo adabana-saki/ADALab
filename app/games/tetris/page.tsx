@@ -4,6 +4,7 @@ import { GameStructuredData } from '@/components/games/GameStructuredData';
 import { SITE_CONFIG } from '@/lib/constants';
 import { Gamepad2, ArrowLeft, Swords } from 'lucide-react';
 import Link from 'next/link';
+import { OnlineIndicator } from '@/components/OnlineIndicator';
 
 export const metadata: Metadata = {
   title: 'Tetris',
@@ -44,13 +45,16 @@ export default function TetrisPage() {
       <main className="min-h-screen bg-gradient-to-b from-background to-muted/20">
       <div className="container mx-auto px-4 py-4">
         {/* ナビゲーション */}
-        <Link
-          href="/games"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
-        >
-          <ArrowLeft size={16} />
-          ゲーム一覧に戻る
-        </Link>
+        <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
+          <Link
+            href="/games"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft size={16} />
+            ゲーム一覧に戻る
+          </Link>
+          <OnlineIndicator page="tetris" />
+        </div>
 
         {/* ヘッダー */}
         <div className="text-center mb-8">

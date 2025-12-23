@@ -1,7 +1,9 @@
 import { TetrisRoom } from './TetrisRoom';
+import { OnlinePresence } from './OnlinePresence';
 
 interface Env {
   TETRIS_ROOM: DurableObjectNamespace;
+  ONLINE_PRESENCE: DurableObjectNamespace;
   ALLOWED_ORIGINS: string;
 }
 
@@ -43,6 +45,19 @@ export default {
 
     if (path === '/api/battle/room-info') {
       return handleRoomInfo(request, env);
+    }
+
+    // Presence API routes
+    if (path === '/api/presence/heartbeat') {
+      return handlePresence(request, env, 'heartbeat');
+    }
+
+    if (path === '/api/presence/leave') {
+      return handlePresence(request, env, 'leave');
+    }
+
+    if (path === '/api/presence/stats') {
+      return handlePresence(request, env, 'stats');
     }
 
     // WebSocket connection to specific room
@@ -328,5 +343,29 @@ async function handleWebSocket(request: Request, env: Env, roomId: string): Prom
   }
 }
 
-// Export Durable Object class
-export { TetrisRoom };
+// Presence API handler
+async function handlePresence(request: Request, env: Env, action: string): Promise<Response> {
+  try {
+    // Use a single global presence DO instance
+    const id = env.ONLINE_PRESENCE.idFromName('global');
+    const presence = env.ONLINE_PRESENCE.get(id);
+
+    // Forward the request to the Durable Object
+    const doRequest = new Request(`https://dummy/${action}`, {
+      method: request.method,
+      headers: request.headers,
+      body: request.method === 'POST' ? request.body : undefined,
+    });
+
+    return presence.fetch(doRequest);
+  } catch (e) {
+    console.error('Presence error:', e);
+    return new Response(JSON.stringify({ error: 'Presence tracking failed' }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+// Export Durable Object classes
+export { TetrisRoom, OnlinePresence };
