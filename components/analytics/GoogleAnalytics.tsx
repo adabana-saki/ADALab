@@ -1,6 +1,6 @@
 'use client';
 
-import Script from 'next/script';
+import { GoogleAnalytics as GA } from '@next/third-parties/google';
 import { useEffect, Suspense } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
@@ -11,7 +11,6 @@ const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '';
 declare global {
   interface Window {
     gtag?: (command: string, ...args: unknown[]) => void;
-    dataLayer?: unknown[];
   }
 }
 
@@ -48,7 +47,7 @@ function PageViewTracker() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (pathname) {
+    if (pathname && GA_MEASUREMENT_ID) {
       const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
       trackPageView(url);
     }
@@ -58,33 +57,14 @@ function PageViewTracker() {
 }
 
 export function GoogleAnalytics() {
-  // Don't render in development or if GA ID is not configured
-  if (process.env.NODE_ENV === 'development' || !GA_MEASUREMENT_ID) {
+  // Don't render if GA ID is not configured
+  if (!GA_MEASUREMENT_ID) {
     return null;
   }
 
   return (
     <>
-      <Script
-        strategy="afterInteractive"
-        src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-      />
-      <Script
-        id="google-analytics"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${GA_MEASUREMENT_ID}', {
-              page_path: window.location.pathname,
-              anonymize_ip: true,
-              cookie_flags: 'SameSite=None;Secure'
-            });
-          `,
-        }}
-      />
+      <GA gaId={GA_MEASUREMENT_ID} />
       <Suspense fallback={null}>
         <PageViewTracker />
       </Suspense>
