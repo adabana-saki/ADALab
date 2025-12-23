@@ -22,6 +22,7 @@ export class TetrisRoom extends DurableObject<Env> {
   private sessions: Map<WebSocket, WebSocketSession> = new Map();
   private roomState: RoomState;
   private countdownInterval?: ReturnType<typeof setInterval>;
+  private initialized = false;
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
@@ -31,6 +32,18 @@ export class TetrisRoom extends DurableObject<Env> {
       gameStatus: 'waiting',
       createdAt: Date.now(),
     };
+  }
+
+  // ストレージからroomCodeを復元
+  private async ensureInitialized(): Promise<void> {
+    if (this.initialized) return;
+    const stored = await this.ctx.storage.get<{ roomCode: string; createdAt: number }>('roomData');
+    if (stored) {
+      this.roomState.roomCode = stored.roomCode;
+      this.roomState.roomId = stored.roomCode;
+      this.roomState.createdAt = stored.createdAt;
+    }
+    this.initialized = true;
   }
 
   async fetch(request: Request): Promise<Response> {
@@ -53,6 +66,13 @@ export class TetrisRoom extends DurableObject<Env> {
       if (roomCode) {
         this.roomState.roomCode = roomCode;
         this.roomState.roomId = roomCode;
+        this.roomState.createdAt = Date.now();
+        // 永続ストレージに保存
+        await this.ctx.storage.put('roomData', {
+          roomCode,
+          createdAt: this.roomState.createdAt,
+        });
+        this.initialized = true;
       }
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -61,11 +81,13 @@ export class TetrisRoom extends DurableObject<Env> {
 
     // Room info endpoint
     if (url.pathname === '/info') {
+      await this.ensureInitialized();
       return new Response(JSON.stringify({
         roomId: this.roomState.roomId,
         roomCode: this.roomState.roomCode,
         playerCount: this.roomState.players.size,
         gameStatus: this.roomState.gameStatus,
+        createdAt: this.roomState.createdAt,
         players: Array.from(this.roomState.players.values()).map(p => ({
           id: p.id,
           nickname: p.nickname,
@@ -103,6 +125,9 @@ export class TetrisRoom extends DurableObject<Env> {
 
     const session = this.sessions.get(ws);
     if (!session) return;
+
+    // ストレージからroomCodeを復元
+    await this.ensureInitialized();
 
     try {
       const data = JSON.parse(message) as ClientMessage;

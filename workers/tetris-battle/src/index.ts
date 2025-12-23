@@ -156,11 +156,20 @@ async function handleJoinRoom(request: Request, env: Env): Promise<Response> {
 
     // Check if room exists and has space
     const infoResponse = await room.fetch(new Request(`https://dummy/info`));
-    const roomInfo = await infoResponse.json() as { playerCount: number; gameStatus: string; roomCode?: string };
+    const roomInfo = await infoResponse.json() as { playerCount: number; gameStatus: string; roomCode?: string; createdAt?: number };
 
     // Check if room actually exists (has been initialized)
-    if (!roomInfo.roomCode || roomInfo.playerCount === 0) {
+    if (!roomInfo.roomCode) {
       return new Response(JSON.stringify({ error: 'Room not found' }), {
+        status: 404,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Check if room is expired (1 hour timeout)
+    const ROOM_TIMEOUT = 60 * 60 * 1000; // 1 hour
+    if (roomInfo.createdAt && Date.now() - roomInfo.createdAt > ROOM_TIMEOUT) {
+      return new Response(JSON.stringify({ error: 'Room has expired' }), {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
