@@ -17,7 +17,7 @@ interface UseOnlinePresenceOptions {
   enabled?: boolean;
 }
 
-const WORKER_URL = process.env.NEXT_PUBLIC_TETRIS_BATTLE_WORKER_URL || 'https://tetris-battle.adalab.workers.dev';
+const WORKER_URL = process.env.NEXT_PUBLIC_BATTLE_WORKER_URL || 'https://tetris-battle.info-adalabtech.workers.dev';
 const HEARTBEAT_INTERVAL = 10000; // 10 seconds
 const STATS_FETCH_INTERVAL = 15000; // 15 seconds
 

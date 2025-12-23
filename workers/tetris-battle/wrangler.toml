@@ -12,6 +12,10 @@ class_name = "TetrisRoom"
 name = "ONLINE_PRESENCE"
 class_name = "OnlinePresence"
 
+[[durable_objects.bindings]]
+name = "MATCHMAKING_QUEUE"
+class_name = "MatchmakingQueue"
+
 # Migrations for Durable Objects with SQLite storage
 [[migrations]]
 tag = "v1"
@@ -20,6 +24,10 @@ new_sqlite_classes = ["TetrisRoom"]
 [[migrations]]
 tag = "v2"
 new_sqlite_classes = ["OnlinePresence"]
+
+[[migrations]]
+tag = "v3"
+new_sqlite_classes = ["MatchmakingQueue"]
 
 # CORS settings
 [vars]
