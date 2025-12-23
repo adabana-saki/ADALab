@@ -8,10 +8,18 @@ compatibility_flags = ["nodejs_compat"]
 name = "TETRIS_ROOM"
 class_name = "TetrisRoom"
 
+[[durable_objects.bindings]]
+name = "ONLINE_PRESENCE"
+class_name = "OnlinePresence"
+
 # Migrations for Durable Objects with SQLite storage
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["TetrisRoom"]
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["OnlinePresence"]
 
 # CORS settings
 [vars]

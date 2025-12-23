@@ -16,6 +16,7 @@ import {
   Home,
 } from 'lucide-react';
 import Link from 'next/link';
+import { OnlineIndicator } from '@/components/OnlineIndicator';
 
 type LobbyMode = 'menu' | 'quickmatch' | 'create' | 'join' | 'playing';
 
@@ -132,6 +133,11 @@ export function TetrisBattleLobby() {
           <div className="text-center">
             <h1 className="text-3xl font-bold text-foreground mb-2">Tetris Battle</h1>
             <p className="text-muted-foreground">オンライン対戦モード</p>
+          </div>
+
+          {/* オンライン人数 */}
+          <div className="flex justify-center">
+            <OnlineIndicator page="tetris-battle" />
           </div>
 
           {/* ニックネーム入力 */}
