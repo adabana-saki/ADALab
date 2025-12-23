@@ -299,11 +299,11 @@ export function TetrisBattleLobby() {
                     <div className="bg-muted/50 rounded-lg p-3 space-y-2">
                       <div>
                         <div className="flex justify-between">
-                          <span className="text-orange-400">コンボ</span>
-                          <span className="text-orange-400">+連続数</span>
+                          <span className="text-orange-400">コンボ (REN)</span>
+                          <span className="text-orange-400">2REN以降 +1, +2...</span>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          連続でライン消しすると追加攻撃
+                          連続でライン消しすると2RENから+1、3RENから+2...
                         </p>
                       </div>
                       <div>
