@@ -373,9 +373,10 @@ export function TetrisBattle({
 
       // おじゃまブロック追加
       if (localPendingGarbage > 0) {
-        addGarbageLines(localPendingGarbage);
+        const linesToAdd = localPendingGarbage;  // 先に値を保存
+        addGarbageLines(linesToAdd);
         setLocalPendingGarbage(0);
-        consumeGarbage(localPendingGarbage);
+        consumeGarbage(linesToAdd);  // 保存した値を使用
       }
     }
 
@@ -394,16 +395,21 @@ export function TetrisBattle({
     forceUpdate({});
   }, [sendAttack, sendFieldUpdate, consumeGarbage, spawnPiece, localPendingGarbage, sendGameOver]);
 
-  // おじゃまブロック追加
+  // おじゃまブロック追加（ぷよテト仕様: 70%で同じ穴位置を継続）
   const addGarbageLines = useCallback((lines: number) => {
     const state = gameStateRef.current;
-    const holePos = Math.floor(state.random() * FIELD_COL);
+    let holePos = Math.floor(state.random() * FIELD_COL);
 
     for (let i = 0; i < lines; i++) {
       state.field.shift();
       const garbageLine = Array(FIELD_COL).fill(8); // 8 = garbage color
       garbageLine[holePos] = 0;
       state.field.push(garbageLine);
+
+      // ぷよテト仕様: 70%の確率で同じ穴位置、30%で変更
+      if (state.random() > 0.7) {
+        holePos = Math.floor(state.random() * FIELD_COL);
+      }
     }
   }, []);
 
