@@ -247,8 +247,12 @@ export function TetrisBattleLobby() {
     );
   }
 
-  // 接続中 / マッチング中
-  if (gameStatus === 'connecting' || (lobbyMode === 'quickmatch' && gameStatus === 'waiting' && players.length < 2)) {
+  // 接続中 / マッチング中 / ルーム作成中
+  if (
+    gameStatus === 'connecting' ||
+    (lobbyMode === 'quickmatch' && gameStatus === 'waiting' && players.length < 2) ||
+    (lobbyMode === 'create' && gameStatus === 'disconnected' && !error)
+  ) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
         <div className="w-full max-w-md space-y-6 text-center">
