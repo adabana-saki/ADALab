@@ -14,6 +14,8 @@ import {
   UserX,
   Play,
   Home,
+  HelpCircle,
+  X,
 } from 'lucide-react';
 import Link from 'next/link';
 import { OnlineIndicator } from '@/components/OnlineIndicator';
@@ -30,6 +32,7 @@ export function TetrisBattleLobby() {
   const [opponent, setOpponent] = useState<OpponentState | null>(null);
   const [opponentAlive, setOpponentAlive] = useState(true);
   const [pendingGarbage, setPendingGarbage] = useState(0);
+  const [showRules, setShowRules] = useState(false);
 
   const {
     gameStatus,
@@ -190,8 +193,15 @@ export function TetrisBattleLobby() {
             </div>
           </div>
 
-          {/* ソロモードへのリンク */}
-          <div className="pt-4 border-t border-border">
+          {/* ルール説明・ソロモードへのリンク */}
+          <div className="pt-4 border-t border-border space-y-2">
+            <button
+              onClick={() => setShowRules(true)}
+              className="flex items-center justify-center gap-2 w-full px-4 py-3 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <HelpCircle className="w-4 h-4" />
+              ルール説明
+            </button>
             <Link
               href="/games/tetris"
               className="flex items-center justify-center gap-2 w-full px-4 py-3 text-muted-foreground hover:text-foreground transition-colors"
@@ -200,6 +210,128 @@ export function TetrisBattleLobby() {
               ソロモードに戻る
             </Link>
           </div>
+
+          {/* ルール説明モーダル */}
+          {showRules && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+              <div className="bg-card border border-border rounded-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
+                <div className="flex items-center justify-between p-4 border-b border-border">
+                  <h3 className="text-lg font-bold">バトルルール</h3>
+                  <button
+                    onClick={() => setShowRules(false)}
+                    className="p-1 hover:bg-accent rounded"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <div className="p-4 space-y-4 text-sm">
+                  {/* 基本ルール */}
+                  <div>
+                    <h4 className="font-bold text-foreground mb-2">基本ルール</h4>
+                    <p className="text-muted-foreground">
+                      ラインを消すと相手にお邪魔ブロック（灰色）を送れます。
+                      先に積み上がった方が負けです。
+                    </p>
+                  </div>
+
+                  {/* 攻撃ライン数 */}
+                  <div>
+                    <h4 className="font-bold text-foreground mb-2">攻撃ライン数</h4>
+                    <div className="bg-muted/50 rounded-lg p-3 space-y-1">
+                      <div className="flex justify-between">
+                        <span>1ライン消し</span>
+                        <span className="text-muted-foreground">0ライン</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>2ライン消し</span>
+                        <span className="text-yellow-500">1ライン</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>3ライン消し</span>
+                        <span className="text-yellow-500">2ライン</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-cyan-400">テトリス (4ライン)</span>
+                        <span className="text-cyan-400 font-bold">4ライン</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Tスピン */}
+                  <div>
+                    <h4 className="font-bold text-foreground mb-2">Tスピン攻撃</h4>
+                    <p className="text-muted-foreground text-xs mb-2">
+                      T字ミノを回転で入れてライン消しすると強力な攻撃に！
+                    </p>
+                    <div className="bg-muted/50 rounded-lg p-3 space-y-1">
+                      <div className="flex justify-between">
+                        <span className="text-purple-400">Tスピン Single</span>
+                        <span className="text-purple-400 font-bold">2ライン</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-purple-400">Tスピン Double</span>
+                        <span className="text-purple-400 font-bold">4ライン</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-purple-400">Tスピン Triple</span>
+                        <span className="text-purple-400 font-bold">6ライン</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 特殊攻撃 */}
+                  <div>
+                    <h4 className="font-bold text-foreground mb-2">特殊攻撃</h4>
+                    <div className="bg-muted/50 rounded-lg p-3 space-y-1">
+                      <div className="flex justify-between">
+                        <span className="text-amber-400">パーフェクトクリア</span>
+                        <span className="text-amber-400 font-bold">10ライン</span>
+                      </div>
+                    </div>
+                    <p className="text-muted-foreground text-xs mt-2">
+                      フィールドを全消しすると発動！
+                    </p>
+                  </div>
+
+                  {/* ボーナス */}
+                  <div>
+                    <h4 className="font-bold text-foreground mb-2">ボーナス</h4>
+                    <div className="bg-muted/50 rounded-lg p-3 space-y-2">
+                      <div>
+                        <div className="flex justify-between">
+                          <span className="text-orange-400">コンボ</span>
+                          <span className="text-orange-400">+連続数</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          連続でライン消しすると追加攻撃
+                        </p>
+                      </div>
+                      <div>
+                        <div className="flex justify-between">
+                          <span className="text-pink-400">Back-to-Back</span>
+                          <span className="text-pink-400">+1ライン</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          テトリスやTスピンを連続で決めると追加攻撃
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* お邪魔ブロック */}
+                  <div>
+                    <h4 className="font-bold text-foreground mb-2">お邪魔ブロック</h4>
+                    <ul className="text-muted-foreground space-y-1 text-xs">
+                      <li>• 相手の攻撃を受けると下から灰色ブロックが積み上がる</li>
+                      <li>• お邪魔ブロックには1箇所穴がある</li>
+                      <li>• ライン消しで攻撃すると、受ける予定のお邪魔を相殺できる</li>
+                      <li>• ミノを置いたタイミングでお邪魔ブロックが追加される</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );

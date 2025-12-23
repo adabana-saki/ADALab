@@ -382,10 +382,17 @@ export function TetrisBattle({
     // フィールド更新を送信
     sendFieldUpdate(state.field, state.score, state.lines, state.level);
 
+    // ゲームオーバー判定: 一番上の行(row 0)にブロックがあったら負け
+    if (state.field[0].some((cell) => cell !== 0)) {
+      state.gameOver = true;
+      sendGameOver();
+      return;
+    }
+
     // 次のピース
     spawnPiece();
     forceUpdate({});
-  }, [sendAttack, sendFieldUpdate, consumeGarbage, spawnPiece, localPendingGarbage]);
+  }, [sendAttack, sendFieldUpdate, consumeGarbage, spawnPiece, localPendingGarbage, sendGameOver]);
 
   // おじゃまブロック追加
   const addGarbageLines = useCallback((lines: number) => {
