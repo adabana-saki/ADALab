@@ -236,8 +236,8 @@ async function handleMatchmaking(request: Request, env: Env): Promise<Response> 
         const id = env.TETRIS_ROOM.idFromName(roomId);
         const room = env.TETRIS_ROOM.get(id);
 
-        // Initialize the room
-        await room.fetch(new Request(`https://dummy/info`));
+        // Initialize the room with the room ID
+        await room.fetch(new Request(`https://dummy/init?roomCode=${roomId}`));
 
         const wsUrl = `/ws/room/${roomId}`;
 
