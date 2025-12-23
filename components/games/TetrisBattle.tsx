@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useTetrisBattle, AttackType, OpponentState } from '@/hooks/useTetrisBattle';
+import { AttackType, OpponentState } from '@/hooks/useTetrisBattle';
 import { TetrisOpponentField } from './TetrisOpponentField';
 import { TetrisGarbageMeter } from './TetrisGarbageMeter';
 import { ArrowLeft, Volume2, VolumeX } from 'lucide-react';
@@ -12,6 +12,7 @@ const FIELD_ROW = 20;
 const BLOCK_SIZE = 24; // 対戦用に少し小さく
 const TETRO_SIZE = 4;
 const LOCK_DELAY = 500;
+const PREVIEW_BLOCK_SIZE = 14;
 
 // レベル速度
 const LEVEL_SPEEDS = [800, 720, 640, 560, 480, 400, 320, 240, 160, 100, 80, 60, 50, 40, 30];
@@ -45,10 +46,19 @@ const ATTACK_TABLE: Record<string, number> = {
   perfectClear: 10,
 };
 
-interface TetrisBattleProps {
+export interface TetrisBattleProps {
   roomId: string;
   nickname: string;
+  seed: number;
   onLeave: () => void;
+  sendFieldUpdate: (field: number[][], score: number, lines: number, level: number) => void;
+  sendAttack: (attackType: AttackType, combo: number, b2b: boolean) => void;
+  consumeGarbage: (lines: number) => void;
+  sendGameOver: () => void;
+  pendingGarbageFromServer: number;
+  opponentFromServer: OpponentState | null;
+  opponentAliveFromServer: boolean;
+  winnerFromServer: { id: string; nickname: string } | null;
 }
 
 type TetroType = number[][];
@@ -72,10 +82,24 @@ function generateBag(random: () => number): number[] {
   return bag;
 }
 
-export function TetrisBattle({ roomId, nickname, onLeave }: TetrisBattleProps) {
+export function TetrisBattle({
+  roomId,
+  nickname,
+  seed,
+  onLeave,
+  sendFieldUpdate,
+  sendAttack,
+  consumeGarbage,
+  sendGameOver,
+  pendingGarbageFromServer,
+  opponentFromServer,
+  opponentAliveFromServer,
+  winnerFromServer,
+}: TetrisBattleProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
+  const hasInitialized = useRef(false);
 
   // ゲーム状態
   const gameStateRef = useRef({
@@ -101,40 +125,25 @@ export function TetrisBattle({ roomId, nickname, onLeave }: TetrisBattleProps) {
     lastClearWasTetris: false,
   });
 
-  const [opponent, setOpponent] = useState<OpponentState | null>(null);
-  const [opponentAlive, setOpponentAlive] = useState(true);
   const [localPendingGarbage, setLocalPendingGarbage] = useState(0);
-  const [winner, setWinner] = useState<{ id: string; nickname: string } | null>(null);
   const [, forceUpdate] = useState({});
+  const [nextPieces, setNextPieces] = useState<number[]>([]);
+  const [holdPieceDisplay, setHoldPieceDisplay] = useState<number | null>(null);
+  const [canHoldDisplay, setCanHoldDisplay] = useState(true);
 
-  const {
-    gameStatus: _gameStatus,
-    sendFieldUpdate,
-    sendAttack,
-    consumeGarbage,
-    sendGameOver,
-    leave,
-  } = useTetrisBattle({
-    onGameStart: (seed) => {
+  // サーバーからのpendingGarbageを同期
+  useEffect(() => {
+    setLocalPendingGarbage(pendingGarbageFromServer);
+  }, [pendingGarbageFromServer]);
+
+  // 初期化（seedを受け取ったら一度だけ実行）
+  useEffect(() => {
+    if (seed && !hasInitialized.current) {
+      hasInitialized.current = true;
       initGame(seed);
       setIsPlaying(true);
-      setWinner(null);
-      setOpponentAlive(true);
-    },
-    onReceiveGarbage: (lines) => {
-      setLocalPendingGarbage((prev) => prev + lines);
-    },
-    onOpponentUpdate: (state) => {
-      setOpponent(state);
-    },
-    onOpponentGameOver: () => {
-      setOpponentAlive(false);
-    },
-    onGameEnd: (winnerId, winnerNickname) => {
-      setIsPlaying(false);
-      setWinner({ id: winnerId, nickname: winnerNickname });
-    },
-  });
+    }
+  }, [seed]);
 
   // ゲーム初期化
   const initGame = useCallback((seed: number) => {
@@ -187,6 +196,10 @@ export function TetrisBattle({ roomId, nickname, onLeave }: TetrisBattleProps) {
     state.tetroY = 0;
     state.canHold = true;
     state.lockMoves = 0;
+
+    // NEXT表示を更新
+    setNextPieces([...state.nextQueue.slice(0, 3)]);
+    setCanHoldDisplay(true);
 
     // 衝突チェック
     if (checkCollision(0, 0)) {
@@ -404,6 +417,8 @@ export function TetrisBattle({ roomId, nickname, onLeave }: TetrisBattleProps) {
       state.tetroY = 0;
     }
     state.canHold = false;
+    setHoldPieceDisplay(state.holdPiece);
+    setCanHoldDisplay(false);
     forceUpdate({});
   }, [spawnPiece]);
 
@@ -585,10 +600,60 @@ export function TetrisBattle({ roomId, nickname, onLeave }: TetrisBattleProps) {
     }
   });
 
+  // HOLD/NEXT描画
+  const drawPreview = useCallback((canvasId: string, type: number | null, size: number = PREVIEW_BLOCK_SIZE) => {
+    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.fillStyle = '#0f0f1a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (type === null || type === 0) return;
+
+    const tetro = TETRO_TYPES[type];
+    const color = COLORS[type];
+
+    for (let y = 0; y < TETRO_SIZE; y++) {
+      for (let x = 0; x < TETRO_SIZE; x++) {
+        if (tetro[y]?.[x]) {
+          ctx.fillStyle = color;
+          ctx.fillRect(x * size + 1, y * size + 1, size - 2, size - 2);
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+          ctx.fillRect(x * size + 1, y * size + 1, size - 2, 2);
+          ctx.fillRect(x * size + 1, y * size + 1, 2, size - 2);
+        }
+      }
+    }
+  }, []);
+
+  // HOLD/NEXT描画更新
+  useEffect(() => {
+    drawPreview('battle-hold-canvas', holdPieceDisplay, 16);
+    nextPieces.forEach((piece, index) => {
+      drawPreview(`battle-next-canvas-${index}`, piece, 14);
+    });
+  }, [holdPieceDisplay, nextPieces, drawPreview]);
+
   const handleLeave = () => {
-    leave();
     onLeave();
   };
+
+  // 相手がゲームオーバーになったらisPlayingをfalseに
+  useEffect(() => {
+    if (!opponentAliveFromServer && isPlaying && !gameStateRef.current.gameOver) {
+      // 相手が負けたので勝利
+      setIsPlaying(false);
+    }
+  }, [opponentAliveFromServer, isPlaying]);
+
+  // 勝敗が決まったら
+  useEffect(() => {
+    if (winnerFromServer) {
+      setIsPlaying(false);
+    }
+  }, [winnerFromServer]);
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-background p-4">
@@ -613,16 +678,16 @@ export function TetrisBattle({ roomId, nickname, onLeave }: TetrisBattleProps) {
       </div>
 
       {/* 勝敗表示 */}
-      {winner && (
+      {winnerFromServer && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
           <div className="text-center space-y-6">
             <div className="text-6xl">
-              {winner.nickname === nickname ? '🏆' : '😢'}
+              {winnerFromServer.nickname === nickname ? '🏆' : '😢'}
             </div>
-            <h2 className={`text-4xl font-bold ${winner.nickname === nickname ? 'text-yellow-500' : 'text-foreground'}`}>
-              {winner.nickname === nickname ? 'WIN!' : 'LOSE'}
+            <h2 className={`text-4xl font-bold ${winnerFromServer.nickname === nickname ? 'text-yellow-500' : 'text-foreground'}`}>
+              {winnerFromServer.nickname === nickname ? 'WIN!' : 'LOSE'}
             </h2>
-            <p className="text-muted-foreground">勝者: {winner.nickname}</p>
+            <p className="text-muted-foreground">勝者: {winnerFromServer.nickname}</p>
             <button
               onClick={handleLeave}
               className="px-6 py-3 bg-primary text-primary-foreground rounded-lg"
@@ -634,7 +699,20 @@ export function TetrisBattle({ roomId, nickname, onLeave }: TetrisBattleProps) {
       )}
 
       {/* ゲームエリア */}
-      <div className="flex items-start gap-8">
+      <div className="flex items-start gap-4">
+        {/* 左パネル - HOLD */}
+        <div className="flex flex-col gap-2">
+          <div className="bg-card border border-border rounded-lg p-2">
+            <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">HOLD</div>
+            <canvas
+              id="battle-hold-canvas"
+              width={64}
+              height={64}
+              className={`rounded ${!canHoldDisplay ? 'opacity-40' : ''}`}
+            />
+          </div>
+        </div>
+
         {/* 自分のフィールド */}
         <div className="flex gap-2">
           <TetrisGarbageMeter
@@ -665,6 +743,24 @@ export function TetrisBattle({ roomId, nickname, onLeave }: TetrisBattleProps) {
           </div>
         </div>
 
+        {/* NEXTパネル */}
+        <div className="flex flex-col gap-2">
+          <div className="bg-card border border-border rounded-lg p-2">
+            <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">NEXT</div>
+            <div className="flex flex-col gap-1">
+              {[0, 1, 2].map((index) => (
+                <canvas
+                  key={index}
+                  id={`battle-next-canvas-${index}`}
+                  width={56}
+                  height={56}
+                  className={`rounded ${index === 0 ? '' : 'opacity-60'}`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* VS */}
         <div className="flex flex-col items-center justify-center h-full">
           <div className="text-4xl font-bold text-primary">VS</div>
@@ -672,14 +768,14 @@ export function TetrisBattle({ roomId, nickname, onLeave }: TetrisBattleProps) {
 
         {/* 相手のフィールド */}
         <div className="flex flex-col items-center">
-          {opponent ? (
+          {opponentFromServer ? (
             <TetrisOpponentField
-              field={opponent.field}
-              nickname={opponent.nickname}
-              score={opponent.score}
-              lines={opponent.lines}
-              level={opponent.level}
-              isAlive={opponentAlive}
+              field={opponentFromServer.field}
+              nickname={opponentFromServer.nickname}
+              score={opponentFromServer.score}
+              lines={opponentFromServer.lines}
+              level={opponentFromServer.level}
+              isAlive={opponentAliveFromServer}
               scale={0.7}
             />
           ) : (

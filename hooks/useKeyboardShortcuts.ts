@@ -14,6 +14,9 @@ interface KeyboardShortcut {
 export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Guard against undefined event.key (can happen with browser extensions)
+      if (!event.key) return;
+
       shortcuts.forEach((shortcut) => {
         const ctrlMatch = shortcut.ctrl ? event.ctrlKey || event.metaKey : true;
         const altMatch = shortcut.alt ? event.altKey : true;

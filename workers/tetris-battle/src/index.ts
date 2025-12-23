@@ -9,6 +9,9 @@ interface Env {
 // For production, consider using Durable Objects or KV for persistent queue
 const matchmakingQueue: Map<string, { playerId: string; nickname: string; timestamp: number }> = new Map();
 
+// Store matched players so they can retrieve match info on next poll
+const matchedPlayers: Map<string, { roomId: string; wsUrl: string; opponent: string; timestamp: number }> = new Map();
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -193,12 +196,33 @@ async function handleMatchmaking(request: Request, env: Env): Promise<Response> 
     const nickname = body.nickname?.trim().slice(0, 12) || 'Player';
     const playerId = body.playerId || crypto.randomUUID();
 
-    // Clean up old entries (older than 30 seconds)
     const now = Date.now();
+
+    // Clean up old entries (older than 30 seconds)
     for (const [id, entry] of matchmakingQueue) {
       if (now - entry.timestamp > 30000) {
         matchmakingQueue.delete(id);
       }
+    }
+    for (const [id, entry] of matchedPlayers) {
+      if (now - entry.timestamp > 30000) {
+        matchedPlayers.delete(id);
+      }
+    }
+
+    // Check if this player was already matched (waiting player case)
+    const existingMatch = matchedPlayers.get(playerId);
+    if (existingMatch) {
+      matchedPlayers.delete(playerId);
+      return new Response(JSON.stringify({
+        success: true,
+        matched: true,
+        roomId: existingMatch.roomId,
+        wsUrl: existingMatch.wsUrl,
+        opponent: existingMatch.opponent,
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Check if there's someone waiting
@@ -212,14 +236,24 @@ async function handleMatchmaking(request: Request, env: Env): Promise<Response> 
         const id = env.TETRIS_ROOM.idFromName(roomId);
         const room = env.TETRIS_ROOM.get(id);
 
-        // Initialize the room
-        await room.fetch(new Request(`https://dummy/info`));
+        // Initialize the room with the room ID
+        await room.fetch(new Request(`https://dummy/init?roomCode=${roomId}`));
+
+        const wsUrl = `/ws/room/${roomId}`;
+
+        // Store match result for the waiting player so they can find it on next poll
+        matchedPlayers.set(waitingId, {
+          roomId,
+          wsUrl,
+          opponent: nickname,
+          timestamp: now,
+        });
 
         return new Response(JSON.stringify({
           success: true,
           matched: true,
           roomId,
-          wsUrl: `/ws/room/${roomId}`,
+          wsUrl,
           opponent: waiting.nickname,
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
