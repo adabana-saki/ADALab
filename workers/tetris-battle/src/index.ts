@@ -1,18 +1,13 @@
 import { TetrisRoom } from './TetrisRoom';
 import { OnlinePresence } from './OnlinePresence';
+import { MatchmakingQueue } from './MatchmakingQueue';
 
 interface Env {
   TETRIS_ROOM: DurableObjectNamespace;
   ONLINE_PRESENCE: DurableObjectNamespace;
+  MATCHMAKING_QUEUE: DurableObjectNamespace;
   ALLOWED_ORIGINS: string;
 }
-
-// Matchmaking queue (in-memory, will be lost on worker restart)
-// For production, consider using Durable Objects or KV for persistent queue
-const matchmakingQueue: Map<string, { playerId: string; nickname: string; timestamp: number }> = new Map();
-
-// Store matched players so they can retrieve match info on next poll
-const matchedPlayers: Map<string, { roomId: string; wsUrl: string; opponent: string; timestamp: number }> = new Map();
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -41,6 +36,10 @@ export default {
 
     if (path === '/api/battle/queue') {
       return handleMatchmaking(request, env);
+    }
+
+    if (path === '/api/battle/queue/cancel') {
+      return handleMatchmakingCancel(request, env);
     }
 
     if (path === '/api/battle/room-info') {
@@ -151,10 +150,6 @@ async function handleJoinRoom(request: Request, env: Env): Promise<Response> {
       });
     }
 
-    // In a real implementation, we'd need to lookup the room by code
-    // For now, we'll use the room code as the room ID (simplified)
-    // A better approach would be to use KV to map room codes to room IDs
-
     // For simplicity, use room code as room name
     const id = env.TETRIS_ROOM.idFromName(roomCode);
     const room = env.TETRIS_ROOM.get(id);
@@ -201,95 +196,70 @@ async function handleJoinRoom(request: Request, env: Env): Promise<Response> {
   }
 }
 
+// Matchmaking using Durable Object (shared across all worker instances)
 async function handleMatchmaking(request: Request, env: Env): Promise<Response> {
   if (request.method !== 'POST') {
     return new Response('Method not allowed', { status: 405, headers: corsHeaders });
   }
 
   try {
-    const body = await request.json() as { nickname?: string; playerId?: string };
-    const nickname = body.nickname?.trim().slice(0, 12) || 'Player';
-    const playerId = body.playerId || crypto.randomUUID();
+    // Read the body first so we can pass it to the DO
+    const bodyText = await request.text();
 
-    const now = Date.now();
+    // Use a single global matchmaking queue
+    const queueId = env.MATCHMAKING_QUEUE.idFromName('global');
+    const queue = env.MATCHMAKING_QUEUE.get(queueId);
 
-    // Clean up old entries (older than 30 seconds)
-    for (const [id, entry] of matchmakingQueue) {
-      if (now - entry.timestamp > 30000) {
-        matchmakingQueue.delete(id);
-      }
-    }
-    for (const [id, entry] of matchedPlayers) {
-      if (now - entry.timestamp > 30000) {
-        matchedPlayers.delete(id);
-      }
-    }
+    // Forward to Durable Object with body as text
+    const doRequest = new Request('https://dummy/queue', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: bodyText,
+    });
 
-    // Check if this player was already matched (waiting player case)
-    const existingMatch = matchedPlayers.get(playerId);
-    if (existingMatch) {
-      matchedPlayers.delete(playerId);
-      return new Response(JSON.stringify({
-        success: true,
-        matched: true,
-        roomId: existingMatch.roomId,
-        wsUrl: existingMatch.wsUrl,
-        opponent: existingMatch.opponent,
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    const response = await queue.fetch(doRequest);
+    const result = await response.json() as { matched?: boolean; roomId?: string; needsInit?: boolean };
+
+    // If matched, initialize the room
+    if (result.matched && result.roomId && result.needsInit) {
+      const roomId = env.TETRIS_ROOM.idFromName(result.roomId);
+      const room = env.TETRIS_ROOM.get(roomId);
+      await room.fetch(new Request(`https://dummy/init?roomCode=${result.roomId}`));
     }
 
-    // Check if there's someone waiting
-    for (const [waitingId, waiting] of matchmakingQueue) {
-      if (waitingId !== playerId) {
-        // Found a match!
-        matchmakingQueue.delete(waitingId);
-
-        // Create a new room for the match
-        const roomId = `match-${crypto.randomUUID()}`;
-        const id = env.TETRIS_ROOM.idFromName(roomId);
-        const room = env.TETRIS_ROOM.get(id);
-
-        // Initialize the room with the room ID
-        await room.fetch(new Request(`https://dummy/init?roomCode=${roomId}`));
-
-        const wsUrl = `/ws/room/${roomId}`;
-
-        // Store match result for the waiting player so they can find it on next poll
-        matchedPlayers.set(waitingId, {
-          roomId,
-          wsUrl,
-          opponent: nickname,
-          timestamp: now,
-        });
-
-        return new Response(JSON.stringify({
-          success: true,
-          matched: true,
-          roomId,
-          wsUrl,
-          opponent: waiting.nickname,
-        }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-    }
-
-    // No match found, add to queue
-    matchmakingQueue.set(playerId, { playerId, nickname, timestamp: now });
-
-    return new Response(JSON.stringify({
-      success: true,
-      matched: false,
-      position: matchmakingQueue.size,
-      message: 'Waiting for opponent...',
-    }), {
+    return new Response(JSON.stringify(result), {
+      status: response.status,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (e) {
     console.error('Matchmaking error:', e);
     return new Response(JSON.stringify({ error: 'Matchmaking failed' }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+async function handleMatchmakingCancel(request: Request, env: Env): Promise<Response> {
+  if (request.method !== 'POST') {
+    return new Response('Method not allowed', { status: 405, headers: corsHeaders });
+  }
+
+  try {
+    const bodyText = await request.text();
+    const queueId = env.MATCHMAKING_QUEUE.idFromName('global');
+    const queue = env.MATCHMAKING_QUEUE.get(queueId);
+
+    const doRequest = new Request('https://dummy/cancel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: bodyText,
+    });
+
+    return queue.fetch(doRequest);
+  } catch (e) {
+    console.error('Cancel matchmaking error:', e);
+    return new Response(JSON.stringify({ error: 'Cancel failed' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -368,4 +338,4 @@ async function handlePresence(request: Request, env: Env, action: string): Promi
 }
 
 // Export Durable Object classes
-export { TetrisRoom, OnlinePresence };
+export { TetrisRoom, OnlinePresence, MatchmakingQueue };

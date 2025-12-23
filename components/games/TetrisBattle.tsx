@@ -299,9 +299,9 @@ export function TetrisBattle({
       }
     }
 
-    // ライン消去チェック
+    // ライン消去チェック（昇順で収集 - splice/unshiftが正しく動作するため）
     const clearedLines: number[] = [];
-    for (let y = FIELD_ROW - 1; y >= 0; y--) {
+    for (let y = 0; y < FIELD_ROW; y++) {
       if (state.field[y].every((cell) => cell !== 0)) {
         clearedLines.push(y);
       }
