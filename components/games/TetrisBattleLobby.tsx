@@ -121,8 +121,13 @@ export function TetrisBattleLobby() {
 
   const handleBack = () => {
     leave();
+    // すべての状態をリセット
     setLobbyMode('menu');
     setIsReady(false);
+    setOpponent(null);
+    setOpponentAlive(true);
+    setPendingGarbage(0);
+    setGameSeed(0);
   };
 
   // メインメニュー
@@ -444,8 +449,14 @@ export function TetrisBattleLobby() {
           <div className="space-y-3">
             <button
               onClick={() => {
+                // 状態をリセットして待機室に戻る
                 setIsReady(false);
                 setReady(false);
+                setOpponent(null);
+                setOpponentAlive(true);
+                setPendingGarbage(0);
+                setGameSeed(0);
+                setLobbyMode('menu');
               }}
               className="w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90"
             >
