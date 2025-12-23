@@ -46,6 +46,9 @@ export function KonamiCode() {
     let position = 0;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Guard against undefined e.key (can happen with browser extensions)
+      if (!e.key) return;
+
       // ESC to disable
       if (e.key === 'Escape' && show) {
         setShow(false);

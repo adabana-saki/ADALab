@@ -66,7 +66,8 @@ export function HomeContent({ latestPosts }: HomeContentProps) {
         return;
       }
 
-      // Single key shortcuts
+      // Single key shortcuts (guard against undefined e.key)
+      if (!e.key) return;
       switch (e.key.toLowerCase()) {
         case 'h':
           e.preventDefault();
