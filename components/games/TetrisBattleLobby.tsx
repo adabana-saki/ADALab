@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useTetrisBattle } from '@/hooks/useTetrisBattle';
+import { useTetrisBattle, OpponentState } from '@/hooks/useTetrisBattle';
 import { TetrisBattle } from './TetrisBattle';
 import {
   Users,
@@ -25,6 +25,10 @@ export function TetrisBattleLobby() {
   const [roomCodeInput, setRoomCodeInput] = useState('');
   const [copied, setCopied] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [gameSeed, setGameSeed] = useState<number>(0);
+  const [opponent, setOpponent] = useState<OpponentState | null>(null);
+  const [opponentAlive, setOpponentAlive] = useState(true);
+  const [pendingGarbage, setPendingGarbage] = useState(0);
 
   const {
     gameStatus,
@@ -39,10 +43,26 @@ export function TetrisBattleLobby() {
     quickMatch,
     setReady,
     leave,
+    sendFieldUpdate,
+    sendAttack,
+    consumeGarbage,
+    sendGameOver,
   } = useTetrisBattle({
-    onGameStart: () => {
+    onGameStart: (seed) => {
       // ゲーム開始時にプレイモードに切り替え
+      setGameSeed(seed);
+      setOpponentAlive(true);
+      setPendingGarbage(0);
       setLobbyMode('playing');
+    },
+    onReceiveGarbage: (lines) => {
+      setPendingGarbage((prev) => prev + lines);
+    },
+    onOpponentUpdate: (state) => {
+      setOpponent(state);
+    },
+    onOpponentGameOver: () => {
+      setOpponentAlive(false);
     },
     onGameEnd: () => {
       // ゲーム終了時はそのまま（TetrisBattle内で処理）
@@ -378,7 +398,16 @@ export function TetrisBattleLobby() {
       <TetrisBattle
         roomId={roomId || 'unknown'}
         nickname={nickname}
+        seed={gameSeed}
         onLeave={handleBack}
+        sendFieldUpdate={sendFieldUpdate}
+        sendAttack={sendAttack}
+        consumeGarbage={consumeGarbage}
+        sendGameOver={sendGameOver}
+        pendingGarbageFromServer={pendingGarbage}
+        opponentFromServer={opponent}
+        opponentAliveFromServer={opponentAlive}
+        winnerFromServer={winner}
       />
     );
   }
