@@ -299,9 +299,9 @@ export function TetrisBattle({
       }
     }
 
-    // ライン消去チェック
+    // ライン消去チェック（昇順で収集 - splice/unshiftが正しく動作するため）
     const clearedLines: number[] = [];
-    for (let y = FIELD_ROW - 1; y >= 0; y--) {
+    for (let y = 0; y < FIELD_ROW; y++) {
       if (state.field[y].every((cell) => cell !== 0)) {
         clearedLines.push(y);
       }
@@ -422,12 +422,18 @@ export function TetrisBattle({
     forceUpdate({});
   }, [spawnPiece]);
 
-  // キー入力
+  // キー入力（ソロモードと同じe.codeを使用）
   useEffect(() => {
     if (!isPlaying || gameStateRef.current.gameOver) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      switch (e.key) {
+      // ゲーム操作キーはすべてデフォルト動作を防止（スクロール等）
+      const gameKeys = ['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp', 'Space', 'KeyX', 'KeyZ', 'KeyC', 'ShiftLeft', 'ShiftRight'];
+      if (gameKeys.includes(e.code)) {
+        e.preventDefault();
+      }
+
+      switch (e.code) {
         case 'ArrowLeft':
           movePiece(-1, 0);
           break;
@@ -435,21 +441,24 @@ export function TetrisBattle({
           movePiece(1, 0);
           break;
         case 'ArrowDown':
-          movePiece(0, 1);
+          // ソフトドロップ: スコア+1（ソロモードと同じ）
+          if (movePiece(0, 1)) {
+            gameStateRef.current.score += 1;
+          }
           break;
         case 'ArrowUp':
-        case 'x':
+        case 'KeyX':
           rotatePiece(true);
           break;
-        case 'z':
+        case 'KeyZ':
           rotatePiece(false);
           break;
-        case ' ':
-          e.preventDefault();
+        case 'Space':
           hardDrop();
           break;
-        case 'c':
-        case 'Shift':
+        case 'KeyC':
+        case 'ShiftLeft':
+        case 'ShiftRight':
           holdPiece();
           break;
       }
