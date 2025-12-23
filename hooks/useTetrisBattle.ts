@@ -57,11 +57,16 @@ export function useTetrisBattle(options: UseTetrisBattleOptions = {}) {
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const optionsRef = useRef(options);
+  const gameStatusRef = useRef(gameStatus);
 
-  // Keep options ref updated
+  // Keep refs updated
   useEffect(() => {
     optionsRef.current = options;
   }, [options]);
+
+  useEffect(() => {
+    gameStatusRef.current = gameStatus;
+  }, [gameStatus]);
 
   const cleanup = useCallback(() => {
     if (wsRef.current) {
@@ -272,9 +277,14 @@ export function useTetrisBattle(options: UseTetrisBattleOptions = {}) {
     }
   }, [connect]);
 
-  // Poll for matchmaking result
+  // Poll for matchmaking result (1秒間隔でポーリング)
   const pollForMatch = useCallback((nickname: string, playerId: string) => {
     const poll = async () => {
+      // Use ref to get latest gameStatus (avoids stale closure)
+      if (gameStatusRef.current !== 'waiting') {
+        return;
+      }
+
       try {
         const response = await fetch(`${BATTLE_WORKER_URL}/api/battle/queue`, {
           method: 'POST',
@@ -285,18 +295,19 @@ export function useTetrisBattle(options: UseTetrisBattleOptions = {}) {
         const data = await response.json();
         if (data.success && data.matched) {
           connect(data.wsUrl, nickname, 'join');
-        } else if (gameStatus === 'waiting') {
-          reconnectTimeoutRef.current = setTimeout(poll, 2000);
+        } else if (gameStatusRef.current === 'waiting') {
+          reconnectTimeoutRef.current = setTimeout(poll, 1000);
         }
       } catch (e) {
-        if (gameStatus === 'waiting') {
-          reconnectTimeoutRef.current = setTimeout(poll, 2000);
+        if (gameStatusRef.current === 'waiting') {
+          reconnectTimeoutRef.current = setTimeout(poll, 1000);
         }
       }
     };
 
-    reconnectTimeoutRef.current = setTimeout(poll, 2000);
-  }, [connect, gameStatus]);
+    // 最初のポーリングを即座に開始
+    reconnectTimeoutRef.current = setTimeout(poll, 500);
+  }, [connect]);
 
   // Send ready status
   const setReady = useCallback((ready: boolean) => {

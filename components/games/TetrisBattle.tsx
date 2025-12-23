@@ -99,6 +99,7 @@ export function TetrisBattle({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [ghostEnabled, setGhostEnabled] = useState(true);
   const hasInitialized = useRef(false);
 
   // ゲーム状態
@@ -461,6 +462,9 @@ export function TetrisBattle({
         case 'ShiftRight':
           holdPiece();
           break;
+        case 'KeyG':
+          setGhostEnabled(g => !g);
+          break;
       }
     };
 
@@ -549,19 +553,21 @@ export function TetrisBattle({
     }
 
     // ゴーストピース
-    let ghostY = state.tetroY;
-    while (!checkCollisionAt(state.tetroX, ghostY + 1, state.tetro)) {
-      ghostY++;
-    }
-    ctx.globalAlpha = 0.3;
-    for (let y = 0; y < TETRO_SIZE; y++) {
-      for (let x = 0; x < TETRO_SIZE; x++) {
-        if (state.tetro[y]?.[x]) {
-          drawBlock(ctx, state.tetroX + x, ghostY + y, state.tetroType);
+    if (ghostEnabled) {
+      let ghostY = state.tetroY;
+      while (!checkCollisionAt(state.tetroX, ghostY + 1, state.tetro)) {
+        ghostY++;
+      }
+      ctx.globalAlpha = 0.3;
+      for (let y = 0; y < TETRO_SIZE; y++) {
+        for (let x = 0; x < TETRO_SIZE; x++) {
+          if (state.tetro[y]?.[x]) {
+            drawBlock(ctx, state.tetroX + x, ghostY + y, state.tetroType);
+          }
         }
       }
+      ctx.globalAlpha = 1;
     }
-    ctx.globalAlpha = 1;
 
     // 現在のピース
     for (let y = 0; y < TETRO_SIZE; y++) {
@@ -797,7 +803,7 @@ export function TetrisBattle({
 
       {/* 操作説明 */}
       <div className="mt-6 text-xs text-muted-foreground text-center">
-        ← → 移動 | ↓ 落下 | ↑/X 回転 | Z 逆回転 | SPACE ハードドロップ | C/Shift ホールド
+        ← → 移動 | ↓ 落下 | ↑/X 回転 | Z 逆回転 | SPACE ハードドロップ | C/Shift ホールド | G ゴースト
       </div>
     </div>
   );

@@ -1347,14 +1347,7 @@ export function TetrisGame() {
         </div>
 
         <div className="text-center text-xs text-muted-foreground hidden md:block">
-          <p className="flex flex-wrap justify-center gap-x-3 gap-y-1">
-            <span><kbd className="px-1.5 py-0.5 bg-muted rounded">←→</kbd> Move</span>
-            <span><kbd className="px-1.5 py-0.5 bg-muted rounded">↓</kbd> Soft</span>
-            <span><kbd className="px-1.5 py-0.5 bg-muted rounded">Space</kbd> Hard</span>
-            <span><kbd className="px-1.5 py-0.5 bg-muted rounded">↑</kbd> Rotate</span>
-            <span><kbd className="px-1.5 py-0.5 bg-muted rounded">C</kbd> Hold</span>
-            <span><kbd className="px-1.5 py-0.5 bg-muted rounded">G</kbd> Ghost</span>
-          </p>
+          ← → 移動 | ↓ 落下 | ↑/X 回転 | Z 逆回転 | SPACE ハードドロップ | C/Shift ホールド | G ゴースト
         </div>
 
         <div className="flex gap-2 flex-wrap justify-center">
