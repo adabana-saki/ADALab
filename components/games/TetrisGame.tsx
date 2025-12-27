@@ -1651,7 +1651,7 @@ export function TetrisGame() {
 
       {/* ランキングボタン */}
       {leaderboard.length > 0 && !showNicknameInput && !showLeaderboard && !showModeSelect && !showSettings && (
-        <button onClick={() => setShowLeaderboard(true)} className="fixed bottom-4 right-4 p-3 bg-card border border-border rounded-full shadow-lg hover:bg-muted transition-colors z-30 md:bottom-8 md:right-8" title="ランキング">
+        <button onClick={() => setShowLeaderboard(true)} className="fixed bottom-24 right-4 p-3 bg-card border border-border rounded-full shadow-lg hover:bg-muted transition-colors z-30 md:bottom-8 md:right-8" title="ランキング">
           <Medal size={24} className="text-yellow-500" />
         </button>
       )}
