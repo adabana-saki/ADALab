@@ -68,15 +68,15 @@ export function GoogleAnalytics() {
       <Script
         src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
         strategy="afterInteractive"
-      />
-      <Script id="google-analytics" strategy="afterInteractive">
-        {`
+        onLoad={() => {
           window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', '${GA_MEASUREMENT_ID}');
-        `}
-      </Script>
+          window.gtag = function gtag(...args: unknown[]) {
+            window.dataLayer?.push(args);
+          };
+          window.gtag('js', new Date());
+          window.gtag('config', GA_MEASUREMENT_ID);
+        }}
+      />
       <Suspense fallback={null}>
         <PageViewTracker />
       </Suspense>
