@@ -10,9 +10,18 @@ const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '';
 // Extend Window interface for gtag
 declare global {
   interface Window {
-    dataLayer?: unknown[];
-    gtag?: (...args: unknown[]) => void;
+    dataLayer: unknown[];
+    gtag: (...args: unknown[]) => void;
   }
+}
+
+// Initialize dataLayer and gtag BEFORE gtag.js loads
+// This is critical - gtag.js reads from dataLayer when it loads
+if (typeof window !== 'undefined') {
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function gtag(...args: unknown[]) {
+    window.dataLayer.push(args);
+  };
 }
 
 // Google Analytics tracking events
@@ -58,6 +67,14 @@ function PageViewTracker() {
 }
 
 export function GoogleAnalytics() {
+  // Fire initial GA events on client side
+  useEffect(() => {
+    if (GA_MEASUREMENT_ID && typeof window !== 'undefined' && window.gtag) {
+      window.gtag('js', new Date());
+      window.gtag('config', GA_MEASUREMENT_ID);
+    }
+  }, []);
+
   // Don't render if GA ID is not configured
   if (!GA_MEASUREMENT_ID) {
     return null;
@@ -68,14 +85,6 @@ export function GoogleAnalytics() {
       <Script
         src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
         strategy="afterInteractive"
-        onLoad={() => {
-          window.dataLayer = window.dataLayer || [];
-          window.gtag = function gtag(...args: unknown[]) {
-            window.dataLayer?.push(args);
-          };
-          window.gtag('js', new Date());
-          window.gtag('config', GA_MEASUREMENT_ID);
-        }}
       />
       <Suspense fallback={null}>
         <PageViewTracker />
