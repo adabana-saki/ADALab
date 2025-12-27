@@ -1,6 +1,6 @@
 'use client';
 
-import { GoogleAnalytics as GA } from '@next/third-parties/google';
+import Script from 'next/script';
 import { useEffect, Suspense } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
@@ -10,7 +10,8 @@ const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '';
 // Extend Window interface for gtag
 declare global {
   interface Window {
-    gtag?: (command: string, ...args: unknown[]) => void;
+    dataLayer?: unknown[];
+    gtag?: (...args: unknown[]) => void;
   }
 }
 
@@ -64,7 +65,18 @@ export function GoogleAnalytics() {
 
   return (
     <>
-      <GA gaId={GA_MEASUREMENT_ID} />
+      <Script
+        src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+        strategy="afterInteractive"
+      />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${GA_MEASUREMENT_ID}');
+        `}
+      </Script>
       <Suspense fallback={null}>
         <PageViewTracker />
       </Suspense>
