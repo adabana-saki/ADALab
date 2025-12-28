@@ -1,8 +1,9 @@
 'use client';
 
 import Script from 'next/script';
-import { useEffect, Suspense } from 'react';
+import { Suspense } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 
 // GA_MEASUREMENT_ID must be set in environment variables for tracking to work
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '';
@@ -15,19 +16,28 @@ declare global {
   }
 }
 
-// Initialize dataLayer and gtag BEFORE gtag.js loads
-// This is critical - gtag.js reads from dataLayer when it loads
-if (typeof window !== 'undefined') {
+// Helper to get gtag function
+const getGtag = () => {
+  if (typeof window === 'undefined') return null;
+
+  // Initialize dataLayer if not exists
   window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag(...args: unknown[]) {
-    window.dataLayer.push(args);
-  };
-}
+
+  // Initialize gtag function if not exists
+  if (!window.gtag) {
+    window.gtag = function gtag(...args: unknown[]) {
+      window.dataLayer.push(args);
+    };
+  }
+
+  return window.gtag;
+};
 
 // Google Analytics tracking events
 export const trackEvent = (action: string, category: string, label?: string, value?: number) => {
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('event', action, {
+  const gtag = getGtag();
+  if (gtag) {
+    gtag('event', action, {
       event_category: category,
       event_label: label,
       value: value,
@@ -37,8 +47,9 @@ export const trackEvent = (action: string, category: string, label?: string, val
 
 // Track page views
 export const trackPageView = (url: string) => {
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('config', GA_MEASUREMENT_ID, {
+  const gtag = getGtag();
+  if (gtag && GA_MEASUREMENT_ID) {
+    gtag('config', GA_MEASUREMENT_ID, {
       page_path: url,
     });
   }
@@ -46,8 +57,9 @@ export const trackPageView = (url: string) => {
 
 // Track custom events
 export const trackCustomEvent = (eventName: string, eventParams?: Record<string, string | number | boolean>) => {
-  if (typeof window !== 'undefined' && window.gtag) {
-    window.gtag('event', eventName, eventParams);
+  const gtag = getGtag();
+  if (gtag) {
+    gtag('event', eventName, eventParams);
   }
 };
 
@@ -67,14 +79,6 @@ function PageViewTracker() {
 }
 
 export function GoogleAnalytics() {
-  // Fire initial GA events on client side
-  useEffect(() => {
-    if (GA_MEASUREMENT_ID && typeof window !== 'undefined' && window.gtag) {
-      window.gtag('js', new Date());
-      window.gtag('config', GA_MEASUREMENT_ID);
-    }
-  }, []);
-
   // Don't render if GA ID is not configured
   if (!GA_MEASUREMENT_ID) {
     return null;
@@ -82,7 +86,24 @@ export function GoogleAnalytics() {
 
   return (
     <>
+      {/* Inline script to initialize GA BEFORE gtag.js loads */}
       <Script
+        id="ga-init"
+        strategy="beforeInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_MEASUREMENT_ID}', {
+              send_page_view: true
+            });
+          `,
+        }}
+      />
+      {/* Load gtag.js */}
+      <Script
+        id="ga-script"
         src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
         strategy="afterInteractive"
       />
