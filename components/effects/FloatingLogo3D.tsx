@@ -5,6 +5,18 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { Float } from '@react-three/drei';
 import * as THREE from 'three';
 
+function isWebGLAvailable(): boolean {
+  try {
+    const canvas = document.createElement('canvas');
+    return !!(
+      window.WebGLRenderingContext &&
+      (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
+    );
+  } catch {
+    return false;
+  }
+}
+
 function Logo3D() {
   const meshRef = useRef<THREE.Mesh>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -184,12 +196,14 @@ function Particles3D() {
 
 export function FloatingLogo3D() {
   const [isMounted, setIsMounted] = useState(false);
+  const [webGLSupported, setWebGLSupported] = useState(true);
 
   useEffect(() => {
     setIsMounted(true);
+    setWebGLSupported(isWebGLAvailable());
   }, []);
 
-  if (!isMounted) return null;
+  if (!isMounted || !webGLSupported) return null;
 
   return (
     <div className="absolute inset-0 pointer-events-none z-0">
