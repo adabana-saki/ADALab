@@ -21,57 +21,59 @@ export function ArticleStructuredData({
 }: ArticleStructuredDataProps) {
   const baseUrl = 'https://adalabtech.com';
 
-  const articleSchema = {
+  const combinedSchema = {
     '@context': 'https://schema.org',
-    '@type': 'Article',
-    headline: title,
-    description: description,
-    image: `${baseUrl}/og/${slug}/og-image.png`,
-    datePublished: date,
-    dateModified: updatedAt || date,
-    author: {
-      '@type': 'Person',
-      name: author,
-      url: `${baseUrl}/company`,
-    },
-    publisher: {
-      '@type': 'Organization',
-      name: 'ADA Lab',
-      logo: {
-        '@type': 'ImageObject',
-        url: `${baseUrl}/logo.png`,
-      },
-    },
-    mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': `${baseUrl}/blog/${slug}`,
-    },
-    keywords: tags.join(', '),
-    articleSection: 'Technology',
-    inLanguage: 'ja-JP',
-  };
-
-  const breadcrumbSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
+    '@graph': [
       {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Home',
-        item: baseUrl,
+        '@type': 'Article',
+        headline: title,
+        description: description,
+        image: `${baseUrl}/og/${slug}/og-image.png`,
+        datePublished: date,
+        dateModified: updatedAt || date,
+        author: {
+          '@type': 'Person',
+          name: author,
+          url: `${baseUrl}/company`,
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: 'ADA Lab',
+          logo: {
+            '@type': 'ImageObject',
+            url: `${baseUrl}/logo.png`,
+          },
+        },
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': `${baseUrl}/blog/${slug}`,
+        },
+        keywords: tags.join(', '),
+        articleSection: 'Technology',
+        inLanguage: 'ja-JP',
       },
       {
-        '@type': 'ListItem',
-        position: 2,
-        name: 'Blog',
-        item: `${baseUrl}/blog`,
-      },
-      {
-        '@type': 'ListItem',
-        position: 3,
-        name: title,
-        item: `${baseUrl}/blog/${slug}`,
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: baseUrl,
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Blog',
+            item: `${baseUrl}/blog`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: title,
+            item: `${baseUrl}/blog/${slug}`,
+          },
+        ],
       },
     ],
   };
@@ -82,7 +84,7 @@ export function ArticleStructuredData({
       type="application/ld+json"
       strategy="afterInteractive"
       dangerouslySetInnerHTML={{
-        __html: JSON.stringify([articleSchema, breadcrumbSchema]),
+        __html: JSON.stringify(combinedSchema),
       }}
     />
   );

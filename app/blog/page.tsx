@@ -8,11 +8,34 @@ import { BlogListClient } from './BlogListClient';
 export const metadata: Metadata = {
   title: 'Blog | ADA Lab',
   description: 'ADA Labのブログ - 技術記事やプロジェクトの進捗を発信しています',
+  keywords: ['ブログ', '技術記事', 'Next.js', 'React', 'TypeScript', 'Discord Bot', '個人開発'],
   alternates: {
+    canonical: 'https://adalabtech.com/blog',
     types: {
       'application/rss+xml': '/feed.xml',
       'application/atom+xml': '/atom.xml',
     },
+  },
+  openGraph: {
+    title: 'Blog | ADA Lab',
+    description: 'ADA Labのブログ - 技術記事やプロジェクトの進捗を発信しています',
+    url: 'https://adalabtech.com/blog',
+    type: 'website',
+    locale: 'ja_JP',
+    images: [
+      {
+        url: 'https://adalabtech.com/opengraph-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'ADA Lab Blog',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Blog | ADA Lab',
+    description: 'ADA Labのブログ - 技術記事やプロジェクトの進捗を発信しています',
+    images: ['https://adalabtech.com/twitter-image.png'],
   },
 };
 
