@@ -3,18 +3,7 @@
 import { useRef, useMemo, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-
-function isWebGLAvailable(): boolean {
-  try {
-    const canvas = document.createElement('canvas');
-    return !!(
-      window.WebGLRenderingContext &&
-      (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
-    );
-  } catch {
-    return false;
-  }
-}
+import { isWebGLAvailable } from '@/lib/webgl';
 
 function Particles() {
   const ref = useRef<THREE.Points>(null);
@@ -59,7 +48,7 @@ function Particles() {
 
 export function ParticleField() {
   const [isMounted, setIsMounted] = useState(false);
-  const [webGLSupported, setWebGLSupported] = useState(true);
+  const [webGLSupported, setWebGLSupported] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
