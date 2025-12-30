@@ -51,7 +51,6 @@ export function SnakeBattleLobby() {
     winner,
     error,
     myPlayerId,
-    pendingObstacles,
     createRoom,
     joinRoom,
     quickMatch,
@@ -59,7 +58,6 @@ export function SnakeBattleLobby() {
     sendStateUpdate,
     sendFoodEaten,
     sendGameOver,
-    consumeObstacles,
     leave,
   } = useSnakeBattle({
     onGameStart: (seed, settings) => {

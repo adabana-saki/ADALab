@@ -116,7 +116,6 @@ export function SnakeBattle({
   // Handle incoming obstacles
   useEffect(() => {
     if (obstacles.length > localObstacles.length) {
-      const newObstacles = obstacles.slice(localObstacles.length);
       setLocalObstacles(obstacles);
     }
   }, [obstacles, localObstacles.length]);

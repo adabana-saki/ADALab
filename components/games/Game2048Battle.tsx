@@ -342,8 +342,8 @@ export function Game2048Battle({
     // Send update to server
     onMoveUpdate(newScore, newMaxTile, newMoves);
 
-    // Check win condition
-    if (newMaxTile >= settings.targetTile && !reachedTarget) {
+    // Check win condition (reachedTarget is always false here due to early return guard)
+    if (newMaxTile >= settings.targetTile) {
       setReachedTarget(true);
       onReachedTarget(newScore, newMaxTile, newMoves);
     }
