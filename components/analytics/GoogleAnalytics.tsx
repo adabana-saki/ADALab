@@ -8,6 +8,11 @@ import { useEffect } from 'react';
 // GA_MEASUREMENT_ID must be set in environment variables for tracking to work
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '';
 
+// Validate GA_MEASUREMENT_ID format (G-XXXXXXXXXX, GT-XXXXXXXXXX, AW-XXXXXXXXXX, DC-XXXXXXXXXX)
+const isValidGaMeasurementId = (id: string): boolean => {
+  return /^(G|GT|AW|DC)-[A-Z0-9]+$/.test(id);
+};
+
 // Extend Window interface for gtag
 declare global {
   interface Window {
@@ -79,8 +84,11 @@ function PageViewTracker() {
 }
 
 export function GoogleAnalytics() {
-  // Don't render if GA ID is not configured
-  if (!GA_MEASUREMENT_ID) {
+  // Don't render if GA ID is not configured or invalid
+  if (!GA_MEASUREMENT_ID || !isValidGaMeasurementId(GA_MEASUREMENT_ID)) {
+    if (GA_MEASUREMENT_ID && !isValidGaMeasurementId(GA_MEASUREMENT_ID)) {
+      console.error('Invalid GA_MEASUREMENT_ID format:', GA_MEASUREMENT_ID);
+    }
     return null;
   }
 
@@ -96,7 +104,7 @@ export function GoogleAnalytics() {
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', '${GA_MEASUREMENT_ID}', {
-              send_page_view: true
+              send_page_view: false
             });
           `,
         }}
