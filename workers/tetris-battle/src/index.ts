@@ -1,11 +1,17 @@
 import { TetrisRoom } from './TetrisRoom';
 import { OnlinePresence } from './OnlinePresence';
 import { MatchmakingQueue } from './MatchmakingQueue';
+import { TypingRoom } from './TypingRoom';
+import { Game2048Room } from './Game2048Room';
+import { SnakeRoom } from './SnakeRoom';
 
 interface Env {
   TETRIS_ROOM: DurableObjectNamespace;
   ONLINE_PRESENCE: DurableObjectNamespace;
   MATCHMAKING_QUEUE: DurableObjectNamespace;
+  TYPING_ROOM: DurableObjectNamespace;
+  GAME_2048_ROOM: DurableObjectNamespace;
+  SNAKE_ROOM: DurableObjectNamespace;
   ALLOWED_ORIGINS: string;
 }
 
@@ -59,10 +65,55 @@ export default {
       return handlePresence(request, env, 'stats');
     }
 
-    // WebSocket connection to specific room
+    // WebSocket connection to specific room (Tetris)
     if (path.startsWith('/ws/room/')) {
       const roomId = path.replace('/ws/room/', '');
-      return handleWebSocket(request, env, roomId);
+      return handleWebSocket(request, env, roomId, 'tetris');
+    }
+
+    // Typing Battle routes
+    if (path === '/api/battle/typing/create') {
+      return handleCreateRoom(request, env, 'typing');
+    }
+    if (path === '/api/battle/typing/join') {
+      return handleJoinRoom(request, env, 'typing');
+    }
+    if (path === '/api/battle/typing/queue') {
+      return handleMatchmaking(request, env, 'typing');
+    }
+    if (path.startsWith('/ws/typing/')) {
+      const roomId = path.replace('/ws/typing/', '');
+      return handleWebSocket(request, env, roomId, 'typing');
+    }
+
+    // 2048 Battle routes
+    if (path === '/api/battle/2048/create') {
+      return handleCreateRoom(request, env, '2048');
+    }
+    if (path === '/api/battle/2048/join') {
+      return handleJoinRoom(request, env, '2048');
+    }
+    if (path === '/api/battle/2048/queue') {
+      return handleMatchmaking(request, env, '2048');
+    }
+    if (path.startsWith('/ws/2048/')) {
+      const roomId = path.replace('/ws/2048/', '');
+      return handleWebSocket(request, env, roomId, '2048');
+    }
+
+    // Snake Battle routes
+    if (path === '/api/battle/snake/create') {
+      return handleCreateRoom(request, env, 'snake');
+    }
+    if (path === '/api/battle/snake/join') {
+      return handleJoinRoom(request, env, 'snake');
+    }
+    if (path === '/api/battle/snake/queue') {
+      return handleMatchmaking(request, env, 'snake');
+    }
+    if (path.startsWith('/ws/snake/')) {
+      const roomId = path.replace('/ws/snake/', '');
+      return handleWebSocket(request, env, roomId, 'snake');
     }
 
     return new Response('Not Found', { status: 404, headers: corsHeaders });
@@ -79,7 +130,27 @@ function generateRoomCode(): string {
   return code;
 }
 
-async function handleCreateRoom(request: Request, env: Env): Promise<Response> {
+type GameType = 'tetris' | 'typing' | '2048' | 'snake';
+
+function getRoomNamespace(env: Env, gameType: GameType): DurableObjectNamespace {
+  switch (gameType) {
+    case 'typing': return env.TYPING_ROOM;
+    case '2048': return env.GAME_2048_ROOM;
+    case 'snake': return env.SNAKE_ROOM;
+    default: return env.TETRIS_ROOM;
+  }
+}
+
+function getWsPath(gameType: GameType): string {
+  switch (gameType) {
+    case 'typing': return '/ws/typing/';
+    case '2048': return '/ws/2048/';
+    case 'snake': return '/ws/snake/';
+    default: return '/ws/room/';
+  }
+}
+
+async function handleCreateRoom(request: Request, env: Env, gameType: GameType = 'tetris'): Promise<Response> {
   if (request.method !== 'POST') {
     return new Response('Method not allowed', { status: 405, headers: corsHeaders });
   }
@@ -88,6 +159,8 @@ async function handleCreateRoom(request: Request, env: Env): Promise<Response> {
     // Consume JSON body (nickname is passed via WebSocket later)
     await request.json();
 
+    const namespace = getRoomNamespace(env, gameType);
+
     // Generate unique room code with collision detection
     let roomCode: string;
     let attempts = 0;
@@ -95,8 +168,8 @@ async function handleCreateRoom(request: Request, env: Env): Promise<Response> {
 
     while (attempts < maxAttempts) {
       roomCode = generateRoomCode();
-      const id = env.TETRIS_ROOM.idFromName(roomCode);
-      const room = env.TETRIS_ROOM.get(id);
+      const id = namespace.idFromName(roomCode);
+      const room = namespace.get(id);
 
       // Check if room already exists
       const infoResponse = await room.fetch(new Request(`https://dummy/info`));
@@ -111,7 +184,7 @@ async function handleCreateRoom(request: Request, env: Env): Promise<Response> {
           success: true,
           roomId: roomCode,
           roomCode,
-          wsUrl: `/ws/room/${roomCode}`,
+          wsUrl: `${getWsPath(gameType)}${roomCode}`,
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -134,7 +207,7 @@ async function handleCreateRoom(request: Request, env: Env): Promise<Response> {
   }
 }
 
-async function handleJoinRoom(request: Request, env: Env): Promise<Response> {
+async function handleJoinRoom(request: Request, env: Env, gameType: GameType = 'tetris'): Promise<Response> {
   if (request.method !== 'POST') {
     return new Response('Method not allowed', { status: 405, headers: corsHeaders });
   }
@@ -150,9 +223,11 @@ async function handleJoinRoom(request: Request, env: Env): Promise<Response> {
       });
     }
 
+    const namespace = getRoomNamespace(env, gameType);
+
     // For simplicity, use room code as room name
-    const id = env.TETRIS_ROOM.idFromName(roomCode);
-    const room = env.TETRIS_ROOM.get(id);
+    const id = namespace.idFromName(roomCode);
+    const room = namespace.get(id);
 
     // Check if room exists and has space
     const infoResponse = await room.fetch(new Request(`https://dummy/info`));
@@ -183,7 +258,7 @@ async function handleJoinRoom(request: Request, env: Env): Promise<Response> {
     return new Response(JSON.stringify({
       success: true,
       roomId: roomCode,
-      wsUrl: `/ws/room/${roomCode}`,
+      wsUrl: `${getWsPath(gameType)}${roomCode}`,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -197,16 +272,17 @@ async function handleJoinRoom(request: Request, env: Env): Promise<Response> {
 }
 
 // Matchmaking using Durable Object (shared across all worker instances)
-async function handleMatchmaking(request: Request, env: Env): Promise<Response> {
+async function handleMatchmaking(request: Request, env: Env, gameType: GameType = 'tetris'): Promise<Response> {
   if (request.method !== 'POST') {
     return new Response('Method not allowed', { status: 405, headers: corsHeaders });
   }
 
   try {
-    // Read the body first so we can pass it to the DO
-    const bodyText = await request.text();
+    // Read the body and add gameType
+    const body = await request.json() as Record<string, unknown>;
+    const bodyWithGameType = { ...body, gameType };
 
-    // Use a single global matchmaking queue
+    // Use a single global matchmaking queue (handles all game types)
     const queueId = env.MATCHMAKING_QUEUE.idFromName('global');
     const queue = env.MATCHMAKING_QUEUE.get(queueId);
 
@@ -214,17 +290,23 @@ async function handleMatchmaking(request: Request, env: Env): Promise<Response> 
     const doRequest = new Request('https://dummy/queue', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: bodyText,
+      body: JSON.stringify(bodyWithGameType),
     });
 
     const response = await queue.fetch(doRequest);
-    const result = await response.json() as { matched?: boolean; roomId?: string; needsInit?: boolean };
+    const result = await response.json() as { matched?: boolean; roomId?: string; needsInit?: boolean; wsUrl?: string };
 
     // If matched, initialize the room
     if (result.matched && result.roomId && result.needsInit) {
-      const roomId = env.TETRIS_ROOM.idFromName(result.roomId);
-      const room = env.TETRIS_ROOM.get(roomId);
+      const namespace = getRoomNamespace(env, gameType);
+      const roomId = namespace.idFromName(result.roomId);
+      const room = namespace.get(roomId);
       await room.fetch(new Request(`https://dummy/init?roomCode=${result.roomId}`));
+    }
+
+    // Add wsUrl to response
+    if (result.matched && result.roomId) {
+      result.wsUrl = `${getWsPath(gameType)}${result.roomId}`;
     }
 
     return new Response(JSON.stringify(result), {
@@ -295,15 +377,16 @@ async function handleRoomInfo(request: Request, env: Env): Promise<Response> {
   }
 }
 
-async function handleWebSocket(request: Request, env: Env, roomId: string): Promise<Response> {
+async function handleWebSocket(request: Request, env: Env, roomId: string, gameType: GameType = 'tetris'): Promise<Response> {
   const upgradeHeader = request.headers.get('Upgrade');
   if (upgradeHeader !== 'websocket') {
     return new Response('Expected WebSocket', { status: 426, headers: corsHeaders });
   }
 
   try {
-    const id = env.TETRIS_ROOM.idFromName(roomId);
-    const room = env.TETRIS_ROOM.get(id);
+    const namespace = getRoomNamespace(env, gameType);
+    const id = namespace.idFromName(roomId);
+    const room = namespace.get(id);
 
     // Forward the WebSocket request to the Durable Object
     return room.fetch(request);
@@ -338,4 +421,4 @@ async function handlePresence(request: Request, env: Env, action: string): Promi
 }
 
 // Export Durable Object classes
-export { TetrisRoom, OnlinePresence, MatchmakingQueue };
+export { TetrisRoom, OnlinePresence, MatchmakingQueue, TypingRoom, Game2048Room, SnakeRoom };

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Gamepad2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
@@ -11,6 +11,7 @@ import { MagneticButton } from '../effects/MagneticButton';
 import { GradientText } from '../effects/GradientText';
 import { DotPattern } from '../effects/DotPattern';
 import { scrollToSection } from '@/hooks/useKeyboardShortcuts';
+import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -205,6 +206,18 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.3 }}
           >
+            <MagneticButton strength={0.2}>
+              <Link href="/games/tetris">
+                <Button
+                  size="lg"
+                  className="w-full sm:w-auto min-w-[200px] border-2 border-green-400 bg-green-500/20 hover:bg-green-500/30 relative overflow-hidden group transition-all hover:scale-110 active:scale-95 py-6 sm:py-4 shadow-lg shadow-green-500/20"
+                >
+                  <Gamepad2 className="w-5 h-5 mr-2 relative z-10" />
+                  <span className="relative z-10">{language === 'ja' ? 'ゲームをプレイ' : 'Play Games'}</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                </Button>
+              </Link>
+            </MagneticButton>
             <MagneticButton strength={0.2}>
               <Button
                 size="lg"

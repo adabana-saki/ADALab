@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { getDeviceId } from './useDeviceId';
 
 export interface LeaderboardEntry {
@@ -8,13 +8,22 @@ export interface LeaderboardEntry {
   lines: number;
   level: number;
   date: string;
-  mode: 'endless' | 'sprint';
+  mode: 'endless' | 'sprint' | 'timeAttack';
   time?: number;
   device_id?: string;
 }
 
+export type LeaderboardPeriod = 'all' | 'daily' | 'weekly' | 'monthly';
+
+export const LEADERBOARD_PERIOD_LABELS: Record<LeaderboardPeriod, string> = {
+  all: '全期間',
+  daily: '今日',
+  weekly: '今週',
+  monthly: '今月',
+};
+
 interface UseTetrisLeaderboardOptions {
-  mode: 'endless' | 'sprint';
+  mode: 'endless' | 'sprint' | 'timeAttack';
 }
 
 const LEADERBOARD_KEY = 'tetris-leaderboard-v2';
@@ -156,6 +165,37 @@ export function useTetrisLeaderboard({ mode }: UseTetrisLeaderboardOptions) {
     return score > minScore;
   }, [leaderboard]);
 
+  // 期間フィルタリング
+  const [period, setPeriod] = useState<LeaderboardPeriod>('all');
+
+  const filterByPeriod = useCallback((entries: LeaderboardEntry[], p: LeaderboardPeriod): LeaderboardEntry[] => {
+    if (p === 'all') return entries;
+
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfWeek = new Date(startOfDay);
+    startOfWeek.setDate(startOfDay.getDate() - startOfDay.getDay()); // 日曜日始まり
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    return entries.filter(entry => {
+      const entryDate = new Date(entry.date);
+      switch (p) {
+        case 'daily':
+          return entryDate >= startOfDay;
+        case 'weekly':
+          return entryDate >= startOfWeek;
+        case 'monthly':
+          return entryDate >= startOfMonth;
+        default:
+          return true;
+      }
+    });
+  }, []);
+
+  const filteredLeaderboard = useMemo(() => {
+    return filterByPeriod(leaderboard, period).slice(0, 10);
+  }, [leaderboard, period, filterByPeriod]);
+
   // 初回ロード
   useEffect(() => {
     // 初回はローカルを即座に表示
@@ -167,7 +207,10 @@ export function useTetrisLeaderboard({ mode }: UseTetrisLeaderboardOptions) {
   }, [mode, getLocalLeaderboard, fetchLeaderboard]);
 
   return {
-    leaderboard,
+    leaderboard: filteredLeaderboard,
+    allLeaderboard: leaderboard,
+    period,
+    setPeriod,
     isLoading,
     error,
     isOnline,
