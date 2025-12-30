@@ -19,3 +19,19 @@ CREATE INDEX IF NOT EXISTS idx_leaderboard_score ON tetris_leaderboard(score DES
 CREATE INDEX IF NOT EXISTS idx_leaderboard_mode_score ON tetris_leaderboard(mode, score DESC);
 -- Index for device_id + mode (1 user = 1 record system)
 CREATE INDEX IF NOT EXISTS idx_leaderboard_device_mode ON tetris_leaderboard(device_id, mode);
+
+-- 2048 Leaderboard Schema
+CREATE TABLE IF NOT EXISTS game_2048_leaderboard (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  nickname TEXT NOT NULL,
+  score INTEGER NOT NULL,
+  max_tile INTEGER NOT NULL,
+  moves INTEGER NOT NULL,
+  date TEXT NOT NULL,
+  device_id TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Index for 2048 leaderboard
+CREATE INDEX IF NOT EXISTS idx_2048_leaderboard_score ON game_2048_leaderboard(score DESC);
+CREATE INDEX IF NOT EXISTS idx_2048_leaderboard_device ON game_2048_leaderboard(device_id);

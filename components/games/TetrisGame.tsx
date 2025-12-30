@@ -1,7 +1,8 @@
 'use client';
 
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { useTetrisLeaderboard } from '@/hooks/useTetrisLeaderboard';
+import { useTetrisLeaderboard, LEADERBOARD_PERIOD_LABELS, type LeaderboardPeriod } from '@/hooks/useTetrisLeaderboard';
+import { useGameAchievements } from '@/hooks/useGameAchievements';
 import {
   RotateCw,
   ArrowLeft,
@@ -26,7 +27,13 @@ import {
   Timer,
   Infinity,
   Settings,
+  Award,
+  BarChart3,
 } from 'lucide-react';
+import { AchievementToast } from './AchievementToast';
+import { AchievementPanel } from './AchievementPanel';
+import { StatsPanel } from './StatsPanel';
+import { ShareButton } from './ShareButton';
 
 // ゲーム設定
 const FIELD_COL = 10;
@@ -49,8 +56,43 @@ const MAX_LOCK_MOVES = 15; // 最大移動回数
 const PERFECT_CLEAR_BONUS = 3000;
 
 // ゲームモード
-type GameMode = 'endless' | 'sprint';
+type GameMode = 'endless' | 'sprint' | 'timeAttack';
 const SPRINT_LINES = 40;
+const TIME_ATTACK_DURATION = 120; // 2分（秒）
+
+// キーバインド設定
+interface KeyBindings {
+  moveLeft: string[];
+  moveRight: string[];
+  softDrop: string[];
+  hardDrop: string[];
+  rotateClockwise: string[];
+  rotateCounterClockwise: string[];
+  hold: string[];
+  pause: string[];
+}
+
+const DEFAULT_KEY_BINDINGS: KeyBindings = {
+  moveLeft: ['ArrowLeft'],
+  moveRight: ['ArrowRight'],
+  softDrop: ['ArrowDown'],
+  hardDrop: ['Space'],
+  rotateClockwise: ['ArrowUp', 'KeyX'],
+  rotateCounterClockwise: ['KeyZ'],
+  hold: ['KeyC', 'ShiftLeft', 'ShiftRight'],
+  pause: ['KeyP', 'Escape'],
+};
+
+const KEY_BINDING_LABELS: Record<keyof KeyBindings, string> = {
+  moveLeft: '左移動',
+  moveRight: '右移動',
+  softDrop: 'ソフトドロップ',
+  hardDrop: 'ハードドロップ',
+  rotateClockwise: '右回転',
+  rotateCounterClockwise: '左回転',
+  hold: 'ホールド',
+  pause: 'ポーズ',
+};
 
 // レベルごとの落下速度（ミリ秒）
 const LEVEL_SPEEDS = [800, 720, 640, 560, 480, 400, 320, 240, 160, 100, 80, 60, 50, 40, 30];
@@ -311,6 +353,8 @@ export function TetrisGame() {
   const [showModeSelect, setShowModeSelect] = useState(false);
   const [theme, setTheme] = useState<ThemeType>('classic');
   const [showSettings, setShowSettings] = useState(false);
+  const [keyBindings, setKeyBindings] = useState<KeyBindings>(DEFAULT_KEY_BINDINGS);
+  const [editingKey, setEditingKey] = useState<keyof KeyBindings | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [lineClearAnim, setLineClearAnim] = useState<LineClearAnimation | null>(null);
   const [gameComplete, setGameComplete] = useState(false);
@@ -318,11 +362,29 @@ export function TetrisGame() {
   // グローバルリーダーボード（D1 API）
   const {
     leaderboard,
+    period: leaderboardPeriod,
+    setPeriod: setLeaderboardPeriod,
     isLoading: _leaderboardLoading,
     error: _leaderboardError,
     submitScore,
     isRankingScore,
   } = useTetrisLeaderboard({ mode: gameMode });
+
+  // ゲーム実績・統計システム
+  const {
+    achievements: userAchievements,
+    stats: gameStats,
+    recentUnlocks,
+    checkAchievements,
+    updateStats,
+    clearRecentUnlocks,
+    getProgress,
+    getAllAchievements,
+  } = useGameAchievements();
+
+  // 実績・統計パネル表示状態
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [showStatsPanel, setShowStatsPanel] = useState(false);
 
   // タッチ操作用
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
@@ -374,6 +436,16 @@ export function TetrisGame() {
 
     const savedGhost = localStorage.getItem('tetris-ghost');
     if (savedGhost !== null) setGhostEnabled(savedGhost === 'true');
+
+    const savedKeyBindings = localStorage.getItem('tetris-keybindings');
+    if (savedKeyBindings) {
+      try {
+        const parsed = JSON.parse(savedKeyBindings) as KeyBindings;
+        setKeyBindings(parsed);
+      } catch {
+        // 無効なデータの場合はデフォルトを使用
+      }
+    }
 
     const savedBgmTrack = localStorage.getItem('tetris-bgm-track') as BgmTrack;
     if (savedBgmTrack && BGM_TRACKS.some(t => t.id === savedBgmTrack)) {
@@ -466,6 +538,11 @@ export function TetrisGame() {
   useEffect(() => {
     localStorage.setItem('tetris-ghost', ghostEnabled.toString());
   }, [ghostEnabled]);
+
+  // キーバインド保存
+  useEffect(() => {
+    localStorage.setItem('tetris-keybindings', JSON.stringify(keyBindings));
+  }, [keyBindings]);
 
   // フィールド初期化
   const initField = useCallback(() => {
@@ -731,17 +808,43 @@ export function TetrisGame() {
     soundEngine.gameOver();
     soundEngine.stopBgm();
 
-    const finalScore = gameState.current.stats.score;
+    const finalStats = gameState.current.stats;
+
+    // ゲーム統計を更新
+    updateStats({
+      totalGames: gameStats.totalGames + 1,
+      totalLines: gameStats.totalLines + finalStats.lines,
+      totalScore: gameStats.totalScore + finalStats.score,
+      totalTetris: gameStats.totalTetris + finalStats.tetrises,
+      totalTSpins: gameStats.totalTSpins + finalStats.tSpins,
+      totalCombo: gameStats.totalCombo + finalStats.combo,
+      maxCombo: Math.max(gameStats.maxCombo, finalStats.combo),
+      highScore: Math.max(gameStats.highScore, finalStats.score),
+      totalPlayTime: gameStats.totalPlayTime + finalStats.playTime,
+    });
+
+    // 実績チェック
+    checkAchievements({
+      totalGames: gameStats.totalGames + 1,
+      totalLines: gameStats.totalLines + finalStats.lines,
+      highScore: Math.max(gameStats.highScore, finalStats.score),
+      maxCombo: Math.max(gameStats.maxCombo, finalStats.combo),
+      totalTetris: gameStats.totalTetris + finalStats.tetrises,
+      totalTSpins: gameStats.totalTSpins + finalStats.tSpins,
+      totalPlayTime: gameStats.totalPlayTime + finalStats.playTime,
+    });
+
+    const finalScore = finalStats.score;
     if (isRankingScore(finalScore)) {
       setPendingScore({
         score: finalScore,
-        lines: gameState.current.stats.lines,
-        level: gameState.current.stats.level,
-        time: gameState.current.stats.playTime,
+        lines: finalStats.lines,
+        level: finalStats.level,
+        time: finalStats.playTime,
       });
       setShowNicknameInput(true);
     }
-  }, [isRankingScore]);
+  }, [isRankingScore, updateStats, checkAchievements, gameStats]);
 
   const hardDrop = useCallback(() => {
     const ghostY = getGhostY();
@@ -986,7 +1089,8 @@ export function TetrisGame() {
       return;
     }
 
-    if (e.code === 'KeyP' || e.code === 'Escape') {
+    // ポーズ判定（カスタムキーバインド使用）
+    if (keyBindings.pause.includes(e.code)) {
       gameState.current.isPaused = !gameState.current.isPaused;
       setIsPaused(gameState.current.isPaused);
       return;
@@ -1003,53 +1107,43 @@ export function TetrisGame() {
       }
     };
 
-    switch (e.code) {
-      case 'ArrowLeft':
-        if (!checkCollision(-1, 0)) {
-          gameState.current.tetroX--;
-          gameState.current.lastRotation = false;
-          resetLockTimer();
-          soundEngine.move();
-        }
-        break;
-      case 'ArrowRight':
-        if (!checkCollision(1, 0)) {
-          gameState.current.tetroX++;
-          gameState.current.lastRotation = false;
-          resetLockTimer();
-          soundEngine.move();
-        }
-        break;
-      case 'ArrowDown':
-        if (!checkCollision(0, 1)) {
-          gameState.current.tetroY++;
-          gameState.current.stats.score += 1;
-          gameState.current.lastRotation = false;
-          setStats({ ...gameState.current.stats });
-        }
-        break;
-      case 'ArrowUp':
-      case 'KeyX':
-        tryRotate();
-        break;
-      case 'Space':
-        hardDrop();
-        break;
-      case 'KeyC':
-      case 'ShiftLeft':
-      case 'ShiftRight':
-        holdTetro();
-        break;
-      case 'KeyZ':
-        tryRotate(); tryRotate(); tryRotate();
-        break;
-      case 'KeyG':
-        setGhostEnabled(g => !g);
-        break;
+    // カスタムキーバインドでアクション判定
+    if (keyBindings.moveLeft.includes(e.code)) {
+      if (!checkCollision(-1, 0)) {
+        gameState.current.tetroX--;
+        gameState.current.lastRotation = false;
+        resetLockTimer();
+        soundEngine.move();
+      }
+    } else if (keyBindings.moveRight.includes(e.code)) {
+      if (!checkCollision(1, 0)) {
+        gameState.current.tetroX++;
+        gameState.current.lastRotation = false;
+        resetLockTimer();
+        soundEngine.move();
+      }
+    } else if (keyBindings.softDrop.includes(e.code)) {
+      if (!checkCollision(0, 1)) {
+        gameState.current.tetroY++;
+        gameState.current.stats.score += 1;
+        gameState.current.lastRotation = false;
+        setStats({ ...gameState.current.stats });
+      }
+    } else if (keyBindings.rotateClockwise.includes(e.code)) {
+      tryRotate();
+    } else if (keyBindings.rotateCounterClockwise.includes(e.code)) {
+      tryRotate(); tryRotate(); tryRotate();
+    } else if (keyBindings.hardDrop.includes(e.code)) {
+      hardDrop();
+    } else if (keyBindings.hold.includes(e.code)) {
+      holdTetro();
+    } else if (e.code === 'KeyG') {
+      // ゴースト切り替えは固定キー
+      setGhostEnabled(g => !g);
     }
     draw();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isStarted, checkCollision, tryRotate, hardDrop, holdTetro, draw, countdown]);
+  }, [isStarted, checkCollision, tryRotate, hardDrop, holdTetro, draw, countdown, keyBindings]);
 
   // ゲーム開始（カウントダウン付き）
   const startGameWithCountdown = useCallback((mode: GameMode) => {
@@ -1134,6 +1228,32 @@ export function TetrisGame() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
+  // キーバインド設定用リスナー
+  useEffect(() => {
+    if (!editingKey) return;
+
+    const handleKeyBindingInput = (e: KeyboardEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Escapeでキャンセル
+      if (e.code === 'Escape') {
+        setEditingKey(null);
+        return;
+      }
+
+      // 新しいキーバインドを設定
+      setKeyBindings(prev => ({
+        ...prev,
+        [editingKey]: [e.code],
+      }));
+      setEditingKey(null);
+    };
+
+    window.addEventListener('keydown', handleKeyBindingInput);
+    return () => window.removeEventListener('keydown', handleKeyBindingInput);
+  }, [editingKey]);
+
   // ゲームループ
   useEffect(() => {
     if (!isStarted || gameOver || isPaused || countdown !== null) return;
@@ -1142,7 +1262,7 @@ export function TetrisGame() {
     return () => clearInterval(interval);
   }, [isStarted, gameOver, isPaused, stats.level, timeBonus, drop, getCurrentSpeed, countdown]);
 
-  // 時間加速
+  // 時間加速 & タイムアタック判定
   useEffect(() => {
     if (!isStarted || gameOver || isPaused || countdown !== null) return;
     const timer = setInterval(() => {
@@ -1154,6 +1274,17 @@ export function TetrisGame() {
       }
       gameState.current.stats.playTime = Math.floor(elapsed / 1000);
       setStats({ ...gameState.current.stats });
+
+      // タイムアタックモード終了判定
+      if (gameState.current.mode === 'timeAttack') {
+        const elapsedSeconds = Math.floor(elapsed / 1000);
+        if (elapsedSeconds >= TIME_ATTACK_DURATION) {
+          gameState.current.gameOver = true;
+          setGameOver(true);
+          setGameComplete(true);
+          soundEngine.stopBgm();
+        }
+      }
     }, 1000);
     return () => clearInterval(timer);
   }, [isStarted, gameOver, isPaused, countdown]);
@@ -1255,6 +1386,7 @@ export function TetrisGame() {
     const labels: Record<GameMode, string> = {
       endless: 'エンドレス',
       sprint: `スプリント (${SPRINT_LINES}ライン)`,
+      timeAttack: `タイムアタック (${TIME_ATTACK_DURATION / 60}分)`,
     };
     return labels[mode];
   };
@@ -1279,10 +1411,26 @@ export function TetrisGame() {
 
         <div className="bg-card border border-border rounded-lg p-3">
           <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1">
-            <Clock size={12} />Time
+            <Clock size={12} />{gameMode === 'timeAttack' ? '残り時間' : 'Time'}
           </div>
-          <div className="text-lg font-mono text-foreground">{formatTime(stats.playTime)}</div>
-          {timeBonus > 0 && <div className="text-xs text-red-500">+{timeBonus}ms</div>}
+          {gameMode === 'timeAttack' ? (
+            <>
+              <div className={`text-lg font-mono ${Math.max(0, TIME_ATTACK_DURATION - stats.playTime) <= 10 ? 'text-red-500 animate-pulse' : 'text-foreground'}`}>
+                {formatTime(Math.max(0, TIME_ATTACK_DURATION - stats.playTime))}
+              </div>
+              <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mt-1">
+                <div
+                  className="h-full bg-primary transition-all duration-1000"
+                  style={{ width: `${Math.max(0, (TIME_ATTACK_DURATION - stats.playTime) / TIME_ATTACK_DURATION * 100)}%` }}
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="text-lg font-mono text-foreground">{formatTime(stats.playTime)}</div>
+              {timeBonus > 0 && <div className="text-xs text-red-500">+{timeBonus}ms</div>}
+            </>
+          )}
         </div>
 
         {/* モード表示 */}
@@ -1294,6 +1442,9 @@ export function TetrisGame() {
             <div className="text-sm font-medium">{getModeLabel(gameMode)}</div>
             {gameMode === 'sprint' && (
               <div className="text-xs text-muted-foreground">{stats.lines}/{SPRINT_LINES}</div>
+            )}
+            {gameMode === 'timeAttack' && (
+              <div className="text-xs text-primary">{stats.playTime}秒経過</div>
             )}
           </div>
         )}
@@ -1357,6 +1508,15 @@ export function TetrisGame() {
               {gameOver ? 'Retry' : 'Start'}
             </button>
           )}
+          {/* ゲームオーバー時のシェアボタン */}
+          {gameOver && (
+            <ShareButton
+              score={stats.score}
+              lines={stats.lines}
+              level={stats.level}
+              mode={gameMode === 'sprint' ? 'sprint' : gameMode === 'timeAttack' ? 'timeAttack' : 'marathon'}
+            />
+          )}
           <button onClick={() => setSoundEnabled(!soundEnabled)} className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors" title={soundEnabled ? 'Mute SE' : 'Unmute SE'}>
             {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
           </button>
@@ -1366,6 +1526,12 @@ export function TetrisGame() {
             handleBgmTrackChange(BGM_TRACKS[nextIndex].id);
           }} className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors" title={`BGM: ${BGM_TRACKS.find(t => t.id === bgmTrack)?.label}`}>
             <Music size={20} className={bgmTrack !== 'none' ? 'text-primary' : ''} />
+          </button>
+          <button onClick={() => setShowAchievements(true)} className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors" title="実績">
+            <Award size={20} className={getProgress().percentage > 0 ? 'text-yellow-500' : ''} />
+          </button>
+          <button onClick={() => setShowStatsPanel(true)} className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors" title="統計">
+            <BarChart3 size={20} />
           </button>
           <button onClick={() => setShowSettings(true)} className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors" title="Settings">
             <Settings size={20} />
@@ -1472,6 +1638,7 @@ export function TetrisGame() {
               {([
                 { mode: 'endless' as GameMode, icon: Infinity, label: 'エンドレス', desc: '限界までプレイ' },
                 { mode: 'sprint' as GameMode, icon: Timer, label: 'スプリント', desc: `${SPRINT_LINES}ライン最速クリア` },
+                { mode: 'timeAttack' as GameMode, icon: Clock, label: 'タイムアタック', desc: `${TIME_ATTACK_DURATION / 60}分間で最高スコア` },
               ]).map(({ mode, icon: Icon, label, desc }) => (
                 <button
                   key={mode}
@@ -1557,6 +1724,44 @@ export function TetrisGame() {
                   ))}
                 </div>
               </div>
+
+              {/* キーバインド設定 */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Settings size={16} />
+                    <span className="font-medium">キーバインド</span>
+                  </div>
+                  <button
+                    onClick={() => setKeyBindings(DEFAULT_KEY_BINDINGS)}
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    リセット
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {(Object.keys(keyBindings) as (keyof KeyBindings)[]).map(action => (
+                    <div key={action} className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
+                      <span className="text-sm">{KEY_BINDING_LABELS[action]}</span>
+                      <button
+                        onClick={() => setEditingKey(editingKey === action ? null : action)}
+                        className={`px-3 py-1 text-xs rounded border transition-colors ${
+                          editingKey === action
+                            ? 'bg-primary text-primary-foreground border-primary animate-pulse'
+                            : 'bg-muted border-border hover:border-primary'
+                        }`}
+                      >
+                        {editingKey === action ? 'キーを押してください...' : keyBindings[action].map(k => k.replace('Key', '').replace('Arrow', '→')).join(' / ')}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                {editingKey && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    設定中: {KEY_BINDING_LABELS[editingKey]}（Escでキャンセル）
+                  </p>
+                )}
+              </div>
             </div>
             <button onClick={() => setShowSettings(false)} className="w-full mt-4 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors">
               閉じる
@@ -1613,6 +1818,24 @@ export function TetrisGame() {
               </div>
               <button onClick={() => setShowLeaderboard(false)} className="p-1 hover:bg-muted rounded-lg"><X size={20} /></button>
             </div>
+
+            {/* 期間フィルタ */}
+            <div className="flex gap-1 mb-4 p-1 bg-muted/50 rounded-lg">
+              {(Object.keys(LEADERBOARD_PERIOD_LABELS) as LeaderboardPeriod[]).map(p => (
+                <button
+                  key={p}
+                  onClick={() => setLeaderboardPeriod(p)}
+                  className={`flex-1 px-2 py-1.5 text-xs font-medium rounded transition-colors ${
+                    leaderboardPeriod === p
+                      ? 'bg-primary text-primary-foreground'
+                      : 'hover:bg-muted'
+                  }`}
+                >
+                  {LEADERBOARD_PERIOD_LABELS[p]}
+                </button>
+              ))}
+            </div>
+
             {leaderboard.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">まだ記録がありません</p>
             ) : (
@@ -1655,6 +1878,35 @@ export function TetrisGame() {
           <Medal size={24} className="text-yellow-500" />
         </button>
       )}
+
+      {/* 実績トースト通知 */}
+      {recentUnlocks.length > 0 && (
+        <div className="fixed top-4 right-4 z-[100] space-y-3">
+          {recentUnlocks.slice(0, 3).map(({ achievement, timestamp }) => (
+            <AchievementToast
+              key={timestamp}
+              achievement={achievement}
+              onClose={() => clearRecentUnlocks()}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* 実績パネル */}
+      <AchievementPanel
+        achievements={getAllAchievements()}
+        progress={getProgress()}
+        totalXp={userAchievements.totalXp}
+        isOpen={showAchievements}
+        onClose={() => setShowAchievements(false)}
+      />
+
+      {/* 統計パネル */}
+      <StatsPanel
+        stats={gameStats}
+        isOpen={showStatsPanel}
+        onClose={() => setShowStatsPanel(false)}
+      />
     </div>
   );
 }
