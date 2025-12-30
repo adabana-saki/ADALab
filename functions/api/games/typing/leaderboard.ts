@@ -119,6 +119,50 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       );
     }
 
+    // Validate accuracy (0-100)
+    if (typeof body.accuracy !== 'number' || body.accuracy < 0 || body.accuracy > 100) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid accuracy (must be 0-100)' }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
+        }
+      );
+    }
+
+    // Validate words_typed (non-negative)
+    if (typeof body.words_typed !== 'number' || body.words_typed < 0 || body.words_typed > 10000) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid words_typed' }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
+        }
+      );
+    }
+
+    // Validate time_seconds (optional, but if provided must be reasonable)
+    if (body.time_seconds !== undefined && body.time_seconds !== null) {
+      if (typeof body.time_seconds !== 'number' || body.time_seconds < 0 || body.time_seconds > 3600) {
+        return new Response(
+          JSON.stringify({ error: 'Invalid time_seconds' }),
+          {
+            status: 400,
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            },
+          }
+        );
+      }
+    }
+
     const deviceId = body.device_id || null;
 
     // UPSERTロジック

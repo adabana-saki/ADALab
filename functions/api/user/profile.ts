@@ -1,5 +1,6 @@
 interface Env {
   DB: D1Database;
+  ALLOWED_ORIGIN?: string;
 }
 
 interface UpdateProfileRequest {
@@ -7,26 +8,61 @@ interface UpdateProfileRequest {
   nickname?: string;
 }
 
+// Decode Firebase JWT token (basic validation)
+function decodeFirebaseToken(token: string): { uid: string } | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+
+    const payload = JSON.parse(atob(parts[1]));
+    if (!payload.sub || !payload.exp) return null;
+
+    // Check expiration
+    if (payload.exp * 1000 < Date.now()) return null;
+
+    return { uid: payload.sub };
+  } catch {
+    return null;
+  }
+}
+
+// Get allowed origin for CORS
+function getAllowedOrigin(env: Env): string {
+  return env.ALLOWED_ORIGIN || 'https://adalabtech.com';
+}
+
+// Verify auth and get UID from token
+function verifyAuth(request: Request): { uid: string } | null {
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) return null;
+
+  const token = authHeader.slice(7);
+  return decodeFirebaseToken(token);
+}
+
 // GET: プロフィール取得
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
+  const allowedOrigin = getAllowedOrigin(env);
 
   const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   };
 
   try {
-    const url = new URL(request.url);
-    const uid = url.searchParams.get('uid');
-
-    if (!uid) {
-      return new Response(JSON.stringify({ error: 'uid is required' }), {
-        status: 400,
+    // Verify authentication
+    const auth = verifyAuth(request);
+    if (!auth) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    // Use authenticated UID instead of query parameter
+    const uid = auth.uid;
 
     const user = await env.DB.prepare(
       `SELECT u.id, u.nickname, u.avatar_url, u.created_at,
@@ -123,22 +159,36 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 // PUT: プロフィール更新
 export const onRequestPut: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
+  const allowedOrigin = getAllowedOrigin(env);
 
   const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   };
 
   try {
-    const body: UpdateProfileRequest = await request.json();
-
-    if (!body.uid) {
-      return new Response(JSON.stringify({ error: 'uid is required' }), {
-        status: 400,
+    // Verify authentication
+    const auth = verifyAuth(request);
+    if (!auth) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    const body: UpdateProfileRequest = await request.json();
+
+    // Verify token UID matches request UID
+    if (body.uid && body.uid !== auth.uid) {
+      return new Response(JSON.stringify({ error: 'UID mismatch' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Use authenticated UID
+    const uid = auth.uid;
 
     // Validate nickname
     if (body.nickname) {
@@ -158,7 +208,7 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
        SET nickname = COALESCE(?, nickname), updated_at = CURRENT_TIMESTAMP
        WHERE firebase_uid = ?`
     )
-      .bind(body.nickname, body.uid)
+      .bind(body.nickname, uid)
       .run();
 
     return new Response(JSON.stringify({ success: true }), {
@@ -173,10 +223,11 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
   }
 };
 
-export const onRequestOptions: PagesFunction = async () => {
+export const onRequestOptions: PagesFunction<Env> = async (context) => {
+  const allowedOrigin = getAllowedOrigin(context.env);
   return new Response(null, {
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': allowedOrigin,
       'Access-Control-Allow-Methods': 'GET, PUT, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     },

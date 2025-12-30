@@ -1,5 +1,6 @@
 interface Env {
   DB: D1Database;
+  ALLOWED_ORIGIN?: string;
 }
 
 interface SyncRequest {
@@ -9,23 +10,72 @@ interface SyncRequest {
   photoURL?: string | null;
 }
 
+// Decode Firebase JWT token (basic validation)
+function decodeFirebaseToken(token: string): { uid: string } | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+
+    const payload = JSON.parse(atob(parts[1]));
+    if (!payload.sub || !payload.exp) return null;
+
+    // Check expiration
+    if (payload.exp * 1000 < Date.now()) return null;
+
+    return { uid: payload.sub };
+  } catch {
+    return null;
+  }
+}
+
+// Get allowed origin for CORS
+function getAllowedOrigin(env: Env): string {
+  return env.ALLOWED_ORIGIN || 'https://adalabtech.com';
+}
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
+  const allowedOrigin = getAllowedOrigin(env);
 
-  // CORS
   const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   };
 
   try {
+    // Verify Authorization header
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: 'Missing or invalid Authorization header' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const token = authHeader.slice(7);
+    const decoded = decodeFirebaseToken(token);
+    if (!decoded) {
+      return new Response(JSON.stringify({ error: 'Invalid or expired token' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const body: SyncRequest = await request.json();
 
     // Validate required fields
     if (!body.uid) {
       return new Response(JSON.stringify({ error: 'uid is required' }), {
         status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Verify token UID matches request UID
+    if (decoded.uid !== body.uid) {
+      return new Response(JSON.stringify({ error: 'UID mismatch' }), {
+        status: 403,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
@@ -97,10 +147,11 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   }
 };
 
-export const onRequestOptions: PagesFunction = async () => {
+export const onRequestOptions: PagesFunction<Env> = async (context) => {
+  const allowedOrigin = getAllowedOrigin(context.env);
   return new Response(null, {
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': allowedOrigin,
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     },
