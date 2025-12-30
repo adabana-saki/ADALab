@@ -3,14 +3,19 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   TypingWord,
-  Language,
-  Difficulty,
-  getWords,
-  getProgrammingWords,
-  shuffleArray,
-} from '@/lib/typing-words';
+  TypingDifficulty as WordDifficulty,
+  getRandomWords,
+} from '@/lib/typing-words-extended';
+import { getSoundEngine } from '@/lib/sound-engine';
 
-export type GameMode = 'standard' | 'programming';
+// 新しいゲームモード
+export type GameMode = 'time' | 'sudden_death' | 'word_count';
+
+// 言語モード（mixedを含む）
+export type TypingLanguage = 'en' | 'ja' | 'mixed';
+
+// 難易度
+export type TypingDifficulty = WordDifficulty;
 
 export interface TypingStats {
   wpm: number;
@@ -19,6 +24,7 @@ export interface TypingStats {
   totalChars: number;
   correctWords: number;
   totalWords: number;
+  mistakes: number;
 }
 
 export interface GameState {
@@ -33,29 +39,38 @@ export interface GameState {
   totalChars: number;
   correctWords: number;
   mistakes: number;
+  gameOverReason?: 'completed' | 'time_up' | 'mistake';
 }
 
 interface UseTypingGameOptions {
-  language: Language;
-  difficulty: Difficulty;
+  language: TypingLanguage;
+  difficulty: TypingDifficulty;
   mode: GameMode;
-  wordCount?: number;
-  timeLimit?: number; // seconds, 0 = no limit
+  wordCount?: number; // word_count モード用
+  timeLimit?: number; // time モード用（秒）
   onWordComplete?: (correct: boolean) => void;
+  onMistake?: () => void;
   onGameEnd?: (stats: TypingStats) => void;
 }
 
-const HIGH_SCORE_KEY = 'adalab-typing-high-wpm';
-const BEST_ACCURACY_KEY = 'adalab-typing-best-accuracy';
+const HIGH_SCORE_KEY = 'adalab-typing-v2';
+
+// モード別デフォルト値
+const MODE_DEFAULTS = {
+  time: { timeLimit: 60, wordCount: 100 },
+  sudden_death: { timeLimit: 0, wordCount: 50 },
+  word_count: { timeLimit: 0, wordCount: 30 },
+};
 
 export function useTypingGame(options: UseTypingGameOptions) {
   const {
     language,
     difficulty,
     mode,
-    wordCount = 20,
-    timeLimit = 0,
+    wordCount = MODE_DEFAULTS[mode].wordCount,
+    timeLimit = MODE_DEFAULTS[mode].timeLimit,
     onWordComplete,
+    onMistake,
     onGameEnd,
   } = options;
 
@@ -74,28 +89,36 @@ export function useTypingGame(options: UseTypingGameOptions) {
   }));
 
   const [timeRemaining, setTimeRemaining] = useState(timeLimit);
-  const [highWpm, setHighWpm] = useState(0);
-  const [bestAccuracy, setBestAccuracy] = useState(0);
+  const [highScores, setHighScores] = useState<Record<string, { wpm: number; accuracy: number }>>({});
   const timerRef = useRef<number | null>(null);
+  const soundEngine = useRef(typeof window !== 'undefined' ? getSoundEngine() : null);
 
-  // Load high scores
+  // ハイスコアキー生成
+  const getHighScoreKey = useCallback(() => {
+    return `${language}-${difficulty}-${mode}`;
+  }, [language, difficulty, mode]);
+
+  // ハイスコア読み込み
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const storedWpm = localStorage.getItem(HIGH_SCORE_KEY);
-      const storedAccuracy = localStorage.getItem(BEST_ACCURACY_KEY);
-      if (storedWpm) setHighWpm(parseInt(storedWpm, 10) || 0);
-      if (storedAccuracy) setBestAccuracy(parseFloat(storedAccuracy) || 0);
+      try {
+        const stored = localStorage.getItem(HIGH_SCORE_KEY);
+        if (stored) {
+          setHighScores(JSON.parse(stored));
+        }
+      } catch {
+        // ignore
+      }
     }
   }, []);
 
-  // Initialize game
+  // 現在のハイスコア取得
+  const currentHighScore = highScores[getHighScoreKey()] || { wpm: 0, accuracy: 0 };
+
+  // ゲーム初期化
   const initGame = useCallback(() => {
-    let wordList: TypingWord[];
-    if (mode === 'programming') {
-      wordList = shuffleArray(getProgrammingWords()).slice(0, wordCount);
-    } else {
-      wordList = shuffleArray(getWords(language, difficulty)).slice(0, wordCount);
-    }
+    // getRandomWords accepts 'en' | 'ja' | 'mixed' for language
+    const wordList = getRandomWords(language, difficulty, wordCount);
 
     setGameState({
       words: wordList,
@@ -111,20 +134,20 @@ export function useTypingGame(options: UseTypingGameOptions) {
       mistakes: 0,
     });
     setTimeRemaining(timeLimit);
-  }, [language, difficulty, mode, wordCount, timeLimit]);
+  }, [language, difficulty, wordCount, timeLimit]);
 
-  // Initialize on mount and when options change
+  // 初期化
   useEffect(() => {
     initGame();
   }, [initGame]);
 
-  // Timer for time-limited games
+  // タイマー（time モード）
   useEffect(() => {
-    if (gameState.isStarted && !gameState.isFinished && timeLimit > 0) {
+    if (gameState.isStarted && !gameState.isFinished && mode === 'time' && timeLimit > 0) {
       timerRef.current = window.setInterval(() => {
         setTimeRemaining((prev) => {
           if (prev <= 1) {
-            finishGame();
+            finishGame('time_up');
             return 0;
           }
           return prev - 1;
@@ -137,17 +160,18 @@ export function useTypingGame(options: UseTypingGameOptions) {
         clearInterval(timerRef.current);
       }
     };
-  }, [gameState.isStarted, gameState.isFinished, timeLimit]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameState.isStarted, gameState.isFinished, mode, timeLimit]);
 
-  // Calculate stats
+  // 統計計算
   const calculateStats = useCallback((): TypingStats => {
-    const { correctChars, totalChars, correctWords, startTime, endTime } = gameState;
+    const { correctChars, totalChars, correctWords, mistakes, startTime, endTime, words, currentWordIndex } = gameState;
     const elapsed = startTime && endTime ? (endTime - startTime) / 1000 : 0;
     const minutes = elapsed / 60;
 
     // WPM = (characters / 5) / minutes
     const wpm = minutes > 0 ? Math.round((correctChars / 5) / minutes) : 0;
-    const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 0;
+    const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
 
     return {
       wpm,
@@ -155,12 +179,13 @@ export function useTypingGame(options: UseTypingGameOptions) {
       correctChars,
       totalChars,
       correctWords,
-      totalWords: gameState.words.length,
+      totalWords: mode === 'word_count' ? words.length : currentWordIndex,
+      mistakes,
     };
-  }, [gameState]);
+  }, [gameState, mode]);
 
-  // Finish game
-  const finishGame = useCallback(() => {
+  // ゲーム終了
+  const finishGame = useCallback((reason: 'completed' | 'time_up' | 'mistake' = 'completed') => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
@@ -169,34 +194,47 @@ export function useTypingGame(options: UseTypingGameOptions) {
       if (prev.isFinished) return prev;
 
       const endTime = Date.now();
-      const newState = { ...prev, isFinished: true, endTime };
-
-      return newState;
+      return { ...prev, isFinished: true, endTime, gameOverReason: reason };
     });
+
+    // 効果音
+    if (reason === 'completed') {
+      soundEngine.current?.success();
+    } else if (reason === 'mistake') {
+      soundEngine.current?.gameOver();
+    } else {
+      soundEngine.current?.typingTimeUp();
+    }
   }, []);
 
-  // Handle game end effects
+  // ゲーム終了時の処理
   useEffect(() => {
     if (gameState.isFinished && gameState.endTime) {
       const stats = calculateStats();
 
-      // Save high scores
+      // ハイスコア保存
       if (typeof window !== 'undefined') {
-        if (stats.wpm > highWpm) {
-          setHighWpm(stats.wpm);
-          localStorage.setItem(HIGH_SCORE_KEY, stats.wpm.toString());
-        }
-        if (stats.accuracy > bestAccuracy) {
-          setBestAccuracy(stats.accuracy);
-          localStorage.setItem(BEST_ACCURACY_KEY, stats.accuracy.toString());
+        const key = getHighScoreKey();
+        const currentBest = highScores[key] || { wpm: 0, accuracy: 0 };
+
+        if (stats.wpm > currentBest.wpm || stats.accuracy > currentBest.accuracy) {
+          const newHighScores = {
+            ...highScores,
+            [key]: {
+              wpm: Math.max(stats.wpm, currentBest.wpm),
+              accuracy: Math.max(stats.accuracy, currentBest.accuracy),
+            },
+          };
+          setHighScores(newHighScores);
+          localStorage.setItem(HIGH_SCORE_KEY, JSON.stringify(newHighScores));
         }
       }
 
       onGameEnd?.(stats);
     }
-  }, [gameState.isFinished, gameState.endTime, calculateStats, highWpm, bestAccuracy, onGameEnd]);
+  }, [gameState.isFinished, gameState.endTime, calculateStats, getHighScoreKey, highScores, onGameEnd]);
 
-  // Handle input change
+  // 入力処理
   const handleInput = useCallback((input: string) => {
     setGameState((prev) => {
       if (prev.isFinished) return prev;
@@ -204,16 +242,35 @@ export function useTypingGame(options: UseTypingGameOptions) {
       const currentWord = prev.words[prev.currentWordIndex];
       if (!currentWord) return prev;
 
-      // Get the target text (reading for Japanese, text for English)
-      const targetText = language === 'ja' && currentWord.reading
-        ? currentWord.reading
-        : currentWord.text;
+      // 対象テキスト（日本語はローマ字読み）
+      const targetText = currentWord.reading || currentWord.text;
 
-      // Start game on first input
+      // ゲーム開始
       const isStarted = prev.isStarted || input.length > 0;
       const startTime = prev.startTime || (isStarted ? Date.now() : null);
 
-      // Check if word is complete
+      // sudden_death モード：間違えたら即終了
+      if (mode === 'sudden_death' && input.length > 0) {
+        const lastCharIndex = input.length - 1;
+        if (input[lastCharIndex] !== targetText[lastCharIndex]) {
+          soundEngine.current?.typingMiss();
+          onMistake?.();
+
+          // 次のtickで終了
+          setTimeout(() => finishGame('mistake'), 10);
+
+          return {
+            ...prev,
+            currentInput: input,
+            isStarted,
+            startTime,
+            mistakes: prev.mistakes + 1,
+            totalChars: prev.totalChars + 1,
+          };
+        }
+      }
+
+      // 単語完了チェック
       if (input.endsWith(' ') || input === targetText) {
         const typedWord = input.trim();
         const isCorrect = typedWord === targetText;
@@ -223,11 +280,18 @@ export function useTypingGame(options: UseTypingGameOptions) {
         const newCorrectWords = prev.correctWords + (isCorrect ? 1 : 0);
         const newMistakes = prev.mistakes + (isCorrect ? 0 : 1);
 
+        // 効果音
+        if (isCorrect) {
+          soundEngine.current?.typingWordComplete();
+        } else {
+          soundEngine.current?.typingMiss();
+        }
+
         onWordComplete?.(isCorrect);
 
         const nextIndex = prev.currentWordIndex + 1;
 
-        // Check if game is finished
+        // ゲーム終了チェック
         if (nextIndex >= prev.words.length) {
           return {
             ...prev,
@@ -241,6 +305,7 @@ export function useTypingGame(options: UseTypingGameOptions) {
             startTime,
             isFinished: true,
             endTime: Date.now(),
+            gameOverReason: 'completed',
           };
         }
 
@@ -257,33 +322,43 @@ export function useTypingGame(options: UseTypingGameOptions) {
         };
       }
 
+      // リアルタイム入力チェック（効果音）
+      if (input.length > prev.currentInput.length) {
+        const lastIndex = input.length - 1;
+        if (input[lastIndex] === targetText[lastIndex]) {
+          soundEngine.current?.typingCorrect();
+        } else if (mode !== 'sudden_death') {
+          soundEngine.current?.typingMiss();
+        }
+      }
+
       return { ...prev, currentInput: input, isStarted, startTime };
     });
-  }, [language, onWordComplete]);
+  }, [mode, onWordComplete, onMistake, finishGame]);
 
-  // Get current word
+  // 現在の単語
   const currentWord = gameState.words[gameState.currentWordIndex];
   const targetText = currentWord
-    ? (language === 'ja' && currentWord.reading ? currentWord.reading : currentWord.text)
+    ? (currentWord.reading || currentWord.text)
     : '';
 
-  // Check character correctness
+  // 文字ステータス取得
   const getCharacterStatus = useCallback((charIndex: number): 'correct' | 'incorrect' | 'pending' => {
     if (charIndex >= gameState.currentInput.length) return 'pending';
     if (gameState.currentInput[charIndex] === targetText[charIndex]) return 'correct';
     return 'incorrect';
   }, [gameState.currentInput, targetText]);
 
-  // Calculate elapsed time
+  // 経過時間
   const elapsedTime = gameState.startTime
     ? Math.floor((gameState.endTime || Date.now()) - gameState.startTime) / 1000
     : 0;
 
-  // Live WPM calculation
+  // リアルタイム統計
   const liveStats = (): TypingStats => {
     const elapsed = elapsedTime;
     const minutes = elapsed / 60;
-    const { correctChars, totalChars, correctWords } = gameState;
+    const { correctChars, totalChars, correctWords, mistakes, words, currentWordIndex } = gameState;
 
     const wpm = minutes > 0 ? Math.round((correctChars / 5) / minutes) : 0;
     const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
@@ -294,7 +369,8 @@ export function useTypingGame(options: UseTypingGameOptions) {
       correctChars,
       totalChars,
       correctWords,
-      totalWords: gameState.words.length,
+      totalWords: mode === 'word_count' ? words.length : currentWordIndex,
+      mistakes,
     };
   };
 
@@ -307,13 +383,14 @@ export function useTypingGame(options: UseTypingGameOptions) {
     targetText,
     isStarted: gameState.isStarted,
     isFinished: gameState.isFinished,
+    gameOverReason: gameState.gameOverReason,
     timeRemaining,
     elapsedTime,
     progress: gameState.words.length > 0
       ? Math.round((gameState.currentWordIndex / gameState.words.length) * 100)
       : 0,
-    highWpm,
-    bestAccuracy,
+    highWpm: currentHighScore.wpm,
+    bestAccuracy: currentHighScore.accuracy,
 
     // Stats
     stats: gameState.isFinished ? calculateStats() : liveStats(),

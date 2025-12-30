@@ -15,22 +15,93 @@ import {
   Check,
   X,
   Keyboard,
-  Globe,
-  Code,
+  Skull,
+  Clock,
+  Hash,
+  Medal,
+  Award,
+  AlertTriangle,
 } from 'lucide-react';
-import { useTypingGame, GameMode } from '@/hooks/useTypingGame';
-import { Language, Difficulty } from '@/lib/typing-words';
+import { useTypingGame, GameMode, TypingLanguage, TypingDifficulty } from '@/hooks/useTypingGame';
+import { useTypingLeaderboard, MODE_LABELS, LANGUAGE_LABELS } from '@/hooks/useTypingLeaderboard';
+import { useTypingAchievements } from '@/hooks/useTypingAchievements';
+import { AchievementToast } from '@/components/games/AchievementToast';
+import { TypingLeaderboardModal } from '@/components/games/TypingLeaderboardModal';
+import type { GameAchievement } from '@/lib/game-achievements';
+
+const MODE_INFO: Record<GameMode, { icon: React.ReactNode; name: string; description: string }> = {
+  time: {
+    icon: <Clock size={20} />,
+    name: 'タイムモード',
+    description: '制限時間内にできるだけ多くタイプ',
+  },
+  sudden_death: {
+    icon: <Skull size={20} />,
+    name: '即終了モード',
+    description: '1文字でも間違えたら即ゲームオーバー',
+  },
+  word_count: {
+    icon: <Hash size={20} />,
+    name: '文字数モード',
+    description: '指定数の単語を最速でタイプ',
+  },
+};
+
+const LANGUAGE_INFO: Record<TypingLanguage, { icon: string; name: string }> = {
+  en: { icon: '🇺🇸', name: 'English' },
+  ja: { icon: '🇯🇵', name: '日本語' },
+  mixed: { icon: '🌍', name: '両方' },
+};
+
+const DIFFICULTY_INFO: Record<TypingDifficulty, { name: string; color: string }> = {
+  easy: { name: '易しい', color: 'text-green-500' },
+  normal: { name: '普通', color: 'text-yellow-500' },
+  hard: { name: '難しい', color: 'text-red-500' },
+};
 
 export function TypingGame() {
-  const [language, setLanguage] = useState<Language>('en');
-  const [difficulty, setDifficulty] = useState<Difficulty>('medium');
-  const [mode, setMode] = useState<GameMode>('standard');
-  const [wordCount, setWordCount] = useState(20);
+  const [language, setLanguage] = useState<TypingLanguage>('en');
+  const [difficulty, setDifficulty] = useState<TypingDifficulty>('normal');
+  const [mode, setMode] = useState<GameMode>('time');
+  const [wordCount, setWordCount] = useState(30);
+  const [timeLimit, setTimeLimit] = useState(60);
   const [showSettings, setShowSettings] = useState(true);
   const [showShare, setShowShare] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showNicknameInput, setShowNicknameInput] = useState(false);
+  const [nickname, setNickname] = useState('');
   const [copied, setCopied] = useState(false);
+  const [unlockedAchievement, setUnlockedAchievement] = useState<GameAchievement | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const nicknameInputRef = useRef<HTMLInputElement>(null);
+
+  // Hooks
+  const {
+    leaderboard,
+    mode: leaderboardMode,
+    setMode: setLeaderboardMode,
+    language: leaderboardLanguage,
+    setLanguage: setLeaderboardLanguage,
+    period,
+    setPeriod,
+    isLoading: leaderboardLoading,
+    isOnline,
+    submitScore,
+    isRankingScore,
+  } = useTypingLeaderboard(mode, language);
+
+  const {
+    stats: _typingStats,
+    recordGameStart,
+    recordGameOver,
+    getAllAchievements: _getAllAchievements,
+    progress: achievementProgress,
+  } = useTypingAchievements({
+    onAchievementUnlock: (achievement) => {
+      setUnlockedAchievement(achievement);
+    },
+  });
 
   const {
     currentWord,
@@ -38,7 +109,9 @@ export function TypingGame() {
     targetText,
     isStarted,
     isFinished,
+    gameOverReason,
     elapsedTime,
+    timeRemaining,
     progress,
     highWpm,
     bestAccuracy,
@@ -50,15 +123,48 @@ export function TypingGame() {
     language,
     difficulty,
     mode,
-    wordCount,
+    wordCount: mode === 'word_count' ? wordCount : 100,
+    timeLimit: mode === 'time' ? timeLimit : 0,
+    onGameEnd: (finalStats) => {
+      recordGameOver(
+        finalStats.wpm,
+        finalStats.accuracy,
+        finalStats.correctWords,
+        elapsedTime,
+        language,
+        mode
+      );
+
+      // ランキング入りチェック
+      if (isRankingScore(finalStats.wpm) && finalStats.wpm > 0) {
+        setShowNicknameInput(true);
+      }
+    },
   });
+
+  // Load saved nickname
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('typing-nickname');
+      if (saved) setNickname(saved);
+    } catch {
+      // ignore
+    }
+  }, []);
 
   // Focus input on start
   useEffect(() => {
-    if (!showSettings && inputRef.current) {
+    if (!showSettings && inputRef.current && !isFinished) {
       inputRef.current.focus();
     }
   }, [showSettings, isFinished]);
+
+  // Focus nickname input
+  useEffect(() => {
+    if (showNicknameInput && nicknameInputRef.current) {
+      nicknameInputRef.current.focus();
+    }
+  }, [showNicknameInput]);
 
   // Format time
   const formatTime = (seconds: number) => {
@@ -69,8 +175,10 @@ export function TypingGame() {
 
   // Share text
   const generateShareText = useCallback(() => {
-    return `ADA Lab Typing で ${stats.wpm} WPM (正確率 ${stats.accuracy}%) を達成！\n\n#ADALabGames #Typing\nhttps://adalabtech.com/games/typing`;
-  }, [stats]);
+    const modeText = MODE_LABELS[mode];
+    const langText = LANGUAGE_LABELS[language];
+    return `ADA Lab Typing [${modeText}/${langText}] で ${stats.wpm} WPM (正確率 ${stats.accuracy}%) を達成！\n\n#ADALabGames #Typing\nhttps://adalabtech.com/games/typing`;
+  }, [stats, mode, language]);
 
   const shareToTwitter = useCallback(() => {
     const text = encodeURIComponent(generateShareText());
@@ -92,13 +200,38 @@ export function TypingGame() {
   const startGame = () => {
     setShowSettings(false);
     resetGame();
+    recordGameStart();
     setTimeout(() => inputRef.current?.focus(), 100);
   };
 
   // Reset to settings
   const backToSettings = () => {
     setShowSettings(true);
+    setShowNicknameInput(false);
     resetGame();
+  };
+
+  // Submit score
+  const handleSubmitScore = async () => {
+    if (!nickname.trim()) return;
+
+    try {
+      localStorage.setItem('typing-nickname', nickname);
+    } catch {
+      // ignore
+    }
+
+    await submitScore({
+      nickname: nickname.trim(),
+      wpm: stats.wpm,
+      accuracy: stats.accuracy,
+      words_typed: stats.correctWords,
+      time_seconds: Math.floor(elapsedTime),
+      date: new Date().toISOString(),
+    });
+
+    setShowNicknameInput(false);
+    setShowLeaderboard(true);
   };
 
   // Settings screen
@@ -124,71 +257,75 @@ export function TypingGame() {
           </div>
         </div>
 
+        {/* Achievements & Leaderboard buttons */}
+        <div className="w-full flex gap-2">
+          <button
+            onClick={() => setShowLeaderboard(true)}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
+          >
+            <Trophy size={18} className="text-yellow-500" />
+            ランキング
+          </button>
+          <div className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-muted">
+            <Award size={18} className="text-purple-500" />
+            <span className="text-sm">実績: {achievementProgress.unlocked}/{achievementProgress.total}</span>
+          </div>
+        </div>
+
         {/* Settings */}
         <div className="w-full space-y-4 p-6 rounded-xl bg-card border border-border">
-          {/* Mode */}
+          {/* Game Mode */}
           <div>
-            <label className="block text-sm font-medium mb-2">モード</label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => setMode('standard')}
-                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-colors ${
-                  mode === 'standard'
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border hover:border-primary/50'
-                }`}
-              >
-                <Globe size={18} />
-                スタンダード
-              </button>
-              <button
-                onClick={() => setMode('programming')}
-                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-colors ${
-                  mode === 'programming'
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border hover:border-primary/50'
-                }`}
-              >
-                <Code size={18} />
-                プログラミング
-              </button>
+            <label className="block text-sm font-medium mb-2">ゲームモード</label>
+            <div className="grid grid-cols-1 gap-2">
+              {(Object.keys(MODE_INFO) as GameMode[]).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setMode(m)}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg border transition-colors text-left ${
+                    mode === m
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  <div className={mode === m ? 'text-primary' : 'text-muted-foreground'}>
+                    {MODE_INFO[m].icon}
+                  </div>
+                  <div>
+                    <div className="font-medium">{MODE_INFO[m].name}</div>
+                    <div className="text-xs text-muted-foreground">{MODE_INFO[m].description}</div>
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Language (only for standard mode) */}
-          {mode === 'standard' && (
-            <div>
-              <label className="block text-sm font-medium mb-2">言語</label>
-              <div className="grid grid-cols-2 gap-2">
+          {/* Language */}
+          <div>
+            <label className="block text-sm font-medium mb-2">言語</label>
+            <div className="grid grid-cols-3 gap-2">
+              {(Object.keys(LANGUAGE_INFO) as TypingLanguage[]).map((lang) => (
                 <button
-                  onClick={() => setLanguage('en')}
-                  className={`px-4 py-2 rounded-lg border transition-colors ${
-                    language === 'en'
+                  key={lang}
+                  onClick={() => setLanguage(lang)}
+                  className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+                    language === lang
                       ? 'border-primary bg-primary/10 text-primary'
                       : 'border-border hover:border-primary/50'
                   }`}
                 >
-                  English
+                  <span>{LANGUAGE_INFO[lang].icon}</span>
+                  <span>{LANGUAGE_INFO[lang].name}</span>
                 </button>
-                <button
-                  onClick={() => setLanguage('ja')}
-                  className={`px-4 py-2 rounded-lg border transition-colors ${
-                    language === 'ja'
-                      ? 'border-primary bg-primary/10 text-primary'
-                      : 'border-border hover:border-primary/50'
-                  }`}
-                >
-                  日本語
-                </button>
-              </div>
+              ))}
             </div>
-          )}
+          </div>
 
           {/* Difficulty */}
           <div>
             <label className="block text-sm font-medium mb-2">難易度</label>
             <div className="grid grid-cols-3 gap-2">
-              {(['easy', 'medium', 'hard'] as Difficulty[]).map((d) => (
+              {(Object.keys(DIFFICULTY_INFO) as TypingDifficulty[]).map((d) => (
                 <button
                   key={d}
                   onClick={() => setDifficulty(d)}
@@ -198,29 +335,50 @@ export function TypingGame() {
                       : 'border-border hover:border-primary/50'
                   }`}
                 >
-                  {d === 'easy' ? '易しい' : d === 'medium' ? '普通' : '難しい'}
+                  <span className={DIFFICULTY_INFO[d].color}>{DIFFICULTY_INFO[d].name}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Word count */}
-          <div>
-            <label className="block text-sm font-medium mb-2">単語数: {wordCount}</label>
-            <input
-              type="range"
-              min="10"
-              max="50"
-              step="5"
-              value={wordCount}
-              onChange={(e) => setWordCount(parseInt(e.target.value, 10))}
-              className="w-full accent-primary"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>10</span>
-              <span>50</span>
+          {/* Mode-specific settings */}
+          {mode === 'time' && (
+            <div>
+              <label className="block text-sm font-medium mb-2">制限時間: {timeLimit}秒</label>
+              <input
+                type="range"
+                min="30"
+                max="120"
+                step="15"
+                value={timeLimit}
+                onChange={(e) => setTimeLimit(parseInt(e.target.value, 10))}
+                className="w-full accent-primary"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>30秒</span>
+                <span>120秒</span>
+              </div>
             </div>
-          </div>
+          )}
+
+          {mode === 'word_count' && (
+            <div>
+              <label className="block text-sm font-medium mb-2">単語数: {wordCount}</label>
+              <input
+                type="range"
+                min="10"
+                max="50"
+                step="5"
+                value={wordCount}
+                onChange={(e) => setWordCount(parseInt(e.target.value, 10))}
+                className="w-full accent-primary"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>10</span>
+                <span>50</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Start button */}
@@ -244,6 +402,23 @@ export function TypingGame() {
             <li><strong>目標:</strong> 速く正確にタイプしよう！</li>
           </ul>
         </div>
+
+        {/* Leaderboard Modal */}
+        <AnimatePresence>
+          <TypingLeaderboardModal
+            isOpen={showLeaderboard}
+            onClose={() => setShowLeaderboard(false)}
+            leaderboard={leaderboard}
+            leaderboardMode={leaderboardMode}
+            setLeaderboardMode={setLeaderboardMode}
+            leaderboardLanguage={leaderboardLanguage}
+            setLeaderboardLanguage={setLeaderboardLanguage}
+            period={period}
+            setPeriod={setPeriod}
+            isLoading={leaderboardLoading}
+            isOnline={isOnline}
+          />
+        </AnimatePresence>
       </div>
     );
   }
@@ -255,11 +430,7 @@ export function TypingGame() {
         <div>
           <h1 className="text-2xl font-bold text-primary">Typing</h1>
           <p className="text-sm text-muted-foreground">
-            {mode === 'programming'
-              ? 'プログラミング用語'
-              : language === 'ja'
-              ? '日本語（ローマ字入力）'
-              : 'English'}
+            {MODE_INFO[mode].name} / {LANGUAGE_INFO[language].name}
           </p>
         </div>
         <div className="flex gap-2">
@@ -274,27 +445,54 @@ export function TypingGame() {
         </div>
       </div>
 
-      {/* Progress bar */}
-      <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-        <motion.div
-          className="h-full bg-primary"
-          initial={{ width: 0 }}
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 0.2 }}
-        />
+      {/* Progress bar / Timer */}
+      <div className="w-full">
+        {mode === 'time' ? (
+          <div className="flex items-center gap-2">
+            <Timer size={16} className={timeRemaining <= 10 ? 'text-red-500 animate-pulse' : ''} />
+            <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+              <motion.div
+                className={`h-full ${timeRemaining <= 10 ? 'bg-red-500' : 'bg-primary'}`}
+                initial={{ width: '100%' }}
+                animate={{ width: `${(timeRemaining / timeLimit) * 100}%` }}
+                transition={{ duration: 0.2 }}
+              />
+            </div>
+            <span className={`text-sm font-mono ${timeRemaining <= 10 ? 'text-red-500' : ''}`}>
+              {formatTime(timeRemaining)}
+            </span>
+          </div>
+        ) : (
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-primary"
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.2 }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Stats row */}
       <div className="w-full flex items-center justify-between text-sm text-muted-foreground">
         <div className="flex items-center gap-4">
-          <span className="flex items-center gap-1">
-            <Timer size={16} />
-            {formatTime(elapsedTime)}
-          </span>
+          {mode !== 'time' && (
+            <span className="flex items-center gap-1">
+              <Timer size={16} />
+              {formatTime(elapsedTime)}
+            </span>
+          )}
           <span className="flex items-center gap-1">
             <Keyboard size={16} />
             {stats.correctWords}/{stats.totalWords} 単語
           </span>
+          {mode === 'sudden_death' && (
+            <span className="flex items-center gap-1 text-red-500">
+              <Skull size={16} />
+              ミス厳禁
+            </span>
+          )}
         </div>
         <div className="flex gap-2">
           <motion.button
@@ -315,11 +513,11 @@ export function TypingGame() {
           <>
             {/* Current word display */}
             <div className="text-center mb-6">
-              {language === 'ja' && currentWord?.text && (
-                <p className="text-3xl font-bold mb-2">{currentWord.text}</p>
+              {(language === 'ja' || language === 'mixed') && currentWord?.text !== targetText && (
+                <p className="text-3xl font-bold mb-2">{currentWord?.text}</p>
               )}
-              <div className="flex justify-center gap-0.5 text-4xl font-mono">
-                {targetText.split('').map((char, index) => {
+              <div className="flex justify-center gap-0.5 text-4xl font-mono flex-wrap">
+                {targetText.split('').map((char: string, index: number) => {
                   const status = getCharacterStatus(index);
                   return (
                     <span
@@ -356,8 +554,23 @@ export function TypingGame() {
         ) : (
           /* Results */
           <div className="text-center">
-            <Trophy size={64} className="mx-auto mb-4 text-yellow-500" />
-            <h2 className="text-3xl font-bold mb-2">完了！</h2>
+            {gameOverReason === 'mistake' ? (
+              <>
+                <Skull size={64} className="mx-auto mb-4 text-red-500" />
+                <h2 className="text-3xl font-bold mb-2 text-red-500">ゲームオーバー</h2>
+                <p className="text-muted-foreground mb-4">ミスタイプで終了...</p>
+              </>
+            ) : gameOverReason === 'time_up' ? (
+              <>
+                <Timer size={64} className="mx-auto mb-4 text-yellow-500" />
+                <h2 className="text-3xl font-bold mb-2">タイムアップ！</h2>
+              </>
+            ) : (
+              <>
+                <Trophy size={64} className="mx-auto mb-4 text-yellow-500" />
+                <h2 className="text-3xl font-bold mb-2">完了！</h2>
+              </>
+            )}
 
             <div className="grid grid-cols-2 gap-4 my-6">
               <div className="p-4 rounded-lg bg-muted">
@@ -388,12 +601,13 @@ export function TypingGame() {
               <span>文字: {stats.correctChars}</span>
             </div>
 
-            <div className="flex justify-center gap-3">
+            <div className="flex justify-center gap-3 flex-wrap">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => {
                   resetGame();
+                  setShowNicknameInput(false);
                   setTimeout(() => inputRef.current?.focus(), 100);
                 }}
                 className="flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium"
@@ -413,6 +627,15 @@ export function TypingGame() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={() => setShowLeaderboard(true)}
+                className="flex items-center gap-2 px-6 py-3 rounded-lg bg-muted font-medium"
+              >
+                <Trophy size={18} />
+                ランキング
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={backToSettings}
                 className="flex items-center gap-2 px-6 py-3 rounded-lg bg-muted font-medium"
               >
@@ -422,6 +645,60 @@ export function TypingGame() {
           </div>
         )}
       </div>
+
+      {/* Nickname input modal */}
+      <AnimatePresence>
+        {showNicknameInput && isFinished && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-card border border-border rounded-2xl p-6 w-full max-w-sm"
+            >
+              <div className="text-center mb-4">
+                <Medal className="mx-auto mb-2 text-yellow-500" size={40} />
+                <h3 className="text-lg font-bold">ランキング入り！</h3>
+                <p className="text-sm text-muted-foreground">
+                  ニックネームを入力してスコアを登録
+                </p>
+              </div>
+
+              <input
+                ref={nicknameInputRef}
+                type="text"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                placeholder="ニックネーム"
+                maxLength={20}
+                className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none mb-4"
+                onKeyDown={(e) => e.key === 'Enter' && handleSubmitScore()}
+              />
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowNicknameInput(false)}
+                  className="flex-1 px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
+                >
+                  スキップ
+                </button>
+                <button
+                  onClick={handleSubmitScore}
+                  disabled={!nickname.trim()}
+                  className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  登録
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Share modal */}
       <AnimatePresence>
@@ -481,6 +758,31 @@ export function TypingGame() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Leaderboard Modal */}
+      <AnimatePresence>
+        <TypingLeaderboardModal
+          isOpen={showLeaderboard}
+          onClose={() => setShowLeaderboard(false)}
+          leaderboard={leaderboard}
+          leaderboardMode={leaderboardMode}
+          setLeaderboardMode={setLeaderboardMode}
+          leaderboardLanguage={leaderboardLanguage}
+          setLeaderboardLanguage={setLeaderboardLanguage}
+          period={period}
+          setPeriod={setPeriod}
+          isLoading={leaderboardLoading}
+          isOnline={isOnline}
+        />
+      </AnimatePresence>
+
+      {/* Achievement Toast */}
+      {unlockedAchievement && (
+        <AchievementToast
+          achievement={unlockedAchievement}
+          onClose={() => setUnlockedAchievement(null)}
+        />
+      )}
     </div>
   );
 }

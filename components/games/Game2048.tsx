@@ -25,6 +25,7 @@ import { use2048Leaderboard, LeaderboardPeriod, LEADERBOARD_PERIOD_LABELS } from
 import { use2048Achievements } from '@/hooks/use2048Achievements';
 import { AchievementToast } from './AchievementToast';
 import type { GameAchievement } from '@/lib/game-achievements';
+import { getSoundEngine } from '@/lib/sound-engine';
 
 // タイルの色
 const TILE_COLORS: Record<number, { bg: string; text: string }> = {
@@ -86,7 +87,7 @@ function TileComponent({ tile, cellSize }: TileComponentProps) {
         height: cellSize,
         left: tile.col * (cellSize + 8) + 8,
         top: tile.row * (cellSize + 8) + 8,
-        zIndex: tile.value,
+        zIndex: Math.log2(tile.value),
       }}
     >
       {tile.value}
@@ -193,10 +194,14 @@ export function Game2048() {
   const [copied, setCopied] = useState(false);
   const [achievementQueue, setAchievementQueue] = useState<GameAchievement[]>([]);
 
+  // サウンドエンジン
+  const soundEngineRef = useRef(typeof window !== 'undefined' ? getSoundEngine() : null);
+
   // 実績システム
   const achievements = use2048Achievements({
     onAchievementUnlock: (achievement) => {
       setAchievementQueue(prev => [...prev, achievement]);
+      soundEngineRef.current?.achievement();
     },
   });
 
@@ -211,7 +216,7 @@ export function Game2048() {
     keepPlaying,
     canUndo,
     undosRemaining,
-    move,
+    move: originalMove,
     newGame: originalNewGame,
     undo,
     continueGame: originalContinueGame,
@@ -221,9 +226,11 @@ export function Game2048() {
     },
     onMerge: (value) => {
       achievements.recordMerge(value);
+      soundEngineRef.current?.tileMerge(value);
     },
     onWin: (finalScore, finalMaxTile, finalMoves) => {
       achievements.recordMaxTile(finalMaxTile);
+      soundEngineRef.current?.win2048();
       // 勝利時はスコア登録を促す
       if (leaderboard.isRankingScore(finalScore)) {
         setPendingScore({ score: finalScore, maxTile: finalMaxTile, moves: finalMoves });
@@ -233,6 +240,7 @@ export function Game2048() {
     onGameOver: (finalScore, finalMaxTile, finalMoves) => {
       achievements.recordMaxTile(finalMaxTile);
       achievements.recordGameOver(finalScore, finalMoves, finalMaxTile, 0);
+      soundEngineRef.current?.gameOver();
       // ゲームオーバー時もランキング入りならスコア登録
       if (leaderboard.isRankingScore(finalScore)) {
         setPendingScore({ score: finalScore, maxTile: finalMaxTile, moves: finalMoves });
@@ -240,6 +248,12 @@ export function Game2048() {
       }
     },
   });
+
+  // 移動（効果音付き）
+  const move = useCallback((direction: Direction) => {
+    soundEngineRef.current?.tileMove();
+    originalMove(direction);
+  }, [originalMove]);
 
   // リーダーボード
   const leaderboard = use2048Leaderboard();
@@ -462,7 +476,7 @@ export function Game2048() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 flex items-center justify-center bg-yellow-500/80 rounded-lg"
+              className="absolute inset-0 z-20 flex items-center justify-center bg-yellow-500/80 rounded-lg"
             >
               <div className="text-center text-white">
                 <motion.div
@@ -504,7 +518,7 @@ export function Game2048() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 flex items-center justify-center bg-black/70 rounded-lg"
+              className="absolute inset-0 z-20 flex items-center justify-center bg-black/70 rounded-lg"
             >
               <div className="text-center text-white">
                 <h2 className="text-3xl font-bold mb-2">ゲームオーバー</h2>

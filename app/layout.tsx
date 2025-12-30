@@ -8,6 +8,7 @@ import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { SentryProvider, SentryErrorBoundary } from '@/components/analytics/SentryProvider';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { AuthProvider } from '@/contexts/AuthContext';
 import { KeyboardShortcutsProvider } from '@/components/KeyboardShortcutsProvider';
 
 const audiowide = Audiowide({
@@ -141,12 +142,14 @@ export default function RootLayout({
         <SentryProvider>
           <SentryErrorBoundary>
             <ThemeProvider>
-              <LanguageProvider>
-                <KeyboardShortcutsProvider>
-                  <WebVitals />
-                  {children}
-                </KeyboardShortcutsProvider>
-              </LanguageProvider>
+              <AuthProvider>
+                <LanguageProvider>
+                  <KeyboardShortcutsProvider>
+                    <WebVitals />
+                    {children}
+                  </KeyboardShortcutsProvider>
+                </LanguageProvider>
+              </AuthProvider>
             </ThemeProvider>
           </SentryErrorBoundary>
         </SentryProvider>

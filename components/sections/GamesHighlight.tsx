@@ -16,17 +16,17 @@ import { useTheme } from '@/contexts/ThemeContext';
 
 const games = [
   {
-    id: 'tetris',
-    title: 'Tetris',
-    description: 'クラシックなテトリスをブラウザでプレイ。シングルプレイとオンラインバトルモード搭載！',
+    id: 'games',
+    title: 'Games',
+    description: 'テトリス、2048、スネーク、タイピングなど、ブラウザで遊べるミニゲームコレクション！',
     thumbnail: '/images/games/tetris-thumbnail.png',
-    features: ['シングルプレイ', 'オンラインバトル', 'リーダーボード', 'モバイル対応'],
+    features: ['テトリス', '2048', 'スネーク', 'タイピング'],
     stats: {
       players: '100+',
       battles: '500+',
     },
     gradient: 'from-cyan-500 via-blue-500 to-purple-500',
-    href: '/games/tetris',
+    href: '/games',
   },
 ];
 
@@ -179,12 +179,12 @@ export function GamesHighlight() {
                         </span>
                       </motion.div>
                       <Link
-                        href="/games/tetris/battle"
+                        href="/games"
                         onClick={(e) => e.stopPropagation()}
                         className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-primary text-primary font-medium hover:bg-primary/10 transition-colors"
                       >
                         <Users size={18} />
-                        オンラインバトル
+                        ゲーム一覧へ
                       </Link>
                     </div>
                   </div>

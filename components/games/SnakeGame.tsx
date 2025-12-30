@@ -16,8 +16,17 @@ import {
   Link as LinkIcon,
   Check,
   X,
+  Medal,
+  Award,
+  Calendar,
+  AlertTriangle,
 } from 'lucide-react';
 import { useSnakeGame, Direction } from '@/hooks/useSnakeGame';
+import { useSnakeLeaderboard, LeaderboardPeriod, LEADERBOARD_PERIOD_LABELS } from '@/hooks/useSnakeLeaderboard';
+import { useSnakeAchievements } from '@/hooks/useSnakeAchievements';
+import { AchievementToast } from './AchievementToast';
+import { getSoundEngine } from '@/lib/sound-engine';
+import type { GameAchievement } from '@/lib/game-achievements';
 
 // 色定義
 const COLORS = {
@@ -32,9 +41,27 @@ const COLORS = {
 export function SnakeGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const soundEngineRef = useRef(typeof window !== 'undefined' ? getSoundEngine() : null);
   const [cellSize, setCellSize] = useState(20);
   const [showShare, setShowShare] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showNicknameInput, setShowNicknameInput] = useState(false);
+  const [nickname, setNickname] = useState('');
   const [copied, setCopied] = useState(false);
+  const [achievementQueue, setAchievementQueue] = useState<GameAchievement[]>([]);
+  const [pendingScore, setPendingScore] = useState<{ score: number; length: number } | null>(null);
+  const prevScoreRef = useRef(0);
+
+  // リーダーボード
+  const leaderboard = useSnakeLeaderboard();
+
+  // 実績システム
+  const achievements = useSnakeAchievements({
+    onAchievementUnlock: (achievement) => {
+      setAchievementQueue((prev) => [...prev, achievement]);
+      soundEngineRef.current?.achievement();
+    },
+  });
 
   const {
     snake,
@@ -44,11 +71,88 @@ export function SnakeGame() {
     gameOver,
     isPaused,
     gridSize,
-    startGame,
+    startGame: originalStartGame,
     togglePause,
-    newGame,
+    newGame: originalNewGame,
     changeDirection,
   } = useSnakeGame();
+
+  // ニックネーム読み込み
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('snake-nickname');
+      if (saved) setNickname(saved);
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  // スコア変更時の効果音
+  useEffect(() => {
+    if (score > prevScoreRef.current && score > 0) {
+      soundEngineRef.current?.snakeEat();
+
+      // 10の倍数でレベルアップ音
+      if (score % 10 === 0 && score > 0) {
+        soundEngineRef.current?.levelUp();
+      }
+    }
+    prevScoreRef.current = score;
+  }, [score]);
+
+  // ゲームオーバー時の処理
+  useEffect(() => {
+    if (gameOver && score > 0) {
+      soundEngineRef.current?.snakeCrash();
+      // recordGameOver(score, length, survivalTime, foodEaten)
+      achievements.recordGameOver(score, snake.length, 0, score);
+
+      // ランキング入りチェック
+      if (leaderboard.isRankingScore(score)) {
+        setPendingScore({ score, length: snake.length });
+        setShowNicknameInput(true);
+      }
+    }
+  }, [gameOver, score, snake.length, achievements, leaderboard]);
+
+  // ゲーム開始
+  const startGame = useCallback(() => {
+    achievements.recordGameStart();
+    originalStartGame();
+  }, [achievements, originalStartGame]);
+
+  // 新しいゲーム
+  const newGame = useCallback(() => {
+    achievements.recordGameStart();
+    originalNewGame();
+  }, [achievements, originalNewGame]);
+
+  // スコア送信
+  const submitScore = useCallback(async () => {
+    if (!pendingScore || !nickname.trim()) return;
+
+    try {
+      localStorage.setItem('snake-nickname', nickname);
+    } catch {
+      // ignore
+    }
+
+    await leaderboard.submitScore({
+      nickname: nickname.trim(),
+      score: pendingScore.score,
+      length: pendingScore.length,
+      date: new Date().toISOString(),
+    });
+
+    setShowNicknameInput(false);
+    setPendingScore(null);
+    setShowLeaderboard(true);
+  }, [pendingScore, nickname, leaderboard]);
+
+  // 実績トースト表示
+  const handleAchievementClose = useCallback(() => {
+    setAchievementQueue((prev) => prev.slice(1));
+  }, []);
 
   // サイズ計算
   useEffect(() => {
@@ -187,8 +291,8 @@ export function SnakeGame() {
 
   // 共有テキスト
   const generateShareText = useCallback(() => {
-    return `ADA Lab Snake で ${score} 点を達成！\n\n#ADALabGames #Snake\nhttps://adalabtech.com/games/snake`;
-  }, [score]);
+    return `ADA Lab Snake で ${score} 点を達成！（長さ: ${snake.length}）\n\n#ADALabGames #Snake\nhttps://adalabtech.com/games/snake`;
+  }, [score, snake.length]);
 
   const shareToTwitter = useCallback(() => {
     const text = encodeURIComponent(generateShareText());
@@ -229,6 +333,14 @@ export function SnakeGame() {
 
   return (
     <div className="flex flex-col items-center gap-4 w-full max-w-lg mx-auto p-4">
+      {/* 実績トースト */}
+      {achievementQueue.length > 0 && (
+        <AchievementToast
+          achievement={achievementQueue[0]}
+          onClose={handleAchievementClose}
+        />
+      )}
+
       {/* ヘッダー */}
       <div className="w-full flex items-center justify-between">
         <div>
@@ -272,6 +384,17 @@ export function SnakeGame() {
         </div>
 
         <div className="flex items-center gap-2">
+          {/* ランキングボタン */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowLeaderboard(true)}
+            className="flex items-center gap-1 px-3 py-2 rounded-lg bg-muted font-medium"
+          >
+            <Medal size={18} className="text-yellow-500" />
+          </motion.button>
+
+          {/* シェアボタン */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -280,6 +403,17 @@ export function SnakeGame() {
           >
             <Share2 size={18} />
           </motion.button>
+        </div>
+      </div>
+
+      {/* ステータス */}
+      <div className="w-full flex items-center justify-center gap-4 text-sm text-muted-foreground">
+        <div className="flex items-center gap-1">
+          <span>長さ: {snake.length}</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Award size={16} className="text-purple-500" />
+          <span>実績: {achievements.progress.unlocked}/{achievements.progress.total}</span>
         </div>
       </div>
 
@@ -355,20 +489,31 @@ export function SnakeGame() {
                 <div className="text-center text-white">
                   <h2 className="text-3xl font-bold mb-2">ゲームオーバー</h2>
                   <p className="text-xl mb-1">スコア: {score}</p>
+                  <p className="text-sm mb-2 opacity-70">長さ: {snake.length}</p>
                   {score === highScore && score > 0 && (
                     <p className="text-yellow-400 text-sm mb-4 flex items-center justify-center gap-1">
                       <Trophy size={16} />
                       ハイスコア！
                     </p>
                   )}
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={newGame}
-                    className="px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium"
-                  >
-                    もう一度プレイ
-                  </motion.button>
+                  <div className="flex gap-2 justify-center">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={newGame}
+                      className="px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium"
+                    >
+                      もう一度プレイ
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setShowLeaderboard(true)}
+                      className="px-4 py-3 rounded-lg bg-white/20 text-white font-medium"
+                    >
+                      <Trophy size={18} />
+                    </motion.button>
+                  </div>
                 </div>
               </motion.div>
             )}
@@ -396,6 +541,184 @@ export function SnakeGame() {
           <li><strong>注意:</strong> 壁や自分自身にぶつからないように！</li>
         </ul>
       </div>
+
+      {/* ニックネーム入力モーダル */}
+      <AnimatePresence>
+        {showNicknameInput && pendingScore && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => setShowNicknameInput(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-card border border-border rounded-2xl p-6 w-full max-w-sm"
+            >
+              <div className="text-center mb-6">
+                <Trophy className="w-12 h-12 text-yellow-500 mx-auto mb-2" />
+                <h3 className="text-xl font-bold">ランキング入り!</h3>
+                <p className="text-muted-foreground text-sm">
+                  スコア: {pendingScore.score}
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">ニックネーム</label>
+                  <input
+                    type="text"
+                    value={nickname}
+                    onChange={(e) => setNickname(e.target.value)}
+                    maxLength={20}
+                    placeholder="名前を入力"
+                    className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+                    onKeyDown={(e) => e.key === 'Enter' && submitScore()}
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowNicknameInput(false)}
+                    className="flex-1 px-4 py-2 rounded-lg bg-muted font-medium"
+                  >
+                    キャンセル
+                  </button>
+                  <button
+                    onClick={submitScore}
+                    disabled={!nickname.trim()}
+                    className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50"
+                  >
+                    登録
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* リーダーボードモーダル */}
+      <AnimatePresence>
+        {showLeaderboard && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => setShowLeaderboard(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-card border border-border rounded-2xl p-6 w-full max-w-md max-h-[80vh] overflow-hidden flex flex-col"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Medal className="w-6 h-6 text-yellow-500" />
+                  <h3 className="text-xl font-bold">ランキング</h3>
+                </div>
+                <button
+                  onClick={() => setShowLeaderboard(false)}
+                  className="p-2 rounded-lg hover:bg-muted transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* 期間フィルター */}
+              <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
+                {(Object.keys(LEADERBOARD_PERIOD_LABELS) as LeaderboardPeriod[]).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => leaderboard.setPeriod(p)}
+                    className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                      leaderboard.period === p
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted hover:bg-muted/80'
+                    }`}
+                  >
+                    <Calendar size={14} />
+                    {LEADERBOARD_PERIOD_LABELS[p]}
+                  </button>
+                ))}
+              </div>
+
+              {!leaderboard.isOnline && (
+                <div className="text-xs text-yellow-500 mb-2 flex items-center gap-1">
+                  <AlertTriangle size={12} />
+                  オフライン: ローカルデータを表示中
+                </div>
+              )}
+
+              {/* ランキングリスト */}
+              <div className="flex-1 overflow-y-auto space-y-2">
+                {leaderboard.isLoading ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    読み込み中...
+                  </div>
+                ) : leaderboard.leaderboard.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    まだ記録がありません
+                  </div>
+                ) : (
+                  leaderboard.leaderboard.map((entry, index) => (
+                    <div
+                      key={entry.id || index}
+                      className={`flex items-center gap-3 p-3 rounded-lg ${
+                        index === 0
+                          ? 'bg-yellow-500/20 border border-yellow-500/30'
+                          : index === 1
+                            ? 'bg-gray-400/20 border border-gray-400/30'
+                            : index === 2
+                              ? 'bg-orange-500/20 border border-orange-500/30'
+                              : 'bg-muted/30'
+                      }`}
+                    >
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
+                          index === 0
+                            ? 'bg-yellow-500 text-white'
+                            : index === 1
+                              ? 'bg-gray-400 text-white'
+                              : index === 2
+                                ? 'bg-orange-500 text-white'
+                                : 'bg-muted text-muted-foreground'
+                        }`}
+                      >
+                        {index + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{entry.nickname}</p>
+                        <p className="text-xs text-muted-foreground">
+                          長さ: {entry.length}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-primary">
+                          {entry.score.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {leaderboard.error && (
+                <p className="text-center text-sm text-yellow-500 mt-2">
+                  {leaderboard.error}
+                </p>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* シェアモーダル */}
       <AnimatePresence>
