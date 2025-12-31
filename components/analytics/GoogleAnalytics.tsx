@@ -41,11 +41,12 @@ const getGtag = () => {
 // Google Analytics tracking events
 export const trackEvent = (action: string, category: string, label?: string, value?: number) => {
   const gtag = getGtag();
-  if (gtag) {
+  if (gtag && GA_MEASUREMENT_ID) {
     gtag('event', action, {
       event_category: category,
       event_label: label,
       value: value,
+      send_to: GA_MEASUREMENT_ID,
     });
   }
 };
@@ -63,8 +64,11 @@ export const trackPageView = (url: string) => {
 // Track custom events
 export const trackCustomEvent = (eventName: string, eventParams?: Record<string, string | number | boolean>) => {
   const gtag = getGtag();
-  if (gtag) {
-    gtag('event', eventName, eventParams);
+  if (gtag && GA_MEASUREMENT_ID) {
+    gtag('event', eventName, {
+      ...eventParams,
+      send_to: GA_MEASUREMENT_ID,
+    });
   }
 };
 
