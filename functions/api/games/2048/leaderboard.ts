@@ -1,7 +1,9 @@
 // Cloudflare Pages Function for 2048 Leaderboard (D1)
+import { getCorsHeaders, getOptionalAuth, errorResponse, successResponse } from '../../../lib/auth';
 
 interface Env {
   DB: D1Database;
+  ALLOWED_ORIGIN?: string;
 }
 
 interface LeaderboardEntry {
@@ -18,13 +20,14 @@ interface LeaderboardEntry {
 // GET: ランキングを取得
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
+  const corsHeaders = getCorsHeaders(env);
 
   try {
     const url = new URL(request.url);
     const limit = Math.min(parseInt(url.searchParams.get('limit') || '10'), 100);
 
     const result = await env.DB.prepare(
-      `SELECT id, nickname, score, max_tile, moves, date, created_at
+      `SELECT id, nickname, score, max_tile, moves, date, created_at, user_id
        FROM game_2048_leaderboard
        ORDER BY score DESC
        LIMIT ?`
@@ -32,59 +35,52 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       .bind(limit)
       .all();
 
-    return new Response(JSON.stringify({ leaderboard: result.results }), {
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=60',
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
+    return successResponse(
+      { leaderboard: result.results },
+      corsHeaders,
+      'public, max-age=60'
+    );
   } catch (error) {
     console.error('2048 Leaderboard GET error:', error);
-    return new Response(JSON.stringify({ error: 'Failed to fetch leaderboard', leaderboard: [] }), {
-      status: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
+    return errorResponse('Failed to fetch leaderboard', 500, corsHeaders);
   }
 };
 
-// POST: スコアを登録（デバイスIDがある場合は1ユーザー1記録）
+// POST: スコアを登録（user_id/デバイスIDがある場合は1ユーザー1記録）
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
+  const corsHeaders = getCorsHeaders(env);
 
   try {
     const body = await request.json() as LeaderboardEntry;
 
+    // 認証情報を取得（オプショナル）
+    const auth = await getOptionalAuth(request, env.DB);
+    const userId = auth?.userId || null;
+
     // バリデーション
     if (!body.nickname || typeof body.nickname !== 'string' || body.nickname.length > 20) {
-      return new Response(JSON.stringify({ error: 'Invalid nickname' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-      });
+      return errorResponse('Invalid nickname', 400, corsHeaders);
     }
 
     if (typeof body.score !== 'number' || body.score < 0 || body.score > 10000000) {
-      return new Response(JSON.stringify({ error: 'Invalid score' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-      });
+      return errorResponse('Invalid score', 400, corsHeaders);
     }
 
     // ニックネームをサニタイズ
     const sanitizedNickname = body.nickname.trim().slice(0, 20);
     const deviceId = body.device_id?.trim() || null;
 
-    // デバイスIDがある場合は1ユーザー1記録（UPSERTロジック）
-    if (deviceId) {
+    // UPSERTロジック: user_id優先、なければdevice_id
+    const lookupField = userId ? 'user_id' : 'device_id';
+    const lookupValue = userId || deviceId;
+
+    if (lookupValue) {
       // 既存のレコードを確認
       const existing = await env.DB.prepare(
-        `SELECT id, score FROM game_2048_leaderboard
-         WHERE device_id = ?`
+        `SELECT id, score FROM game_2048_leaderboard WHERE ${lookupField} = ?`
       )
-        .bind(deviceId)
+        .bind(lookupValue)
         .first<{ id: number; score: number }>();
 
       if (existing) {
@@ -93,7 +89,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           // 新しいスコアが高い場合のみ更新
           await env.DB.prepare(
             `UPDATE game_2048_leaderboard
-             SET nickname = ?, score = ?, max_tile = ?, moves = ?, date = ?
+             SET nickname = ?, score = ?, max_tile = ?, moves = ?, date = ?, user_id = COALESCE(?, user_id)
              WHERE id = ?`
           )
             .bind(
@@ -102,16 +98,23 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
               body.max_tile || 0,
               body.moves || 0,
               body.date || new Date().toISOString(),
+              userId,
               existing.id
             )
             .run();
+        } else if (userId) {
+          // スコアは低いがuser_idを紐付ける
+          await env.DB.prepare(
+            `UPDATE game_2048_leaderboard SET user_id = ? WHERE id = ?`
+          )
+            .bind(userId, existing.id)
+            .run();
         }
-        // スコアが低い場合は何もしない（成功として返す）
       } else {
         // 新規レコード
         await env.DB.prepare(
-          `INSERT INTO game_2048_leaderboard (nickname, score, max_tile, moves, date, device_id)
-           VALUES (?, ?, ?, ?, ?, ?)`
+          `INSERT INTO game_2048_leaderboard (nickname, score, max_tile, moves, date, device_id, user_id)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`
         )
           .bind(
             sanitizedNickname,
@@ -119,12 +122,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             body.max_tile || 0,
             body.moves || 0,
             body.date || new Date().toISOString(),
-            deviceId
+            deviceId,
+            userId
           )
           .run();
       }
     } else {
-      // デバイスIDがない場合は従来通り（レガシー互換）
+      // 識別子がない場合は従来通り（レガシー互換）
       await env.DB.prepare(
         `INSERT INTO game_2048_leaderboard (nickname, score, max_tile, moves, date)
          VALUES (?, ?, ?, ?, ?)`
@@ -141,35 +145,22 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     // 更新後のランキングを取得
     const result = await env.DB.prepare(
-      `SELECT id, nickname, score, max_tile, moves, date, created_at
+      `SELECT id, nickname, score, max_tile, moves, date, created_at, user_id
        FROM game_2048_leaderboard
        ORDER BY score DESC
        LIMIT 10`
     )
       .all();
 
-    return new Response(JSON.stringify({ success: true, leaderboard: result.results }), {
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
+    return successResponse({ success: true, leaderboard: result.results }, corsHeaders);
   } catch (error) {
     console.error('2048 Leaderboard POST error:', error);
-    return new Response(JSON.stringify({ error: 'Failed to submit score' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-    });
+    return errorResponse('Failed to submit score', 500, corsHeaders);
   }
 };
 
 // OPTIONS: CORS preflight
-export const onRequestOptions: PagesFunction = async () => {
-  return new Response(null, {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
-  });
+export const onRequestOptions: PagesFunction<Env> = async (context) => {
+  const corsHeaders = getCorsHeaders(context.env);
+  return new Response(null, { headers: corsHeaders });
 };

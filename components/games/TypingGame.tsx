@@ -22,10 +22,12 @@ import {
   Award,
   AlertTriangle,
 } from 'lucide-react';
-import { useTypingGame, GameMode, TypingLanguage, TypingDifficulty } from '@/hooks/useTypingGame';
+import { useTypingGame, GameMode, TypingLanguage, TypingDifficulty, InputType } from '@/hooks/useTypingGame';
+import { SentenceCategory, CATEGORY_LABELS } from '@/lib/typing-sentences';
 import { useTypingLeaderboard, MODE_LABELS, LANGUAGE_LABELS } from '@/hooks/useTypingLeaderboard';
 import { useTypingAchievements } from '@/hooks/useTypingAchievements';
 import { AchievementToast } from '@/components/games/AchievementToast';
+import { BgmControl } from '@/components/games/BgmControl';
 import { TypingLeaderboardModal } from '@/components/games/TypingLeaderboardModal';
 import type { GameAchievement } from '@/lib/game-achievements';
 
@@ -59,11 +61,19 @@ const DIFFICULTY_INFO: Record<TypingDifficulty, { name: string; color: string }>
   hard: { name: '難しい', color: 'text-red-500' },
 };
 
+const INPUT_TYPE_INFO: Record<InputType, { icon: string; name: string; description: string }> = {
+  word: { icon: 'Aa', name: '単語', description: '単語を1つずつタイプ' },
+  sentence: { icon: '""', name: '文章', description: '名言・ことわざをタイプ' },
+};
+
 export function TypingGame() {
   const [language, setLanguage] = useState<TypingLanguage>('en');
   const [difficulty, setDifficulty] = useState<TypingDifficulty>('normal');
   const [mode, setMode] = useState<GameMode>('time');
+  const [inputType, setInputType] = useState<InputType>('word');
+  const [sentenceCategory, setSentenceCategory] = useState<SentenceCategory | undefined>(undefined);
   const [wordCount, setWordCount] = useState(30);
+  const [itemCount, setItemCount] = useState(10); // 文章モード用
   const [timeLimit, setTimeLimit] = useState(60);
   const [showSettings, setShowSettings] = useState(true);
   const [showShare, setShowShare] = useState(false);
@@ -107,6 +117,7 @@ export function TypingGame() {
     currentWord,
     currentInput,
     targetText,
+    displayText,
     isStarted,
     isFinished,
     gameOverReason,
@@ -123,8 +134,11 @@ export function TypingGame() {
     language,
     difficulty,
     mode,
+    inputType,
+    itemCount: inputType === 'sentence' ? itemCount : undefined,
     wordCount: mode === 'word_count' ? wordCount : 100,
     timeLimit: mode === 'time' ? timeLimit : 0,
+    sentenceCategory,
     onGameEnd: (finalStats) => {
       recordGameOver(
         finalStats.wpm,
@@ -341,6 +355,82 @@ export function TypingGame() {
             </div>
           </div>
 
+          {/* Input Type */}
+          <div>
+            <label className="block text-sm font-medium mb-2">入力タイプ</label>
+            <div className="grid grid-cols-2 gap-2">
+              {(Object.keys(INPUT_TYPE_INFO) as InputType[]).map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setInputType(type)}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg border transition-colors text-left ${
+                    inputType === type
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  <span className="text-xl font-bold">{INPUT_TYPE_INFO[type].icon}</span>
+                  <div>
+                    <div className="font-medium">{INPUT_TYPE_INFO[type].name}</div>
+                    <div className="text-xs text-muted-foreground">{INPUT_TYPE_INFO[type].description}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Sentence Category (文章モード時のみ) */}
+          {inputType === 'sentence' && (
+            <div>
+              <label className="block text-sm font-medium mb-2">カテゴリ</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setSentenceCategory(undefined)}
+                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                    sentenceCategory === undefined
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  すべて
+                </button>
+                {(['quotes', 'proverb', 'daily', 'programming'] as SentenceCategory[]).map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setSentenceCategory(cat)}
+                    className={`px-4 py-2 rounded-lg border transition-colors ${
+                      sentenceCategory === cat
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                  >
+                    {CATEGORY_LABELS[cat]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 文章数設定 (文章モード時のみ) */}
+          {inputType === 'sentence' && (
+            <div>
+              <label className="block text-sm font-medium mb-2">文章数: {itemCount}</label>
+              <input
+                type="range"
+                min="5"
+                max="20"
+                step="5"
+                value={itemCount}
+                onChange={(e) => setItemCount(parseInt(e.target.value, 10))}
+                className="w-full accent-primary"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>5</span>
+                <span>20</span>
+              </div>
+            </div>
+          )}
+
           {/* Mode-specific settings */}
           {mode === 'time' && (
             <div>
@@ -434,6 +524,8 @@ export function TypingGame() {
           </p>
         </div>
         <div className="flex gap-2">
+          {/* BGMコントロール */}
+          <BgmControl game="typing" isPlaying={isStarted && !isFinished} />
           <div className="flex flex-col items-center px-4 py-2 rounded-lg bg-primary text-primary-foreground">
             <span className="text-xs uppercase opacity-80">WPM</span>
             <span className="text-2xl font-bold">{stats.wpm}</span>
@@ -495,6 +587,8 @@ export function TypingGame() {
           )}
         </div>
         <div className="flex gap-2">
+          {/* BGMコントロール */}
+          <BgmControl game="typing" isPlaying={isStarted && !isFinished} />
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -513,10 +607,14 @@ export function TypingGame() {
           <>
             {/* Current word display */}
             <div className="text-center mb-6">
-              {(language === 'ja' || language === 'mixed') && currentWord?.text !== targetText && (
-                <p className="text-3xl font-bold mb-2">{currentWord?.text}</p>
+              {/* 文章モード or 日本語モードの場合、表示テキストを上に表示 */}
+              {(inputType === 'sentence' || language === 'ja' || language === 'mixed') && displayText !== targetText && (
+                <p className={`font-bold mb-3 ${inputType === 'sentence' ? 'text-2xl md:text-3xl leading-relaxed' : 'text-3xl'}`}>
+                  {displayText}
+                </p>
               )}
-              <div className="flex justify-center gap-0.5 text-4xl font-mono flex-wrap">
+              {/* 入力対象テキスト（ローマ字） */}
+              <div className={`flex justify-center gap-0.5 font-mono flex-wrap ${inputType === 'sentence' ? 'text-2xl md:text-3xl' : 'text-4xl'}`}>
                 {targetText.split('').map((char: string, index: number) => {
                   const status = getCharacterStatus(index);
                   return (

@@ -8,6 +8,8 @@ import {
   Link as LinkIcon,
   Check,
   X,
+  MessageCircle,
+  Facebook,
 } from 'lucide-react';
 
 interface ShareButtonProps {
@@ -60,6 +62,21 @@ export function ShareButton({
     window.open(url, '_blank', 'width=550,height=420');
     setIsOpen(false);
   }, [generateShareText]);
+
+  // LINEで共有
+  const shareToLine = useCallback(() => {
+    const text = encodeURIComponent(generateShareText());
+    const url = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(gameUrl)}&text=${text}`;
+    window.open(url, '_blank', 'width=550,height=420');
+    setIsOpen(false);
+  }, [generateShareText, gameUrl]);
+
+  // Facebookで共有（quoteパラメータは非推奨のため、URLのみ共有）
+  const shareToFacebook = useCallback(() => {
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(gameUrl)}`;
+    window.open(url, '_blank', 'width=550,height=420');
+    setIsOpen(false);
+  }, [gameUrl]);
 
   // URLをコピー
   const copyToClipboard = useCallback(async () => {
@@ -146,6 +163,28 @@ export function ShareButton({
                     <Twitter size={16} className="text-white" />
                   </div>
                   <span className="text-sm">X (Twitter) でシェア</span>
+                </button>
+
+                {/* LINE */}
+                <button
+                  onClick={shareToLine}
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-[#06C755] flex items-center justify-center">
+                    <MessageCircle size={16} className="text-white" />
+                  </div>
+                  <span className="text-sm">LINE でシェア</span>
+                </button>
+
+                {/* Facebook */}
+                <button
+                  onClick={shareToFacebook}
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-[#1877F2] flex items-center justify-center">
+                    <Facebook size={16} className="text-white" />
+                  </div>
+                  <span className="text-sm">Facebook でシェア</span>
                 </button>
 
                 {/* Web Share API (対応ブラウザのみ) */}

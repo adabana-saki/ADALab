@@ -25,6 +25,7 @@ import { useSnakeGame, Direction } from '@/hooks/useSnakeGame';
 import { useSnakeLeaderboard, LeaderboardPeriod, LEADERBOARD_PERIOD_LABELS } from '@/hooks/useSnakeLeaderboard';
 import { useSnakeAchievements } from '@/hooks/useSnakeAchievements';
 import { AchievementToast } from './AchievementToast';
+import { BgmControl } from './BgmControl';
 import { getSoundEngine } from '@/lib/sound-engine';
 import type { GameAchievement } from '@/lib/game-achievements';
 
@@ -384,6 +385,9 @@ export function SnakeGame() {
         </div>
 
         <div className="flex items-center gap-2">
+          {/* BGMコントロール */}
+          <BgmControl game="snake" isPlaying={!isPaused && !gameOver} />
+
           {/* ランキングボタン */}
           <motion.button
             whileHover={{ scale: 1.05 }}
