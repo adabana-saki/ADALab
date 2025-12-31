@@ -52,6 +52,7 @@ export function SnakeGame() {
   const [achievementQueue, setAchievementQueue] = useState<GameAchievement[]>([]);
   const [pendingScore, setPendingScore] = useState<{ score: number; length: number } | null>(null);
   const prevScoreRef = useRef(0);
+  const gameOverHandledRef = useRef(false);
 
   // リーダーボード
   const leaderboard = useSnakeLeaderboard();
@@ -101,9 +102,10 @@ export function SnakeGame() {
     prevScoreRef.current = score;
   }, [score]);
 
-  // ゲームオーバー時の処理
+  // ゲームオーバー時の処理（1回だけ実行）
   useEffect(() => {
-    if (gameOver && score > 0) {
+    if (gameOver && score > 0 && !gameOverHandledRef.current) {
+      gameOverHandledRef.current = true;
       soundEngineRef.current?.snakeCrash();
       // recordGameOver(score, length, survivalTime, foodEaten)
       achievements.recordGameOver(score, snake.length, 0, score);
@@ -113,6 +115,10 @@ export function SnakeGame() {
         setPendingScore({ score, length: snake.length });
         setShowNicknameInput(true);
       }
+    }
+    // gameOverがfalseになったらリセット
+    if (!gameOver) {
+      gameOverHandledRef.current = false;
     }
   }, [gameOver, score, snake.length, achievements, leaderboard]);
 

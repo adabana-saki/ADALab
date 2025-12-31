@@ -171,6 +171,7 @@ interface LineClearAnimation {
 class SoundEngine {
   private audioContext: AudioContext | null = null;
   private enabled: boolean = true;
+  private seVolume: number = 0.5;
   private bgmEnabled: boolean = true;
   private bgmPlaying: boolean = false;
   private bgmTrack: BgmTrack = 'none';
@@ -185,6 +186,14 @@ class SoundEngine {
 
   setEnabled(enabled: boolean) {
     this.enabled = enabled;
+  }
+
+  setSeVolume(volume: number) {
+    this.seVolume = Math.max(0, Math.min(1, volume));
+  }
+
+  getSeVolume() {
+    return this.seVolume;
   }
 
   setBgmEnabled(enabled: boolean) {
@@ -229,7 +238,9 @@ class SoundEngine {
 
     oscillator.frequency.value = frequency;
     oscillator.type = type;
-    gainNode.gain.setValueAtTime(volume, this.audioContext.currentTime);
+    // 効果音音量を適用
+    const actualVolume = volume * this.seVolume;
+    gainNode.gain.setValueAtTime(actualVolume, this.audioContext.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
 
     oscillator.start();
@@ -336,6 +347,7 @@ export function TetrisGame() {
   const [holdPiece, setHoldPiece] = useState<number | null>(null);
   const [canHold, setCanHold] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [seVolume, setSeVolume] = useState(0.5);
   const [bgmEnabled, setBgmEnabled] = useState(false);
   const [bgmTrack, setBgmTrack] = useState<BgmTrack>('none');
   const [bgmVolume, setBgmVolume] = useState(0.5);
@@ -465,6 +477,15 @@ export function TetrisGame() {
       }
     }
 
+    const savedSeVolume = localStorage.getItem('tetris-se-volume');
+    if (savedSeVolume !== null) {
+      const vol = parseFloat(savedSeVolume);
+      if (!isNaN(vol)) {
+        setSeVolume(vol);
+        soundEngine.setSeVolume(vol);
+      }
+    }
+
     soundEngine.init();
   }, []);
 
@@ -496,6 +517,11 @@ export function TetrisGame() {
   useEffect(() => {
     soundEngine.setEnabled(soundEnabled);
   }, [soundEnabled]);
+
+  useEffect(() => {
+    soundEngine.setSeVolume(seVolume);
+    localStorage.setItem('tetris-se-volume', seVolume.toString());
+  }, [seVolume]);
 
   useEffect(() => {
     soundEngine.setBgmEnabled(bgmEnabled);
@@ -1677,6 +1703,36 @@ export function TetrisGame() {
                 >
                   {ghostEnabled ? 'ON' : 'OFF'}
                 </button>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Volume2 size={16} />
+                  <span className="font-medium">効果音</span>
+                  <button
+                    onClick={() => setSoundEnabled(!soundEnabled)}
+                    className={`ml-auto px-2 py-0.5 rounded text-xs font-medium transition-colors ${
+                      soundEnabled
+                        ? 'bg-green-500/20 text-green-400'
+                        : 'bg-muted text-muted-foreground'
+                    }`}
+                  >
+                    {soundEnabled ? 'ON' : 'OFF'}
+                  </button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <VolumeX size={14} className="text-muted-foreground" />
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={seVolume * 100}
+                    onChange={(e) => setSeVolume(parseInt(e.target.value) / 100)}
+                    disabled={!soundEnabled}
+                    className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-yellow-500 disabled:opacity-50"
+                  />
+                  <Volume2 size={14} className="text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground w-8 text-right">{Math.round(seVolume * 100)}%</span>
+                </div>
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-2">

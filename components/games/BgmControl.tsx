@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Music, Volume2, ChevronDown } from 'lucide-react';
+import { Music, Volume2, VolumeX, ChevronDown, Zap } from 'lucide-react';
 import { getSoundEngine, GAME_BGM_TRACKS, BgmTrack } from '@/lib/sound-engine';
 
 interface BgmControlProps {
@@ -13,8 +13,12 @@ interface BgmControlProps {
 export function BgmControl({ game, isPlaying, className = '' }: BgmControlProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentTrack, setCurrentTrack] = useState<string>('none');
-  const [volume, setVolume] = useState(0.5);
+  const [bgmVolume, setBgmVolume] = useState(0.5);
   const [isBgmPlaying, setIsBgmPlaying] = useState(false);
+
+  // 効果音設定
+  const [seEnabled, setSeEnabled] = useState(true);
+  const [seVolume, setSeVolume] = useState(0.5);
 
   const soundEngine = getSoundEngine();
   const tracks: BgmTrack[] = GAME_BGM_TRACKS[game] || [];
@@ -23,7 +27,9 @@ export function BgmControl({ game, isPlaying, className = '' }: BgmControlProps)
   useEffect(() => {
     const savedTrack = soundEngine.getBgmTrack(game);
     setCurrentTrack(savedTrack);
-    setVolume(soundEngine.getBgmVolume());
+    setBgmVolume(soundEngine.getBgmVolume());
+    setSeEnabled(soundEngine.isEnabled());
+    setSeVolume(soundEngine.getVolume());
   }, [game, soundEngine]);
 
   // ゲーム状態に応じたBGM制御
@@ -58,11 +64,32 @@ export function BgmControl({ game, isPlaying, className = '' }: BgmControlProps)
     [game, isPlaying, soundEngine]
   );
 
-  const handleVolumeChange = useCallback(
+  const handleBgmVolumeChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newVolume = parseFloat(e.target.value);
-      setVolume(newVolume);
+      setBgmVolume(newVolume);
       soundEngine.setBgmVolume(newVolume);
+    },
+    [soundEngine]
+  );
+
+  // 効果音ON/OFF
+  const handleSeToggle = useCallback(() => {
+    const newEnabled = !seEnabled;
+    setSeEnabled(newEnabled);
+    soundEngine.setEnabled(newEnabled);
+    // テスト音を鳴らす
+    if (newEnabled) {
+      soundEngine.click();
+    }
+  }, [seEnabled, soundEngine]);
+
+  // 効果音音量
+  const handleSeVolumeChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newVolume = parseFloat(e.target.value);
+      setSeVolume(newVolume);
+      soundEngine.setVolume(newVolume);
     },
     [soundEngine]
   );
@@ -82,7 +109,7 @@ export function BgmControl({ game, isPlaying, className = '' }: BgmControlProps)
               : 'bg-slate-800/50 border-slate-700 text-slate-400 hover:text-slate-200'
           }
         `}
-        title="BGM設定"
+        title="サウンド設定"
       >
         <Music className={`w-4 h-4 ${isBgmPlaying ? 'animate-pulse' : ''}`} />
         <span className="text-sm hidden sm:inline">{currentTrackLabel}</span>
@@ -92,24 +119,63 @@ export function BgmControl({ game, isPlaying, className = '' }: BgmControlProps)
       {isOpen && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-          <div className="absolute right-0 mt-2 w-64 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-50 overflow-hidden">
+          <div className="absolute right-0 mt-2 w-72 bg-slate-800 border border-slate-700 rounded-lg shadow-xl z-50 overflow-hidden">
+            {/* 効果音設定 */}
             <div className="p-3 border-b border-slate-700">
               <div className="flex items-center gap-2 mb-2">
-                <Volume2 className="w-4 h-4 text-slate-400" />
-                <span className="text-sm text-slate-300">音量</span>
-                <span className="text-sm text-slate-500 ml-auto">{Math.round(volume * 100)}%</span>
+                <Zap className="w-4 h-4 text-yellow-400" />
+                <span className="text-sm text-slate-300">効果音</span>
+                <button
+                  onClick={handleSeToggle}
+                  className={`ml-auto px-2 py-0.5 rounded text-xs font-medium transition-colors ${
+                    seEnabled
+                      ? 'bg-green-500/20 text-green-400'
+                      : 'bg-slate-700 text-slate-500'
+                  }`}
+                >
+                  {seEnabled ? 'ON' : 'OFF'}
+                </button>
               </div>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.1"
-                value={volume}
-                onChange={handleVolumeChange}
-                className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
-              />
+              <div className="flex items-center gap-2">
+                <VolumeX className="w-3 h-3 text-slate-500" />
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={seVolume}
+                  onChange={handleSeVolumeChange}
+                  disabled={!seEnabled}
+                  className="flex-1 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-yellow-500 disabled:opacity-50"
+                />
+                <Volume2 className="w-3 h-3 text-slate-500" />
+                <span className="text-xs text-slate-500 w-8">{Math.round(seVolume * 100)}%</span>
+              </div>
             </div>
 
+            {/* BGM音量 */}
+            <div className="p-3 border-b border-slate-700">
+              <div className="flex items-center gap-2 mb-2">
+                <Music className="w-4 h-4 text-purple-400" />
+                <span className="text-sm text-slate-300">BGM音量</span>
+                <span className="text-xs text-slate-500 ml-auto">{Math.round(bgmVolume * 100)}%</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <VolumeX className="w-3 h-3 text-slate-500" />
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={bgmVolume}
+                  onChange={handleBgmVolumeChange}
+                  className="flex-1 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                />
+                <Volume2 className="w-3 h-3 text-slate-500" />
+              </div>
+            </div>
+
+            {/* BGMトラック選択 */}
             <div className="p-2">
               <p className="text-xs text-slate-500 px-2 mb-1">BGMトラック</p>
               {tracks.map((track) => (
