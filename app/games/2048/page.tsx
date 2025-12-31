@@ -2,8 +2,9 @@ import { Metadata } from 'next';
 import { Game2048 } from '@/components/games/Game2048';
 import { GameStructuredData } from '@/components/games/GameStructuredData';
 import { SITE_CONFIG } from '@/lib/constants';
-import { Gamepad2, ArrowLeft } from 'lucide-react';
+import { Gamepad2, ArrowLeft, Swords } from 'lucide-react';
 import Link from 'next/link';
+import { OnlineIndicator } from '@/components/OnlineIndicator';
 
 export const metadata: Metadata = {
   title: '2048',
@@ -52,6 +53,7 @@ export default function Game2048Page() {
               <ArrowLeft size={16} />
               ゲーム一覧に戻る
             </Link>
+            <OnlineIndicator page="2048" />
           </div>
 
           {/* ヘッダー */}
@@ -64,6 +66,15 @@ export default function Game2048Page() {
             <p className="text-muted-foreground max-w-md mx-auto">
               数字タイルをスライドして合体させ、2048タイルを作ろう！
             </p>
+
+            {/* 対戦モードへのリンク */}
+            <Link
+              href="/games/2048/battle"
+              className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+            >
+              <Swords className="w-5 h-5" />
+              オンライン対戦
+            </Link>
           </div>
 
           {/* ゲーム本体 */}
