@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { getDeviceId } from './useDeviceId';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface LeaderboardEntry {
   id?: number;
@@ -26,6 +27,7 @@ const LEADERBOARD_KEY = '2048-leaderboard-v1';
 const API_BASE = '/api/games/2048/leaderboard';
 
 export function use2048Leaderboard() {
+  const { user, getIdToken } = useAuth();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -121,9 +123,18 @@ export function use2048Leaderboard() {
           device_id: getDeviceId(),
         };
 
+        // ログインユーザーの場合、認証トークンを付与
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (user) {
+          const token = await getIdToken();
+          if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+          }
+        }
+
         const response = await fetch(API_BASE, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify(entryWithDeviceId),
         });
 
@@ -143,7 +154,7 @@ export function use2048Leaderboard() {
         setIsLoading(false);
       }
     },
-    [isOnline, getLocalLeaderboard, saveLocalLeaderboard]
+    [isOnline, getLocalLeaderboard, saveLocalLeaderboard, user, getIdToken]
   );
 
   // スコアがランキング入りするか判定

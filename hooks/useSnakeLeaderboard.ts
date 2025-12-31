@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { getDeviceId } from './useDeviceId';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface SnakeLeaderboardEntry {
   id?: number;
@@ -26,6 +27,7 @@ const API_BASE = '/api/games/snake/leaderboard';
 const LOCAL_STORAGE_KEY = 'snake-leaderboard-v1';
 
 export function useSnakeLeaderboard() {
+  const { user, getIdToken } = useAuth();
   const [leaderboard, setLeaderboard] = useState<SnakeLeaderboardEntry[]>([]);
   const [period, setPeriod] = useState<LeaderboardPeriod>('all');
   const [isLoading, setIsLoading] = useState(true);
@@ -142,9 +144,18 @@ export function useSnakeLeaderboard() {
       // オンラインの場合、サーバーに送信
       if (isOnline) {
         try {
+          // ログインユーザーの場合、認証トークンを付与
+          const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+          if (user) {
+            const token = await getIdToken();
+            if (token) {
+              headers['Authorization'] = `Bearer ${token}`;
+            }
+          }
+
           const response = await fetch(API_BASE, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers,
             body: JSON.stringify(entryWithDevice),
           });
           if (response.ok) {
@@ -159,7 +170,7 @@ export function useSnakeLeaderboard() {
         }
       }
     },
-    [isOnline, period, filterByPeriod, getDeviceId, getLocalLeaderboard, saveLocalLeaderboard]
+    [isOnline, period, filterByPeriod, getLocalLeaderboard, saveLocalLeaderboard, user, getIdToken]
   );
 
   // ランキング入り判定

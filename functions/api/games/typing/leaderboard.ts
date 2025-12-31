@@ -1,5 +1,8 @@
+import { getCorsHeaders, getOptionalAuth, errorResponse, successResponse } from '../../../lib/auth';
+
 interface Env {
   DB: D1Database;
+  ALLOWED_ORIGIN?: string;
 }
 
 interface LeaderboardEntry {
@@ -17,6 +20,7 @@ interface LeaderboardEntry {
 // GET: ランキング取得
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
+  const corsHeaders = getCorsHeaders(env);
 
   try {
     const url = new URL(request.url);
@@ -25,7 +29,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     const limit = Math.min(parseInt(url.searchParams.get('limit') || '10'), 100);
 
     const result = await env.DB.prepare(
-      `SELECT id, nickname, wpm, accuracy, mode, language, words_typed, time_seconds, date
+      `SELECT id, nickname, wpm, accuracy, mode, language, words_typed, time_seconds, date, user_id
        FROM typing_leaderboard
        WHERE mode = ? AND language = ?
        ORDER BY wpm DESC
@@ -34,143 +38,71 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       .bind(mode, language, limit)
       .all();
 
-    return new Response(
-      JSON.stringify({ leaderboard: result.results }),
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'public, max-age=60',
-          'Access-Control-Allow-Origin': '*',
-        },
-      }
+    return successResponse(
+      { leaderboard: result.results },
+      corsHeaders,
+      'public, max-age=60'
     );
   } catch (error) {
     console.error('Leaderboard fetch error:', error);
-    return new Response(
-      JSON.stringify({ error: 'Failed to fetch leaderboard' }),
-      {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      }
-    );
+    return errorResponse('Failed to fetch leaderboard', 500, corsHeaders);
   }
 };
 
 // POST: スコア登録
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
+  const corsHeaders = getCorsHeaders(env);
 
   try {
     const body: LeaderboardEntry = await request.json();
 
+    // 認証情報を取得（オプショナル）
+    const auth = await getOptionalAuth(request, env.DB);
+    const userId = auth?.userId || null;
+
     // バリデーション
     if (!body.nickname || typeof body.nickname !== 'string' || body.nickname.length > 20) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid nickname' }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
-        }
-      );
+      return errorResponse('Invalid nickname', 400, corsHeaders);
     }
 
     if (typeof body.wpm !== 'number' || body.wpm < 0 || body.wpm > 500) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid wpm' }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
-        }
-      );
+      return errorResponse('Invalid wpm', 400, corsHeaders);
     }
 
     if (!['time', 'sudden_death', 'word_count'].includes(body.mode)) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid mode' }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
-        }
-      );
+      return errorResponse('Invalid mode', 400, corsHeaders);
     }
 
     if (!['en', 'ja', 'mixed'].includes(body.language)) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid language' }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
-        }
-      );
+      return errorResponse('Invalid language', 400, corsHeaders);
     }
 
-    // Validate accuracy (0-100)
     if (typeof body.accuracy !== 'number' || body.accuracy < 0 || body.accuracy > 100) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid accuracy (must be 0-100)' }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
-        }
-      );
+      return errorResponse('Invalid accuracy (must be 0-100)', 400, corsHeaders);
     }
 
-    // Validate words_typed (non-negative)
     if (typeof body.words_typed !== 'number' || body.words_typed < 0 || body.words_typed > 10000) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid words_typed' }),
-        {
-          status: 400,
-          headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
-        }
-      );
+      return errorResponse('Invalid words_typed', 400, corsHeaders);
     }
 
-    // Validate time_seconds (optional, but if provided must be reasonable)
     if (body.time_seconds !== undefined && body.time_seconds !== null) {
       if (typeof body.time_seconds !== 'number' || body.time_seconds < 0 || body.time_seconds > 3600) {
-        return new Response(
-          JSON.stringify({ error: 'Invalid time_seconds' }),
-          {
-            status: 400,
-            headers: {
-              'Content-Type': 'application/json',
-              'Access-Control-Allow-Origin': '*',
-            },
-          }
-        );
+        return errorResponse('Invalid time_seconds', 400, corsHeaders);
       }
     }
 
     const deviceId = body.device_id || null;
 
-    // UPSERTロジック
-    if (deviceId) {
+    // UPSERTロジック: user_id優先、なければdevice_id
+    const lookupField = userId ? 'user_id' : 'device_id';
+    const lookupValue = userId || deviceId;
+
+    if (lookupValue) {
       const existing = await env.DB.prepare(
-        `SELECT id, wpm FROM typing_leaderboard WHERE device_id = ? AND mode = ? AND language = ?`
+        `SELECT id, wpm FROM typing_leaderboard WHERE ${lookupField} = ? AND mode = ? AND language = ?`
       )
-        .bind(deviceId, body.mode, body.language)
+        .bind(lookupValue, body.mode, body.language)
         .first();
 
       if (existing) {
@@ -178,7 +110,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         if (body.wpm > (existing.wpm as number)) {
           await env.DB.prepare(
             `UPDATE typing_leaderboard
-             SET nickname = ?, wpm = ?, accuracy = ?, words_typed = ?, time_seconds = ?, date = ?
+             SET nickname = ?, wpm = ?, accuracy = ?, words_typed = ?, time_seconds = ?, date = ?, user_id = COALESCE(?, user_id)
              WHERE id = ?`
           )
             .bind(
@@ -188,15 +120,23 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
               body.words_typed,
               body.time_seconds || null,
               body.date,
+              userId,
               existing.id
             )
+            .run();
+        } else if (userId && !existing) {
+          // スコアは低いがuser_idを紐付ける
+          await env.DB.prepare(
+            `UPDATE typing_leaderboard SET user_id = ? WHERE id = ?`
+          )
+            .bind(userId, existing.id)
             .run();
         }
       } else {
         // 新規挿入
         await env.DB.prepare(
-          `INSERT INTO typing_leaderboard (nickname, wpm, accuracy, mode, language, words_typed, time_seconds, date, device_id)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          `INSERT INTO typing_leaderboard (nickname, wpm, accuracy, mode, language, words_typed, time_seconds, date, device_id, user_id)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         )
           .bind(
             body.nickname,
@@ -207,12 +147,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             body.words_typed,
             body.time_seconds || null,
             body.date,
-            deviceId
+            deviceId,
+            userId
           )
           .run();
       }
     } else {
-      // device_idなしの場合は常に挿入
+      // 識別子なしの場合は常に挿入
       await env.DB.prepare(
         `INSERT INTO typing_leaderboard (nickname, wpm, accuracy, mode, language, words_typed, time_seconds, date)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
@@ -232,7 +173,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     // 更新後のランキング取得
     const leaderboard = await env.DB.prepare(
-      `SELECT id, nickname, wpm, accuracy, mode, language, words_typed, time_seconds, date
+      `SELECT id, nickname, wpm, accuracy, mode, language, words_typed, time_seconds, date, user_id
        FROM typing_leaderboard
        WHERE mode = ? AND language = ?
        ORDER BY wpm DESC
@@ -241,36 +182,14 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       .bind(body.mode, body.language)
       .all();
 
-    return new Response(
-      JSON.stringify({ success: true, leaderboard: leaderboard.results }),
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      }
-    );
+    return successResponse({ success: true, leaderboard: leaderboard.results }, corsHeaders);
   } catch (error) {
     console.error('Score submit error:', error);
-    return new Response(
-      JSON.stringify({ error: 'Failed to submit score' }),
-      {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      }
-    );
+    return errorResponse('Failed to submit score', 500, corsHeaders);
   }
 };
 
-export const onRequestOptions: PagesFunction = async () => {
-  return new Response(null, {
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
-  });
+export const onRequestOptions: PagesFunction<Env> = async (context) => {
+  const corsHeaders = getCorsHeaders(context.env);
+  return new Response(null, { headers: corsHeaders });
 };

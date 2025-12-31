@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { getDeviceId } from './useDeviceId';
+import { useAuth } from '@/contexts/AuthContext';
 
 // ゲームモードと言語モード（useTypingGameと共有）
 export type TypingMode = 'time' | 'sudden_death' | 'word_count';
@@ -45,6 +46,7 @@ const API_BASE = '/api/games/typing/leaderboard';
 const LOCAL_STORAGE_KEY = 'typing-leaderboard-v1';
 
 export function useTypingLeaderboard(initialMode: TypingMode = 'time', initialLanguage: TypingLanguage = 'en') {
+  const { user, getIdToken } = useAuth();
   const [leaderboard, setLeaderboard] = useState<TypingLeaderboardEntry[]>([]);
   const [mode, setMode] = useState<TypingMode>(initialMode);
   const [language, setLanguage] = useState<TypingLanguage>(initialLanguage);
@@ -171,9 +173,18 @@ export function useTypingLeaderboard(initialMode: TypingMode = 'time', initialLa
       // オンラインの場合、サーバーに送信
       if (isOnline) {
         try {
+          // ログインユーザーの場合、認証トークンを付与
+          const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+          if (user) {
+            const token = await getIdToken();
+            if (token) {
+              headers['Authorization'] = `Bearer ${token}`;
+            }
+          }
+
           const response = await fetch(API_BASE, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers,
             body: JSON.stringify(entryWithDevice),
           });
           if (response.ok) {
@@ -188,7 +199,7 @@ export function useTypingLeaderboard(initialMode: TypingMode = 'time', initialLa
         }
       }
     },
-    [mode, language, isOnline, period, filterByPeriod, getDeviceId, getLocalLeaderboard, saveLocalLeaderboard]
+    [mode, language, isOnline, period, filterByPeriod, getLocalLeaderboard, saveLocalLeaderboard, user, getIdToken]
   );
 
   // ランキング入り判定

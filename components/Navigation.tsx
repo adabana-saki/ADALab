@@ -14,6 +14,11 @@ const ThemeToggle = dynamic(
   { ssr: false }
 );
 
+const UserButton = dynamic(
+  () => import('./auth/UserButton').then((mod) => mod.UserButton),
+  { ssr: false }
+);
+
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -125,6 +130,7 @@ export function Navigation() {
                   <Globe className="w-4 h-4" />
                   <span className="text-sm font-medium">{language.toUpperCase()}</span>
                 </button>
+                <UserButton />
               </div>
             </div>
 
@@ -167,16 +173,19 @@ export function Navigation() {
                 </Link>
               ))}
 
-              <div className="flex items-center gap-2 pt-2 border-t border-border/50">
-                <ThemeToggle />
-                <button
-                  onClick={() => setLanguage(language === 'ja' ? 'en' : 'ja')}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50"
-                  aria-label="Toggle language"
-                >
-                  <Globe className="w-4 h-4" />
-                  <span className="text-sm font-medium">{language.toUpperCase()}</span>
-                </button>
+              <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/50">
+                <div className="flex items-center gap-2">
+                  <ThemeToggle />
+                  <button
+                    onClick={() => setLanguage(language === 'ja' ? 'en' : 'ja')}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50"
+                    aria-label="Toggle language"
+                  >
+                    <Globe className="w-4 h-4" />
+                    <span className="text-sm font-medium">{language.toUpperCase()}</span>
+                  </button>
+                </div>
+                <UserButton />
               </div>
             </div>
           </motion.div>

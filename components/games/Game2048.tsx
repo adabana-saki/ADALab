@@ -24,6 +24,7 @@ import { use2048Game, Direction, Grid, Tile } from '@/hooks/use2048Game';
 import { use2048Leaderboard, LeaderboardPeriod, LEADERBOARD_PERIOD_LABELS } from '@/hooks/use2048Leaderboard';
 import { use2048Achievements } from '@/hooks/use2048Achievements';
 import { AchievementToast } from './AchievementToast';
+import { BgmControl } from './BgmControl';
 import type { GameAchievement } from '@/lib/game-achievements';
 import { getSoundEngine } from '@/lib/sound-engine';
 
@@ -422,6 +423,9 @@ export function Game2048() {
         </div>
 
         <div className="flex items-center gap-2">
+          {/* BGMコントロール */}
+          <BgmControl game="2048" isPlaying={!gameOver && (!won || keepPlaying)} />
+
           {/* ランキングボタン */}
           <motion.button
             whileHover={{ scale: 1.05 }}

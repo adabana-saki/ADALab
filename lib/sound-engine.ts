@@ -13,10 +13,41 @@ export interface SoundOptions {
   rampDown?: boolean;
 }
 
+// BGM関連の型定義
+export interface BgmTrack {
+  id: string;
+  label: string;
+  src: string;
+}
+
+export const GAME_BGM_TRACKS: Record<string, BgmTrack[]> = {
+  snake: [
+    { id: 'none', label: 'OFF', src: '' },
+    { id: 'snake-runners', label: 'スネーク・ランナーズ', src: '/audio/snake-runners.mp3' },
+    { id: 'snake-last-life', label: '蛇腹のラストワンライフ', src: '/audio/snake-last-life.mp3' },
+  ],
+  '2048': [
+    { id: 'none', label: 'OFF', src: '' },
+    { id: '2048-combo-rush', label: '2048 Combo Rush', src: '/audio/2048-combo-rush.mp3' },
+    { id: '2048-combo-rush-2', label: '2048 Combo Rush 2', src: '/audio/2048-combo-rush-2.mp3' },
+  ],
+  typing: [
+    { id: 'none', label: 'OFF', src: '' },
+    { id: 'typing-highscore', label: 'ハイスコアキータイプ', src: '/audio/typing-highscore.mp3' },
+    { id: 'typing-rhythm', label: 'ハイスコアキータイプ 2', src: '/audio/typing-rhythm.mp3' },
+  ],
+};
+
 export class SoundEngine {
   private audioContext: AudioContext | null = null;
   private enabled: boolean = true;
   private masterVolume: number = 0.5;
+
+  // BGM関連
+  private bgmAudio: HTMLAudioElement | null = null;
+  private bgmVolume: number = 0.5;
+  private currentBgmGame: string = '';
+  private currentBgmTrackId: string = 'none';
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -34,6 +65,11 @@ export class SoundEngine {
       if (volume !== null) {
         this.masterVolume = parseFloat(volume);
       }
+      // BGM設定の読み込み
+      const bgmVolume = localStorage.getItem('bgm-volume');
+      if (bgmVolume !== null) {
+        this.bgmVolume = parseFloat(bgmVolume);
+      }
     } catch {
       // ignore
     }
@@ -43,6 +79,7 @@ export class SoundEngine {
     try {
       localStorage.setItem('sound-enabled', String(this.enabled));
       localStorage.setItem('sound-volume', String(this.masterVolume));
+      localStorage.setItem('bgm-volume', String(this.bgmVolume));
     } catch {
       // ignore
     }
@@ -84,6 +121,139 @@ export class SoundEngine {
 
   getVolume(): number {
     return this.masterVolume;
+  }
+
+  // ===== BGM機能 =====
+
+  /**
+   * BGMトラックを設定
+   */
+  setBgmTrack(game: string, trackId: string) {
+    this.currentBgmGame = game;
+    this.currentBgmTrackId = trackId;
+    try {
+      localStorage.setItem(`bgm-track-${game}`, trackId);
+    } catch {
+      // ignore
+    }
+  }
+
+  /**
+   * 保存されたBGMトラックを取得
+   */
+  getBgmTrack(game: string): string {
+    try {
+      return localStorage.getItem(`bgm-track-${game}`) || 'none';
+    } catch {
+      return 'none';
+    }
+  }
+
+  /**
+   * BGM音量を設定
+   */
+  setBgmVolume(volume: number) {
+    this.bgmVolume = Math.max(0, Math.min(1, volume));
+    if (this.bgmAudio) {
+      this.bgmAudio.volume = this.bgmVolume;
+    }
+    this.saveSettings();
+  }
+
+  /**
+   * BGM音量を取得
+   */
+  getBgmVolume(): number {
+    return this.bgmVolume;
+  }
+
+  /**
+   * BGM再生開始
+   */
+  startBgm(game: string, trackId?: string) {
+    if (typeof window === 'undefined') return;
+
+    const tracks = GAME_BGM_TRACKS[game];
+    if (!tracks) return;
+
+    const useTrackId = trackId || this.getBgmTrack(game);
+    if (useTrackId === 'none') {
+      this.stopBgm();
+      return;
+    }
+
+    const track = tracks.find((t) => t.id === useTrackId);
+    if (!track || !track.src) {
+      this.stopBgm();
+      return;
+    }
+
+    // 同じトラックが再生中ならスキップ
+    if (this.bgmAudio && this.currentBgmGame === game && this.currentBgmTrackId === useTrackId) {
+      if (this.bgmAudio.paused) {
+        this.bgmAudio.play().catch(() => {});
+      }
+      return;
+    }
+
+    // 既存のBGMを停止
+    this.stopBgm();
+
+    // 新しいBGMを開始
+    this.bgmAudio = new Audio(track.src);
+    this.bgmAudio.loop = true;
+    this.bgmAudio.volume = this.bgmVolume;
+    this.currentBgmGame = game;
+    this.currentBgmTrackId = useTrackId;
+
+    this.bgmAudio.play().catch(() => {
+      // 自動再生ブロックの場合は無視
+    });
+  }
+
+  /**
+   * BGM停止
+   */
+  stopBgm() {
+    if (this.bgmAudio) {
+      this.bgmAudio.pause();
+      this.bgmAudio.currentTime = 0;
+      this.bgmAudio = null;
+    }
+    this.currentBgmGame = '';
+    this.currentBgmTrackId = 'none';
+  }
+
+  /**
+   * BGM一時停止
+   */
+  pauseBgm() {
+    if (this.bgmAudio) {
+      this.bgmAudio.pause();
+    }
+  }
+
+  /**
+   * BGM再開
+   */
+  resumeBgm() {
+    if (this.bgmAudio && this.bgmAudio.paused) {
+      this.bgmAudio.play().catch(() => {});
+    }
+  }
+
+  /**
+   * BGM再生中か確認
+   */
+  isBgmPlaying(): boolean {
+    return this.bgmAudio !== null && !this.bgmAudio.paused;
+  }
+
+  /**
+   * 現在のBGMトラックIDを取得
+   */
+  getCurrentBgmTrackId(): string {
+    return this.currentBgmTrackId;
   }
 
   /**
@@ -279,7 +449,7 @@ export class SoundEngine {
    * 衝突音
    */
   snakeCrash() {
-    this.playTone({ frequency: 150, duration: 0.2, type: 'sawtooth', volume: 0.3 });
+    this.playTone({ frequency: 150, duration: 0.2, type: 'sawtooth', volume: 0.15 });
   }
 
   // ===== Typing用効果音 =====
