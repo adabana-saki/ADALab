@@ -145,6 +145,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
   }, []);
 
+  // getIdTokenをuseCallbackでラップして安定した参照を提供
+  const memoizedGetIdToken = useCallback(() => getIdToken(), []);
+
   const value: AuthContextType = {
     user,
     profile,
@@ -155,7 +158,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signUpWithEmail: handleSignUpWithEmail,
     signOut: handleSignOut,
     resetPassword: handleResetPassword,
-    getIdToken,
+    getIdToken: memoizedGetIdToken,
     clearError,
   };
 
