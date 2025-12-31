@@ -1,10 +1,13 @@
 // マッチメイキングキュー用Durable Object
 // Workerのマルチインスタンス間でキューを共有するために必要
 
+type GameType = 'tetris' | 'typing' | '2048' | 'snake';
+
 interface QueueEntry {
   playerId: string;
   nickname: string;
   timestamp: number;
+  gameType: GameType;
 }
 
 interface MatchResult {
@@ -12,6 +15,17 @@ interface MatchResult {
   wsUrl: string;
   opponent: string;
   timestamp: number;
+  gameType: GameType;
+}
+
+// ゲームタイプに応じたWebSocketパスを生成
+function getWsPath(gameType: GameType): string {
+  switch (gameType) {
+    case 'typing': return '/ws/typing/';
+    case '2048': return '/ws/2048/';
+    case 'snake': return '/ws/snake/';
+    default: return '/ws/room/';
+  }
 }
 
 export class MatchmakingQueue {
@@ -39,9 +53,10 @@ export class MatchmakingQueue {
 
     if (path === '/queue' && request.method === 'POST') {
       try {
-        const body = await request.json() as { nickname?: string; playerId?: string };
+        const body = await request.json() as { nickname?: string; playerId?: string; gameType?: string };
         const nickname = body.nickname?.trim().slice(0, 12) || 'Player';
         const playerId = body.playerId || crypto.randomUUID();
+        const gameType = (body.gameType as GameType) || 'tetris';
         const now = Date.now();
 
         // Clean up old entries (older than 30 seconds)
@@ -57,9 +72,11 @@ export class MatchmakingQueue {
         }
 
         // Check if this player was already matched (waiting player case)
-        const existingMatch = this.matchedPlayers.get(playerId);
-        if (existingMatch) {
-          this.matchedPlayers.delete(playerId);
+        // gameType別のキーでマッチ結果を管理
+        const matchKey = `${playerId}-${gameType}`;
+        const existingMatch = this.matchedPlayers.get(matchKey);
+        if (existingMatch && existingMatch.gameType === gameType) {
+          this.matchedPlayers.delete(matchKey);
           return new Response(JSON.stringify({
             success: true,
             matched: true,
@@ -71,22 +88,25 @@ export class MatchmakingQueue {
           });
         }
 
-        // Check if there's someone waiting
-        for (const [waitingId, waiting] of this.queue) {
-          if (waitingId !== playerId) {
-            // Found a match!
-            this.queue.delete(waitingId);
+        // Check if there's someone waiting (同じgameTypeのプレイヤーのみマッチング)
+        const currentQueueKey = `${playerId}-${gameType}`;
+        for (const [waitingKey, waiting] of this.queue) {
+          if (waitingKey !== currentQueueKey && waiting.playerId !== playerId && waiting.gameType === gameType) {
+            // Found a match! (同じゲームタイプの別プレイヤー)
+            this.queue.delete(waitingKey);
 
             // Create a new room for the match
             const roomId = `match-${crypto.randomUUID()}`;
-            const wsUrl = `/ws/room/${roomId}`;
+            const wsUrl = `${getWsPath(gameType)}${roomId}`;
 
             // Store match result for the waiting player so they can find it on next poll
-            this.matchedPlayers.set(waitingId, {
+            const waitingMatchKey = `${waiting.playerId}-${gameType}`;
+            this.matchedPlayers.set(waitingMatchKey, {
               roomId,
               wsUrl,
               opponent: nickname,
               timestamp: now,
+              gameType,
             });
 
             return new Response(JSON.stringify({
@@ -102,8 +122,9 @@ export class MatchmakingQueue {
           }
         }
 
-        // No match found, add to queue
-        this.queue.set(playerId, { playerId, nickname, timestamp: now });
+        // No match found, add to queue (gameType別のキーで管理)
+        const queueKey = `${playerId}-${gameType}`;
+        this.queue.set(queueKey, { playerId, nickname, timestamp: now, gameType });
 
         return new Response(JSON.stringify({
           success: true,
@@ -125,8 +146,13 @@ export class MatchmakingQueue {
     // Cancel matchmaking
     if (path === '/cancel' && request.method === 'POST') {
       try {
-        const body = await request.json() as { playerId?: string };
+        const body = await request.json() as { playerId?: string; gameType?: string };
         if (body.playerId) {
+          const gameType = (body.gameType as GameType) || 'tetris';
+          const key = `${body.playerId}-${gameType}`;
+          this.queue.delete(key);
+          this.matchedPlayers.delete(key);
+          // 後方互換性のため、古いキー形式も削除
           this.queue.delete(body.playerId);
           this.matchedPlayers.delete(body.playerId);
         }

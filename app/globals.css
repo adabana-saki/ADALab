@@ -735,3 +735,310 @@ html {
     text-decoration: underline;
   }
 }
+
+/* ============================================
+   Battle UI Styles
+   ============================================ */
+
+/* Attack Flash Effect */
+@keyframes attack-flash {
+  0% {
+    background-color: rgba(239, 68, 68, 0.6);
+    box-shadow: inset 0 0 30px rgba(239, 68, 68, 0.8);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow: none;
+  }
+}
+.attack-flash {
+  animation: attack-flash 0.4s ease-out;
+}
+
+/* Receive Attack Flash */
+@keyframes receive-attack {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+}
+.receive-attack {
+  animation: receive-attack 0.3s ease-in-out, attack-flash 0.4s ease-out;
+}
+
+/* Combo Text Pop Animation */
+@keyframes combo-pop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.combo-pop {
+  animation: combo-pop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Streak Counter Animation */
+@keyframes streak-pulse {
+  0%, 100% {
+    transform: scale(1);
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+  }
+  50% {
+    transform: scale(1.1);
+    text-shadow: 0 0 20px rgba(251, 191, 36, 0.8), 0 0 30px rgba(251, 191, 36, 0.5);
+  }
+}
+.streak-pulse {
+  animation: streak-pulse 0.8s ease-in-out infinite;
+}
+
+/* Garbage Indicator */
+.garbage-indicator {
+  background: linear-gradient(to top, #dc2626, #ef4444, #f87171);
+  position: relative;
+  overflow: hidden;
+}
+.garbage-indicator::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  animation: garbage-shine 1.5s ease-in-out infinite;
+}
+@keyframes garbage-shine {
+  0% { transform: translateY(100%); }
+  100% { transform: translateY(-100%); }
+}
+
+/* Power-up Float Animation */
+@keyframes powerup-float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-4px) rotate(-5deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-4px) rotate(5deg);
+  }
+}
+.powerup-icon {
+  animation: powerup-float 2s ease-in-out infinite;
+}
+
+/* Power-up Collect Animation */
+@keyframes powerup-collect {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+.powerup-collect {
+  animation: powerup-collect 0.4s ease-out forwards;
+}
+
+/* Shield Effect */
+@keyframes shield-shimmer {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.5),
+                inset 0 0 10px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.8),
+                inset 0 0 15px rgba(59, 130, 246, 0.5);
+  }
+}
+.shield-active {
+  border: 2px solid rgba(59, 130, 246, 0.8);
+  animation: shield-shimmer 1.5s ease-in-out infinite;
+}
+
+/* Blur Word Effect (for Typing Battle) */
+.blur-word {
+  filter: blur(4px);
+  transition: filter 0.3s ease;
+}
+.blur-word:hover {
+  filter: blur(2px);
+}
+
+/* Speed Up Effect */
+@keyframes speed-lines {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.speed-effect::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 10px,
+    rgba(251, 191, 36, 0.2) 10px,
+    rgba(251, 191, 36, 0.2) 20px
+  );
+  animation: speed-lines 0.5s linear infinite;
+  pointer-events: none;
+}
+
+/* Reverse Controls Indicator */
+@keyframes reverse-rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.reverse-controls {
+  border-color: #a855f7 !important;
+}
+.reverse-controls::after {
+  content: '⟲';
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  font-size: 1.5rem;
+  animation: reverse-rotate 2s linear infinite;
+  color: #a855f7;
+}
+
+/* Locked Tile (for 2048 Battle) */
+@keyframes lock-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+.tile-locked {
+  position: relative;
+}
+.tile-locked::after {
+  content: '🔒';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  font-size: 1.5rem;
+  animation: lock-pulse 1s ease-in-out infinite;
+}
+
+/* Battle Progress Bar */
+.battle-progress-bar {
+  background: linear-gradient(90deg,
+    rgba(6, 182, 212, 0.3) 0%,
+    rgba(168, 85, 247, 0.3) 100%
+  );
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.battle-progress-bar .progress-fill {
+  background: linear-gradient(90deg,
+    #06b6d4 0%,
+    #8b5cf6 50%,
+    #d946ef 100%
+  );
+  background-size: 200% 100%;
+  animation: progress-gradient 2s ease infinite;
+}
+@keyframes progress-gradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Activity Indicator */
+.activity-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #22c55e;
+  position: relative;
+}
+.activity-indicator::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 2px solid #22c55e;
+  animation: activity-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+@keyframes activity-ping {
+  0% { transform: scale(1); opacity: 1; }
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+.activity-indicator.inactive {
+  background-color: #6b7280;
+}
+.activity-indicator.inactive::after {
+  display: none;
+}
+
+/* Opponent Card Glow */
+.opponent-card {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+.opponent-card:hover {
+  border-color: rgba(6, 182, 212, 0.3);
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.1);
+}
+
+/* Winner Celebration */
+@keyframes winner-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.5),
+                0 0 40px rgba(251, 191, 36, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(251, 191, 36, 0.8),
+                0 0 60px rgba(251, 191, 36, 0.5);
+  }
+}
+.winner-card {
+  border-color: #fbbf24 !important;
+  animation: winner-glow 1s ease-in-out infinite;
+}
+
+/* Countdown Animation */
+@keyframes countdown-pop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.countdown-number {
+  animation: countdown-pop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  text-shadow: 0 0 20px rgba(6, 182, 212, 0.8),
+               0 0 40px rgba(6, 182, 212, 0.5);
+}

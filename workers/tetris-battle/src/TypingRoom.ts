@@ -1,5 +1,16 @@
 import { DurableObject } from 'cloudflare:workers';
 
+// Streak attack types
+export type TypingAttackType = 'blurWord' | 'scrambleWord' | 'addExtraWord' | 'speedUpTimer' | 'hideLetters';
+
+// Streak attack definitions
+const STREAK_ATTACKS: Record<number, { type: TypingAttackType; duration?: number; description: string }> = {
+  3: { type: 'blurWord', duration: 2000, description: 'Blur the current word for 2 seconds' },
+  5: { type: 'scrambleWord', description: 'Scramble the next word letters' },
+  7: { type: 'hideLetters', duration: 3000, description: 'Hide random letters for 3 seconds' },
+  10: { type: 'addExtraWord', description: 'Add an extra word to opponent' },
+};
+
 // Typing Battle Types
 export interface TypingPlayerState {
   id: string;
@@ -14,6 +25,13 @@ export interface TypingPlayerState {
   isFinished: boolean;
   finishTime?: number;
   lastUpdate: number;
+  // Streak system
+  currentStreak: number;
+  maxStreak: number;
+  attacksSent: number;
+  // Active effects from opponent attacks
+  activeEffects: { type: TypingAttackType; expiresAt?: number }[];
+  extraWordsAdded: number;
 }
 
 export interface TypingRoomState {
@@ -50,9 +68,12 @@ export type TypingServerMessage =
   | { type: 'player_ready'; id: string; isReady: boolean }
   | { type: 'countdown'; seconds: number }
   | { type: 'game_start'; seed: number; wordCount: number; language: string; difficulty: string }
-  | { type: 'opponent_progress'; id: string; wordIndex: number; wpm: number; accuracy: number }
+  | { type: 'opponent_progress'; id: string; wordIndex: number; wpm: number; accuracy: number; streak: number }
   | { type: 'opponent_finished'; id: string; finalWpm: number; finalAccuracy: number; finishTime: number }
-  | { type: 'game_end'; winner: string; winnerNickname: string; results: { id: string; nickname: string; wpm: number; accuracy: number; finishTime?: number }[] }
+  | { type: 'game_end'; winner: string; winnerNickname: string; results: { id: string; nickname: string; wpm: number; accuracy: number; finishTime?: number; maxStreak: number; attacksSent: number }[] }
+  | { type: 'streak_attack'; attackType: TypingAttackType; duration?: number; senderId: string; senderStreak: number }
+  | { type: 'streak_milestone'; playerId: string; streak: number }
+  | { type: 'streak_broken'; playerId: string; previousStreak: number }
   | { type: 'error'; message: string }
   | { type: 'pong' };
 
@@ -254,6 +275,11 @@ export class TypingRoom extends DurableObject<Env> {
       isReady: false,
       isFinished: false,
       lastUpdate: Date.now(),
+      currentStreak: 0,
+      maxStreak: 0,
+      attacksSent: 0,
+      activeEffects: [],
+      extraWordsAdded: 0,
     };
     this.roomState.players.set(session.playerId, player);
 
@@ -299,6 +325,11 @@ export class TypingRoom extends DurableObject<Env> {
       isReady: false,
       isFinished: false,
       lastUpdate: Date.now(),
+      currentStreak: 0,
+      maxStreak: 0,
+      attacksSent: 0,
+      activeEffects: [],
+      extraWordsAdded: 0,
     };
     this.roomState.players.set(session.playerId, player);
 
@@ -387,6 +418,12 @@ export class TypingRoom extends DurableObject<Env> {
       player.accuracy = 100;
       player.isFinished = false;
       player.finishTime = undefined;
+      // Reset streak fields
+      player.currentStreak = 0;
+      player.maxStreak = 0;
+      player.attacksSent = 0;
+      player.activeEffects = [];
+      player.extraWordsAdded = 0;
     }
 
     this.broadcast({
@@ -417,13 +454,90 @@ export class TypingRoom extends DurableObject<Env> {
     player.totalChars = data.totalChars;
     player.lastUpdate = Date.now();
 
+    // Handle streak system
+    if (data.correct) {
+      const previousStreak = player.currentStreak;
+      player.currentStreak++;
+
+      // Update max streak
+      if (player.currentStreak > player.maxStreak) {
+        player.maxStreak = player.currentStreak;
+      }
+
+      // Check for streak milestone attacks
+      const attackInfo = STREAK_ATTACKS[player.currentStreak];
+      if (attackInfo) {
+        // Notify everyone about streak milestone
+        this.broadcast({
+          type: 'streak_milestone',
+          playerId: session.playerId,
+          streak: player.currentStreak,
+        });
+
+        // Send attack to opponent
+        for (const [playerId, opponent] of this.roomState.players) {
+          if (playerId !== session.playerId && !opponent.isFinished) {
+            // Add effect to opponent
+            if (attackInfo.duration) {
+              opponent.activeEffects.push({
+                type: attackInfo.type,
+                expiresAt: Date.now() + attackInfo.duration,
+              });
+            } else {
+              opponent.activeEffects.push({
+                type: attackInfo.type,
+              });
+            }
+
+            // Track extra words added
+            if (attackInfo.type === 'addExtraWord') {
+              opponent.extraWordsAdded++;
+            }
+
+            // Send attack message to opponent
+            this.sendToPlayer(playerId, {
+              type: 'streak_attack',
+              attackType: attackInfo.type,
+              duration: attackInfo.duration,
+              senderId: session.playerId,
+              senderStreak: player.currentStreak,
+            });
+
+            player.attacksSent++;
+            break;
+          }
+        }
+      }
+    } else {
+      // Streak broken
+      if (player.currentStreak >= 3) {
+        this.broadcast({
+          type: 'streak_broken',
+          playerId: session.playerId,
+          previousStreak: player.currentStreak,
+        });
+      }
+      player.currentStreak = 0;
+    }
+
     this.broadcastExcept(session.playerId, {
       type: 'opponent_progress',
       id: session.playerId,
       wordIndex: player.currentWordIndex,
       wpm: player.wpm,
       accuracy: player.accuracy,
+      streak: player.currentStreak,
     });
+  }
+
+  // Send message to specific player
+  private sendToPlayer(playerId: string, message: TypingServerMessage): void {
+    for (const [ws, session] of this.sessions) {
+      if (session.playerId === playerId) {
+        this.sendToSocket(ws, message);
+        break;
+      }
+    }
   }
 
   private async handleGameFinished(session: WebSocketSession, data: {
@@ -475,6 +589,8 @@ export class TypingRoom extends DurableObject<Env> {
       wpm: p.wpm,
       accuracy: p.accuracy,
       finishTime: p.finishTime,
+      maxStreak: p.maxStreak,
+      attacksSent: p.attacksSent,
     }));
 
     this.broadcast({
@@ -487,6 +603,11 @@ export class TypingRoom extends DurableObject<Env> {
     // Reset for rematch
     for (const p of this.roomState.players.values()) {
       p.isReady = false;
+      p.currentStreak = 0;
+      p.maxStreak = 0;
+      p.attacksSent = 0;
+      p.activeEffects = [];
+      p.extraWordsAdded = 0;
     }
     this.roomState.gameStatus = 'waiting';
   }

@@ -1,5 +1,16 @@
 import { DurableObject } from 'cloudflare:workers';
 
+// 2048 Attack Types
+export type Attack2048Type = 'lockTile' | 'shuffleTiles' | 'addBlocker' | 'freezeInput';
+
+// Attack table based on tile merges
+const ATTACK_TABLE_2048: Record<number, { type: Attack2048Type; description: string }> = {
+  256: { type: 'lockTile', description: 'Lock a random tile for 5 seconds' },
+  512: { type: 'shuffleTiles', description: 'Shuffle opponent tiles' },
+  1024: { type: 'addBlocker', description: 'Add a blocker tile' },
+  2048: { type: 'freezeInput', description: 'Freeze opponent input for 2 seconds' },
+};
+
 // 2048 Battle Types
 export interface Game2048PlayerState {
   id: string;
@@ -12,6 +23,11 @@ export interface Game2048PlayerState {
   finishTime?: number;
   reachedTarget: boolean;
   lastUpdate: number;
+  // Attack-related state
+  pendingAttacks: { type: Attack2048Type; data?: unknown }[];
+  lockedTiles: { position: number; unlockTime: number }[];
+  blockerTiles: number[];
+  frozenUntil?: number;
 }
 
 export interface Game2048RoomState {
@@ -35,6 +51,7 @@ export type Game2048ClientMessage =
   | { type: 'ready' }
   | { type: 'unready' }
   | { type: 'move_update'; score: number; maxTile: number; moves: number }
+  | { type: 'tile_merged'; mergedValue: number; score: number; maxTile: number; moves: number }
   | { type: 'reached_target'; score: number; maxTile: number; moves: number }
   | { type: 'game_over'; score: number; maxTile: number; moves: number }
   | { type: 'leave' }
@@ -52,6 +69,8 @@ export type Game2048ServerMessage =
   | { type: 'opponent_update'; id: string; score: number; maxTile: number; moves: number }
   | { type: 'opponent_reached_target'; id: string; score: number }
   | { type: 'opponent_game_over'; id: string; score: number }
+  | { type: 'receive_attack'; attackType: Attack2048Type; data?: { position?: number; duration?: number } }
+  | { type: 'opponent_attacked'; attackerId: string; attackType: Attack2048Type }
   | { type: 'game_end'; winner: string; winnerNickname: string; reason: 'reached_target' | 'time_up' | 'opponent_quit' | 'higher_score'; results: { id: string; nickname: string; score: number; maxTile: number }[] }
   | { type: 'error'; message: string }
   | { type: 'pong' };
@@ -201,6 +220,10 @@ export class Game2048Room extends DurableObject<Env> {
         await this.handleMoveUpdate(session, data);
         break;
 
+      case 'tile_merged':
+        await this.handleTileMerged(session, data);
+        break;
+
       case 'reached_target':
         await this.handleReachedTarget(session, data);
         break;
@@ -213,6 +236,82 @@ export class Game2048Room extends DurableObject<Env> {
         await this.handleDisconnect(ws);
         break;
     }
+  }
+
+  // Handle tile merge and trigger attacks
+  private async handleTileMerged(
+    session: WebSocketSession,
+    data: { mergedValue: number; score: number; maxTile: number; moves: number }
+  ): Promise<void> {
+    if (this.roomState.gameStatus !== 'playing') return;
+
+    const player = this.roomState.players.get(session.playerId);
+    if (!player) return;
+
+    // Update player state
+    player.score = data.score;
+    player.maxTile = Math.max(player.maxTile, data.maxTile);
+    player.moves = data.moves;
+    player.lastUpdate = Date.now();
+
+    // Check if this merge triggers an attack
+    const attackInfo = ATTACK_TABLE_2048[data.mergedValue];
+    if (attackInfo) {
+      // Find opponent
+      for (const [opponentId, opponent] of this.roomState.players) {
+        if (opponentId !== session.playerId && !opponent.isFinished) {
+          // Generate attack data based on type
+          let attackData: { position?: number; duration?: number } = {};
+
+          switch (attackInfo.type) {
+            case 'lockTile':
+              // Lock a random tile position (0-15 for 4x4 grid)
+              attackData = { position: Math.floor(Math.random() * 16), duration: 5000 };
+              break;
+            case 'freezeInput':
+              attackData = { duration: 2000 };
+              break;
+            case 'addBlocker':
+              // Random position for blocker
+              attackData = { position: Math.floor(Math.random() * 16) };
+              break;
+            case 'shuffleTiles':
+              // No additional data needed
+              break;
+          }
+
+          // Send attack to opponent
+          for (const [ws, sess] of this.sessions) {
+            if (sess.playerId === opponentId) {
+              this.sendToSocket(ws, {
+                type: 'receive_attack',
+                attackType: attackInfo.type,
+                data: attackData,
+              });
+              break;
+            }
+          }
+
+          // Notify all players about the attack
+          this.broadcast({
+            type: 'opponent_attacked',
+            attackerId: session.playerId,
+            attackType: attackInfo.type,
+          });
+
+          break;
+        }
+      }
+    }
+
+    // Broadcast updated state to opponent
+    this.broadcastExcept(session.playerId, {
+      type: 'opponent_update',
+      id: session.playerId,
+      score: player.score,
+      maxTile: player.maxTile,
+      moves: player.moves,
+    });
   }
 
   private async handleCreateRoom(
@@ -250,6 +349,9 @@ export class Game2048Room extends DurableObject<Env> {
       isFinished: false,
       reachedTarget: false,
       lastUpdate: Date.now(),
+      pendingAttacks: [],
+      lockedTiles: [],
+      blockerTiles: [],
     };
     this.roomState.players.set(session.playerId, player);
 
@@ -292,6 +394,9 @@ export class Game2048Room extends DurableObject<Env> {
       isFinished: false,
       reachedTarget: false,
       lastUpdate: Date.now(),
+      pendingAttacks: [],
+      lockedTiles: [],
+      blockerTiles: [],
     };
     this.roomState.players.set(session.playerId, player);
 

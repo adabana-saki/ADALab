@@ -81,6 +81,9 @@ export default {
     if (path === '/api/battle/typing/queue') {
       return handleMatchmaking(request, env, 'typing');
     }
+    if (path === '/api/battle/typing/queue/cancel') {
+      return handleMatchmakingCancel(request, env, 'typing');
+    }
     if (path.startsWith('/ws/typing/')) {
       const roomId = path.replace('/ws/typing/', '');
       return handleWebSocket(request, env, roomId, 'typing');
@@ -96,6 +99,9 @@ export default {
     if (path === '/api/battle/2048/queue') {
       return handleMatchmaking(request, env, '2048');
     }
+    if (path === '/api/battle/2048/queue/cancel') {
+      return handleMatchmakingCancel(request, env, '2048');
+    }
     if (path.startsWith('/ws/2048/')) {
       const roomId = path.replace('/ws/2048/', '');
       return handleWebSocket(request, env, roomId, '2048');
@@ -110,6 +116,9 @@ export default {
     }
     if (path === '/api/battle/snake/queue') {
       return handleMatchmaking(request, env, 'snake');
+    }
+    if (path === '/api/battle/snake/queue/cancel') {
+      return handleMatchmakingCancel(request, env, 'snake');
     }
     if (path.startsWith('/ws/snake/')) {
       const roomId = path.replace('/ws/snake/', '');
@@ -322,20 +331,22 @@ async function handleMatchmaking(request: Request, env: Env, gameType: GameType 
   }
 }
 
-async function handleMatchmakingCancel(request: Request, env: Env): Promise<Response> {
+async function handleMatchmakingCancel(request: Request, env: Env, gameType: GameType = 'tetris'): Promise<Response> {
   if (request.method !== 'POST') {
     return new Response('Method not allowed', { status: 405, headers: corsHeaders });
   }
 
   try {
-    const bodyText = await request.text();
+    const body = await request.json() as Record<string, unknown>;
+    const bodyWithGameType = { ...body, gameType };
+
     const queueId = env.MATCHMAKING_QUEUE.idFromName('global');
     const queue = env.MATCHMAKING_QUEUE.get(queueId);
 
     const doRequest = new Request('https://dummy/cancel', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: bodyText,
+      body: JSON.stringify(bodyWithGameType),
     });
 
     return queue.fetch(doRequest);

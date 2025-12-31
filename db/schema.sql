@@ -55,3 +55,43 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Index for users
 CREATE INDEX IF NOT EXISTS idx_users_firebase_uid ON users(firebase_uid);
+
+-- Snake Leaderboard Schema
+CREATE TABLE IF NOT EXISTS snake_leaderboard (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  nickname TEXT NOT NULL,
+  score INTEGER NOT NULL,
+  length INTEGER NOT NULL,
+  time_survived REAL,
+  date TEXT NOT NULL,
+  device_id TEXT,
+  user_id INTEGER,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Index for Snake leaderboard
+CREATE INDEX IF NOT EXISTS idx_snake_leaderboard_score ON snake_leaderboard(score DESC);
+CREATE INDEX IF NOT EXISTS idx_snake_leaderboard_device ON snake_leaderboard(device_id);
+CREATE INDEX IF NOT EXISTS idx_snake_leaderboard_user ON snake_leaderboard(user_id);
+
+-- Typing Leaderboard Schema
+CREATE TABLE IF NOT EXISTS typing_leaderboard (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  nickname TEXT NOT NULL,
+  wpm INTEGER NOT NULL,
+  accuracy REAL NOT NULL,
+  mode TEXT NOT NULL CHECK(mode IN ('time', 'sudden_death', 'word_count')),
+  language TEXT NOT NULL CHECK(language IN ('en', 'ja', 'mixed')),
+  words_typed INTEGER NOT NULL,
+  time_seconds REAL,
+  date TEXT NOT NULL,
+  device_id TEXT,
+  user_id INTEGER,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Index for Typing leaderboard
+CREATE INDEX IF NOT EXISTS idx_typing_leaderboard_wpm ON typing_leaderboard(wpm DESC);
+CREATE INDEX IF NOT EXISTS idx_typing_leaderboard_mode_lang ON typing_leaderboard(mode, language, wpm DESC);
+CREATE INDEX IF NOT EXISTS idx_typing_leaderboard_device ON typing_leaderboard(device_id);
+CREATE INDEX IF NOT EXISTS idx_typing_leaderboard_user ON typing_leaderboard(user_id);

@@ -11,6 +11,7 @@ import {
 import {
   onAuthChange,
   signInWithGoogle,
+  signInWithGithub,
   signInWithEmail,
   signUpWithEmail,
   signOut,
@@ -33,6 +34,7 @@ interface AuthContextType {
   loading: boolean;
   error: string | null;
   signInWithGoogle: () => Promise<void>;
+  signInWithGithub: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, displayName: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -102,6 +104,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const handleSignInWithGithub = useCallback(async () => {
+    setError(null);
+    try {
+      await signInWithGithub();
+    } catch (err) {
+      setError(getErrorMessage(err));
+    }
+  }, []);
+
   const handleSignInWithEmail = useCallback(async (email: string, password: string) => {
     setError(null);
     try {
@@ -154,6 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     error,
     signInWithGoogle: handleSignInWithGoogle,
+    signInWithGithub: handleSignInWithGithub,
     signInWithEmail: handleSignInWithEmail,
     signUpWithEmail: handleSignUpWithEmail,
     signOut: handleSignOut,
@@ -172,6 +184,7 @@ const defaultAuthContext: AuthContextType = {
   loading: true,
   error: null,
   signInWithGoogle: async () => {},
+  signInWithGithub: async () => {},
   signInWithEmail: async () => {},
   signUpWithEmail: async () => {},
   signOut: async () => {},
