@@ -35,7 +35,7 @@ interface DashboardData {
 }
 
 export default function DashboardPage() {
-  const { user, profile, loading: authLoading } = useAuth();
+  const { user, profile, getIdToken, loading: authLoading } = useAuth();
   const router = useRouter();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -52,7 +52,18 @@ export default function DashboardPage() {
       if (!user) return;
 
       try {
-        const response = await fetch(`/api/user/profile?uid=${user.uid}`);
+        const token = await getIdToken();
+        if (!token) {
+          setError('認証トークンの取得に失敗しました');
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetch('/api/user/profile', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (response.ok) {
           const result = await response.json();
           setData(result);
@@ -69,7 +80,7 @@ export default function DashboardPage() {
     if (user) {
       fetchDashboardData();
     }
-  }, [user]);
+  }, [user, getIdToken]);
 
   if (authLoading || loading) {
     return (

@@ -25,13 +25,20 @@ export function ProfileCard({ profile, userProfile, totalAchievements }: Profile
   const [isEditing, setIsEditing] = useState(false);
   const [nickname, setNickname] = useState(userProfile?.nickname || profile?.displayName || '');
   const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const handleSave = async () => {
     if (!profile?.uid || !nickname.trim()) return;
 
     setIsSaving(true);
+    setSaveError(null);
     try {
       const token = await getIdToken();
+      if (!token) {
+        setSaveError('認証トークンの取得に失敗しました');
+        return;
+      }
+
       const response = await fetch('/api/user/profile', {
         method: 'PUT',
         headers: {
@@ -46,8 +53,12 @@ export function ProfileCard({ profile, userProfile, totalAchievements }: Profile
 
       if (response.ok) {
         setIsEditing(false);
+      } else {
+        setSaveError('保存に失敗しました');
+        console.error('Failed to save nickname:', response.status);
       }
     } catch (error) {
+      setSaveError('保存に失敗しました');
       console.error('Failed to save nickname:', error);
     } finally {
       setIsSaving(false);
@@ -82,30 +93,36 @@ export function ProfileCard({ profile, userProfile, totalAchievements }: Profile
 
         {/* ニックネーム */}
         {isEditing ? (
-          <div className="flex items-center gap-2 mb-2">
-            <input
-              type="text"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
-              maxLength={20}
-              className="px-3 py-1 rounded-lg border border-border bg-background text-center focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-            />
-            <button
-              onClick={handleSave}
-              disabled={isSaving}
-              className="p-1 rounded hover:bg-muted text-green-500"
-            >
-              <Check size={18} />
-            </button>
-            <button
-              onClick={() => {
-                setIsEditing(false);
-                setNickname(userProfile?.nickname || profile?.displayName || '');
-              }}
-              className="p-1 rounded hover:bg-muted text-red-500"
-            >
-              <X size={18} />
-            </button>
+          <div className="mb-2">
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                maxLength={20}
+                className="px-3 py-1 rounded-lg border border-border bg-background text-center focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
+              />
+              <button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="p-1 rounded hover:bg-muted text-green-500"
+              >
+                <Check size={18} />
+              </button>
+              <button
+                onClick={() => {
+                  setIsEditing(false);
+                  setSaveError(null);
+                  setNickname(userProfile?.nickname || profile?.displayName || '');
+                }}
+                className="p-1 rounded hover:bg-muted text-red-500"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            {saveError && (
+              <p className="text-xs text-red-500 mt-1">{saveError}</p>
+            )}
           </div>
         ) : (
           <div className="flex items-center gap-2 mb-2">

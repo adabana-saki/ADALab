@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Mail, Lock, User, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,25 +19,34 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [resetSent, setResetSent] = useState(false);
+  const wasAuthenticating = useRef(false);
 
-  const { signInWithGoogle, signInWithEmail, signUpWithEmail, resetPassword, error, clearError } =
+  const { user, signInWithGoogle, signInWithEmail, signUpWithEmail, resetPassword, error, clearError } =
     useAuth();
+
+  // 認証成功時にモーダルを閉じる
+  useEffect(() => {
+    if (wasAuthenticating.current && user && !error) {
+      wasAuthenticating.current = false;
+      onClose();
+    }
+  }, [user, error, onClose]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     clearError();
+    wasAuthenticating.current = true;
 
     try {
       if (mode === 'login') {
         await signInWithEmail(email, password);
-        onClose();
       } else if (mode === 'signup') {
         await signUpWithEmail(email, password, displayName);
-        onClose();
       } else if (mode === 'reset') {
         await resetPassword(email);
         setResetSent(true);
+        wasAuthenticating.current = false;
       }
     } finally {
       setIsLoading(false);
@@ -47,9 +56,9 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     clearError();
+    wasAuthenticating.current = true;
     try {
       await signInWithGoogle();
-      onClose();
     } finally {
       setIsLoading(false);
     }

@@ -71,12 +71,12 @@ export function ShareButton({
     setIsOpen(false);
   }, [generateShareText, gameUrl]);
 
-  // Facebookで共有
+  // Facebookで共有（quoteパラメータは非推奨のため、URLのみ共有）
   const shareToFacebook = useCallback(() => {
-    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(gameUrl)}&quote=${encodeURIComponent(generateShareText())}`;
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(gameUrl)}`;
     window.open(url, '_blank', 'width=550,height=420');
     setIsOpen(false);
-  }, [generateShareText, gameUrl]);
+  }, [gameUrl]);
 
   // URLをコピー
   const copyToClipboard = useCallback(async () => {
