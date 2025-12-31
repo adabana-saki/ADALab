@@ -124,7 +124,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
               existing.id
             )
             .run();
-        } else if (userId && !existing) {
+        } else if (userId) {
           // スコアは低いがuser_idを紐付ける
           await env.DB.prepare(
             `UPDATE typing_leaderboard SET user_id = ? WHERE id = ?`

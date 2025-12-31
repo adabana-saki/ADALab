@@ -779,8 +779,6 @@ export function TypingGame() {
               />
 
               <div className="flex gap-2">
-          {/* BGMコントロール */}
-          <BgmControl game="typing" isPlaying={isStarted && !isFinished} />
                 <button
                   onClick={() => setShowNicknameInput(false)}
                   className="flex-1 px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
