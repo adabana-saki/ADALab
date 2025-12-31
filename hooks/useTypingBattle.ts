@@ -2,6 +2,9 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 
+// Streak attack types
+export type TypingAttackType = 'blurWord' | 'scrambleWord' | 'addExtraWord' | 'speedUpTimer' | 'hideLetters';
+
 // Types matching the server
 export interface PlayerInfo {
   id: string;
@@ -16,6 +19,7 @@ export interface OpponentProgress {
   wpm: number;
   accuracy: number;
   isFinished: boolean;
+  streak?: number;
 }
 
 export interface GameSettings {
@@ -30,6 +34,16 @@ export interface GameResult {
   wpm: number;
   accuracy: number;
   finishTime?: number;
+  maxStreak?: number;
+  attacksSent?: number;
+}
+
+export interface StreakAttack {
+  type: TypingAttackType;
+  duration?: number;
+  senderId: string;
+  senderStreak: number;
+  receivedAt: number;
 }
 
 export type GameStatus = 'disconnected' | 'connecting' | 'waiting' | 'countdown' | 'playing' | 'finished';
@@ -39,6 +53,9 @@ interface UseTypingBattleOptions {
   onOpponentProgress?: (progress: OpponentProgress) => void;
   onOpponentFinished?: (id: string, wpm: number, accuracy: number) => void;
   onGameEnd?: (winnerId: string, winnerNickname: string, results: GameResult[]) => void;
+  onStreakAttack?: (attack: StreakAttack) => void;
+  onStreakMilestone?: (playerId: string, streak: number) => void;
+  onStreakBroken?: (playerId: string, previousStreak: number) => void;
   onError?: (message: string) => void;
 }
 
@@ -60,6 +77,8 @@ export function useTypingBattle(options: UseTypingBattleOptions = {}) {
   const [results, setResults] = useState<GameResult[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
+  const [activeAttacks, setActiveAttacks] = useState<StreakAttack[]>([]);
+  const [myStreak, setMyStreak] = useState(0);
 
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -145,6 +164,7 @@ export function useTypingBattle(options: UseTypingBattleOptions = {}) {
             wpm: data.wpm,
             accuracy: data.accuracy,
             isFinished: false,
+            streak: data.streak,
           }));
           optionsRef.current.onOpponentProgress?.({
             id: data.id,
@@ -153,6 +173,7 @@ export function useTypingBattle(options: UseTypingBattleOptions = {}) {
             wpm: data.wpm,
             accuracy: data.accuracy,
             isFinished: false,
+            streak: data.streak,
           });
           break;
 
@@ -161,10 +182,40 @@ export function useTypingBattle(options: UseTypingBattleOptions = {}) {
           optionsRef.current.onOpponentFinished?.(data.id, data.finalWpm, data.finalAccuracy);
           break;
 
+        case 'streak_attack': {
+          const attack: StreakAttack = {
+            type: data.attackType,
+            duration: data.duration,
+            senderId: data.senderId,
+            senderStreak: data.senderStreak,
+            receivedAt: Date.now(),
+          };
+          setActiveAttacks(prev => [...prev, attack]);
+          optionsRef.current.onStreakAttack?.(attack);
+
+          // Auto-remove timed attacks
+          if (data.duration) {
+            setTimeout(() => {
+              setActiveAttacks(prev => prev.filter(a => a.receivedAt !== attack.receivedAt));
+            }, data.duration);
+          }
+          break;
+        }
+
+        case 'streak_milestone':
+          optionsRef.current.onStreakMilestone?.(data.playerId, data.streak);
+          break;
+
+        case 'streak_broken':
+          optionsRef.current.onStreakBroken?.(data.playerId, data.previousStreak);
+          break;
+
         case 'game_end':
           setGameStatus('finished');
           setWinner({ id: data.winner, nickname: data.winnerNickname });
           setResults(data.results);
+          setActiveAttacks([]);
+          setMyStreak(0);
           optionsRef.current.onGameEnd?.(data.winner, data.winnerNickname, data.results);
           break;
 
@@ -400,6 +451,8 @@ export function useTypingBattle(options: UseTypingBattleOptions = {}) {
     results,
     error,
     myPlayerId,
+    activeAttacks,
+    myStreak,
 
     // Actions
     createRoom,

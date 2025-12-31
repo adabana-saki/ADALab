@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { ArrowLeft, Trophy, Timer, Keyboard } from 'lucide-react';
+import { ArrowLeft, Trophy, Timer, Keyboard, Flame, Zap, Shield } from 'lucide-react';
 import { createSeededRandom } from '@/lib/seededRandom';
 import { getWords, TypingWord, Language, Difficulty } from '@/lib/typing-words';
-import { OpponentProgress, GameSettings, GameResult } from '@/hooks/useTypingBattle';
+import { OpponentProgress, GameSettings, GameResult, StreakAttack, TypingAttackType } from '@/hooks/useTypingBattle';
 
 interface TypingBattleProps {
   nickname: string;
@@ -17,7 +17,18 @@ interface TypingBattleProps {
   onGameFinished: (finalWpm: number, finalAccuracy: number, finishTime: number) => void;
   onLeave: () => void;
   results: GameResult[];
+  activeAttacks?: StreakAttack[];
+  myStreak?: number;
 }
+
+// Attack type display info
+const ATTACK_INFO: Record<TypingAttackType, { label: string; color: string; icon: string }> = {
+  blurWord: { label: 'ぼかし', color: 'text-blue-500', icon: '👁️' },
+  scrambleWord: { label: 'シャッフル', color: 'text-purple-500', icon: '🔀' },
+  addExtraWord: { label: '+1単語', color: 'text-red-500', icon: '➕' },
+  speedUpTimer: { label: '加速', color: 'text-orange-500', icon: '⚡' },
+  hideLetters: { label: '非表示', color: 'text-gray-500', icon: '🙈' },
+};
 
 interface GameState {
   words: TypingWord[];
@@ -43,6 +54,8 @@ export function TypingBattle({
   onGameFinished,
   onLeave,
   results,
+  activeAttacks = [],
+  myStreak = 0,
 }: TypingBattleProps) {
   const [gameState, setGameState] = useState<GameState>({
     words: [],
@@ -231,20 +244,40 @@ export function TypingBattle({
           {(myResult || gameState.isFinished) && (
             <div className="bg-card border border-border rounded-lg p-4">
               <h3 className="font-medium mb-3">結果</h3>
-              <div className="grid grid-cols-3 gap-2 text-sm">
+              <div className="grid grid-cols-5 gap-2 text-sm">
                 <div></div>
                 <div className="text-center font-medium">WPM</div>
                 <div className="text-center font-medium">精度</div>
+                <div className="text-center font-medium">最大連続</div>
+                <div className="text-center font-medium">攻撃</div>
 
                 <div className="text-left font-medium">{nickname} (あなた)</div>
                 <div className="text-center text-primary font-bold">{myResult?.wpm || wpm}</div>
                 <div className="text-center">{myResult?.accuracy || accuracy}%</div>
+                <div className="text-center">
+                  {myResult?.maxStreak ? (
+                    <span className="flex items-center justify-center gap-1">
+                      <Flame className="w-3 h-3 text-orange-500" />
+                      {myResult.maxStreak}
+                    </span>
+                  ) : '-'}
+                </div>
+                <div className="text-center">{myResult?.attacksSent || 0}</div>
 
                 {opponentResult && (
                   <>
                     <div className="text-left text-muted-foreground">{opponentResult.nickname}</div>
                     <div className="text-center text-muted-foreground">{opponentResult.wpm}</div>
                     <div className="text-center text-muted-foreground">{opponentResult.accuracy}%</div>
+                    <div className="text-center text-muted-foreground">
+                      {opponentResult.maxStreak ? (
+                        <span className="flex items-center justify-center gap-1">
+                          <Flame className="w-3 h-3 text-orange-500" />
+                          {opponentResult.maxStreak}
+                        </span>
+                      ) : '-'}
+                    </div>
+                    <div className="text-center text-muted-foreground">{opponentResult.attacksSent || 0}</div>
                   </>
                 )}
               </div>
@@ -305,7 +338,15 @@ export function TypingBattle({
         {opponentProgress && (
           <div className="space-y-1">
             <div className="flex justify-between text-sm">
-              <span className="font-medium text-orange-500">{opponentProgress.nickname}</span>
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-orange-500">{opponentProgress.nickname}</span>
+                {opponentProgress.streak && opponentProgress.streak >= 3 && (
+                  <span className="flex items-center gap-1 px-2 py-0.5 bg-orange-500/20 rounded-full text-xs text-orange-500 animate-pulse">
+                    <Flame className="w-3 h-3" />
+                    {opponentProgress.streak}連続
+                  </span>
+                )}
+              </div>
               <span className="text-muted-foreground">
                 {opponentProgress.wordIndex}/{settings.wordCount}
                 {opponentProgress.isFinished && ' (完了)'}
@@ -321,10 +362,39 @@ export function TypingBattle({
             </div>
           </div>
         )}
+
+        {/* My streak display */}
+        {myStreak >= 3 && (
+          <div className="flex items-center justify-center gap-2 py-2">
+            <div className="flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/50 rounded-full animate-streak-pulse">
+              <Flame className="w-4 h-4 text-yellow-500" />
+              <span className="text-sm font-bold text-yellow-500">{myStreak}連続ストリーク!</span>
+              {myStreak >= 10 && <Zap className="w-4 h-4 text-yellow-500" />}
+            </div>
+          </div>
+        )}
       </div>
 
+      {/* Active attacks overlay */}
+      {activeAttacks.length > 0 && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2">
+          {activeAttacks.map((attack, index) => {
+            const info = ATTACK_INFO[attack.type];
+            return (
+              <div
+                key={`${attack.receivedAt}-${index}`}
+                className={`flex items-center gap-2 px-4 py-2 bg-red-500/90 text-white rounded-lg shadow-lg animate-receive-attack`}
+              >
+                <span className="text-lg">{info.icon}</span>
+                <span className="font-medium">{info.label}攻撃!</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {/* Main typing area */}
-      <div className="flex-1 flex flex-col items-center justify-center">
+      <div className={`flex-1 flex flex-col items-center justify-center ${activeAttacks.some(a => a.type === 'blurWord') ? 'blur-word' : ''}`}>
         {gameState.isFinished ? (
           <div className="text-center space-y-4">
             <Trophy className="w-16 h-16 text-yellow-500 mx-auto" />
@@ -390,13 +460,25 @@ export function TypingBattle({
       {opponentProgress && !gameState.isFinished && (
         <div className="fixed bottom-4 left-4 right-4 bg-card/90 backdrop-blur border border-border rounded-lg p-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-orange-500/20 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-orange-500/20 rounded-full flex items-center justify-center relative">
               <span className="text-orange-500 text-sm font-bold">
                 {opponentProgress.nickname.charAt(0).toUpperCase()}
               </span>
+              {opponentProgress.streak && opponentProgress.streak >= 3 && (
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
+                  <Flame className="w-3 h-3 text-white" />
+                </div>
+              )}
             </div>
             <div>
-              <div className="font-medium text-sm">{opponentProgress.nickname}</div>
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-sm">{opponentProgress.nickname}</span>
+                {opponentProgress.streak && opponentProgress.streak >= 5 && (
+                  <span className="px-1.5 py-0.5 bg-orange-500/20 rounded text-xs text-orange-500 font-bold">
+                    🔥{opponentProgress.streak}
+                  </span>
+                )}
+              </div>
               <div className="text-xs text-muted-foreground">
                 {opponentProgress.wpm} WPM / {opponentProgress.accuracy}%
               </div>

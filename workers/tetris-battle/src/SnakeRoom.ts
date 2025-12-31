@@ -8,6 +8,31 @@ export interface Position {
 
 export type Direction = 'up' | 'down' | 'left' | 'right';
 
+// Power-up types
+export type SnakePowerUpType = 'shield' | 'ghost' | 'speed' | 'magnet';
+
+// Attack types based on food eaten
+export type SnakeAttackType = 'addObstacle' | 'speedUp' | 'reverseControls' | 'shrinkBoard';
+
+// Food types with different effects
+export type FoodType = 'normal' | 'golden' | 'poison' | 'mega';
+
+// Power-up definitions
+const POWER_UPS: Record<SnakePowerUpType, { duration: number; description: string }> = {
+  shield: { duration: 5000, description: 'Block next attack' },
+  ghost: { duration: 3000, description: 'Pass through walls temporarily' },
+  speed: { duration: 5000, description: 'Slow down your snake' },
+  magnet: { duration: 5000, description: 'Attract nearby food' },
+};
+
+// Attack based on food type eaten
+const FOOD_ATTACKS: Record<FoodType, { attackType: SnakeAttackType | null; probability: number }> = {
+  normal: { attackType: 'addObstacle', probability: 0.3 },
+  golden: { attackType: 'speedUp', probability: 0.8 },
+  poison: { attackType: 'reverseControls', probability: 1.0 },
+  mega: { attackType: 'shrinkBoard', probability: 0.5 },
+};
+
 export interface SnakePlayerState {
   id: string;
   nickname: string;
@@ -20,6 +45,11 @@ export interface SnakePlayerState {
   isAlive: boolean;
   pendingObstacles: Position[];
   lastUpdate: number;
+  // Power-up and effect state
+  activePowerUp?: { type: SnakePowerUpType; expiresAt: number };
+  activeEffects: { type: SnakeAttackType; expiresAt: number }[];
+  shieldActive: boolean;
+  foodsEaten: number;
 }
 
 export interface SnakeRoomState {
@@ -43,7 +73,8 @@ export type SnakeClientMessage =
   | { type: 'ready' }
   | { type: 'unready' }
   | { type: 'state_update'; snake: Position[]; direction: Direction; score: number }
-  | { type: 'food_eaten'; newFood: Position; score: number }
+  | { type: 'food_eaten'; newFood: Position; score: number; foodType?: FoodType }
+  | { type: 'powerup_collected'; powerUpType: SnakePowerUpType }
   | { type: 'game_over'; score: number; length: number }
   | { type: 'leave' }
   | { type: 'ping' };
@@ -58,6 +89,11 @@ export type SnakeServerMessage =
   | { type: 'game_start'; seed: number; gridSize: number }
   | { type: 'opponent_update'; id: string; snake: Position[]; direction: Direction; score: number }
   | { type: 'receive_obstacle'; position: Position; senderId: string }
+  | { type: 'receive_effect'; effectType: SnakeAttackType; duration: number; senderId: string }
+  | { type: 'powerup_spawned'; position: Position; powerUpType: SnakePowerUpType }
+  | { type: 'powerup_activated'; playerId: string; powerUpType: SnakePowerUpType; duration: number }
+  | { type: 'effect_expired'; effectType: SnakeAttackType }
+  | { type: 'attack_blocked'; attackerId: string; attackType: SnakeAttackType }
   | { type: 'opponent_game_over'; id: string; score: number }
   | { type: 'time_update'; remaining: number }
   | { type: 'game_end'; winner: string; winnerNickname: string; reason: 'opponent_died' | 'time_up' | 'opponent_quit'; results: { id: string; nickname: string; score: number; length: number }[] }
@@ -213,6 +249,10 @@ export class SnakeRoom extends DurableObject<Env> {
         await this.handleFoodEaten(session, data);
         break;
 
+      case 'powerup_collected':
+        await this.handlePowerUpCollected(session, data);
+        break;
+
       case 'game_over':
         await this.handleGameOver(session, data);
         break;
@@ -221,6 +261,39 @@ export class SnakeRoom extends DurableObject<Env> {
         await this.handleDisconnect(ws);
         break;
     }
+  }
+
+  // Handle power-up collection
+  private async handlePowerUpCollected(
+    session: WebSocketSession,
+    data: { powerUpType: SnakePowerUpType }
+  ): Promise<void> {
+    if (this.roomState.gameStatus !== 'playing') return;
+
+    const player = this.roomState.players.get(session.playerId);
+    if (!player || !player.isAlive) return;
+
+    const powerUpInfo = POWER_UPS[data.powerUpType];
+    if (!powerUpInfo) return;
+
+    // Activate power-up
+    player.activePowerUp = {
+      type: data.powerUpType,
+      expiresAt: Date.now() + powerUpInfo.duration,
+    };
+
+    // Special handling for shield
+    if (data.powerUpType === 'shield') {
+      player.shieldActive = true;
+    }
+
+    // Notify all players
+    this.broadcast({
+      type: 'powerup_activated',
+      playerId: session.playerId,
+      powerUpType: data.powerUpType,
+      duration: powerUpInfo.duration,
+    });
   }
 
   private async handleCreateRoom(
@@ -260,6 +333,9 @@ export class SnakeRoom extends DurableObject<Env> {
       isAlive: true,
       pendingObstacles: [],
       lastUpdate: Date.now(),
+      activeEffects: [],
+      shieldActive: false,
+      foodsEaten: 0,
     };
     this.roomState.players.set(session.playerId, player);
 
@@ -304,6 +380,9 @@ export class SnakeRoom extends DurableObject<Env> {
       isAlive: true,
       pendingObstacles: [],
       lastUpdate: Date.now(),
+      activeEffects: [],
+      shieldActive: false,
+      foodsEaten: 0,
     };
     this.roomState.players.set(session.playerId, player);
 
@@ -434,29 +513,85 @@ export class SnakeRoom extends DurableObject<Env> {
   private async handleFoodEaten(session: WebSocketSession, data: {
     newFood: Position;
     score: number;
+    foodType?: FoodType;
   }): Promise<void> {
     const player = this.roomState.players.get(session.playerId);
     if (!player || this.roomState.gameStatus !== 'playing') return;
 
     player.score = data.score;
     player.length++;
+    player.foodsEaten++;
 
-    // Send obstacle to opponent
+    const foodType: FoodType = data.foodType || 'normal';
+    const attackInfo = FOOD_ATTACKS[foodType];
+
+    // Process attack based on food type
     for (const [playerId, opponent] of this.roomState.players) {
       if (playerId !== session.playerId && opponent.isAlive) {
-        // Generate random obstacle position
-        const obstaclePos = {
-          x: Math.floor(Math.random() * this.roomState.gridSize),
-          y: Math.floor(Math.random() * this.roomState.gridSize),
-        };
+        // Check if attack should trigger based on probability
+        if (attackInfo.attackType && Math.random() < attackInfo.probability) {
+          // Check if opponent has shield active
+          if (opponent.shieldActive) {
+            // Block the attack and deactivate shield
+            opponent.shieldActive = false;
+            opponent.activePowerUp = undefined;
 
-        this.sendToPlayer(playerId, {
-          type: 'receive_obstacle',
-          position: obstaclePos,
-          senderId: session.playerId,
-        });
+            // Notify both players
+            this.sendToPlayer(playerId, {
+              type: 'attack_blocked',
+              attackerId: session.playerId,
+              attackType: attackInfo.attackType,
+            });
+            this.sendToPlayer(session.playerId, {
+              type: 'attack_blocked',
+              attackerId: session.playerId,
+              attackType: attackInfo.attackType,
+            });
+          } else {
+            // Apply attack effect
+            const effectDuration = this.getEffectDuration(attackInfo.attackType);
+
+            // Add to opponent's active effects
+            opponent.activeEffects.push({
+              type: attackInfo.attackType,
+              expiresAt: Date.now() + effectDuration,
+            });
+
+            // Send attack to opponent
+            this.sendToPlayer(playerId, {
+              type: 'receive_effect',
+              effectType: attackInfo.attackType,
+              duration: effectDuration,
+              senderId: session.playerId,
+            });
+
+            // Also send obstacle for visual effect on some attacks
+            if (attackInfo.attackType === 'addObstacle') {
+              const obstaclePos = {
+                x: Math.floor(Math.random() * this.roomState.gridSize),
+                y: Math.floor(Math.random() * this.roomState.gridSize),
+              };
+              this.sendToPlayer(playerId, {
+                type: 'receive_obstacle',
+                position: obstaclePos,
+                senderId: session.playerId,
+              });
+            }
+          }
+        }
         break;
       }
+    }
+  }
+
+  // Get effect duration based on attack type
+  private getEffectDuration(attackType: SnakeAttackType): number {
+    switch (attackType) {
+      case 'addObstacle': return 0; // Permanent obstacle
+      case 'speedUp': return 5000; // 5 seconds
+      case 'reverseControls': return 4000; // 4 seconds
+      case 'shrinkBoard': return 8000; // 8 seconds
+      default: return 3000;
     }
   }
 
