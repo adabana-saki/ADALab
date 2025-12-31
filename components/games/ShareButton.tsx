@@ -35,8 +35,8 @@ export function ShareButton({
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://adalabtech.com';
   const gameUrl = `${baseUrl}/games/tetris`;
 
-  // 共有テキスト生成
-  const generateShareText = useCallback(() => {
+  // 共有テキスト生成（URLなし版）- LINE等でURL別パラメータで渡す場合用
+  const generateShareTextWithoutUrl = useCallback(() => {
     let text = '';
 
     if (mode === 'battle') {
@@ -51,9 +51,14 @@ export function ShareButton({
       text = `ADA Lab Tetris で ${score.toLocaleString()} 点を達成！\n\nライン: ${lines}\nレベル: ${level}\n`;
     }
 
-    text += `\n#ADALabGames #Tetris\n${gameUrl}`;
+    text += `\n#ADALabGames #Tetris`;
     return text;
-  }, [score, lines, level, mode, isWin, gameUrl]);
+  }, [score, lines, level, mode, isWin]);
+
+  // 共有テキスト生成（URL付き版）- Twitter、コピー等用
+  const generateShareText = useCallback(() => {
+    return `${generateShareTextWithoutUrl()}\n${gameUrl}`;
+  }, [generateShareTextWithoutUrl, gameUrl]);
 
   // Twitter/Xで共有
   const shareToTwitter = useCallback(() => {
@@ -63,13 +68,13 @@ export function ShareButton({
     setIsOpen(false);
   }, [generateShareText]);
 
-  // LINEで共有
+  // LINEで共有（URLは別パラメータで渡すためテキストからは除外）
   const shareToLine = useCallback(() => {
-    const text = encodeURIComponent(generateShareText());
+    const text = encodeURIComponent(generateShareTextWithoutUrl());
     const url = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(gameUrl)}&text=${text}`;
     window.open(url, '_blank', 'width=550,height=420');
     setIsOpen(false);
-  }, [generateShareText, gameUrl]);
+  }, [generateShareTextWithoutUrl, gameUrl]);
 
   // Facebookで共有（quoteパラメータは非推奨のため、URLのみ共有）
   const shareToFacebook = useCallback(() => {

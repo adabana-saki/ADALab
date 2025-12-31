@@ -587,8 +587,6 @@ export function TypingGame() {
           )}
         </div>
         <div className="flex gap-2">
-          {/* BGMコントロール */}
-          <BgmControl game="typing" isPlaying={isStarted && !isFinished} />
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}

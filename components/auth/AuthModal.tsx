@@ -24,6 +24,13 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
   const { user, signInWithGoogle, signInWithEmail, signUpWithEmail, resetPassword, error, clearError } =
     useAuth();
 
+  // モーダルが閉じる時にwasAuthenticatingをリセット
+  useEffect(() => {
+    if (!isOpen) {
+      wasAuthenticating.current = false;
+    }
+  }, [isOpen]);
+
   // 認証成功時にモーダルを閉じる
   useEffect(() => {
     if (wasAuthenticating.current && user && !error) {

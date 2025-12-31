@@ -207,7 +207,7 @@ export function Hero() {
             transition={{ duration: 0.8, delay: 1.3 }}
           >
             <MagneticButton strength={0.2}>
-              <Link href="/games/tetris">
+              <Link href="/games">
                 <Button
                   size="lg"
                   className="w-full sm:w-auto min-w-[200px] border-2 border-green-400 bg-green-500/20 hover:bg-green-500/30 relative overflow-hidden group transition-all hover:scale-110 active:scale-95 py-6 sm:py-4 shadow-lg shadow-green-500/20"
