@@ -2,6 +2,7 @@ import { initializeApp, getApps } from 'firebase/app';
 import {
   getAuth,
   GoogleAuthProvider,
+  GithubAuthProvider,
   signInWithPopup,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -25,6 +26,7 @@ const firebaseConfig = {
 let app: ReturnType<typeof initializeApp> | null = null;
 let auth: ReturnType<typeof getAuth> | null = null;
 let googleProvider: GoogleAuthProvider | null = null;
+let githubProvider: GithubAuthProvider | null = null;
 
 function getFirebaseApp() {
   if (typeof window === 'undefined') return null;
@@ -52,6 +54,14 @@ function getGoogleProvider() {
   return googleProvider;
 }
 
+function getGithubProvider() {
+  if (typeof window === 'undefined') return null;
+  if (!githubProvider) {
+    githubProvider = new GithubAuthProvider();
+  }
+  return githubProvider;
+}
+
 // Google認証
 export async function signInWithGoogle(): Promise<User | null> {
   const firebaseAuth = getFirebaseAuth();
@@ -64,6 +74,22 @@ export async function signInWithGoogle(): Promise<User | null> {
     return result.user;
   } catch (error) {
     console.error('Google sign-in error:', error);
+    throw error;
+  }
+}
+
+// GitHub認証
+export async function signInWithGithub(): Promise<User | null> {
+  const firebaseAuth = getFirebaseAuth();
+  const provider = getGithubProvider();
+  if (!firebaseAuth || !provider) {
+    throw new Error('Firebase not initialized');
+  }
+  try {
+    const result = await signInWithPopup(firebaseAuth, provider);
+    return result.user;
+  } catch (error) {
+    console.error('GitHub sign-in error:', error);
     throw error;
   }
 }
