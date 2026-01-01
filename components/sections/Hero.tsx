@@ -221,6 +221,7 @@ export function Hero() {
             <MagneticButton strength={0.2}>
               <Button
                 size="lg"
+                variant="outline"
                 onClick={() => scrollToSection('projects')}
                 className="w-full sm:w-auto min-w-[200px] border-2 neon-border-cyan relative overflow-hidden group transition-all hover:scale-110 active:scale-95 py-6 sm:py-4"
               >
