@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { getDeviceId } from './useDeviceId';
 
 // Types matching the server
 export interface Position {
@@ -307,39 +308,42 @@ export function useSnakeBattle(options: UseSnakeBattleOptions = {}) {
   const quickMatch = useCallback(async (nickname: string) => {
     setGameStatus('connecting');
     setError(null);
+    const playerId = getDeviceId();
 
     try {
       const response = await fetch(`${BATTLE_WORKER_URL}/api/battle/snake/queue`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nickname, action: 'join' }),
+        body: JSON.stringify({ nickname, playerId }),
       });
 
       const data = await response.json();
 
-      if (data.matched && data.wsUrl) {
+      if (data.success && data.matched) {
         await connectToRoom(data.wsUrl, nickname, false);
-      } else if (data.queued) {
+      } else if (data.success && !data.matched) {
+        // ポーリング開始
         const pollForMatch = async () => {
-          const pollResponse = await fetch(`${BATTLE_WORKER_URL}/api/battle/snake/queue`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nickname, action: 'poll', queueId: data.queueId }),
-          });
+          try {
+            const pollResponse = await fetch(`${BATTLE_WORKER_URL}/api/battle/snake/queue`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ nickname, playerId }),
+            });
 
-          const pollData = await pollResponse.json();
+            const pollData = await pollResponse.json();
 
-          if (pollData.matched && pollData.wsUrl) {
-            await connectToRoom(pollData.wsUrl, nickname, false);
-          } else if (pollData.queued) {
-            reconnectTimeoutRef.current = setTimeout(pollForMatch, 2000);
-          } else {
-            setError('Matchmaking failed');
-            setGameStatus('disconnected');
+            if (pollData.success && pollData.matched) {
+              await connectToRoom(pollData.wsUrl, nickname, false);
+            } else {
+              reconnectTimeoutRef.current = setTimeout(pollForMatch, 1000);
+            }
+          } catch {
+            reconnectTimeoutRef.current = setTimeout(pollForMatch, 1000);
           }
         };
 
-        reconnectTimeoutRef.current = setTimeout(pollForMatch, 2000);
+        reconnectTimeoutRef.current = setTimeout(pollForMatch, 500);
       } else {
         setError(data.error || 'Matchmaking failed');
         setGameStatus('disconnected');
