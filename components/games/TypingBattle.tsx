@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { ArrowLeft, Trophy, Timer, Keyboard, Flame, Zap, Shield } from 'lucide-react';
+import { ArrowLeft, Trophy, Timer, Keyboard, Flame, Zap } from 'lucide-react';
 import { createSeededRandom } from '@/lib/seededRandom';
 import { getWords, TypingWord, Language, Difficulty } from '@/lib/typing-words';
 import { OpponentProgress, GameSettings, GameResult, StreakAttack, TypingAttackType } from '@/hooks/useTypingBattle';
