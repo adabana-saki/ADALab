@@ -8,48 +8,19 @@ export interface Position {
 
 export type Direction = 'up' | 'down' | 'left' | 'right';
 
-// Power-up types
-export type SnakePowerUpType = 'shield' | 'ghost' | 'speed' | 'magnet';
-
-// Attack types based on food eaten
-export type SnakeAttackType = 'addObstacle' | 'speedUp' | 'reverseControls' | 'shrinkBoard';
-
-// Food types with different effects
-export type FoodType = 'normal' | 'golden' | 'poison' | 'mega';
-
-// Power-up definitions
-const POWER_UPS: Record<SnakePowerUpType, { duration: number; description: string }> = {
-  shield: { duration: 5000, description: 'Block next attack' },
-  ghost: { duration: 3000, description: 'Pass through walls temporarily' },
-  speed: { duration: 5000, description: 'Speed up your snake' },
-  magnet: { duration: 5000, description: 'Attract nearby food' },
-};
-
-// Attack based on food type eaten
-const FOOD_ATTACKS: Record<FoodType, { attackType: SnakeAttackType | null; probability: number }> = {
-  normal: { attackType: 'addObstacle', probability: 0.3 },
-  golden: { attackType: 'speedUp', probability: 0.8 },
-  poison: { attackType: 'reverseControls', probability: 1.0 },
-  mega: { attackType: 'shrinkBoard', probability: 0.5 },
-};
+// プレイヤーの色
+const PLAYER_COLORS = ['#22c55e', '#f97316']; // green, orange
 
 export interface SnakePlayerState {
   id: string;
   nickname: string;
   snake: Position[];
-  food: Position;
   direction: Direction;
+  nextDirection: Direction; // 次のティックで適用される方向
   score: number;
-  length: number;
   isReady: boolean;
   isAlive: boolean;
-  pendingObstacles: Position[];
-  lastUpdate: number;
-  // Power-up and effect state
-  activePowerUp?: { type: SnakePowerUpType; expiresAt: number };
-  activeEffects: { type: SnakeAttackType; expiresAt: number }[];
-  shieldActive: boolean;
-  foodsEaten: number;
+  color: string;
 }
 
 export interface SnakeRoomState {
@@ -59,7 +30,7 @@ export interface SnakeRoomState {
   players: Map<string, SnakePlayerState>;
   gameStatus: 'waiting' | 'countdown' | 'playing' | 'finished';
   startTime?: number;
-  seed: number;
+  food: Position; // 共有フード
   gridSize: number;
   timeLimit: number; // seconds, 0 = no limit
   winner?: string;
@@ -72,10 +43,7 @@ export type SnakeClientMessage =
   | { type: 'create_room'; nickname: string; settings?: { gridSize?: number; timeLimit?: number } }
   | { type: 'ready' }
   | { type: 'unready' }
-  | { type: 'state_update'; snake: Position[]; direction: Direction; score: number }
-  | { type: 'food_eaten'; newFood: Position; score: number; foodType?: FoodType }
-  | { type: 'powerup_collected'; powerUpType: SnakePowerUpType }
-  | { type: 'game_over'; score: number; length: number }
+  | { type: 'direction_change'; direction: Direction } // 新: 方向変更のみ送信
   | { type: 'leave' }
   | { type: 'ping' };
 
@@ -86,15 +54,9 @@ export type SnakeServerMessage =
   | { type: 'player_left'; id: string; nickname: string }
   | { type: 'player_ready'; id: string; isReady: boolean }
   | { type: 'countdown'; seconds: number }
-  | { type: 'game_start'; seed: number; gridSize: number }
-  | { type: 'opponent_update'; id: string; snake: Position[]; direction: Direction; score: number }
-  | { type: 'receive_obstacle'; position: Position; senderId: string }
-  | { type: 'receive_effect'; effectType: SnakeAttackType; duration: number; senderId: string }
-  | { type: 'powerup_spawned'; position: Position; powerUpType: SnakePowerUpType }
-  | { type: 'powerup_activated'; playerId: string; powerUpType: SnakePowerUpType; duration: number }
-  | { type: 'effect_expired'; effectType: SnakeAttackType }
-  | { type: 'attack_blocked'; attackerId: string; attackType: SnakeAttackType }
-  | { type: 'opponent_game_over'; id: string; score: number }
+  | { type: 'game_start'; gridSize: number; players: { id: string; nickname: string; color: string; snake: Position[] }[]; food: Position }
+  | { type: 'game_state'; players: { id: string; snake: Position[]; direction: Direction; score: number; isAlive: boolean }[]; food: Position } // 新: 全状態配信
+  | { type: 'player_died'; id: string; nickname: string; killedBy: 'wall' | 'self' | 'opponent' | 'opponent_body' }
   | { type: 'time_update'; remaining: number }
   | { type: 'game_end'; winner: string; winnerNickname: string; reason: 'opponent_died' | 'time_up' | 'opponent_quit'; results: { id: string; nickname: string; score: number; length: number }[] }
   | { type: 'error'; message: string }
@@ -103,8 +65,9 @@ export type SnakeServerMessage =
 const ROOM_CONFIG = {
   maxPlayers: 2,
   countdownSeconds: 3,
-  defaultGridSize: 20,
+  defaultGridSize: 30, // 30x30に拡大
   defaultTimeLimit: 180, // 3 minutes
+  gameTickMs: 100, // 100msごとにティック（10 FPS）
 };
 
 interface Env {
@@ -122,6 +85,7 @@ export class SnakeRoom extends DurableObject<Env> {
   private roomState: SnakeRoomState;
   private countdownInterval?: ReturnType<typeof setInterval>;
   private gameTimer?: ReturnType<typeof setInterval>;
+  private gameLoopInterval?: ReturnType<typeof setInterval>;
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
@@ -129,11 +93,150 @@ export class SnakeRoom extends DurableObject<Env> {
       roomId: '',
       players: new Map(),
       gameStatus: 'waiting',
-      seed: 0,
+      food: { x: 15, y: 15 },
       gridSize: ROOM_CONFIG.defaultGridSize,
       timeLimit: ROOM_CONFIG.defaultTimeLimit,
       createdAt: Date.now(),
     };
+  }
+
+  // ランダムなフード位置を生成（全スネークを避ける）
+  private generateFood(): Position {
+    const occupied = new Set<string>();
+    for (const player of this.roomState.players.values()) {
+      for (const seg of player.snake) {
+        occupied.add(`${seg.x},${seg.y}`);
+      }
+    }
+
+    let attempts = 0;
+    while (attempts < 100) {
+      const x = Math.floor(Math.random() * this.roomState.gridSize);
+      const y = Math.floor(Math.random() * this.roomState.gridSize);
+      if (!occupied.has(`${x},${y}`)) {
+        return { x, y };
+      }
+      attempts++;
+    }
+    return { x: 0, y: 0 };
+  }
+
+  // ゲームティック（サーバー側でスネーク移動・衝突判定）
+  private gameTick(): void {
+    if (this.roomState.gameStatus !== 'playing') return;
+
+    const players = Array.from(this.roomState.players.values());
+    const alivePlayers = players.filter(p => p.isAlive);
+
+    // 各プレイヤーのスネークを移動
+    for (const player of alivePlayers) {
+      // 方向を適用（180度反転は禁止）
+      const opposite: Record<Direction, Direction> = { up: 'down', down: 'up', left: 'right', right: 'left' };
+      if (player.nextDirection !== opposite[player.direction]) {
+        player.direction = player.nextDirection;
+      }
+
+      const head = player.snake[0];
+      let newHead: Position;
+      switch (player.direction) {
+        case 'up': newHead = { x: head.x, y: head.y - 1 }; break;
+        case 'down': newHead = { x: head.x, y: head.y + 1 }; break;
+        case 'left': newHead = { x: head.x - 1, y: head.y }; break;
+        case 'right': newHead = { x: head.x + 1, y: head.y }; break;
+      }
+
+      // 壁衝突判定
+      if (newHead.x < 0 || newHead.x >= this.roomState.gridSize ||
+          newHead.y < 0 || newHead.y >= this.roomState.gridSize) {
+        player.isAlive = false;
+        this.broadcast({ type: 'player_died', id: player.id, nickname: player.nickname, killedBy: 'wall' });
+        continue;
+      }
+
+      // 自分の体への衝突
+      if (player.snake.some(seg => seg.x === newHead.x && seg.y === newHead.y)) {
+        player.isAlive = false;
+        this.broadcast({ type: 'player_died', id: player.id, nickname: player.nickname, killedBy: 'self' });
+        continue;
+      }
+
+      // 相手のスネークへの衝突
+      let hitOpponent = false;
+      for (const other of alivePlayers) {
+        if (other.id === player.id) continue;
+        // 頭同士の衝突（両者死亡）
+        const otherHead = other.snake[0];
+        const otherNewHead = this.getNewHead(other);
+        if (newHead.x === otherNewHead.x && newHead.y === otherNewHead.y) {
+          player.isAlive = false;
+          other.isAlive = false;
+          this.broadcast({ type: 'player_died', id: player.id, nickname: player.nickname, killedBy: 'opponent' });
+          this.broadcast({ type: 'player_died', id: other.id, nickname: other.nickname, killedBy: 'opponent' });
+          hitOpponent = true;
+          break;
+        }
+        // 相手の体への衝突
+        if (other.snake.some(seg => seg.x === newHead.x && seg.y === newHead.y)) {
+          player.isAlive = false;
+          this.broadcast({ type: 'player_died', id: player.id, nickname: player.nickname, killedBy: 'opponent_body' });
+          hitOpponent = true;
+          break;
+        }
+      }
+      if (hitOpponent || !player.isAlive) continue;
+
+      // スネークを移動
+      player.snake.unshift(newHead);
+
+      // フード食べた？
+      if (newHead.x === this.roomState.food.x && newHead.y === this.roomState.food.y) {
+        player.score += 10;
+        this.roomState.food = this.generateFood();
+        // 尻尾を残す（成長）
+      } else {
+        player.snake.pop(); // 尻尾を削除
+      }
+    }
+
+    // 勝敗判定
+    const stillAlive = Array.from(this.roomState.players.values()).filter(p => p.isAlive);
+    if (stillAlive.length <= 1) {
+      if (stillAlive.length === 1) {
+        this.endGame(stillAlive[0].id, 'opponent_died');
+      } else {
+        // 両者死亡 → スコアで判定（同点ならスネークの長さで判定）
+        const sorted = players.sort((a, b) => {
+          if (a.score !== b.score) return b.score - a.score;
+          return b.snake.length - a.snake.length;
+        });
+        this.endGame(sorted[0].id, 'opponent_died');
+      }
+      return;
+    }
+
+    // 状態をブロードキャスト
+    this.broadcast({
+      type: 'game_state',
+      players: Array.from(this.roomState.players.values()).map(p => ({
+        id: p.id,
+        snake: p.snake,
+        direction: p.direction,
+        score: p.score,
+        isAlive: p.isAlive,
+      })),
+      food: this.roomState.food,
+    });
+  }
+
+  private getNewHead(player: SnakePlayerState): Position {
+    const head = player.snake[0];
+    const dir = player.nextDirection;
+    switch (dir) {
+      case 'up': return { x: head.x, y: head.y - 1 };
+      case 'down': return { x: head.x, y: head.y + 1 };
+      case 'left': return { x: head.x - 1, y: head.y };
+      case 'right': return { x: head.x + 1, y: head.y };
+    }
   }
 
   async fetch(request: Request): Promise<Response> {
@@ -241,20 +344,8 @@ export class SnakeRoom extends DurableObject<Env> {
         await this.handleReady(ws, session, false);
         break;
 
-      case 'state_update':
-        await this.handleStateUpdate(session, data);
-        break;
-
-      case 'food_eaten':
-        await this.handleFoodEaten(session, data);
-        break;
-
-      case 'powerup_collected':
-        await this.handlePowerUpCollected(session, data);
-        break;
-
-      case 'game_over':
-        await this.handleGameOver(session, data);
+      case 'direction_change':
+        await this.handleDirectionChange(session, data.direction);
         break;
 
       case 'leave':
@@ -263,37 +354,13 @@ export class SnakeRoom extends DurableObject<Env> {
     }
   }
 
-  // Handle power-up collection
-  private async handlePowerUpCollected(
-    session: WebSocketSession,
-    data: { powerUpType: SnakePowerUpType }
-  ): Promise<void> {
-    if (this.roomState.gameStatus !== 'playing') return;
-
+  // 方向変更のハンドリング
+  private async handleDirectionChange(session: WebSocketSession, direction: Direction): Promise<void> {
     const player = this.roomState.players.get(session.playerId);
-    if (!player || !player.isAlive) return;
+    if (!player || !player.isAlive || this.roomState.gameStatus !== 'playing') return;
 
-    const powerUpInfo = POWER_UPS[data.powerUpType];
-    if (!powerUpInfo) return;
-
-    // Activate power-up
-    player.activePowerUp = {
-      type: data.powerUpType,
-      expiresAt: Date.now() + powerUpInfo.duration,
-    };
-
-    // Special handling for shield
-    if (data.powerUpType === 'shield') {
-      player.shieldActive = true;
-    }
-
-    // Notify all players
-    this.broadcast({
-      type: 'powerup_activated',
-      playerId: session.playerId,
-      powerUpType: data.powerUpType,
-      duration: powerUpInfo.duration,
-    });
+    // 180度反転は禁止（次のティックでチェック）
+    player.nextDirection = direction;
   }
 
   private async handleCreateRoom(
@@ -308,7 +375,7 @@ export class SnakeRoom extends DurableObject<Env> {
     }
 
     if (settings) {
-      if (settings.gridSize) this.roomState.gridSize = Math.min(30, Math.max(15, settings.gridSize));
+      if (settings.gridSize) this.roomState.gridSize = Math.min(40, Math.max(20, settings.gridSize));
       if (settings.timeLimit !== undefined) this.roomState.timeLimit = Math.min(600, Math.max(0, settings.timeLimit));
     }
 
@@ -321,21 +388,17 @@ export class SnakeRoom extends DurableObject<Env> {
     this.roomState.hostId = session.playerId;
 
     session.nickname = nickname.trim().slice(0, 12);
+    const playerIndex = this.roomState.players.size;
     const player: SnakePlayerState = {
       id: session.playerId,
       nickname: session.nickname,
       snake: [],
-      food: { x: 0, y: 0 },
       direction: 'right',
+      nextDirection: 'right',
       score: 0,
-      length: 3,
       isReady: false,
       isAlive: true,
-      pendingObstacles: [],
-      lastUpdate: Date.now(),
-      activeEffects: [],
-      shieldActive: false,
-      foodsEaten: 0,
+      color: PLAYER_COLORS[playerIndex] || '#22c55e',
     };
     this.roomState.players.set(session.playerId, player);
 
@@ -368,21 +431,17 @@ export class SnakeRoom extends DurableObject<Env> {
     }
 
     session.nickname = nickname.trim().slice(0, 12);
+    const playerIndex = this.roomState.players.size;
     const player: SnakePlayerState = {
       id: session.playerId,
       nickname: session.nickname,
       snake: [],
-      food: { x: 0, y: 0 },
-      direction: 'right',
+      direction: playerIndex === 0 ? 'right' : 'left', // 2人目は左向きスタート
+      nextDirection: playerIndex === 0 ? 'right' : 'left',
       score: 0,
-      length: 3,
       isReady: false,
       isAlive: true,
-      pendingObstacles: [],
-      lastUpdate: Date.now(),
-      activeEffects: [],
-      shieldActive: false,
-      foodsEaten: 0,
+      color: PLAYER_COLORS[playerIndex] || '#f97316',
     };
     this.roomState.players.set(session.playerId, player);
 
@@ -458,22 +517,59 @@ export class SnakeRoom extends DurableObject<Env> {
   private startGame(): void {
     this.roomState.gameStatus = 'playing';
     this.roomState.startTime = Date.now();
-    this.roomState.seed = Math.floor(Math.random() * 2147483647);
 
-    for (const player of this.roomState.players.values()) {
+    // プレイヤーの初期位置を設定（対角線上に配置）
+    const gridSize = this.roomState.gridSize;
+    const players = Array.from(this.roomState.players.values());
+
+    players.forEach((player, index) => {
       player.score = 0;
-      player.length = 3;
       player.isAlive = true;
-      player.pendingObstacles = [];
-    }
 
-    this.broadcast({
-      type: 'game_start',
-      seed: this.roomState.seed,
-      gridSize: this.roomState.gridSize,
+      // 初期スネーク位置（3セグメント）
+      if (index === 0) {
+        // プレイヤー1: 左上から右向き
+        player.snake = [
+          { x: 5, y: 5 },
+          { x: 4, y: 5 },
+          { x: 3, y: 5 },
+        ];
+        player.direction = 'right';
+        player.nextDirection = 'right';
+      } else {
+        // プレイヤー2: 右下から左向き
+        player.snake = [
+          { x: gridSize - 6, y: gridSize - 6 },
+          { x: gridSize - 5, y: gridSize - 6 },
+          { x: gridSize - 4, y: gridSize - 6 },
+        ];
+        player.direction = 'left';
+        player.nextDirection = 'left';
+      }
     });
 
-    // Start game timer if time limit is set
+    // 初期フード生成
+    this.roomState.food = this.generateFood();
+
+    // ゲーム開始メッセージ送信
+    this.broadcast({
+      type: 'game_start',
+      gridSize: this.roomState.gridSize,
+      players: players.map(p => ({
+        id: p.id,
+        nickname: p.nickname,
+        color: p.color,
+        snake: p.snake,
+      })),
+      food: this.roomState.food,
+    });
+
+    // ゲームループ開始（100msごと）
+    this.gameLoopInterval = setInterval(() => {
+      this.gameTick();
+    }, ROOM_CONFIG.gameTickMs);
+
+    // タイマー開始
     if (this.roomState.timeLimit > 0) {
       let remaining = this.roomState.timeLimit;
       this.gameTimer = setInterval(() => {
@@ -488,141 +584,13 @@ export class SnakeRoom extends DurableObject<Env> {
     }
   }
 
-  private async handleStateUpdate(session: WebSocketSession, data: {
-    snake: Position[];
-    direction: Direction;
-    score: number;
-  }): Promise<void> {
-    const player = this.roomState.players.get(session.playerId);
-    if (!player || this.roomState.gameStatus !== 'playing' || !player.isAlive) return;
-
-    player.snake = data.snake;
-    player.direction = data.direction;
-    player.score = data.score;
-    player.lastUpdate = Date.now();
-
-    this.broadcastExcept(session.playerId, {
-      type: 'opponent_update',
-      id: session.playerId,
-      snake: data.snake,
-      direction: data.direction,
-      score: data.score,
-    });
-  }
-
-  private async handleFoodEaten(session: WebSocketSession, data: {
-    newFood: Position;
-    score: number;
-    foodType?: FoodType;
-  }): Promise<void> {
-    const player = this.roomState.players.get(session.playerId);
-    if (!player || this.roomState.gameStatus !== 'playing') return;
-
-    player.score = data.score;
-    player.length++;
-    player.foodsEaten++;
-
-    const foodType: FoodType = data.foodType || 'normal';
-    const attackInfo = FOOD_ATTACKS[foodType];
-
-    // Process attack based on food type
-    for (const [playerId, opponent] of this.roomState.players) {
-      if (playerId !== session.playerId && opponent.isAlive) {
-        // Check if attack should trigger based on probability
-        if (attackInfo.attackType && Math.random() < attackInfo.probability) {
-          // Check if opponent has shield active
-          if (opponent.shieldActive) {
-            // Block the attack and deactivate shield
-            opponent.shieldActive = false;
-            opponent.activePowerUp = undefined;
-
-            // Notify both players
-            this.sendToPlayer(playerId, {
-              type: 'attack_blocked',
-              attackerId: session.playerId,
-              attackType: attackInfo.attackType,
-            });
-            this.sendToPlayer(session.playerId, {
-              type: 'attack_blocked',
-              attackerId: session.playerId,
-              attackType: attackInfo.attackType,
-            });
-          } else {
-            // Apply attack effect
-            const effectDuration = this.getEffectDuration(attackInfo.attackType);
-
-            // Add to opponent's active effects
-            opponent.activeEffects.push({
-              type: attackInfo.attackType,
-              expiresAt: Date.now() + effectDuration,
-            });
-
-            // Send attack to opponent
-            this.sendToPlayer(playerId, {
-              type: 'receive_effect',
-              effectType: attackInfo.attackType,
-              duration: effectDuration,
-              senderId: session.playerId,
-            });
-
-            // Also send obstacle for visual effect on some attacks
-            if (attackInfo.attackType === 'addObstacle') {
-              const obstaclePos = {
-                x: Math.floor(Math.random() * this.roomState.gridSize),
-                y: Math.floor(Math.random() * this.roomState.gridSize),
-              };
-              this.sendToPlayer(playerId, {
-                type: 'receive_obstacle',
-                position: obstaclePos,
-                senderId: session.playerId,
-              });
-            }
-          }
-        }
-        break;
-      }
-    }
-  }
-
-  // Get effect duration based on attack type
-  private getEffectDuration(attackType: SnakeAttackType): number {
-    switch (attackType) {
-      case 'addObstacle': return 0; // Permanent obstacle
-      case 'speedUp': return 5000; // 5 seconds
-      case 'reverseControls': return 4000; // 4 seconds
-      case 'shrinkBoard': return 8000; // 8 seconds
-      default: return 3000;
-    }
-  }
-
-  private async handleGameOver(session: WebSocketSession, data: {
-    score: number;
-    length: number;
-  }): Promise<void> {
-    const player = this.roomState.players.get(session.playerId);
-    if (!player || !player.isAlive) return;
-
-    player.isAlive = false;
-    player.score = data.score;
-    player.length = data.length;
-
-    this.broadcastExcept(session.playerId, {
-      type: 'opponent_game_over',
-      id: session.playerId,
-      score: data.score,
-    });
-
-    // Check for winner
-    const alivePlayers = Array.from(this.roomState.players.values()).filter(p => p.isAlive);
-    if (alivePlayers.length <= 1) {
-      const winner = alivePlayers[0] || player;
-      this.endGame(winner.id, 'opponent_died');
-    }
-  }
-
   private endGameByTime(): void {
     const players = Array.from(this.roomState.players.values());
-    players.sort((a, b) => b.score - a.score);
+    // Sort by: 1. Higher score wins, 2. Longer snake wins (tiebreaker)
+    players.sort((a, b) => {
+      if (a.score !== b.score) return b.score - a.score;
+      return b.snake.length - a.snake.length;
+    });
     const winner = players[0];
     this.endGame(winner.id, 'time_up');
   }
@@ -633,8 +601,14 @@ export class SnakeRoom extends DurableObject<Env> {
     this.roomState.gameStatus = 'finished';
     this.roomState.winner = winnerId;
 
+    // ゲームループ停止
+    if (this.gameLoopInterval) {
+      clearInterval(this.gameLoopInterval);
+      this.gameLoopInterval = undefined;
+    }
     if (this.gameTimer) {
       clearInterval(this.gameTimer);
+      this.gameTimer = undefined;
     }
 
     const winner = this.roomState.players.get(winnerId);
@@ -642,7 +616,7 @@ export class SnakeRoom extends DurableObject<Env> {
       id: p.id,
       nickname: p.nickname,
       score: p.score,
-      length: p.length,
+      length: p.snake.length,
     }));
 
     this.broadcast({
@@ -657,6 +631,7 @@ export class SnakeRoom extends DurableObject<Env> {
     for (const p of this.roomState.players.values()) {
       p.isReady = false;
       p.isAlive = true;
+      p.snake = [];
     }
     this.roomState.gameStatus = 'waiting';
   }
@@ -678,6 +653,11 @@ export class SnakeRoom extends DurableObject<Env> {
       });
 
       if (this.roomState.gameStatus === 'playing') {
+        // ゲームループ停止
+        if (this.gameLoopInterval) {
+          clearInterval(this.gameLoopInterval);
+          this.gameLoopInterval = undefined;
+        }
         const remaining = Array.from(this.roomState.players.values())[0];
         if (remaining) {
           this.endGame(remaining.id, 'opponent_quit');

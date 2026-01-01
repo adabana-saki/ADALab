@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Timer, Trophy, Target } from 'lucide-react';
 import { createSeededRandom } from '@/lib/seededRandom';
 import { OpponentState, GameSettings, GameResult } from '@/hooks/use2048Battle';
+import { getSoundEngine } from '@/lib/sound-engine';
 
 // Types
 export type Direction = 'up' | 'down' | 'left' | 'right';
@@ -28,7 +29,7 @@ interface Game2048BattleProps {
   timeRemaining: number;
   winner: { id: string; nickname: string } | null;
   myPlayerId: string | null;
-  onMoveUpdate: (score: number, maxTile: number, moves: number) => void;
+  onMoveUpdate: (score: number, maxTile: number, moves: number, grid: (number | null)[][]) => void;
   onReachedTarget: (score: number, maxTile: number, moves: number) => void;
   onGameOver: (score: number, maxTile: number, moves: number) => void;
   onLeave: () => void;
@@ -270,6 +271,43 @@ function GridComponent({ grid }: { grid: Grid }) {
   );
 }
 
+// Mini Grid Component (相手の盤面表示用)
+function MiniGridComponent({ grid }: { grid?: (number | null)[][] }) {
+  if (!grid) return null;
+
+  const cellSize = 18; // 小さいセルサイズ
+  const gridSize = cellSize * 4 + 3 * 2; // 4x4 + gap
+
+  return (
+    <div
+      className="relative bg-[#bbada0] rounded mx-auto mt-2"
+      style={{ width: gridSize, height: gridSize }}
+    >
+      {grid.flat().map((value, i) => {
+        const row = Math.floor(i / 4);
+        const col = i % 4;
+        const style = value ? getTileStyle(value) : { bg: 'bg-[#cdc1b4]', text: '' };
+        const fontSize = value && value >= 100 ? 'text-[6px]' : 'text-[8px]';
+
+        return (
+          <div
+            key={i}
+            className={`absolute flex items-center justify-center rounded-sm font-bold ${style.bg} ${style.text} ${fontSize}`}
+            style={{
+              width: cellSize,
+              height: cellSize,
+              left: col * (cellSize + 2),
+              top: row * (cellSize + 2),
+            }}
+          >
+            {value || ''}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // Main Component
 export function Game2048Battle({
   nickname,
@@ -292,10 +330,29 @@ export function Game2048Battle({
   const [moves, setMoves] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [reachedTarget, setReachedTarget] = useState(false);
+  const [localTime, setLocalTime] = useState(timeRemaining); // ローカルタイマー
 
   const rngRef = useRef<ReturnType<typeof createSeededRandom> | null>(null);
   const isMovingRef = useRef(false);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const soundEngineRef = useRef(typeof window !== 'undefined' ? getSoundEngine() : null);
+  const lastCountdownRef = useRef<number | null>(null);
+
+  // サーバーからのタイマー更新を同期
+  useEffect(() => {
+    setLocalTime(timeRemaining);
+  }, [timeRemaining]);
+
+  // ローカルタイマーカウントダウン（毎秒）
+  useEffect(() => {
+    if (gameOver || reachedTarget || winner) return;
+
+    const interval = setInterval(() => {
+      setLocalTime(prev => Math.max(0, prev - 1));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [gameOver, reachedTarget, winner]);
 
   // Initialize game with seeded RNG
   useEffect(() => {
@@ -329,6 +386,18 @@ export function Game2048Battle({
       return;
     }
 
+    // 効果音: タイル移動
+    soundEngineRef.current?.tileMove();
+
+    // 効果音: マージ（スコアが増えた = マージが発生）
+    if (scoreGained > 0) {
+      // 最も高い新しいマージ値を使用
+      const mergedValue = Math.max(...newGrid.flat().filter(t => t?.mergedFrom).map(t => t!.value));
+      if (mergedValue > 0) {
+        soundEngineRef.current?.tileMerge(mergedValue);
+      }
+    }
+
     addSeededTile(newGrid, rngRef.current);
 
     const newScore = score + scoreGained;
@@ -340,18 +409,21 @@ export function Game2048Battle({
     setMaxTile(newMaxTile);
     setMoves(newMoves);
 
-    // Send update to server
-    onMoveUpdate(newScore, newMaxTile, newMoves);
+    // Send update to server (グリッドを数値配列に変換)
+    const simpleGrid = newGrid.map(row => row.map(tile => tile?.value || null));
+    onMoveUpdate(newScore, newMaxTile, newMoves, simpleGrid);
 
     // Check win condition (reachedTarget is always false here due to early return guard)
     if (newMaxTile >= settings.targetTile) {
       setReachedTarget(true);
+      soundEngineRef.current?.win2048();
       onReachedTarget(newScore, newMaxTile, newMoves);
     }
 
     // Check game over
     if (!canMove(newGrid)) {
       setGameOver(true);
+      soundEngineRef.current?.gameOver();
       onGameOver(newScore, newMaxTile, newMoves);
     }
 
@@ -406,6 +478,16 @@ export function Game2048Battle({
     move(direction);
     touchStartRef.current = null;
   }, [move]);
+
+  // カウントダウン効果音（残り10秒以下で毎秒再生）
+  useEffect(() => {
+    if (localTime <= 10 && localTime > 0 && !gameOver && !reachedTarget && !winner) {
+      if (lastCountdownRef.current !== localTime) {
+        soundEngineRef.current?.countdown();
+        lastCountdownRef.current = localTime;
+      }
+    }
+  }, [localTime, gameOver, reachedTarget, winner]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -481,9 +563,9 @@ export function Game2048Battle({
           退出
         </button>
         <div className="flex items-center gap-4 text-sm">
-          <div className={`flex items-center gap-2 font-mono font-bold ${timeRemaining <= 30 ? 'text-red-500' : ''}`}>
+          <div className={`flex items-center gap-2 font-mono font-bold ${localTime <= 30 ? 'text-red-500' : ''}`}>
             <Timer className="w-4 h-4" />
-            {formatTime(timeRemaining)}
+            {formatTime(localTime)}
           </div>
           <div className="flex items-center gap-2">
             <Target className="w-4 h-4 text-muted-foreground" />
@@ -525,6 +607,8 @@ export function Game2048Battle({
             <span>最大: {opponentState?.maxTile || '---'}</span>
             <span>手数: {opponentState?.moves || '---'}</span>
           </div>
+          {/* 相手のミニグリッド */}
+          <MiniGridComponent grid={opponentState?.grid} />
           {/* 相手のステータスバッジ */}
           {opponentState?.reachedTarget && (
             <div className="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">
@@ -554,7 +638,7 @@ export function Game2048Battle({
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="absolute inset-0 flex items-center justify-center bg-yellow-500/80 rounded-lg"
+                className="absolute inset-0 z-50 flex items-center justify-center bg-yellow-500/80 rounded-lg"
               >
                 <div className="text-center text-white">
                   <Trophy className="w-12 h-12 mx-auto mb-2" />
@@ -571,7 +655,7 @@ export function Game2048Battle({
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="absolute inset-0 flex items-center justify-center bg-black/70 rounded-lg"
+                className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 rounded-lg"
               >
                 <div className="text-center text-white">
                   <h2 className="text-2xl font-bold mb-2">ゲームオーバー</h2>
@@ -582,6 +666,19 @@ export function Game2048Battle({
           </AnimatePresence>
         </div>
       </div>
+
+      {/* 相手終了時のカウントダウンアラート */}
+      {opponentState?.isFinished && !gameOver && !reachedTarget && opponentState?.forceEndCountdown !== undefined && opponentState.forceEndCountdown > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-orange-500/90 text-white text-center py-2 px-4 rounded-lg mt-2"
+        >
+          <p className="font-bold animate-pulse">
+            相手が終了しました！あと {opponentState.forceEndCountdown} 秒...
+          </p>
+        </motion.div>
+      )}
 
       {/* Stats */}
       <div className="flex justify-center gap-8 text-sm text-muted-foreground mt-4">

@@ -23,6 +23,13 @@ export interface OpponentProgress {
   streak?: number;
 }
 
+// 相手のリアルタイム入力状態
+export interface OpponentInput {
+  id: string;
+  wordIndex: number;
+  currentInput: string;
+}
+
 export interface GameSettings {
   wordCount: number;
   language: 'en' | 'ja';
@@ -51,6 +58,7 @@ export type GameStatus = 'disconnected' | 'connecting' | 'waiting' | 'countdown'
 
 interface UseTypingBattleOptions {
   onGameStart?: (seed: number, settings: GameSettings) => void;
+  onOpponentInput?: (input: OpponentInput) => void;
   onOpponentProgress?: (progress: OpponentProgress) => void;
   onOpponentFinished?: (id: string, wpm: number, accuracy: number) => void;
   onGameEnd?: (winnerId: string, winnerNickname: string, results: GameResult[]) => void;
@@ -80,6 +88,7 @@ export function useTypingBattle(options: UseTypingBattleOptions = {}) {
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
   const [activeAttacks, setActiveAttacks] = useState<StreakAttack[]>([]);
   const [myStreak, setMyStreak] = useState(0);
+  const [opponentInput, setOpponentInput] = useState<OpponentInput | null>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -148,6 +157,7 @@ export function useTypingBattle(options: UseTypingBattleOptions = {}) {
           setCountdown(null);
           setGameStatus('playing');
           setOpponent(prev => prev ? { ...prev, wordIndex: 0, wpm: 0, accuracy: 100, isFinished: false } : null);
+          setOpponentInput(null); // リセット
           const gameSettings: GameSettings = {
             wordCount: data.wordCount,
             language: data.language,
@@ -155,6 +165,19 @@ export function useTypingBattle(options: UseTypingBattleOptions = {}) {
           };
           setSettings(gameSettings);
           optionsRef.current.onGameStart?.(data.seed, gameSettings);
+          break;
+
+        case 'opponent_input':
+          setOpponentInput({
+            id: data.id,
+            wordIndex: data.wordIndex,
+            currentInput: data.currentInput,
+          });
+          optionsRef.current.onOpponentInput?.({
+            id: data.id,
+            wordIndex: data.wordIndex,
+            currentInput: data.currentInput,
+          });
           break;
 
         case 'opponent_progress':
@@ -392,6 +415,17 @@ export function useTypingBattle(options: UseTypingBattleOptions = {}) {
     }
   }, []);
 
+  // Send input update (リアルタイム入力更新)
+  const sendInputUpdate = useCallback((wordIndex: number, currentInput: string) => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({
+        type: 'input_update',
+        wordIndex,
+        currentInput,
+      }));
+    }
+  }, []);
+
   // Send word complete event
   const sendWordComplete = useCallback((wordIndex: number, correct: boolean, wpm: number, accuracy: number, correctChars: number, totalChars: number) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
@@ -449,6 +483,7 @@ export function useTypingBattle(options: UseTypingBattleOptions = {}) {
     players,
     countdown,
     opponent,
+    opponentInput,
     settings,
     winner,
     results,
@@ -462,6 +497,7 @@ export function useTypingBattle(options: UseTypingBattleOptions = {}) {
     joinRoom,
     quickMatch,
     setReady,
+    sendInputUpdate,
     sendWordComplete,
     sendGameFinished,
     leave,

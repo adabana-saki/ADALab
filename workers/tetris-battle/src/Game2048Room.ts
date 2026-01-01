@@ -66,9 +66,9 @@ export type Game2048ServerMessage =
   | { type: 'countdown'; seconds: number }
   | { type: 'game_start'; seed: number; timeLimit: number; targetTile: number }
   | { type: 'time_update'; remaining: number }
-  | { type: 'opponent_update'; id: string; score: number; maxTile: number; moves: number }
+  | { type: 'opponent_update'; id: string; score: number; maxTile: number; moves: number; grid?: (number | null)[][] }
   | { type: 'opponent_reached_target'; id: string; score: number }
-  | { type: 'opponent_game_over'; id: string; score: number }
+  | { type: 'opponent_game_over'; id: string; score: number; forceEndIn?: number }
   | { type: 'receive_attack'; attackType: Attack2048Type; data?: { position?: number; duration?: number } }
   | { type: 'opponent_attacked'; attackerId: string; attackType: Attack2048Type }
   | { type: 'game_end'; winner: string; winnerNickname: string; reason: 'reached_target' | 'time_up' | 'opponent_quit' | 'higher_score'; results: { id: string; nickname: string; score: number; maxTile: number }[] }
@@ -508,6 +508,7 @@ export class Game2048Room extends DurableObject<Env> {
     score: number;
     maxTile: number;
     moves: number;
+    grid?: (number | null)[][];
   }): Promise<void> {
     const player = this.roomState.players.get(session.playerId);
     if (!player || this.roomState.gameStatus !== 'playing') return;
@@ -523,6 +524,7 @@ export class Game2048Room extends DurableObject<Env> {
       score: data.score,
       maxTile: data.maxTile,
       moves: data.moves,
+      grid: data.grid, // 相手の盤面を転送
     });
   }
 
@@ -563,16 +565,25 @@ export class Game2048Room extends DurableObject<Env> {
     player.maxTile = data.maxTile;
     player.moves = data.moves;
 
+    // 相手に終了通知 + 残り時間を送信
     this.broadcastExcept(session.playerId, {
       type: 'opponent_game_over',
       id: session.playerId,
       score: data.score,
+      forceEndIn: 5, // 5秒後に強制終了
     });
 
     // Check if all players finished
     const allFinished = Array.from(this.roomState.players.values()).every(p => p.isFinished);
     if (allFinished) {
       this.endGameByScore();
+    } else {
+      // 片方だけ終了 → 5秒後に強制終了
+      setTimeout(() => {
+        if (this.roomState.gameStatus === 'playing') {
+          this.endGameByScore();
+        }
+      }, 5000);
     }
   }
 
@@ -582,7 +593,11 @@ export class Game2048Room extends DurableObject<Env> {
 
   private endGameByScore(): void {
     const players = Array.from(this.roomState.players.values());
-    players.sort((a, b) => b.score - a.score);
+    // Sort by: 1. Higher score wins, 2. Higher maxTile wins (tiebreaker)
+    players.sort((a, b) => {
+      if (a.score !== b.score) return b.score - a.score;
+      return b.maxTile - a.maxTile;
+    });
     const winner = players[0];
     this.endGame(winner.id, 'higher_score');
   }
