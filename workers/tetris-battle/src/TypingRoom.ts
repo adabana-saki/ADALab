@@ -456,7 +456,6 @@ export class TypingRoom extends DurableObject<Env> {
 
     // Handle streak system
     if (data.correct) {
-      const previousStreak = player.currentStreak;
       player.currentStreak++;
 
       // Update max streak

@@ -349,7 +349,12 @@ async function handleMatchmakingCancel(request: Request, env: Env, gameType: Gam
       body: JSON.stringify(bodyWithGameType),
     });
 
-    return queue.fetch(doRequest);
+    const response = await queue.fetch(doRequest);
+    const result = await response.json();
+    return new Response(JSON.stringify(result), {
+      status: response.status,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   } catch (e) {
     console.error('Cancel matchmaking error:', e);
     return new Response(JSON.stringify({ error: 'Cancel failed' }), {

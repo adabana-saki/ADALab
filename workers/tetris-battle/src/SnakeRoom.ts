@@ -21,7 +21,7 @@ export type FoodType = 'normal' | 'golden' | 'poison' | 'mega';
 const POWER_UPS: Record<SnakePowerUpType, { duration: number; description: string }> = {
   shield: { duration: 5000, description: 'Block next attack' },
   ghost: { duration: 3000, description: 'Pass through walls temporarily' },
-  speed: { duration: 5000, description: 'Slow down your snake' },
+  speed: { duration: 5000, description: 'Speed up your snake' },
   magnet: { duration: 5000, description: 'Attract nearby food' },
 };
 
