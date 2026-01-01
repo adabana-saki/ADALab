@@ -145,7 +145,8 @@ const executeMove = (grid: Grid, direction: Direction): { newGrid: Grid; scoreGa
   let totalScore = 0;
   let anyMoved = false;
 
-  const rotations = { up: 1, right: 2, down: 3, left: 0 }[direction];
+  // シングルプレイヤー版と同じ回転ロジック
+  const rotations = { up: 3, right: 2, down: 1, left: 0 }[direction];
 
   for (let i = 0; i < rotations; i++) workingGrid = rotateGridClockwise(workingGrid);
 
@@ -495,19 +496,46 @@ export function Game2048Battle({
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 text-center">
           <p className="text-xs text-muted-foreground mb-1">{nickname} (あなた)</p>
-          <p className="text-2xl font-bold text-primary">{score.toLocaleString()}</p>
-          <p className="text-xs text-muted-foreground">最大: {maxTile}</p>
+          <motion.p
+            key={score}
+            initial={{ scale: 1.1 }}
+            animate={{ scale: 1 }}
+            className="text-2xl font-bold text-primary"
+          >
+            {score.toLocaleString()}
+          </motion.p>
+          <div className="flex justify-center gap-3 text-xs text-muted-foreground">
+            <span>最大: {maxTile}</span>
+            <span>手数: {moves}</span>
+          </div>
         </div>
-        <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3 text-center">
+        <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3 text-center relative">
           <p className="text-xs text-muted-foreground mb-1">
             {opponentState?.nickname || '対戦相手'}
-            {opponentState?.reachedTarget && ' (2048達成!)'}
-            {opponentState?.isFinished && ' (終了)'}
           </p>
-          <p className="text-2xl font-bold text-orange-500">
+          <motion.p
+            key={opponentState?.score || 0}
+            initial={{ scale: 1.1 }}
+            animate={{ scale: 1 }}
+            className="text-2xl font-bold text-orange-500"
+          >
             {opponentState?.score.toLocaleString() || '---'}
-          </p>
-          <p className="text-xs text-muted-foreground">最大: {opponentState?.maxTile || '---'}</p>
+          </motion.p>
+          <div className="flex justify-center gap-3 text-xs text-muted-foreground">
+            <span>最大: {opponentState?.maxTile || '---'}</span>
+            <span>手数: {opponentState?.moves || '---'}</span>
+          </div>
+          {/* 相手のステータスバッジ */}
+          {opponentState?.reachedTarget && (
+            <div className="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">
+              🏆 2048!
+            </div>
+          )}
+          {opponentState?.isFinished && !opponentState?.reachedTarget && (
+            <div className="absolute -top-2 -right-2 bg-gray-500 text-white text-xs px-2 py-0.5 rounded-full">
+              終了
+            </div>
+          )}
         </div>
       </div>
 
@@ -559,6 +587,15 @@ export function Game2048Battle({
       <div className="flex justify-center gap-8 text-sm text-muted-foreground mt-4">
         <div>手数: {moves}</div>
         <div>最大タイル: {maxTile}</div>
+      </div>
+
+      {/* 操作案内 */}
+      <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+        <p className="text-xs text-muted-foreground text-center">
+          <span className="hidden sm:inline">🎮 操作: 矢印キー または WASD | </span>
+          <span className="sm:hidden">📱 操作: スワイプで移動 | </span>
+          <span>🎯 目標: {settings.targetTile}を作れ！</span>
+        </p>
       </div>
     </div>
   );

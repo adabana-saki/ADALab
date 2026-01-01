@@ -490,14 +490,15 @@ export class Game2048Room extends DurableObject<Env> {
       targetTile: this.roomState.targetTile,
     });
 
-    // Start game timer
+    // Start game timer - 毎秒更新を送信
     let remaining = this.roomState.timeLimit;
     this.gameTimer = setInterval(() => {
       remaining--;
       if (remaining <= 0) {
         clearInterval(this.gameTimer!);
         this.endGameByTime();
-      } else if (remaining % 10 === 0 || remaining <= 10) {
+      } else {
+        // 毎秒タイマー更新を送信
         this.broadcast({ type: 'time_update', remaining });
       }
     }, 1000);
