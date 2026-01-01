@@ -11,6 +11,31 @@ export type Direction = 'up' | 'down' | 'left' | 'right';
 // プレイヤーの色
 const PLAYER_COLORS = ['#22c55e', '#f97316']; // green, orange
 
+// Power-up types
+export type SnakePowerUpType = 'shield' | 'ghost' | 'speed' | 'magnet';
+
+// Attack types based on food eaten
+export type SnakeAttackType = 'addObstacle' | 'speedUp' | 'reverseControls' | 'shrinkBoard';
+
+// Food types with different effects
+export type FoodType = 'normal' | 'golden' | 'poison' | 'mega';
+
+// Power-up definitions
+const POWER_UPS: Record<SnakePowerUpType, { duration: number; description: string }> = {
+  shield: { duration: 5000, description: 'Block next attack' },
+  ghost: { duration: 3000, description: 'Pass through walls temporarily' },
+  speed: { duration: 5000, description: 'Speed up your snake' },
+  magnet: { duration: 5000, description: 'Attract nearby food' },
+};
+
+// Attack based on food type eaten
+const FOOD_ATTACKS: Record<FoodType, { attackType: SnakeAttackType | null; probability: number }> = {
+  normal: { attackType: 'addObstacle', probability: 0.3 },
+  golden: { attackType: 'speedUp', probability: 0.8 },
+  poison: { attackType: 'reverseControls', probability: 1.0 },
+  mega: { attackType: 'shrinkBoard', probability: 0.5 },
+};
+
 export interface SnakePlayerState {
   id: string;
   nickname: string;
