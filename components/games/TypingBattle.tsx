@@ -4,15 +4,17 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { ArrowLeft, Trophy, Timer, Keyboard, Flame, Zap } from 'lucide-react';
 import { createSeededRandom } from '@/lib/seededRandom';
 import { getWords, TypingWord, Language, Difficulty } from '@/lib/typing-words';
-import { OpponentProgress, GameSettings, GameResult, StreakAttack, TypingAttackType } from '@/hooks/useTypingBattle';
+import { OpponentProgress, OpponentInput, GameSettings, GameResult, StreakAttack, TypingAttackType } from '@/hooks/useTypingBattle';
 
 interface TypingBattleProps {
   nickname: string;
   seed: number;
   settings: GameSettings;
   opponentProgress: OpponentProgress | null;
+  opponentInput: OpponentInput | null;
   winner: { id: string; nickname: string } | null;
   myPlayerId: string | null;
+  onInputUpdate: (wordIndex: number, currentInput: string) => void;
   onWordComplete: (wordIndex: number, correct: boolean, wpm: number, accuracy: number, correctChars: number, totalChars: number) => void;
   onGameFinished: (finalWpm: number, finalAccuracy: number, finishTime: number) => void;
   onLeave: () => void;
@@ -48,8 +50,10 @@ export function TypingBattle({
   seed,
   settings,
   opponentProgress,
+  opponentInput,
   winner,
   myPlayerId: _myPlayerId,
+  onInputUpdate,
   onWordComplete,
   onGameFinished,
   onLeave,
@@ -199,9 +203,14 @@ export function TypingBattle({
         };
       }
 
+      // 入力更新を送信
+      if (input !== prev.currentInput) {
+        onInputUpdate(prev.currentWordIndex, input);
+      }
+
       return { ...prev, currentInput: input, isStarted, startTime };
     });
-  }, [settings.language, onWordComplete, onGameFinished]);
+  }, [settings.language, onWordComplete, onGameFinished, onInputUpdate]);
 
   // Get character status for display
   const getCharacterStatus = (charIndex: number, targetText: string): 'correct' | 'incorrect' | 'pending' => {
@@ -371,6 +380,50 @@ export function TypingBattle({
               <span className="text-sm font-bold text-yellow-500">{myStreak}連続ストリーク!</span>
               {myStreak >= 10 && <Zap className="w-4 h-4 text-yellow-500" />}
             </div>
+          </div>
+        )}
+
+        {/* 相手のリアルタイム入力表示 */}
+        {opponentProgress && opponentInput && !opponentProgress.isFinished && gameState.words.length > 0 && (
+          <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-6 h-6 bg-orange-500/30 rounded-full flex items-center justify-center">
+                <span className="text-orange-500 text-xs font-bold">
+                  {opponentProgress.nickname.charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <span className="text-sm text-orange-500 font-medium">{opponentProgress.nickname}が入力中...</span>
+            </div>
+            {(() => {
+              const oppWord = gameState.words[opponentInput.wordIndex];
+              if (!oppWord) return null;
+              const oppTargetText = settings.language === 'ja' && oppWord.reading ? oppWord.reading : oppWord.text;
+              return (
+                <div className="text-center">
+                  {settings.language === 'ja' && oppWord.reading && (
+                    <div className="text-sm text-muted-foreground mb-1">{oppWord.text}</div>
+                  )}
+                  <div className="text-xl font-mono tracking-wider">
+                    {oppTargetText.split('').map((char, i) => {
+                      const isTyped = i < opponentInput.currentInput.length;
+                      const isCorrect = isTyped && opponentInput.currentInput[i] === char;
+                      return (
+                        <span
+                          key={i}
+                          className={
+                            isTyped
+                              ? (isCorrect ? 'text-green-500' : 'text-red-500')
+                              : 'text-muted-foreground/50'
+                          }
+                        >
+                          {char}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         )}
       </div>

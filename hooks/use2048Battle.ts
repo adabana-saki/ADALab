@@ -18,6 +18,8 @@ export interface OpponentState {
   moves: number;
   isFinished: boolean;
   reachedTarget: boolean;
+  grid?: (number | null)[][]; // 相手の盤面
+  forceEndCountdown?: number; // 強制終了カウントダウン（秒）
 }
 
 export interface GameSettings {
@@ -66,6 +68,7 @@ export function use2048Battle(options: Use2048BattleOptions = {}) {
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const forceEndTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const optionsRef = useRef(options);
 
   useEffect(() => {
@@ -84,6 +87,10 @@ export function use2048Battle(options: Use2048BattleOptions = {}) {
     if (pingIntervalRef.current) {
       clearInterval(pingIntervalRef.current);
       pingIntervalRef.current = null;
+    }
+    if (forceEndTimerRef.current) {
+      clearInterval(forceEndTimerRef.current);
+      forceEndTimerRef.current = null;
     }
   }, []);
 
@@ -160,6 +167,7 @@ export function use2048Battle(options: Use2048BattleOptions = {}) {
             moves: data.moves,
             isFinished: prev?.isFinished || false,
             reachedTarget: prev?.reachedTarget || false,
+            grid: data.grid, // 相手の盤面
           }));
           optionsRef.current.onOpponentUpdate?.({
             id: data.id,
@@ -169,6 +177,7 @@ export function use2048Battle(options: Use2048BattleOptions = {}) {
             moves: data.moves,
             isFinished: false,
             reachedTarget: false,
+            grid: data.grid,
           });
           break;
 
@@ -178,7 +187,24 @@ export function use2048Battle(options: Use2048BattleOptions = {}) {
           break;
 
         case 'opponent_game_over':
-          setOpponent(prev => prev ? { ...prev, isFinished: true, score: data.score } : null);
+          setOpponent(prev => prev ? {
+            ...prev,
+            isFinished: true,
+            score: data.score,
+            forceEndCountdown: data.forceEndIn || 5,
+          } : null);
+          // 強制終了カウントダウン開始
+          if (data.forceEndIn && forceEndTimerRef.current === null) {
+            let remaining = data.forceEndIn;
+            forceEndTimerRef.current = setInterval(() => {
+              remaining--;
+              setOpponent(prev => prev ? { ...prev, forceEndCountdown: remaining } : null);
+              if (remaining <= 0 && forceEndTimerRef.current) {
+                clearInterval(forceEndTimerRef.current);
+                forceEndTimerRef.current = null;
+              }
+            }, 1000);
+          }
           optionsRef.current.onOpponentGameOver?.(data.id, data.score);
           break;
 
@@ -359,13 +385,14 @@ export function use2048Battle(options: Use2048BattleOptions = {}) {
   }, []);
 
   // Send move update
-  const sendMoveUpdate = useCallback((score: number, maxTile: number, moves: number) => {
+  const sendMoveUpdate = useCallback((score: number, maxTile: number, moves: number, grid?: (number | null)[][]) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({
         type: 'move_update',
         score,
         maxTile,
         moves,
+        grid,
       }));
     }
   }, []);

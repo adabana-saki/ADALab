@@ -17,6 +17,7 @@ import {
   signOut,
   resetPassword,
   getIdToken,
+  handleRedirectResult,
   User,
 } from '@/lib/firebase';
 
@@ -50,6 +51,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // リダイレクト認証の結果を処理
+  useEffect(() => {
+    handleRedirectResult().catch((err) => {
+      setError(getErrorMessage(err));
+    });
+  }, []);
 
   // 認証状態の監視
   useEffect(() => {

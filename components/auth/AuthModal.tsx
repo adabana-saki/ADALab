@@ -20,9 +20,28 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
   const [isLoading, setIsLoading] = useState(false);
   const [resetSent, setResetSent] = useState(false);
   const wasAuthenticating = useRef(false);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const { user, signInWithGoogle, signInWithGithub, signInWithEmail, signUpWithEmail, resetPassword, error, clearError } =
     useAuth();
+
+  // Body scroll lock
+  useEffect(() => {
+    if (isOpen) {
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        document.body.style.overflow = '';
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [isOpen]);
 
   // モーダルが閉じる時にwasAuthenticatingをリセット
   useEffect(() => {
@@ -95,15 +114,16 @@ export function AuthModal({ isOpen, onClose, initialMode = 'login' }: AuthModalP
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 pt-8 sm:pt-4 overflow-y-auto"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
           onClick={onClose}
         >
           <motion.div
+            ref={modalRef}
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-card border border-border rounded-2xl p-6 w-full max-w-md"
+            className="bg-card border border-border rounded-2xl p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto"
           >
             {/* ヘッダー */}
             <div className="flex items-center justify-between mb-6">

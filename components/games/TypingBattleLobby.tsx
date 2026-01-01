@@ -47,10 +47,12 @@ export function TypingBattleLobby() {
     winner,
     error,
     myPlayerId,
+    opponentInput,
     createRoom,
     joinRoom,
     quickMatch,
     setReady,
+    sendInputUpdate,
     sendWordComplete,
     sendGameFinished,
     leave,
@@ -489,8 +491,10 @@ export function TypingBattleLobby() {
         seed={gameSeed}
         settings={gameSettings}
         opponentProgress={opponentProgress}
+        opponentInput={opponentInput}
         winner={winner}
         myPlayerId={myPlayerId}
+        onInputUpdate={sendInputUpdate}
         onWordComplete={sendWordComplete}
         onGameFinished={sendGameFinished}
         onLeave={handleBack}

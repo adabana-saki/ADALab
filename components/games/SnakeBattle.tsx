@@ -1,246 +1,79 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Timer, Skull } from 'lucide-react';
-import { createSeededRandom } from '@/lib/seededRandom';
-import { OpponentState, GameSettings, GameResult, Position, Direction } from '@/hooks/useSnakeBattle';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Timer, Skull, Swords } from 'lucide-react';
+import { BattlePlayerState, GameSettings, GameResult, Position, Direction, PlayerDiedInfo } from '@/hooks/useSnakeBattle';
 
 interface SnakeBattleProps {
   nickname: string;
-  seed: number;
   settings: GameSettings;
-  opponentState: OpponentState | null;
+  battlePlayers: BattlePlayerState[];
+  food: Position | null;
   timeRemaining: number;
   winner: { id: string; nickname: string } | null;
   myPlayerId: string | null;
-  obstacles: Position[];
-  onStateUpdate: (snake: Position[], direction: Direction, score: number) => void;
-  onFoodEaten: (newFood: Position, score: number) => void;
-  onGameOver: (score: number, length: number) => void;
+  lastDeath: PlayerDiedInfo | null;
+  onDirectionChange: (direction: Direction) => void;
   onLeave: () => void;
   results: GameResult[];
   endReason: string;
 }
 
-const INITIAL_SPEED = 150;
-const SPEED_INCREASE = 5;
-const MIN_SPEED = 50;
-
-// Get initial snake position
-const getInitialSnake = (gridSize: number): Position[] => {
-  const centerX = Math.floor(gridSize / 2);
-  const centerY = Math.floor(gridSize / 2);
-  return [
-    { x: centerX, y: centerY },
-    { x: centerX - 1, y: centerY },
-    { x: centerX - 2, y: centerY },
-  ];
+// 死因の日本語表示
+const getDeathReasonText = (killedBy: string): string => {
+  switch (killedBy) {
+    case 'wall': return '壁に衝突';
+    case 'self': return '自分に衝突';
+    case 'opponent': return '相手と正面衝突';
+    case 'opponent_body': return '相手の体に衝突';
+    default: return 'ゲームオーバー';
+  }
 };
 
-// Generate random food position
-const getRandomFood = (
-  gridSize: number,
-  snake: Position[],
-  obstacles: Position[],
-  rng: ReturnType<typeof createSeededRandom>
-): Position => {
-  const exclude = [...snake, ...obstacles];
-  let pos: Position;
-  let attempts = 0;
-  const maxAttempts = 100;
-
-  do {
-    pos = {
-      x: rng.nextInt(0, gridSize),
-      y: rng.nextInt(0, gridSize),
-    };
-    attempts++;
-  } while (
-    exclude.some(p => p.x === pos.x && p.y === pos.y) &&
-    attempts < maxAttempts
-  );
-
-  return pos;
+// 色名からCSSクラスへのマッピング
+const getColorClass = (color: string, isHead: boolean): string => {
+  const colors: Record<string, { head: string; body: string }> = {
+    green: { head: 'bg-green-500', body: 'bg-green-400' },
+    blue: { head: 'bg-blue-500', body: 'bg-blue-400' },
+    red: { head: 'bg-red-500', body: 'bg-red-400' },
+    purple: { head: 'bg-purple-500', body: 'bg-purple-400' },
+    orange: { head: 'bg-orange-500', body: 'bg-orange-400' },
+  };
+  const colorSet = colors[color] || colors.green;
+  return isHead ? colorSet.head : colorSet.body;
 };
 
 export function SnakeBattle({
   nickname,
-  seed,
   settings,
-  opponentState,
+  battlePlayers,
+  food,
   timeRemaining,
   winner,
-  myPlayerId: _myPlayerId,
-  obstacles,
-  onStateUpdate,
-  onFoodEaten,
-  onGameOver,
+  myPlayerId,
+  lastDeath,
+  onDirectionChange,
   onLeave,
   results,
   endReason,
 }: SnakeBattleProps) {
-  const [snake, setSnake] = useState<Position[]>([]);
-  const [food, setFood] = useState<Position>({ x: 0, y: 0 });
-  const [direction, setDirection] = useState<Direction>('right');
-  const [nextDirection, setNextDirection] = useState<Direction>('right');
-  const [score, setScore] = useState(0);
-  const [gameOver, setGameOver] = useState(false);
-  const [speed, setSpeed] = useState(INITIAL_SPEED);
-  const [localObstacles, setLocalObstacles] = useState<Position[]>([]);
-
-  const rngRef = useRef<ReturnType<typeof createSeededRandom> | null>(null);
-  const gameLoopRef = useRef<number | null>(null);
-  const lastUpdateRef = useRef<number>(0);
+  const [currentDirection, setCurrentDirection] = useState<Direction>('right');
+  const [deathNotification, setDeathNotification] = useState<PlayerDiedInfo | null>(null);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
-  const updateIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Initialize game
+  // 死亡通知を表示
   useEffect(() => {
-    const rng = createSeededRandom(seed);
-    rngRef.current = rng;
-
-    const initialSnake = getInitialSnake(settings.gridSize);
-    const initialFood = getRandomFood(settings.gridSize, initialSnake, [], rng);
-
-    setSnake(initialSnake);
-    setFood(initialFood);
-    setDirection('right');
-    setNextDirection('right');
-    setScore(0);
-    setGameOver(false);
-    setSpeed(INITIAL_SPEED);
-    setLocalObstacles([]);
-  }, [seed, settings.gridSize]);
-
-  // Handle incoming obstacles
-  useEffect(() => {
-    if (obstacles.length > localObstacles.length) {
-      setLocalObstacles(obstacles);
+    if (lastDeath) {
+      setDeathNotification(lastDeath);
+      const timer = setTimeout(() => setDeathNotification(null), 3000);
+      return () => clearTimeout(timer);
     }
-  }, [obstacles, localObstacles.length]);
+  }, [lastDeath]);
 
-  // Game loop
-  const gameLoop = useCallback((timestamp: number) => {
-    if (gameOver) {
-      gameLoopRef.current = null;
-      return;
-    }
-
-    if (timestamp - lastUpdateRef.current < speed) {
-      gameLoopRef.current = requestAnimationFrame(gameLoop);
-      return;
-    }
-
-    lastUpdateRef.current = timestamp;
-
-    setSnake(prevSnake => {
-      if (gameOver || !rngRef.current) return prevSnake;
-
-      const head = prevSnake[0];
-      const currentDirection = nextDirection;
-      setDirection(currentDirection);
-
-      // Calculate new head position
-      let newHead: Position;
-      switch (currentDirection) {
-        case 'up':
-          newHead = { x: head.x, y: head.y - 1 };
-          break;
-        case 'down':
-          newHead = { x: head.x, y: head.y + 1 };
-          break;
-        case 'left':
-          newHead = { x: head.x - 1, y: head.y };
-          break;
-        case 'right':
-          newHead = { x: head.x + 1, y: head.y };
-          break;
-      }
-
-      // Wall collision
-      if (
-        newHead.x < 0 ||
-        newHead.x >= settings.gridSize ||
-        newHead.y < 0 ||
-        newHead.y >= settings.gridSize
-      ) {
-        setGameOver(true);
-        onGameOver(score, prevSnake.length);
-        return prevSnake;
-      }
-
-      // Self collision
-      if (prevSnake.some(segment => segment.x === newHead.x && segment.y === newHead.y)) {
-        setGameOver(true);
-        onGameOver(score, prevSnake.length);
-        return prevSnake;
-      }
-
-      // Obstacle collision
-      if (localObstacles.some(obs => obs.x === newHead.x && obs.y === newHead.y)) {
-        setGameOver(true);
-        onGameOver(score, prevSnake.length);
-        return prevSnake;
-      }
-
-      const newSnake = [newHead, ...prevSnake];
-
-      // Check if food eaten
-      if (newHead.x === food.x && newHead.y === food.y) {
-        const newScore = score + 10;
-        setScore(newScore);
-        setSpeed(prev => Math.max(MIN_SPEED, prev - SPEED_INCREASE));
-
-        const newFood = getRandomFood(settings.gridSize, newSnake, localObstacles, rngRef.current!);
-        setFood(newFood);
-        onFoodEaten(newFood, newScore);
-
-        return newSnake;
-      } else {
-        newSnake.pop();
-      }
-
-      return newSnake;
-    });
-
-    gameLoopRef.current = requestAnimationFrame(gameLoop);
-  }, [gameOver, speed, nextDirection, food, score, settings.gridSize, localObstacles, onGameOver, onFoodEaten]);
-
-  // Start game loop
-  useEffect(() => {
-    if (!gameOver && snake.length > 0) {
-      lastUpdateRef.current = performance.now();
-      gameLoopRef.current = requestAnimationFrame(gameLoop);
-    }
-
-    return () => {
-      if (gameLoopRef.current) {
-        cancelAnimationFrame(gameLoopRef.current);
-      }
-    };
-  }, [gameOver, snake.length, gameLoop]);
-
-  // Send state updates periodically
-  useEffect(() => {
-    if (!gameOver && snake.length > 0) {
-      updateIntervalRef.current = setInterval(() => {
-        onStateUpdate(snake, direction, score);
-      }, 500);
-    }
-
-    return () => {
-      if (updateIntervalRef.current) {
-        clearInterval(updateIntervalRef.current);
-      }
-    };
-  }, [gameOver, snake, direction, score, onStateUpdate]);
-
-  // Keyboard controls
+  // キーボード操作
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (gameOver) return;
-
       const opposites: Record<Direction, Direction> = {
         up: 'down',
         down: 'up',
@@ -273,24 +106,25 @@ export function SnakeBattle({
           break;
       }
 
-      if (newDirection && opposites[newDirection] !== direction) {
+      if (newDirection && opposites[newDirection] !== currentDirection) {
         e.preventDefault();
-        setNextDirection(newDirection);
+        setCurrentDirection(newDirection);
+        onDirectionChange(newDirection);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [gameOver, direction]);
+  }, [currentDirection, onDirectionChange]);
 
-  // Touch controls
+  // タッチ操作
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     const touch = e.touches[0];
     touchStartRef.current = { x: touch.clientX, y: touch.clientY };
   }, []);
 
   const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (!touchStartRef.current || gameOver) return;
+    if (!touchStartRef.current) return;
 
     const touch = e.changedTouches[0];
     const dx = touch.clientX - touchStartRef.current.x;
@@ -315,12 +149,13 @@ export function SnakeBattle({
       newDirection = dy > 0 ? 'down' : 'up';
     }
 
-    if (opposites[newDirection] !== direction) {
-      setNextDirection(newDirection);
+    if (opposites[newDirection] !== currentDirection) {
+      setCurrentDirection(newDirection);
+      onDirectionChange(newDirection);
     }
 
     touchStartRef.current = null;
-  }, [gameOver, direction]);
+  }, [currentDirection, onDirectionChange]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -328,20 +163,27 @@ export function SnakeBattle({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const cellSize = Math.min(Math.floor(300 / settings.gridSize), 15);
+  // グリッドサイズの計算（レスポンシブ）
+  const cellSize = Math.min(Math.floor(400 / settings.gridSize), 13);
   const gridPixelSize = cellSize * settings.gridSize;
 
-  // Show results if winner is declared
-  if (winner) {
-    const isWinner = winner.nickname === nickname;
-    const myResult = results.find(r => r.nickname === nickname);
-    const opponentResult = results.find(r => r.nickname !== nickname);
+  // 自分と相手を特定
+  const myPlayer = battlePlayers.find(p => p.id === myPlayerId);
+  const opponentPlayer = battlePlayers.find(p => p.id !== myPlayerId);
 
-    const reasonText = {
+  // 結果表示
+  if (winner) {
+    const isWinner = winner.id === myPlayerId;
+    const myResult = results.find(r => r.id === myPlayerId);
+    const opponentResult = results.find(r => r.id !== myPlayerId);
+
+    const reasonText: Record<string, string> = {
+      'player_died': '相手がゲームオーバー',
       'opponent_died': '相手がゲームオーバー',
       'time_up': '時間切れ',
       'opponent_quit': '相手が退出',
-    }[endReason] || '';
+      'draw': '引き分け',
+    };
 
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -353,7 +195,7 @@ export function SnakeBattle({
             <h2 className={`text-3xl font-bold mb-2 ${isWinner ? 'text-yellow-500' : 'text-foreground'}`}>
               {isWinner ? 'WIN!' : 'LOSE...'}
             </h2>
-            <p className="text-muted-foreground">{reasonText} - 勝者: {winner.nickname}</p>
+            <p className="text-muted-foreground">{reasonText[endReason] || endReason} - 勝者: {winner.nickname}</p>
           </div>
 
           {myResult && opponentResult && (
@@ -365,8 +207,8 @@ export function SnakeBattle({
                 <div className="text-center font-medium">長さ</div>
 
                 <div className="text-left font-medium">{nickname} (あなた)</div>
-                <div className="text-center text-primary font-bold">{myResult?.score || score}</div>
-                <div className="text-center">{myResult?.length || snake.length}</div>
+                <div className="text-center text-primary font-bold">{myResult.score}</div>
+                <div className="text-center">{myResult.length}</div>
 
                 <div className="text-left text-muted-foreground">{opponentResult.nickname}</div>
                 <div className="text-center text-muted-foreground">{opponentResult.score}</div>
@@ -397,151 +239,144 @@ export function SnakeBattle({
           <ArrowLeft className="w-4 h-4" />
           退出
         </button>
-        <div className={`flex items-center gap-2 font-mono font-bold ${timeRemaining <= 30 ? 'text-red-500' : ''}`}>
+        <div className="flex items-center gap-2">
+          <Swords className="w-4 h-4 text-primary" />
+          <span className="text-sm font-medium">同一フィールドバトル</span>
+        </div>
+        <div className={`flex items-center gap-2 font-mono font-bold ${timeRemaining <= 30 ? 'text-red-500 animate-pulse' : ''}`}>
           <Timer className="w-4 h-4" />
           {formatTime(timeRemaining)}
         </div>
       </div>
 
-      {/* Score comparison */}
+      {/* スコア比較 */}
       <div className="grid grid-cols-2 gap-4 mb-4">
-        <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3 text-center">
+        <div className={`border rounded-lg p-3 text-center ${myPlayer?.color === 'green' ? 'bg-green-500/10 border-green-500/20' : 'bg-blue-500/10 border-blue-500/20'}`}>
           <p className="text-xs text-muted-foreground mb-1">{nickname} (あなた)</p>
-          <p className="text-2xl font-bold text-green-500">{score}</p>
-          <p className="text-xs text-muted-foreground">長さ: {snake.length}</p>
-        </div>
-        <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3 text-center">
-          <p className="text-xs text-muted-foreground mb-1">
-            {opponentState?.nickname || '対戦相手'}
-            {opponentState && !opponentState.isAlive && ' (ゲームオーバー)'}
-          </p>
-          <p className="text-2xl font-bold text-orange-500">
-            {opponentState?.score ?? '---'}
+          <p className={`text-2xl font-bold ${myPlayer?.color === 'green' ? 'text-green-500' : 'text-blue-500'}`}>
+            {myPlayer?.score ?? 0}
           </p>
           <p className="text-xs text-muted-foreground">
-            長さ: {opponentState?.snake.length ?? '---'}
+            長さ: {myPlayer?.snake.length ?? 0}
+            {myPlayer && !myPlayer.isAlive && <span className="ml-2 text-red-500">(終了)</span>}
+          </p>
+        </div>
+        <div className={`border rounded-lg p-3 text-center ${opponentPlayer?.color === 'green' ? 'bg-green-500/10 border-green-500/20' : 'bg-blue-500/10 border-blue-500/20'}`}>
+          <p className="text-xs text-muted-foreground mb-1">
+            {opponentPlayer?.nickname || '対戦相手'}
+          </p>
+          <p className={`text-2xl font-bold ${opponentPlayer?.color === 'green' ? 'text-green-500' : 'text-blue-500'}`}>
+            {opponentPlayer?.score ?? '---'}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            長さ: {opponentPlayer?.snake.length ?? '---'}
+            {opponentPlayer && !opponentPlayer.isAlive && <span className="ml-2 text-red-500">(終了)</span>}
           </p>
         </div>
       </div>
 
-      {/* Obstacle warning */}
-      {localObstacles.length > 0 && (
-        <div className="mb-2 text-center text-sm text-red-500 flex items-center justify-center gap-2">
-          <Skull className="w-4 h-4" />
-          障害物: {localObstacles.length}個
-        </div>
-      )}
+      {/* 死亡通知 */}
+      <AnimatePresence>
+        {deathNotification && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-center"
+          >
+            <div className="flex items-center justify-center gap-2 text-red-500">
+              <Skull className="w-5 h-5" />
+              <span className="font-medium">
+                {deathNotification.nickname}が{getDeathReasonText(deathNotification.killedBy)}で脱落！
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Game grids */}
-      <div className="flex-1 flex flex-col md:flex-row items-center justify-center gap-4">
-        {/* My grid */}
+      {/* ゲームフィールド（同一フィールド） */}
+      <div className="flex-1 flex items-center justify-center">
         <div
           className="relative select-none"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
-          <p className="text-center text-sm text-muted-foreground mb-2">あなた</p>
           <div
-            className="relative bg-muted/30 border border-border rounded-lg overflow-hidden"
+            className="relative bg-muted/30 border-2 border-border rounded-lg overflow-hidden"
             style={{ width: gridPixelSize, height: gridPixelSize }}
           >
-            {/* Snake */}
-            {snake.map((segment, index) => (
-              <motion.div
-                key={`snake-${index}`}
-                className={`absolute ${index === 0 ? 'bg-green-500' : 'bg-green-400'} rounded-sm`}
-                style={{
-                  width: cellSize - 1,
-                  height: cellSize - 1,
-                  left: segment.x * cellSize,
-                  top: segment.y * cellSize,
-                }}
-                initial={{ scale: index === 0 ? 1 : 0.8 }}
-                animate={{ scale: 1 }}
-              />
-            ))}
-
-            {/* Food */}
-            <motion.div
-              className="absolute bg-yellow-500 rounded-full"
+            {/* グリッド線（薄く表示） */}
+            <div
+              className="absolute inset-0 pointer-events-none"
               style={{
-                width: cellSize - 1,
-                height: cellSize - 1,
-                left: food.x * cellSize,
-                top: food.y * cellSize,
+                backgroundSize: `${cellSize}px ${cellSize}px`,
+                backgroundImage: 'linear-gradient(to right, rgba(128,128,128,0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(128,128,128,0.1) 1px, transparent 1px)',
               }}
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ repeat: Infinity, duration: 0.5 }}
             />
 
-            {/* Obstacles */}
-            {localObstacles.map((obs, index) => (
-              <motion.div
-                key={`obstacle-${index}`}
-                className="absolute bg-red-500 rounded-sm"
-                style={{
-                  width: cellSize - 1,
-                  height: cellSize - 1,
-                  left: obs.x * cellSize,
-                  top: obs.y * cellSize,
-                }}
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-              />
-            ))}
-
-            {/* Game over overlay */}
-            {gameOver && (
-              <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-                <div className="text-center text-white">
-                  <Skull className="w-12 h-12 mx-auto mb-2" />
-                  <p className="font-bold">ゲームオーバー</p>
-                  <p className="text-sm">待機中...</p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Opponent's grid */}
-        {opponentState && (
-          <div>
-            <p className="text-center text-sm text-muted-foreground mb-2">
-              {opponentState.nickname}
-            </p>
-            <div
-              className="relative bg-muted/30 border border-border rounded-lg overflow-hidden opacity-75"
-              style={{ width: gridPixelSize, height: gridPixelSize }}
-            >
-              {/* Opponent snake */}
-              {opponentState.snake.map((segment, index) => (
-                <div
-                  key={`opp-snake-${index}`}
-                  className={`absolute ${index === 0 ? 'bg-orange-500' : 'bg-orange-400'} rounded-sm`}
+            {/* 全プレイヤーのスネーク */}
+            {battlePlayers.map(player => (
+              player.snake.map((segment, index) => (
+                <motion.div
+                  key={`${player.id}-${index}`}
+                  className={`absolute ${getColorClass(player.color, index === 0)} rounded-sm ${!player.isAlive ? 'opacity-30' : ''}`}
                   style={{
                     width: cellSize - 1,
                     height: cellSize - 1,
                     left: segment.x * cellSize,
                     top: segment.y * cellSize,
                   }}
+                  initial={index === 0 ? { scale: 1.2 } : { scale: 0.9 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.05 }}
                 />
-              ))}
+              ))
+            ))}
 
-              {/* Opponent game over */}
-              {!opponentState.isAlive && (
-                <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-                  <div className="text-center text-white">
-                    <Skull className="w-12 h-12 mx-auto mb-2" />
-                    <p className="font-bold">ゲームオーバー</p>
-                  </div>
+            {/* フード */}
+            {food && (
+              <motion.div
+                className="absolute bg-yellow-500 rounded-full"
+                style={{
+                  width: cellSize - 1,
+                  height: cellSize - 1,
+                  left: food.x * cellSize,
+                  top: food.y * cellSize,
+                }}
+                animate={{ scale: [1, 1.15, 1] }}
+                transition={{ repeat: Infinity, duration: 0.6 }}
+              />
+            )}
+
+            {/* 自分が死んだ時のオーバーレイ */}
+            {myPlayer && !myPlayer.isAlive && (
+              <div className="absolute inset-0 z-50 bg-black/60 flex items-center justify-center">
+                <div className="text-center text-white">
+                  <Skull className="w-16 h-16 mx-auto mb-2" />
+                  <p className="font-bold text-xl">ゲームオーバー</p>
+                  <p className="text-sm mt-2">結果を待機中...</p>
                 </div>
-              )}
+              </div>
+            )}
+          </div>
+
+          {/* 凡例 */}
+          <div className="mt-3 flex justify-center gap-4 text-xs text-muted-foreground">
+            {battlePlayers.map(player => (
+              <div key={player.id} className="flex items-center gap-1">
+                <div className={`w-3 h-3 rounded-sm ${getColorClass(player.color, true)}`} />
+                <span>{player.id === myPlayerId ? 'あなた' : player.nickname}</span>
+              </div>
+            ))}
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 rounded-full bg-yellow-500" />
+              <span>エサ</span>
             </div>
           </div>
-        )}
+        </div>
       </div>
 
-      {/* Controls hint */}
+      {/* 操作ヒント */}
       <div className="text-center text-xs text-muted-foreground mt-4">
         矢印キー / WASD / スワイプで操作
       </div>

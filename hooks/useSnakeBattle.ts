@@ -17,6 +17,17 @@ export interface PlayerInfo {
   isReady: boolean;
 }
 
+// 同一フィールド上のプレイヤー状態
+export interface BattlePlayerState {
+  id: string;
+  nickname: string;
+  snake: Position[];
+  score: number;
+  isAlive: boolean;
+  color: string;
+}
+
+// 旧: 相手状態（後方互換性のため残す）
 export interface OpponentState {
   id: string;
   nickname: string;
@@ -38,10 +49,19 @@ export interface GameResult {
   length: number;
 }
 
+// プレイヤー死亡情報
+export interface PlayerDiedInfo {
+  id: string;
+  nickname: string;
+  killedBy: 'wall' | 'self' | 'opponent' | 'opponent_body';
+}
+
 export type GameStatus = 'disconnected' | 'connecting' | 'waiting' | 'countdown' | 'playing' | 'finished';
 
 interface UseSnakeBattleOptions {
   onGameStart?: (seed: number, settings: GameSettings) => void;
+  onGameStateUpdate?: (players: BattlePlayerState[], food: Position) => void;
+  onPlayerDied?: (info: PlayerDiedInfo) => void;
   onOpponentUpdate?: (state: OpponentState) => void;
   onReceiveObstacle?: (position: Position, senderId: string) => void;
   onOpponentGameOver?: (id: string, score: number) => void;
@@ -60,7 +80,7 @@ export function useSnakeBattle(options: UseSnakeBattleOptions = {}) {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [opponent, setOpponent] = useState<OpponentState | null>(null);
   const [settings, setSettings] = useState<GameSettings>({
-    gridSize: 20,
+    gridSize: 30, // 30x30に拡大
     timeLimit: 180,
   });
   const [timeRemaining, setTimeRemaining] = useState<number>(180);
@@ -69,6 +89,11 @@ export function useSnakeBattle(options: UseSnakeBattleOptions = {}) {
   const [error, setError] = useState<string | null>(null);
   const [myPlayerId, setMyPlayerId] = useState<string | null>(null);
   const [pendingObstacles, setPendingObstacles] = useState<Position[]>([]);
+
+  // 同一フィールドバトル用の新しい状態
+  const [battlePlayers, setBattlePlayers] = useState<BattlePlayerState[]>([]);
+  const [food, setFood] = useState<Position | null>(null);
+  const [lastDeath, setLastDeath] = useState<PlayerDiedInfo | null>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -137,6 +162,19 @@ export function useSnakeBattle(options: UseSnakeBattleOptions = {}) {
           setCountdown(null);
           setGameStatus('playing');
           setPendingObstacles([]);
+          setLastDeath(null);
+          // 同一フィールドバトル: 初期状態を設定
+          if (data.players && data.food) {
+            setBattlePlayers(data.players.map((p: { id: string; nickname: string; snake: Position[]; score: number; isAlive: boolean; color: string }) => ({
+              id: p.id,
+              nickname: p.nickname,
+              snake: p.snake,
+              score: p.score,
+              isAlive: p.isAlive,
+              color: p.color,
+            })));
+            setFood(data.food);
+          }
           setOpponent(prev => prev ? {
             ...prev,
             score: 0,
@@ -144,7 +182,7 @@ export function useSnakeBattle(options: UseSnakeBattleOptions = {}) {
             snake: [],
           } : null);
           const gameSettings: GameSettings = {
-            gridSize: data.gridSize,
+            gridSize: data.gridSize || 30,
             timeLimit: settings.timeLimit,
           };
           setSettings(gameSettings);
@@ -184,6 +222,38 @@ export function useSnakeBattle(options: UseSnakeBattleOptions = {}) {
         case 'opponent_game_over':
           setOpponent(prev => prev ? { ...prev, isAlive: false, score: data.score } : null);
           optionsRef.current.onOpponentGameOver?.(data.id, data.score);
+          break;
+
+        // 同一フィールドバトル: サーバーからのゲーム状態更新
+        case 'game_state':
+          setBattlePlayers(data.players.map((p: { id: string; nickname: string; snake: Position[]; score: number; isAlive: boolean; color: string }) => ({
+            id: p.id,
+            nickname: p.nickname,
+            snake: p.snake,
+            score: p.score,
+            isAlive: p.isAlive,
+            color: p.color,
+          })));
+          setFood(data.food);
+          optionsRef.current.onGameStateUpdate?.(data.players, data.food);
+          break;
+
+        // プレイヤー死亡通知
+        case 'player_died':
+          setLastDeath({
+            id: data.id,
+            nickname: data.nickname,
+            killedBy: data.killedBy,
+          });
+          // battlePlayersの該当プレイヤーのisAliveをfalseに
+          setBattlePlayers(prev => prev.map(p =>
+            p.id === data.id ? { ...p, isAlive: false } : p
+          ));
+          optionsRef.current.onPlayerDied?.({
+            id: data.id,
+            nickname: data.nickname,
+            killedBy: data.killedBy,
+          });
           break;
 
         case 'game_end':
@@ -362,7 +432,7 @@ export function useSnakeBattle(options: UseSnakeBattleOptions = {}) {
     }
   }, []);
 
-  // Send state update
+  // Send state update (旧: 後方互換性のため残す)
   const sendStateUpdate = useCallback((snake: Position[], direction: Direction, score: number) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({
@@ -374,7 +444,7 @@ export function useSnakeBattle(options: UseSnakeBattleOptions = {}) {
     }
   }, []);
 
-  // Send food eaten event
+  // Send food eaten event (旧: 後方互換性のため残す)
   const sendFoodEaten = useCallback((newFood: Position, score: number) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({
@@ -385,13 +455,23 @@ export function useSnakeBattle(options: UseSnakeBattleOptions = {}) {
     }
   }, []);
 
-  // Send game over event
+  // Send game over event (旧: 後方互換性のため残す)
   const sendGameOver = useCallback((score: number, length: number) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({
         type: 'game_over',
         score,
         length,
+      }));
+    }
+  }, []);
+
+  // 同一フィールドバトル: 方向変更のみ送信
+  const sendDirectionChange = useCallback((direction: Direction) => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({
+        type: 'direction_change',
+        direction,
       }));
     }
   }, []);
@@ -442,6 +522,11 @@ export function useSnakeBattle(options: UseSnakeBattleOptions = {}) {
     myPlayerId,
     pendingObstacles,
 
+    // 同一フィールドバトル用
+    battlePlayers,
+    food,
+    lastDeath,
+
     // Actions
     createRoom,
     joinRoom,
@@ -452,5 +537,8 @@ export function useSnakeBattle(options: UseSnakeBattleOptions = {}) {
     sendGameOver,
     consumeObstacles,
     leave,
+
+    // 同一フィールドバトル用
+    sendDirectionChange,
   };
 }

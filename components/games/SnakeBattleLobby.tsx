@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSnakeBattle, OpponentState, GameSettings, GameResult, Position } from '@/hooks/useSnakeBattle';
+import { useSnakeBattle, GameSettings, GameResult, BattlePlayerState, PlayerDiedInfo, Position } from '@/hooks/useSnakeBattle';
 import { SnakeBattle } from './SnakeBattle';
 import {
   Users,
@@ -30,16 +30,18 @@ export function SnakeBattleLobby() {
   const [roomCodeInput, setRoomCodeInput] = useState('');
   const [copied, setCopied] = useState(false);
   const [isReady, setIsReady] = useState(false);
-  const [gameSeed, setGameSeed] = useState<number>(0);
   const [gameSettings, setGameSettings] = useState<GameSettings>({
-    gridSize: 20,
+    gridSize: 30, // 30x30に拡大
     timeLimit: 180,
   });
-  const [opponentState, setOpponentState] = useState<OpponentState | null>(null);
   const [showRules, setShowRules] = useState(false);
   const [finalResults, setFinalResults] = useState<GameResult[]>([]);
   const [endReason, setEndReason] = useState<string>('');
-  const [obstacles, setObstacles] = useState<Position[]>([]);
+
+  // 同一フィールドバトル用の状態
+  const [localBattlePlayers, setLocalBattlePlayers] = useState<BattlePlayerState[]>([]);
+  const [localFood, setLocalFood] = useState<Position | null>(null);
+  const [localLastDeath, setLocalLastDeath] = useState<PlayerDiedInfo | null>(null);
 
   const {
     gameStatus,
@@ -51,35 +53,31 @@ export function SnakeBattleLobby() {
     winner,
     error,
     myPlayerId,
+    battlePlayers,
+    food,
+    lastDeath,
     createRoom,
     joinRoom,
     quickMatch,
     setReady,
-    sendStateUpdate,
-    sendFoodEaten,
-    sendGameOver,
+    sendDirectionChange,
     leave,
   } = useSnakeBattle({
-    onGameStart: (seed, settings) => {
-      setGameSeed(seed);
+    onGameStart: (_seed, settings) => {
       setGameSettings(settings);
-      setOpponentState(null);
-      setObstacles([]);
+      setLocalBattlePlayers([]);
+      setLocalFood(null);
+      setLocalLastDeath(null);
       setLobbyMode('playing');
     },
-    onOpponentUpdate: (state) => {
-      setOpponentState(state);
+    onGameStateUpdate: (players, food) => {
+      setLocalBattlePlayers(players);
+      setLocalFood(food);
     },
-    onReceiveObstacle: (position, senderId) => {
-      setObstacles(prev => [...prev, position]);
+    onPlayerDied: (info) => {
+      setLocalLastDeath(info);
     },
-    onOpponentGameOver: (id, score) => {
-      setOpponentState(prev => prev ? { ...prev, isAlive: false, score } : null);
-    },
-    onTimeUpdate: (remaining) => {
-      // Timer update handled in state
-    },
-    onGameEnd: (winnerId, winnerNickname, reason, results) => {
+    onGameEnd: (_winnerId, _winnerNickname, reason, results) => {
       setFinalResults(results);
       setEndReason(reason);
     },
@@ -140,11 +138,11 @@ export function SnakeBattleLobby() {
     leave();
     setLobbyMode('menu');
     setIsReady(false);
-    setOpponentState(null);
-    setGameSeed(0);
+    setLocalBattlePlayers([]);
+    setLocalFood(null);
+    setLocalLastDeath(null);
     setFinalResults([]);
     setEndReason('');
-    setObstacles([]);
   };
 
   const formatTime = (seconds: number) => {
@@ -238,24 +236,26 @@ export function SnakeBattleLobby() {
                 </div>
                 <div className="p-4 space-y-4 text-sm">
                   <div>
-                    <h4 className="font-bold text-foreground mb-2">基本ルール</h4>
+                    <h4 className="font-bold text-foreground mb-2">🎮 同一フィールドバトル</h4>
                     <ul className="text-muted-foreground space-y-1">
-                      <li>・各プレイヤーは別々のフィールドでプレイ</li>
+                      <li>・2人のプレイヤーが<span className="text-primary font-medium">同じフィールド</span>で対戦</li>
                       <li>・エサを食べるとスネークが成長</li>
-                      <li>・壁や自分の体にぶつかるとゲームオーバー</li>
+                      <li>・エサは2人で取り合い！</li>
                     </ul>
                   </div>
 
                   <div>
-                    <h4 className="font-bold text-foreground mb-2">攻撃システム</h4>
-                    <p className="text-muted-foreground">
-                      エサを食べると、相手のフィールドに障害物（赤いブロック）が出現！
-                      相手の妨害をしながら生き残ろう。
-                    </p>
+                    <h4 className="font-bold text-foreground mb-2">💀 ゲームオーバー条件</h4>
+                    <ul className="text-muted-foreground space-y-1">
+                      <li>・壁に衝突</li>
+                      <li>・自分の体に衝突</li>
+                      <li>・<span className="text-red-500 font-medium">相手の体に衝突</span></li>
+                      <li>・相手と正面衝突（両者ゲームオーバー）</li>
+                    </ul>
                   </div>
 
                   <div>
-                    <h4 className="font-bold text-foreground mb-2">勝利条件</h4>
+                    <h4 className="font-bold text-foreground mb-2">🏆 勝利条件</h4>
                     <ul className="text-muted-foreground space-y-1">
                       <li>・相手がゲームオーバーになる</li>
                       <li>・制限時間終了時: 高スコアのプレイヤーが勝利</li>
@@ -263,11 +263,11 @@ export function SnakeBattleLobby() {
                   </div>
 
                   <div>
-                    <h4 className="font-bold text-foreground mb-2">ゲーム設定</h4>
+                    <h4 className="font-bold text-foreground mb-2">⚙️ ゲーム設定</h4>
                     <div className="bg-muted/50 rounded-lg p-3 space-y-1">
                       <div className="flex justify-between">
                         <span className="flex items-center gap-2"><Grid3X3 className="w-4 h-4" /> グリッドサイズ</span>
-                        <span className="text-muted-foreground">20x20</span>
+                        <span className="text-muted-foreground">30x30（広めのフィールド）</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="flex items-center gap-2"><Timer className="w-4 h-4" /> 制限時間</span>
@@ -489,19 +489,22 @@ export function SnakeBattleLobby() {
 
   // Playing
   if (gameStatus === 'playing' || lobbyMode === 'playing') {
+    // 優先: hookから来るbattlePlayers、なければローカル状態
+    const activeBattlePlayers = battlePlayers.length > 0 ? battlePlayers : localBattlePlayers;
+    const activeFood = food || localFood;
+    const activeLastDeath = lastDeath || localLastDeath;
+
     return (
       <SnakeBattle
         nickname={nickname}
-        seed={gameSeed}
         settings={gameSettings}
-        opponentState={opponentState}
+        battlePlayers={activeBattlePlayers}
+        food={activeFood}
         timeRemaining={timeRemaining}
         winner={winner}
         myPlayerId={myPlayerId}
-        obstacles={obstacles}
-        onStateUpdate={sendStateUpdate}
-        onFoodEaten={sendFoodEaten}
-        onGameOver={sendGameOver}
+        lastDeath={activeLastDeath}
+        onDirectionChange={sendDirectionChange}
         onLeave={handleBack}
         results={finalResults}
         endReason={endReason}
@@ -560,11 +563,11 @@ export function SnakeBattleLobby() {
               onClick={() => {
                 setIsReady(false);
                 setReady(false);
-                setOpponentState(null);
-                setGameSeed(0);
+                setLocalBattlePlayers([]);
+                setLocalFood(null);
+                setLocalLastDeath(null);
                 setFinalResults([]);
                 setEndReason('');
-                setObstacles([]);
                 setLobbyMode('menu');
               }}
               className="w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90"

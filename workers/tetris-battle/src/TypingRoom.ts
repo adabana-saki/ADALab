@@ -55,6 +55,7 @@ export type TypingClientMessage =
   | { type: 'create_room'; nickname: string; settings?: { wordCount?: number; language?: 'en' | 'ja'; difficulty?: 'easy' | 'medium' | 'hard' } }
   | { type: 'ready' }
   | { type: 'unready' }
+  | { type: 'input_update'; wordIndex: number; currentInput: string } // リアルタイム入力更新
   | { type: 'word_complete'; wordIndex: number; correct: boolean; wpm: number; accuracy: number; correctChars: number; totalChars: number }
   | { type: 'game_finished'; finalWpm: number; finalAccuracy: number; finishTime: number }
   | { type: 'leave' }
@@ -68,6 +69,7 @@ export type TypingServerMessage =
   | { type: 'player_ready'; id: string; isReady: boolean }
   | { type: 'countdown'; seconds: number }
   | { type: 'game_start'; seed: number; wordCount: number; language: string; difficulty: string }
+  | { type: 'opponent_input'; id: string; wordIndex: number; currentInput: string } // リアルタイム入力状態
   | { type: 'opponent_progress'; id: string; wordIndex: number; wpm: number; accuracy: number; streak: number }
   | { type: 'opponent_finished'; id: string; finalWpm: number; finalAccuracy: number; finishTime: number }
   | { type: 'game_end'; winner: string; winnerNickname: string; results: { id: string; nickname: string; wpm: number; accuracy: number; finishTime?: number; maxStreak: number; attacksSent: number }[] }
@@ -220,6 +222,10 @@ export class TypingRoom extends DurableObject<Env> {
 
       case 'unready':
         await this.handleReady(ws, session, false);
+        break;
+
+      case 'input_update':
+        await this.handleInputUpdate(session, data);
         break;
 
       case 'word_complete':
@@ -403,6 +409,22 @@ export class TypingRoom extends DurableObject<Env> {
     }, 1000);
   }
 
+  // リアルタイム入力更新をブロードキャスト
+  private async handleInputUpdate(session: WebSocketSession, data: {
+    wordIndex: number;
+    currentInput: string;
+  }): Promise<void> {
+    if (this.roomState.gameStatus !== 'playing') return;
+
+    // 相手にのみ送信（自分には送らない）
+    this.broadcastExcept(session.playerId, {
+      type: 'opponent_input',
+      id: session.playerId,
+      wordIndex: data.wordIndex,
+      currentInput: data.currentInput,
+    });
+  }
+
   private startGame(): void {
     this.roomState.gameStatus = 'playing';
     this.roomState.startTime = Date.now();
@@ -570,13 +592,27 @@ export class TypingRoom extends DurableObject<Env> {
   private endGame(): void {
     this.roomState.gameStatus = 'finished';
 
-    // Determine winner (fastest finish time, or highest WPM if same time)
+    // Determine winner
+    // Priority: 1. Finished player wins over non-finished
+    //           2. Faster finish time wins
+    //           3. Higher WPM wins if tie
+    //           4. Higher accuracy wins if still tie
     const players = Array.from(this.roomState.players.values());
     players.sort((a, b) => {
+      // If one finished and the other didn't, finisher wins
+      if (a.finishTime && !b.finishTime) return -1;
+      if (!a.finishTime && b.finishTime) return 1;
+
+      // If both finished, faster wins
       if (a.finishTime && b.finishTime) {
         if (a.finishTime !== b.finishTime) return a.finishTime - b.finishTime;
       }
-      return b.wpm - a.wpm; // Higher WPM wins if tie
+
+      // If neither finished or same finish time, higher WPM wins
+      if (a.wpm !== b.wpm) return b.wpm - a.wpm;
+
+      // Tiebreaker: higher accuracy wins
+      return b.accuracy - a.accuracy;
     });
 
     const winner = players[0];
