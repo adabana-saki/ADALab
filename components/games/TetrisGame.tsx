@@ -499,7 +499,7 @@ export function TetrisGame() {
     if (!pendingScore || !user || !profile || isSubmitting) return;
     setIsSubmitting(true);
     const entry = {
-      nickname: userNickname.slice(0, 12),
+      nickname: userNickname.slice(0, 20),
       score: pendingScore.score,
       lines: pendingScore.lines,
       level: pendingScore.level,
@@ -516,6 +516,13 @@ export function TetrisGame() {
       setIsSubmitting(false);
     }
   }, [pendingScore, user, profile, userNickname, submitScore, isSubmitting]);
+
+  // ログイン後にpendingScoreがあればモーダルを再表示
+  useEffect(() => {
+    if (user && profile && pendingScore && !showNicknameInput) {
+      setShowNicknameInput(true);
+    }
+  }, [user, profile, pendingScore, showNicknameInput]);
 
   // サウンド設定
   useEffect(() => {

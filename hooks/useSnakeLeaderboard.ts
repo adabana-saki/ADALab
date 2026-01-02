@@ -31,6 +31,7 @@ export function useSnakeLeaderboard() {
   const [leaderboard, setLeaderboard] = useState<SnakeLeaderboardEntry[]>([]);
   const [period, setPeriod] = useState<LeaderboardPeriod>('all');
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(true);
 
@@ -113,6 +114,10 @@ export function useSnakeLeaderboard() {
   // スコア送信
   const submitScore = useCallback(
     async (entry: Omit<SnakeLeaderboardEntry, 'device_id'>) => {
+      // 送信中の場合は早期リターン（連打防止）
+      if (isSubmitting) return;
+      setIsSubmitting(true);
+
       const deviceId = getDeviceId();
       const entryWithDevice: SnakeLeaderboardEntry = {
         ...entry,
@@ -167,10 +172,14 @@ export function useSnakeLeaderboard() {
           }
         } catch {
           // オフライン時はローカルのみ
+        } finally {
+          setIsSubmitting(false);
         }
+      } else {
+        setIsSubmitting(false);
       }
     },
-    [isOnline, period, filterByPeriod, getLocalLeaderboard, saveLocalLeaderboard, user, getIdToken]
+    [isOnline, isSubmitting, period, filterByPeriod, getLocalLeaderboard, saveLocalLeaderboard, user, getIdToken]
   );
 
   // ランキング入り判定
@@ -188,6 +197,7 @@ export function useSnakeLeaderboard() {
     period,
     setPeriod,
     isLoading,
+    isSubmitting,
     error,
     isOnline,
     submitScore,

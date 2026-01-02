@@ -98,6 +98,13 @@ export function SnakeGame() {
     prevScoreRef.current = score;
   }, [score]);
 
+  // ログイン後にpendingScoreがあればモーダルを再表示
+  useEffect(() => {
+    if (user && profile && pendingScore && !showNicknameInput) {
+      setShowNicknameInput(true);
+    }
+  }, [user, profile, pendingScore, showNicknameInput]);
+
   // ゲームオーバー時の処理（1回だけ実行）
   useEffect(() => {
     if (gameOver && score > 0 && !gameOverHandledRef.current) {
@@ -132,7 +139,7 @@ export function SnakeGame() {
 
   // スコア送信
   const submitToLeaderboard = useCallback(async () => {
-    if (!pendingScore || !user || !profile) return;
+    if (!pendingScore || !user || !profile || leaderboard.isSubmitting) return;
 
     await leaderboard.submitScore({
       nickname: userNickname.slice(0, 20),
@@ -583,9 +590,10 @@ export function SnakeGame() {
                     </button>
                     <button
                       onClick={submitToLeaderboard}
-                      className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium"
+                      disabled={leaderboard.isSubmitting}
+                      className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      登録
+                      {leaderboard.isSubmitting ? '送信中...' : '登録'}
                     </button>
                   </div>
                 </div>

@@ -101,6 +101,7 @@ export function TypingGame() {
     period,
     setPeriod,
     isLoading: leaderboardLoading,
+    isSubmitting,
     isOnline,
     submitScore,
     isRankingScore,
@@ -215,7 +216,7 @@ export function TypingGame() {
 
   // Submit score
   const handleSubmitScore = async () => {
-    if (!user || !profile) return;
+    if (!user || !profile || isSubmitting) return;
 
     await submitScore({
       nickname: userNickname.slice(0, 20),
@@ -763,9 +764,10 @@ export function TypingGame() {
                     </button>
                     <button
                       onClick={handleSubmitScore}
-                      className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium"
+                      disabled={isSubmitting}
+                      className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      登録
+                      {isSubmitting ? '送信中...' : '登録'}
                     </button>
                   </div>
                 </>

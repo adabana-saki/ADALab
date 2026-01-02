@@ -279,7 +279,7 @@ export function Game2048() {
 
   // スコア送信
   const submitToLeaderboard = useCallback(async () => {
-    if (!pendingScore || !user || !profile) return;
+    if (!pendingScore || !user || !profile || leaderboard.isSubmitting) return;
 
     await leaderboard.submitScore({
       nickname: userNickname.slice(0, 20),
@@ -333,7 +333,7 @@ export function Game2048() {
 
   // 共有テキスト生成
   const generateShareText = useCallback(() => {
-    const text = `ADA Lab 2048 で ${score.toLocaleString()} 点を達成！\n\n最大タイル: ${maxTile}\n手数: ${moves}\n\n#ADALabGames #2048\nhttps://adalabtech.com/games/2048`;
+    const text = `ADA Lab 2048 で ${score.toLocaleString()} 点を達成！\n\n最大タイル: ${maxTile}\n手数: ${moves}\n\n#ADALabGames #Game2048\nhttps://adalabtech.com/games/2048`;
     return text;
   }, [score, maxTile, moves]);
 
@@ -614,9 +614,10 @@ export function Game2048() {
                     </button>
                     <button
                       onClick={submitToLeaderboard}
-                      className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium"
+                      disabled={leaderboard.isSubmitting}
+                      className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      登録
+                      {leaderboard.isSubmitting ? '送信中...' : '登録'}
                     </button>
                   </div>
                 </div>
