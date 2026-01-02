@@ -30,6 +30,7 @@ export function use2048Leaderboard() {
   const { user, getIdToken } = useAuth();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(true);
 
@@ -99,7 +100,9 @@ export function use2048Leaderboard() {
   // スコアを送信
   const submitScore = useCallback(
     async (entry: Omit<LeaderboardEntry, 'id'>) => {
-      setIsLoading(true);
+      // 送信中の場合は早期リターン（連打防止）
+      if (isSubmitting) return { success: false, isLocal: false };
+      setIsSubmitting(true);
       setError(null);
 
       // まずローカルに追加（オプティミスティック更新）
@@ -112,7 +115,7 @@ export function use2048Leaderboard() {
 
       if (!isOnline) {
         setError('オフラインモード: オンライン時に同期されます');
-        setIsLoading(false);
+        setIsSubmitting(false);
         return { success: true, isLocal: true };
       }
 
@@ -151,10 +154,10 @@ export function use2048Leaderboard() {
         setError('サーバーに接続できません。ローカルに保存されました。');
         return { success: true, isLocal: true };
       } finally {
-        setIsLoading(false);
+        setIsSubmitting(false);
       }
     },
-    [isOnline, getLocalLeaderboard, saveLocalLeaderboard, user, getIdToken]
+    [isOnline, isSubmitting, getLocalLeaderboard, saveLocalLeaderboard, user, getIdToken]
   );
 
   // スコアがランキング入りするか判定
@@ -217,6 +220,7 @@ export function use2048Leaderboard() {
     period,
     setPeriod,
     isLoading,
+    isSubmitting,
     error,
     isOnline,
     fetchLeaderboard,

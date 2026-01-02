@@ -52,6 +52,7 @@ export function useTypingLeaderboard(initialMode: TypingMode = 'time', initialLa
   const [language, setLanguage] = useState<TypingLanguage>(initialLanguage);
   const [period, setPeriod] = useState<LeaderboardPeriod>('all');
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(true);
 
@@ -142,6 +143,10 @@ export function useTypingLeaderboard(initialMode: TypingMode = 'time', initialLa
   // スコア送信
   const submitScore = useCallback(
     async (entry: Omit<TypingLeaderboardEntry, 'device_id' | 'mode' | 'language'>) => {
+      // 送信中の場合は早期リターン（連打防止）
+      if (isSubmitting) return;
+      setIsSubmitting(true);
+
       const deviceId = getDeviceId();
       const entryWithDevice: TypingLeaderboardEntry = {
         ...entry,
@@ -196,10 +201,14 @@ export function useTypingLeaderboard(initialMode: TypingMode = 'time', initialLa
           }
         } catch {
           // オフライン時はローカルのみ
+        } finally {
+          setIsSubmitting(false);
         }
+      } else {
+        setIsSubmitting(false);
       }
     },
-    [mode, language, isOnline, period, filterByPeriod, getLocalLeaderboard, saveLocalLeaderboard, user, getIdToken]
+    [mode, language, isOnline, isSubmitting, period, filterByPeriod, getLocalLeaderboard, saveLocalLeaderboard, user, getIdToken]
   );
 
   // ランキング入り判定
@@ -221,6 +230,7 @@ export function useTypingLeaderboard(initialMode: TypingMode = 'time', initialLa
     period,
     setPeriod,
     isLoading,
+    isSubmitting,
     error,
     isOnline,
     submitScore,
