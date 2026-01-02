@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { User, LogOut, LayoutDashboard, Settings, ChevronDown } from 'lucide-react';
@@ -11,7 +11,12 @@ export function UserButton() {
   const { user, profile, loading, signOut } = useAuth();
   const [showModal, setShowModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const handleImageError = useCallback(() => {
+    setImageError(true);
+  }, []);
 
   // ドロップダウン外クリックで閉じる
   useEffect(() => {
@@ -51,11 +56,12 @@ export function UserButton() {
         onClick={() => setShowDropdown(!showDropdown)}
         className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-muted transition-colors"
       >
-        {profile?.photoURL ? (
+        {profile?.photoURL && !imageError ? (
           <img
             src={profile.photoURL}
             alt={profile.displayName || 'User'}
             className="w-8 h-8 rounded-full"
+            onError={handleImageError}
           />
         ) : (
           <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-medium">
