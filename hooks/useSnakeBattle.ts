@@ -165,12 +165,12 @@ export function useSnakeBattle(options: UseSnakeBattleOptions = {}) {
           setLastDeath(null);
           // 同一フィールドバトル: 初期状態を設定
           if (data.players && data.food) {
-            setBattlePlayers(data.players.map((p: { id: string; nickname: string; snake: Position[]; score: number; isAlive: boolean; color: string }) => ({
+            setBattlePlayers(data.players.map((p: { id: string; nickname: string; snake: Position[]; score?: number; isAlive?: boolean; color: string }) => ({
               id: p.id,
               nickname: p.nickname,
               snake: p.snake,
-              score: p.score,
-              isAlive: p.isAlive,
+              score: p.score ?? 0,
+              isAlive: p.isAlive ?? true,
               color: p.color,
             })));
             setFood(data.food);

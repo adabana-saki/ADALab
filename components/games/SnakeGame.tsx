@@ -28,6 +28,8 @@ import { AchievementToast } from './AchievementToast';
 import { BgmControl } from './BgmControl';
 import { getSoundEngine } from '@/lib/sound-engine';
 import type { GameAchievement } from '@/lib/game-achievements';
+import { useAuth } from '@/contexts/AuthContext';
+import { AuthModal } from '@/components/auth/AuthModal';
 
 // 色定義
 const COLORS = {
@@ -47,12 +49,16 @@ export function SnakeGame() {
   const [showShare, setShowShare] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showNicknameInput, setShowNicknameInput] = useState(false);
-  const [nickname, setNickname] = useState('');
   const [copied, setCopied] = useState(false);
   const [achievementQueue, setAchievementQueue] = useState<GameAchievement[]>([]);
   const [pendingScore, setPendingScore] = useState<{ score: number; length: number } | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const prevScoreRef = useRef(0);
   const gameOverHandledRef = useRef(false);
+
+  // 認証状態
+  const { user, profile } = useAuth();
+  const userNickname = profile?.displayName || profile?.email?.split('@')[0] || 'ゲスト';
 
   // リーダーボード
   const leaderboard = useSnakeLeaderboard();
@@ -78,16 +84,6 @@ export function SnakeGame() {
     newGame: originalNewGame,
     changeDirection,
   } = useSnakeGame();
-
-  // ニックネーム読み込み
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('snake-nickname');
-      if (saved) setNickname(saved);
-    } catch {
-      // ignore
-    }
-  }, []);
 
   // スコア変更時の効果音
   useEffect(() => {
@@ -135,17 +131,11 @@ export function SnakeGame() {
   }, [achievements, originalNewGame]);
 
   // スコア送信
-  const submitScore = useCallback(async () => {
-    if (!pendingScore || !nickname.trim()) return;
-
-    try {
-      localStorage.setItem('snake-nickname', nickname);
-    } catch {
-      // ignore
-    }
+  const submitToLeaderboard = useCallback(async () => {
+    if (!pendingScore || !user || !profile) return;
 
     await leaderboard.submitScore({
-      nickname: nickname.trim(),
+      nickname: userNickname.slice(0, 20),
       score: pendingScore.score,
       length: pendingScore.length,
       date: new Date().toISOString(),
@@ -154,7 +144,7 @@ export function SnakeGame() {
     setShowNicknameInput(false);
     setPendingScore(null);
     setShowLeaderboard(true);
-  }, [pendingScore, nickname, leaderboard]);
+  }, [pendingScore, user, profile, userNickname, leaderboard]);
 
   // 実績トースト表示
   const handleAchievementClose = useCallback(() => {
@@ -577,36 +567,52 @@ export function SnakeGame() {
                 </p>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">ニックネーム</label>
-                  <input
-                    type="text"
-                    value={nickname}
-                    onChange={(e) => setNickname(e.target.value)}
-                    maxLength={20}
-                    placeholder="名前を入力"
-                    className="w-full px-4 py-2 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary focus:border-transparent outline-none"
-                    onKeyDown={(e) => e.key === 'Enter' && submitScore()}
-                  />
-                </div>
+              {user ? (
+                <div className="space-y-4">
+                  <div className="p-3 bg-muted rounded-lg">
+                    <p className="text-sm text-muted-foreground mb-1">登録名</p>
+                    <p className="font-medium text-lg">{userNickname}</p>
+                  </div>
 
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setShowNicknameInput(false)}
-                    className="flex-1 px-4 py-2 rounded-lg bg-muted font-medium"
-                  >
-                    キャンセル
-                  </button>
-                  <button
-                    onClick={submitScore}
-                    disabled={!nickname.trim()}
-                    className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50"
-                  >
-                    登録
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => { setShowNicknameInput(false); setPendingScore(null); }}
+                      className="flex-1 px-4 py-2 rounded-lg bg-muted font-medium"
+                    >
+                      スキップ
+                    </button>
+                    <button
+                      onClick={submitToLeaderboard}
+                      className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium"
+                    >
+                      登録
+                    </button>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                    <p className="text-sm text-muted-foreground">
+                      ランキングに登録するにはログインが必要です
+                    </p>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => { setShowNicknameInput(false); setPendingScore(null); }}
+                      className="flex-1 px-4 py-2 rounded-lg bg-muted font-medium"
+                    >
+                      閉じる
+                    </button>
+                    <button
+                      onClick={() => { setShowNicknameInput(false); setShowAuthModal(true); }}
+                      className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium"
+                    >
+                      ログイン
+                    </button>
+                  </div>
+                </div>
+              )}
             </motion.div>
           </motion.div>
         )}
@@ -788,6 +794,9 @@ export function SnakeGame() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* 認証モーダル */}
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   );
 }
