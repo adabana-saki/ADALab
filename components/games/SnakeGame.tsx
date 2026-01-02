@@ -98,6 +98,13 @@ export function SnakeGame() {
     prevScoreRef.current = score;
   }, [score]);
 
+  // ログイン後にpendingScoreがあればモーダルを再表示
+  useEffect(() => {
+    if (user && profile && pendingScore && !showNicknameInput) {
+      setShowNicknameInput(true);
+    }
+  }, [user, profile, pendingScore, showNicknameInput]);
+
   // ゲームオーバー時の処理（1回だけ実行）
   useEffect(() => {
     if (gameOver && score > 0 && !gameOverHandledRef.current) {

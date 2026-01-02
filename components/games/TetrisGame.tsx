@@ -517,6 +517,13 @@ export function TetrisGame() {
     }
   }, [pendingScore, user, profile, userNickname, submitScore, isSubmitting]);
 
+  // ログイン後にpendingScoreがあればモーダルを再表示
+  useEffect(() => {
+    if (user && profile && pendingScore && !showNicknameInput) {
+      setShowNicknameInput(true);
+    }
+  }, [user, profile, pendingScore, showNicknameInput]);
+
   // サウンド設定
   useEffect(() => {
     soundEngine.setEnabled(soundEnabled);

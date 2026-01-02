@@ -63,6 +63,21 @@ export default function SettingsPage() {
     return null;
   }
 
+  if (error) {
+    return (
+      <main className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded-lg">
+              <p className="font-medium">設定の読み込みに失敗しました</p>
+              <p className="text-sm mt-1">{error}</p>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-background to-muted/20">
       <div className="container mx-auto px-4 py-8">
@@ -153,6 +168,9 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <span>効果音</span>
                   <button
+                    role="switch"
+                    aria-checked={localSettings?.soundEnabled || false}
+                    aria-label="効果音の切り替え"
                     onClick={() =>
                       setLocalSettings((prev) =>
                         prev ? { ...prev, soundEnabled: !prev.soundEnabled } : prev
@@ -171,10 +189,11 @@ export default function SettingsPage() {
                 </div>
                 {localSettings?.soundEnabled && (
                   <div>
-                    <label className="block text-sm text-muted-foreground mb-2">
+                    <label htmlFor="volume-slider" className="block text-sm text-muted-foreground mb-2">
                       音量: {Math.round((localSettings?.soundVolume || 0.5) * 100)}%
                     </label>
                     <input
+                      id="volume-slider"
                       type="range"
                       min="0"
                       max="1"
@@ -185,6 +204,7 @@ export default function SettingsPage() {
                           prev ? { ...prev, soundVolume: parseFloat(e.target.value) } : prev
                         )
                       }
+                      aria-label="音量"
                       className="w-full"
                     />
                   </div>
