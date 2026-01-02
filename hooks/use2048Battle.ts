@@ -108,13 +108,37 @@ export function use2048Battle(options: Use2048BattleOptions = {}) {
             setTimeRemaining(data.settings.timeLimit);
           }
           if (data.players.length > 0) {
-            setMyPlayerId(data.players[data.players.length - 1].id);
+            const myId = data.players[data.players.length - 1].id;
+            setMyPlayerId(myId);
+            // 既存の相手プレイヤーがいる場合は初期化
+            const existingOpponent = data.players.find((p: PlayerInfo) => p.id !== myId);
+            if (existingOpponent) {
+              setOpponent({
+                id: existingOpponent.id,
+                nickname: existingOpponent.nickname,
+                score: 0,
+                maxTile: 0,
+                moves: 0,
+                isFinished: false,
+                reachedTarget: false,
+              });
+            }
           }
           setGameStatus('waiting');
           break;
 
         case 'player_joined':
           setPlayers(prev => [...prev, { id: data.id, nickname: data.nickname, isReady: false }]);
+          // 相手プレイヤーが参加したら、opponent状態を初期化
+          setOpponent({
+            id: data.id,
+            nickname: data.nickname,
+            score: 0,
+            maxTile: 0,
+            moves: 0,
+            isFinished: false,
+            reachedTarget: false,
+          });
           break;
 
         case 'player_left':
