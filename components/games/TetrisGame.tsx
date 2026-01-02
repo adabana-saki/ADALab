@@ -34,6 +34,8 @@ import { AchievementToast } from './AchievementToast';
 import { AchievementPanel } from './AchievementPanel';
 import { StatsPanel } from './StatsPanel';
 import { ShareButton } from './ShareButton';
+import { useAuth } from '@/contexts/AuthContext';
+import { AuthModal } from '@/components/auth/AuthModal';
 
 // ゲーム設定
 const FIELD_COL = 10;
@@ -354,10 +356,13 @@ export function TetrisGame() {
   const [lastAction, setLastAction] = useState<string>('');
   const [timeBonus, setTimeBonus] = useState(0);
   const [showNicknameInput, setShowNicknameInput] = useState(false);
-  const [nickname, setNickname] = useState('');
   const [pendingScore, setPendingScore] = useState<{ score: number; lines: number; level: number; time: number } | null>(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // 認証状態
+  const { user, profile } = useAuth();
 
   // 新機能の状態
   const [ghostEnabled, setGhostEnabled] = useState(true);
@@ -440,9 +445,6 @@ export function TetrisGame() {
 
     // Leaderboard is now managed by useTetrisLeaderboard hook (D1 API)
 
-    const savedNickname = localStorage.getItem('tetris-nickname');
-    if (savedNickname) setNickname(savedNickname);
-
     const savedTheme = localStorage.getItem('tetris-theme') as ThemeType;
     if (savedTheme && THEMES[savedTheme]) setTheme(savedTheme);
 
@@ -490,11 +492,14 @@ export function TetrisGame() {
   }, []);
 
   // リーダーボード送信（D1 API経由）
-  const submitNickname = useCallback(async () => {
-    if (!pendingScore || !nickname.trim() || isSubmitting) return;
+  // ログインユーザーのニックネームを取得
+  const userNickname = profile?.displayName || profile?.email?.split('@')[0] || 'ゲスト';
+
+  const submitToLeaderboard = useCallback(async () => {
+    if (!pendingScore || !user || isSubmitting) return;
     setIsSubmitting(true);
     const entry = {
-      nickname: nickname.trim().slice(0, 12),
+      nickname: userNickname.slice(0, 12),
       score: pendingScore.score,
       lines: pendingScore.lines,
       level: pendingScore.level,
@@ -504,14 +509,13 @@ export function TetrisGame() {
     };
     try {
       await submitScore(entry);
-      localStorage.setItem('tetris-nickname', nickname.trim().slice(0, 12));
       setShowNicknameInput(false);
       setPendingScore(null);
       setShowLeaderboard(true);
     } finally {
       setIsSubmitting(false);
     }
-  }, [pendingScore, nickname, submitScore, isSubmitting]);
+  }, [pendingScore, user, userNickname, submitScore, isSubmitting]);
 
   // サウンド設定
   useEffect(() => {
@@ -1838,30 +1842,58 @@ export function TetrisGame() {
               スコア: <span className="text-primary font-bold">{pendingScore?.score.toLocaleString()}</span>
               {pendingScore?.time && <span className="ml-2">({formatTime(pendingScore.time)})</span>}
             </p>
-            <div className="mb-4">
-              <label className="block text-sm text-muted-foreground mb-2">ニックネーム (最大12文字)</label>
-              <input
-                type="text"
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && submitNickname()}
-                maxLength={12}
-                placeholder="あなたの名前"
-                className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                autoFocus
-              />
-            </div>
-            <div className="flex gap-2">
-              <button onClick={submitNickname} disabled={!nickname.trim() || isSubmitting} className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                登録
-              </button>
-              <button onClick={() => { setShowNicknameInput(false); setPendingScore(null); }} className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg font-medium transition-colors">
-                スキップ
-              </button>
-            </div>
+
+            {user ? (
+              <>
+                <div className="mb-4 p-3 bg-muted rounded-lg">
+                  <p className="text-sm text-muted-foreground mb-1">登録名</p>
+                  <p className="font-medium text-lg">{userNickname}</p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={submitToLeaderboard}
+                    disabled={isSubmitting}
+                    className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? '登録中...' : 'ランキングに登録'}
+                  </button>
+                  <button
+                    onClick={() => { setShowNicknameInput(false); setPendingScore(null); }}
+                    className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg font-medium transition-colors"
+                  >
+                    スキップ
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="mb-4 p-4 bg-muted/50 rounded-lg border border-border">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    ランキングに登録するにはログインが必要です
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => { setShowNicknameInput(false); setShowAuthModal(true); }}
+                    className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors"
+                  >
+                    ログインして登録
+                  </button>
+                  <button
+                    onClick={() => { setShowNicknameInput(false); setPendingScore(null); }}
+                    className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg font-medium transition-colors"
+                  >
+                    閉じる
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
+
+      {/* 認証モーダル */}
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
 
       {/* リーダーボードモーダル */}
       {showLeaderboard && (

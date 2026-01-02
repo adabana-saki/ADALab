@@ -30,6 +30,8 @@ import { AchievementToast } from '@/components/games/AchievementToast';
 import { BgmControl } from '@/components/games/BgmControl';
 import { TypingLeaderboardModal } from '@/components/games/TypingLeaderboardModal';
 import type { GameAchievement } from '@/lib/game-achievements';
+import { useAuth } from '@/contexts/AuthContext';
+import { AuthModal } from '@/components/auth/AuthModal';
 
 const MODE_INFO: Record<GameMode, { icon: React.ReactNode; name: string; description: string }> = {
   time: {
@@ -79,12 +81,15 @@ export function TypingGame() {
   const [showShare, setShowShare] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showNicknameInput, setShowNicknameInput] = useState(false);
-  const [nickname, setNickname] = useState('');
   const [copied, setCopied] = useState(false);
   const [unlockedAchievement, setUnlockedAchievement] = useState<GameAchievement | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const nicknameInputRef = useRef<HTMLInputElement>(null);
+
+  // 認証状態
+  const { user, profile } = useAuth();
+  const userNickname = profile?.displayName || profile?.email?.split('@')[0] || 'ゲスト';
 
   // Hooks
   const {
@@ -156,29 +161,12 @@ export function TypingGame() {
     },
   });
 
-  // Load saved nickname
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('typing-nickname');
-      if (saved) setNickname(saved);
-    } catch {
-      // ignore
-    }
-  }, []);
-
   // Focus input on start
   useEffect(() => {
     if (!showSettings && inputRef.current && !isFinished) {
       inputRef.current.focus();
     }
   }, [showSettings, isFinished]);
-
-  // Focus nickname input
-  useEffect(() => {
-    if (showNicknameInput && nicknameInputRef.current) {
-      nicknameInputRef.current.focus();
-    }
-  }, [showNicknameInput]);
 
   // Format time
   const formatTime = (seconds: number) => {
@@ -227,16 +215,10 @@ export function TypingGame() {
 
   // Submit score
   const handleSubmitScore = async () => {
-    if (!nickname.trim()) return;
-
-    try {
-      localStorage.setItem('typing-nickname', nickname);
-    } catch {
-      // ignore
-    }
+    if (!user) return;
 
     await submitScore({
-      nickname: nickname.trim(),
+      nickname: userNickname.slice(0, 20),
       wpm: stats.wpm,
       accuracy: stats.accuracy,
       words_typed: stats.correctWords,
@@ -761,36 +743,56 @@ export function TypingGame() {
                 <Medal className="mx-auto mb-2 text-yellow-500" size={40} />
                 <h3 className="text-lg font-bold">ランキング入り！</h3>
                 <p className="text-sm text-muted-foreground">
-                  ニックネームを入力してスコアを登録
+                  WPM: {stats.wpm} / 正確率: {stats.accuracy}%
                 </p>
               </div>
 
-              <input
-                ref={nicknameInputRef}
-                type="text"
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
-                placeholder="ニックネーム"
-                maxLength={20}
-                className="w-full px-4 py-3 rounded-lg bg-muted border border-border focus:border-primary focus:outline-none mb-4"
-                onKeyDown={(e) => e.key === 'Enter' && handleSubmitScore()}
-              />
+              {user ? (
+                <>
+                  <div className="mb-4 p-3 bg-muted rounded-lg">
+                    <p className="text-sm text-muted-foreground mb-1">登録名</p>
+                    <p className="font-medium text-lg">{userNickname}</p>
+                  </div>
 
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setShowNicknameInput(false)}
-                  className="flex-1 px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
-                >
-                  スキップ
-                </button>
-                <button
-                  onClick={handleSubmitScore}
-                  disabled={!nickname.trim()}
-                  className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  登録
-                </button>
-              </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setShowNicknameInput(false)}
+                      className="flex-1 px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
+                    >
+                      スキップ
+                    </button>
+                    <button
+                      onClick={handleSubmitScore}
+                      className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium"
+                    >
+                      登録
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="mb-4 p-4 bg-muted/50 rounded-lg border border-border">
+                    <p className="text-sm text-muted-foreground">
+                      ランキングに登録するにはログインが必要です
+                    </p>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setShowNicknameInput(false)}
+                      className="flex-1 px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
+                    >
+                      閉じる
+                    </button>
+                    <button
+                      onClick={() => { setShowNicknameInput(false); setShowAuthModal(true); }}
+                      className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium"
+                    >
+                      ログイン
+                    </button>
+                  </div>
+                </>
+              )}
             </motion.div>
           </motion.div>
         )}
@@ -879,6 +881,9 @@ export function TypingGame() {
           onClose={() => setUnlockedAchievement(null)}
         />
       )}
+
+      {/* 認証モーダル */}
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   );
 }
