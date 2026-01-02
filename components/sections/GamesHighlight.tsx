@@ -6,8 +6,6 @@ import Image from 'next/image';
 import {
   Gamepad2,
   Play,
-  Trophy,
-  Users,
   Zap,
   ArrowRight,
   Sparkles,
@@ -20,11 +18,7 @@ const games = [
     title: 'Games',
     description: 'テトリス、2048、スネーク、タイピングなど、ブラウザで遊べるミニゲームコレクション！',
     thumbnail: '/images/games/tetris-thumbnail.png',
-    features: ['テトリス', '2048', 'スネーク', 'タイピング'],
-    stats: {
-      players: '100+',
-      battles: '500+',
-    },
+    features: ['テトリス', '2048', 'スネーク', 'タイピング', 'オンライン対戦'],
     gradient: 'from-cyan-500 via-blue-500 to-purple-500',
     href: '/games',
   },
@@ -121,11 +115,6 @@ export function GamesHighlight() {
                       </div>
                     </motion.div>
 
-                    {/* Live Badge */}
-                    <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/90 text-white text-xs font-bold">
-                      <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                      LIVE
-                    </div>
                   </div>
 
                   {/* Content */}
@@ -149,21 +138,6 @@ export function GamesHighlight() {
                       ))}
                     </div>
 
-                    {/* Stats */}
-                    <div className="flex gap-6 mb-6">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Users size={18} className="text-primary" />
-                        <span className="text-sm">
-                          <span className="font-bold text-foreground">{game.stats.players}</span> プレイヤー
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Trophy size={18} className="text-yellow-500" />
-                        <span className="text-sm">
-                          <span className="font-bold text-foreground">{game.stats.battles}</span> バトル
-                        </span>
-                      </div>
-                    </div>
 
                     {/* CTA */}
                     <div className="flex flex-col sm:flex-row gap-3">
@@ -183,7 +157,7 @@ export function GamesHighlight() {
                         onClick={(e) => e.stopPropagation()}
                         className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-primary text-primary font-medium hover:bg-primary/10 transition-colors"
                       >
-                        <Users size={18} />
+                        <Gamepad2 size={18} />
                         ゲーム一覧へ
                       </Link>
                     </div>
