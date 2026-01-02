@@ -279,7 +279,7 @@ export function Game2048() {
 
   // スコア送信
   const submitToLeaderboard = useCallback(async () => {
-    if (!pendingScore || !user) return;
+    if (!pendingScore || !user || !profile) return;
 
     await leaderboard.submitScore({
       nickname: userNickname.slice(0, 20),
@@ -292,7 +292,7 @@ export function Game2048() {
     setShowNicknameInput(false);
     setPendingScore(null);
     setShowLeaderboard(true);
-  }, [pendingScore, user, userNickname, leaderboard]);
+  }, [pendingScore, user, profile, userNickname, leaderboard]);
 
   // スワイプ操作
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);

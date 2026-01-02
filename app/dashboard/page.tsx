@@ -71,15 +71,15 @@ export default function DashboardPage() {
         } else if (response.status === 404 && retryCount < 3) {
           // ユーザーデータがまだ同期されていない場合、少し待ってリトライ
           await new Promise((resolve) => setTimeout(resolve, 1000));
-          return fetchDashboardData(retryCount + 1);
+          await fetchDashboardData(retryCount + 1);
+          return; // リトライ中はここでloadingをfalseにしない
         } else {
           setError('データの取得に失敗しました');
         }
       } catch {
         setError('データの取得に失敗しました');
-      } finally {
-        setLoading(false);
       }
+      setLoading(false);
     }
 
     if (user) {

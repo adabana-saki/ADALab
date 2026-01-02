@@ -215,7 +215,7 @@ export function TypingGame() {
 
   // Submit score
   const handleSubmitScore = async () => {
-    if (!user) return;
+    if (!user || !profile) return;
 
     await submitScore({
       nickname: userNickname.slice(0, 20),

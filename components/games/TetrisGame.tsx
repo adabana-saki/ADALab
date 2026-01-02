@@ -496,7 +496,7 @@ export function TetrisGame() {
   const userNickname = profile?.displayName || profile?.email?.split('@')[0] || 'ゲスト';
 
   const submitToLeaderboard = useCallback(async () => {
-    if (!pendingScore || !user || isSubmitting) return;
+    if (!pendingScore || !user || !profile || isSubmitting) return;
     setIsSubmitting(true);
     const entry = {
       nickname: userNickname.slice(0, 12),
@@ -515,7 +515,7 @@ export function TetrisGame() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [pendingScore, user, userNickname, submitScore, isSubmitting]);
+  }, [pendingScore, user, profile, userNickname, submitScore, isSubmitting]);
 
   // サウンド設定
   useEffect(() => {

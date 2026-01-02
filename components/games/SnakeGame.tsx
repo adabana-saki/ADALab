@@ -132,7 +132,7 @@ export function SnakeGame() {
 
   // スコア送信
   const submitToLeaderboard = useCallback(async () => {
-    if (!pendingScore || !user) return;
+    if (!pendingScore || !user || !profile) return;
 
     await leaderboard.submitScore({
       nickname: userNickname.slice(0, 20),
@@ -144,7 +144,7 @@ export function SnakeGame() {
     setShowNicknameInput(false);
     setPendingScore(null);
     setShowLeaderboard(true);
-  }, [pendingScore, user, userNickname, leaderboard]);
+  }, [pendingScore, user, profile, userNickname, leaderboard]);
 
   // 実績トースト表示
   const handleAchievementClose = useCallback(() => {
