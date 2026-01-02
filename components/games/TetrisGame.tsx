@@ -499,7 +499,7 @@ export function TetrisGame() {
     if (!pendingScore || !user || !profile || isSubmitting) return;
     setIsSubmitting(true);
     const entry = {
-      nickname: userNickname.slice(0, 12),
+      nickname: userNickname.slice(0, 20),
       score: pendingScore.score,
       lines: pendingScore.lines,
       level: pendingScore.level,

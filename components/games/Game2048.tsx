@@ -279,7 +279,7 @@ export function Game2048() {
 
   // スコア送信
   const submitToLeaderboard = useCallback(async () => {
-    if (!pendingScore || !user || !profile) return;
+    if (!pendingScore || !user || !profile || leaderboard.isSubmitting) return;
 
     await leaderboard.submitScore({
       nickname: userNickname.slice(0, 20),
@@ -614,9 +614,10 @@ export function Game2048() {
                     </button>
                     <button
                       onClick={submitToLeaderboard}
-                      className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium"
+                      disabled={leaderboard.isSubmitting}
+                      className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      登録
+                      {leaderboard.isSubmitting ? '送信中...' : '登録'}
                     </button>
                   </div>
                 </div>

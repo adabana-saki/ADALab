@@ -48,6 +48,8 @@ export default function DashboardPage() {
   }, [authLoading, user, router]);
 
   useEffect(() => {
+    const abortController = new AbortController();
+
     async function fetchDashboardData(retryCount = 0) {
       if (!user) return;
 
@@ -63,6 +65,7 @@ export default function DashboardPage() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          signal: abortController.signal,
         });
         if (response.ok) {
           const result = await response.json();
@@ -71,12 +74,14 @@ export default function DashboardPage() {
         } else if (response.status === 404 && retryCount < 3) {
           // ユーザーデータがまだ同期されていない場合、少し待ってリトライ
           await new Promise((resolve) => setTimeout(resolve, 1000));
+          if (abortController.signal.aborted) return;
           await fetchDashboardData(retryCount + 1);
           return; // リトライ中はここでloadingをfalseにしない
         } else {
           setError('データの取得に失敗しました');
         }
-      } catch {
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
         setError('データの取得に失敗しました');
       }
       setLoading(false);
@@ -85,6 +90,8 @@ export default function DashboardPage() {
     if (user) {
       fetchDashboardData();
     }
+
+    return () => abortController.abort();
   }, [user, getIdToken]);
 
   if (authLoading || loading) {
