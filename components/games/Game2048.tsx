@@ -333,7 +333,7 @@ export function Game2048() {
 
   // 共有テキスト生成
   const generateShareText = useCallback(() => {
-    const text = `ADA Lab 2048 で ${score.toLocaleString()} 点を達成！\n\n最大タイル: ${maxTile}\n手数: ${moves}\n\n#ADALabGames #2048\nhttps://adalabtech.com/games/2048`;
+    const text = `ADA Lab 2048 で ${score.toLocaleString()} 点を達成！\n\n最大タイル: ${maxTile}\n手数: ${moves}\n\n#ADALabGames #Game2048\nhttps://adalabtech.com/games/2048`;
     return text;
   }, [score, maxTile, moves]);
 
