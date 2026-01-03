@@ -50,6 +50,7 @@ export function Game2048BattleLobby() {
     winner,
     error,
     myPlayerId,
+    opponent,
     createRoom,
     joinRoom,
     quickMatch,
@@ -478,12 +479,15 @@ export function Game2048BattleLobby() {
 
   // Playing
   if (gameStatus === 'playing' || lobbyMode === 'playing') {
+    // フックから来るopponentを優先、なければローカルのopponentState
+    const activeOpponentState = opponent || opponentState;
+
     return (
       <Game2048Battle
         nickname={nickname}
         seed={gameSeed}
         settings={gameSettings}
-        opponentState={opponentState}
+        opponentState={activeOpponentState}
         timeRemaining={timeRemaining}
         winner={winner}
         myPlayerId={myPlayerId}

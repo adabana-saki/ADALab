@@ -80,7 +80,7 @@ export type SnakeServerMessage =
   | { type: 'player_ready'; id: string; isReady: boolean }
   | { type: 'countdown'; seconds: number }
   | { type: 'game_start'; gridSize: number; players: { id: string; nickname: string; color: string; snake: Position[]; score: number; isAlive: boolean }[]; food: Position }
-  | { type: 'game_state'; players: { id: string; snake: Position[]; direction: Direction; score: number; isAlive: boolean }[]; food: Position } // 新: 全状態配信
+  | { type: 'game_state'; players: { id: string; nickname: string; snake: Position[]; direction: Direction; score: number; isAlive: boolean; color: string }[]; food: Position } // 新: 全状態配信
   | { type: 'player_died'; id: string; nickname: string; killedBy: 'wall' | 'self' | 'opponent' | 'opponent_body' }
   | { type: 'time_update'; remaining: number }
   | { type: 'game_end'; winner: string; winnerNickname: string; reason: 'opponent_died' | 'time_up' | 'opponent_quit'; results: { id: string; nickname: string; score: number; length: number }[] }

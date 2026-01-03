@@ -34,6 +34,12 @@ export function TypingBattleLobby() {
     language: 'en',
     difficulty: 'medium',
   });
+  // ロビーで設定を変更できるようにローカル設定を管理
+  const [localSettings, setLocalSettings] = useState<GameSettings>({
+    wordCount: 20,
+    language: 'en',
+    difficulty: 'medium',
+  });
   const [opponentProgress, setOpponentProgress] = useState<OpponentProgress | null>(null);
   const [showRules, setShowRules] = useState(false);
   const [finalResults, setFinalResults] = useState<GameResult[]>([]);
@@ -102,7 +108,7 @@ export function TypingBattleLobby() {
     if (!nickname.trim()) return;
     saveNickname(nickname);
     setLobbyMode('create');
-    createRoom(nickname, settings);
+    createRoom(nickname, localSettings);
   };
 
   const handleJoinRoom = () => {
@@ -161,6 +167,96 @@ export function TypingBattleLobby() {
               className="w-full px-4 py-3 bg-card border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               maxLength={12}
             />
+          </div>
+
+          {/* Game settings */}
+          <div className="space-y-3">
+            <h3 className="text-sm font-medium text-muted-foreground">ゲーム設定</h3>
+            <div className="bg-card border border-border rounded-lg p-4 space-y-3">
+              {/* Language selection */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm">言語</span>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setLocalSettings(s => ({ ...s, language: 'en' }))}
+                    className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                      localSettings.language === 'en'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted hover:bg-accent'
+                    }`}
+                  >
+                    English
+                  </button>
+                  <button
+                    onClick={() => setLocalSettings(s => ({ ...s, language: 'ja' }))}
+                    className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                      localSettings.language === 'ja'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted hover:bg-accent'
+                    }`}
+                  >
+                    日本語
+                  </button>
+                </div>
+              </div>
+
+              {/* Difficulty selection */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm">難易度</span>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setLocalSettings(s => ({ ...s, difficulty: 'easy' }))}
+                    className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                      localSettings.difficulty === 'easy'
+                        ? 'bg-green-500 text-white'
+                        : 'bg-muted hover:bg-accent'
+                    }`}
+                  >
+                    簡単
+                  </button>
+                  <button
+                    onClick={() => setLocalSettings(s => ({ ...s, difficulty: 'medium' }))}
+                    className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                      localSettings.difficulty === 'medium'
+                        ? 'bg-yellow-500 text-white'
+                        : 'bg-muted hover:bg-accent'
+                    }`}
+                  >
+                    普通
+                  </button>
+                  <button
+                    onClick={() => setLocalSettings(s => ({ ...s, difficulty: 'hard' }))}
+                    className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                      localSettings.difficulty === 'hard'
+                        ? 'bg-red-500 text-white'
+                        : 'bg-muted hover:bg-accent'
+                    }`}
+                  >
+                    難しい
+                  </button>
+                </div>
+              </div>
+
+              {/* Word count selection */}
+              <div className="flex items-center justify-between">
+                <span className="text-sm">単語数</span>
+                <div className="flex gap-2">
+                  {[10, 20, 30, 50].map(count => (
+                    <button
+                      key={count}
+                      onClick={() => setLocalSettings(s => ({ ...s, wordCount: count }))}
+                      className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                        localSettings.wordCount === count
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted hover:bg-accent'
+                      }`}
+                    >
+                      {count}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Mode selection buttons */}
