@@ -45,6 +45,9 @@ interface GameState {
   correctWords: number;
 }
 
+// 相手終了後の強制終了カウントダウン秒数
+const FORCE_END_COUNTDOWN = 5;
+
 export function TypingBattle({
   nickname,
   seed,
@@ -75,8 +78,10 @@ export function TypingBattle({
   });
 
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [forceEndCountdown, setForceEndCountdown] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const forceEndTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Initialize game with seeded words
   useEffect(() => {
@@ -128,6 +133,51 @@ export function TypingBattle({
       : 100;
     return { wpm, accuracy };
   }, [gameState.correctChars, gameState.totalChars, gameState.startTime]);
+
+  // 相手終了後の強制終了カウントダウン
+  useEffect(() => {
+    // 相手が終了し、自分がまだ終了していない場合
+    if (opponentProgress?.isFinished && !gameState.isFinished && forceEndCountdown === null) {
+      setForceEndCountdown(FORCE_END_COUNTDOWN);
+
+      forceEndTimerRef.current = setInterval(() => {
+        setForceEndCountdown(prev => {
+          if (prev === null || prev <= 1) {
+            // カウントダウン終了 - ゲームを強制終了
+            if (forceEndTimerRef.current) {
+              clearInterval(forceEndTimerRef.current);
+              forceEndTimerRef.current = null;
+            }
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (forceEndTimerRef.current) {
+        clearInterval(forceEndTimerRef.current);
+        forceEndTimerRef.current = null;
+      }
+    };
+  }, [opponentProgress?.isFinished, gameState.isFinished, forceEndCountdown]);
+
+  // 強制終了カウントダウンが0になったらゲームを終了
+  useEffect(() => {
+    if (forceEndCountdown === 0 && !gameState.isFinished) {
+      const { wpm, accuracy } = calculateStats();
+      const finishTime = gameState.startTime ? Date.now() - gameState.startTime : 0;
+
+      setGameState(prev => ({
+        ...prev,
+        isFinished: true,
+        endTime: Date.now(),
+      }));
+
+      onGameFinished(wpm, accuracy, finishTime);
+    }
+  }, [forceEndCountdown, gameState.isFinished, gameState.startTime, calculateStats, onGameFinished]);
 
   // Handle input
   const handleInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -508,6 +558,15 @@ export function TypingBattle({
           </div>
         )}
       </div>
+
+      {/* 相手終了時のカウントダウンアラート */}
+      {opponentProgress?.isFinished && !gameState.isFinished && forceEndCountdown !== null && forceEndCountdown > 0 && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 bg-orange-500/90 text-white px-6 py-3 rounded-lg shadow-lg animate-pulse">
+          <p className="font-bold text-center">
+            相手が終了しました！あと {forceEndCountdown} 秒...
+          </p>
+        </div>
+      )}
 
       {/* Opponent status bar (sticky bottom) */}
       {opponentProgress && !gameState.isFinished && (
