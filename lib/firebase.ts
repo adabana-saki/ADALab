@@ -90,9 +90,13 @@ export async function signInWithGoogle(): Promise<User | null> {
     return result.user;
   } catch (error: unknown) {
     const errorCode = (error as { code?: string }).code;
+    // ユーザーがキャンセルした場合は静かに終了
+    if (errorCode === 'auth/popup-closed-by-user') {
+      return null;
+    }
     // ポップアップがブロックされた場合はリダイレクトにフォールバック
-    if (errorCode === 'auth/popup-blocked' || errorCode === 'auth/popup-closed-by-user') {
-      console.log('Popup failed, falling back to redirect');
+    if (errorCode === 'auth/popup-blocked') {
+      console.log('Popup blocked, falling back to redirect');
       await signInWithRedirect(firebaseAuth, provider);
       return null;
     }
@@ -120,9 +124,13 @@ export async function signInWithGithub(): Promise<User | null> {
     return result.user;
   } catch (error: unknown) {
     const errorCode = (error as { code?: string }).code;
+    // ユーザーがキャンセルした場合は静かに終了
+    if (errorCode === 'auth/popup-closed-by-user') {
+      return null;
+    }
     // ポップアップがブロックされた場合はリダイレクトにフォールバック
-    if (errorCode === 'auth/popup-blocked' || errorCode === 'auth/popup-closed-by-user') {
-      console.log('Popup failed, falling back to redirect');
+    if (errorCode === 'auth/popup-blocked') {
+      console.log('Popup blocked, falling back to redirect');
       await signInWithRedirect(firebaseAuth, provider);
       return null;
     }
