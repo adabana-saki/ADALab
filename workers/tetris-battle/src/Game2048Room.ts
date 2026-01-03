@@ -50,7 +50,7 @@ export type Game2048ClientMessage =
   | { type: 'create_room'; nickname: string; settings?: { timeLimit?: number; targetTile?: number } }
   | { type: 'ready' }
   | { type: 'unready' }
-  | { type: 'move_update'; score: number; maxTile: number; moves: number }
+  | { type: 'move_update'; score: number; maxTile: number; moves: number; grid?: (number | null)[][] }
   | { type: 'tile_merged'; mergedValue: number; score: number; maxTile: number; moves: number }
   | { type: 'reached_target'; score: number; maxTile: number; moves: number }
   | { type: 'game_over'; score: number; maxTile: number; moves: number }

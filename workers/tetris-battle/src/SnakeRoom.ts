@@ -244,10 +244,12 @@ export class SnakeRoom extends DurableObject<Env> {
       type: 'game_state',
       players: Array.from(this.roomState.players.values()).map(p => ({
         id: p.id,
+        nickname: p.nickname,
         snake: p.snake,
         direction: p.direction,
         score: p.score,
         isAlive: p.isAlive,
+        color: p.color,
       })),
       food: this.roomState.food,
     });

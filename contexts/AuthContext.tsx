@@ -55,7 +55,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // リダイレクト認証の結果を処理
   useEffect(() => {
     handleRedirectResult().catch((err) => {
-      setError(getErrorMessage(err));
+      const message = getErrorMessage(err);
+      if (message) {
+        setError(message);
+      }
     });
   }, []);
 
@@ -108,7 +111,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await signInWithGoogle();
     } catch (err) {
-      setError(getErrorMessage(err));
+      const message = getErrorMessage(err);
+      if (message) {
+        setError(message);
+      }
     }
   }, []);
 
@@ -117,7 +123,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await signInWithGithub();
     } catch (err) {
-      setError(getErrorMessage(err));
+      const message = getErrorMessage(err);
+      if (message) {
+        setError(message);
+      }
     }
   }, []);
 
@@ -210,11 +219,17 @@ export function useAuth() {
   return context;
 }
 
-// Firebase エラーメッセージを日本語に変換
-function getErrorMessage(error: unknown): string {
+// Firebase エラーメッセージを日本語に変換（nullの場合はエラーを表示しない）
+function getErrorMessage(error: unknown): string | null {
   if (error instanceof Error) {
     const code = (error as { code?: string }).code;
     switch (code) {
+      // キャンセル関連（エラーとして表示しない）
+      case 'auth/popup-closed-by-user':
+      case 'auth/cancelled-popup-request':
+      case 'auth/user-cancelled':
+        return null;
+      // メール/パスワード認証エラー
       case 'auth/email-already-in-use':
         return 'このメールアドレスは既に使用されています';
       case 'auth/invalid-email':
@@ -233,11 +248,20 @@ function getErrorMessage(error: unknown): string {
         return 'メールアドレスまたはパスワードが正しくありません';
       case 'auth/too-many-requests':
         return 'ログイン試行回数が多すぎます。しばらく待ってから再度お試しください';
-      case 'auth/popup-closed-by-user':
-        return 'ログインがキャンセルされました';
+      // OAuth固有のエラー
+      case 'auth/account-exists-with-different-credential':
+        return '別の認証方法で登録されたアカウントが存在します。元の方法でログインしてください';
+      // ネットワーク・設定エラー
+      case 'auth/network-request-failed':
+        return 'ネットワークエラーが発生しました。接続を確認してください';
+      case 'auth/unauthorized-domain':
+        return '認証ドメインが許可されていません';
+      case 'auth/internal-error':
+        return '認証サービスでエラーが発生しました。しばらく待ってから再度お試しください';
+      // 未知のエラーは汎用メッセージ
       default:
-        return error.message || 'エラーが発生しました';
+        return 'ログインに失敗しました。しばらく待ってから再度お試しください';
     }
   }
-  return 'エラーが発生しました';
+  return 'ログインに失敗しました。しばらく待ってから再度お試しください';
 }
