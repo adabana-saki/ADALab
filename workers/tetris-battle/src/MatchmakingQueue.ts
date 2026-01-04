@@ -3,11 +3,19 @@
 
 type GameType = 'tetris' | 'typing' | '2048' | 'snake';
 
+// ゲーム設定（Typing用）
+interface GameSettings {
+  wordCount?: number;
+  language?: 'en' | 'ja';
+  difficulty?: 'easy' | 'medium' | 'hard';
+}
+
 interface QueueEntry {
   playerId: string;
   nickname: string;
   timestamp: number;
   gameType: GameType;
+  settings?: GameSettings; // ゲーム設定を追加
 }
 
 interface MatchResult {
@@ -16,6 +24,7 @@ interface MatchResult {
   opponent: string;
   timestamp: number;
   gameType: GameType;
+  settings?: GameSettings; // マッチ結果にも設定を追加
 }
 
 // ゲームタイプに応じたWebSocketパスを生成
@@ -53,10 +62,16 @@ export class MatchmakingQueue {
 
     if (path === '/queue' && request.method === 'POST') {
       try {
-        const body = await request.json() as { nickname?: string; playerId?: string; gameType?: string };
+        const body = await request.json() as {
+          nickname?: string;
+          playerId?: string;
+          gameType?: string;
+          settings?: GameSettings;
+        };
         const nickname = body.nickname?.trim().slice(0, 12) || 'Player';
         const playerId = body.playerId || crypto.randomUUID();
         const gameType = (body.gameType as GameType) || 'tetris';
+        const settings = body.settings;
         const now = Date.now();
 
         // Clean up old entries (older than 30 seconds)
@@ -83,17 +98,40 @@ export class MatchmakingQueue {
             roomId: existingMatch.roomId,
             wsUrl: existingMatch.wsUrl,
             opponent: existingMatch.opponent,
+            settings: existingMatch.settings, // マッチした設定を返す
           }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
 
-        // Check if there's someone waiting (同じgameTypeのプレイヤーのみマッチング)
+        // Check if there's someone waiting (同じgameTypeかつ同じ設定のプレイヤーのみマッチング)
         const currentQueueKey = `${playerId}-${gameType}`;
+
+        // 設定比較関数（Typing用）
+        const settingsMatch = (s1?: GameSettings, s2?: GameSettings): boolean => {
+          // gameTypeがtyping以外の場合は設定を比較しない
+          if (gameType !== 'typing') return true;
+          // 両方undefined/nullの場合はマッチ
+          if (!s1 && !s2) return true;
+          // 片方だけの場合はデフォルト設定とみなす
+          const defaultSettings: GameSettings = { wordCount: 20, language: 'en', difficulty: 'medium' };
+          const settings1 = { ...defaultSettings, ...s1 };
+          const settings2 = { ...defaultSettings, ...s2 };
+          return settings1.wordCount === settings2.wordCount &&
+                 settings1.language === settings2.language &&
+                 settings1.difficulty === settings2.difficulty;
+        };
+
         for (const [waitingKey, waiting] of this.queue) {
-          if (waitingKey !== currentQueueKey && waiting.playerId !== playerId && waiting.gameType === gameType) {
-            // Found a match! (同じゲームタイプの別プレイヤー)
+          if (waitingKey !== currentQueueKey &&
+              waiting.playerId !== playerId &&
+              waiting.gameType === gameType &&
+              settingsMatch(waiting.settings, settings)) {
+            // Found a match! (同じゲームタイプかつ同じ設定の別プレイヤー)
             this.queue.delete(waitingKey);
+
+            // 使用する設定（待機中プレイヤーの設定を優先）
+            const matchedSettings = waiting.settings || settings;
 
             // Create a new room for the match
             const roomId = `match-${crypto.randomUUID()}`;
@@ -107,6 +145,7 @@ export class MatchmakingQueue {
               opponent: nickname,
               timestamp: now,
               gameType,
+              settings: matchedSettings,
             });
 
             return new Response(JSON.stringify({
@@ -116,6 +155,7 @@ export class MatchmakingQueue {
               wsUrl,
               opponent: waiting.nickname,
               needsInit: true, // Signal that room needs initialization
+              settings: matchedSettings, // マッチした設定を返す
             }), {
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             });
@@ -124,7 +164,7 @@ export class MatchmakingQueue {
 
         // No match found, add to queue (gameType別のキーで管理)
         const queueKey = `${playerId}-${gameType}`;
-        this.queue.set(queueKey, { playerId, nickname, timestamp: now, gameType });
+        this.queue.set(queueKey, { playerId, nickname, timestamp: now, gameType, settings });
 
         return new Response(JSON.stringify({
           success: true,

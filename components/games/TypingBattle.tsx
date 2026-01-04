@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { ArrowLeft, Trophy, Timer, Keyboard, Flame, Zap } from 'lucide-react';
 import { createSeededRandom } from '@/lib/seededRandom';
 import { getWords, TypingWord, Language, Difficulty } from '@/lib/typing-words';
 import { OpponentProgress, OpponentInput, GameSettings, GameResult, StreakAttack, TypingAttackType } from '@/hooks/useTypingBattle';
+import { matchPartialRomaji, getFirstRomajiPattern } from '@/lib/romaji-converter';
 
 interface TypingBattleProps {
   nickname: string;
@@ -189,19 +190,47 @@ export function TypingBattle({
       const currentWord = prev.words[prev.currentWordIndex];
       if (!currentWord) return prev;
 
-      const targetText = settings.language === 'ja' && currentWord.reading
-        ? currentWord.reading
-        : currentWord.text;
+      // 日本語判定（readingまたはhiraganaがあれば日本語）
+      const isJapanese = settings.language === 'ja' && (!!currentWord.reading || !!(currentWord as { hiragana?: string }).hiragana);
+      // ひらがなテキスト（hiraganaフィールド優先、なければtextを使用）
+      const hiraganaText = isJapanese
+        ? ((currentWord as { hiragana?: string }).hiragana || currentWord.text)
+        : '';
+      // フォールバック用ターゲットテキスト
+      const targetText = currentWord.reading || currentWord.text;
 
       // Start on first input
       const isStarted = prev.isStarted || input.length > 0;
       const startTime = prev.startTime || (isStarted ? Date.now() : null);
 
-      // Check if word is complete
-      if (input.endsWith(' ') || input === targetText) {
-        const typedWord = input.trim();
-        const isCorrect = typedWord === targetText;
+      // 日本語のローマ字マッチング
+      const romajiMatch = isJapanese ? matchPartialRomaji(hiraganaText, input) : null;
 
+      // 完了判定
+      let shouldComplete = false;
+      let isCorrect = false;
+
+      if (isJapanese) {
+        // 日本語: ローマ字マッチングで完了判定
+        if (romajiMatch?.isComplete) {
+          shouldComplete = true;
+          isCorrect = true;
+        } else if (input.endsWith(' ')) {
+          // スペースで強制次へ（間違い扱い）
+          shouldComplete = true;
+          isCorrect = false;
+        }
+      } else {
+        // 英語: 従来の判定
+        shouldComplete = input.endsWith(' ') || input === targetText;
+        if (shouldComplete) {
+          const typedWord = input.trim();
+          isCorrect = typedWord === targetText;
+        }
+      }
+
+      if (shouldComplete) {
+        const typedWord = input.trim();
         const newCorrectChars = prev.correctChars + (isCorrect ? targetText.length : 0);
         const newTotalChars = prev.totalChars + typedWord.length;
         const newCorrectWords = prev.correctWords + (isCorrect ? 1 : 0);
@@ -262,18 +291,54 @@ export function TypingBattle({
     });
   }, [settings.language, onWordComplete, onGameFinished, onInputUpdate]);
 
+  // 現在の単語とローマ字マッチング結果
+  const currentWord = gameState.words[gameState.currentWordIndex];
+  const isJapanese = currentWord && settings.language === 'ja' && (!!currentWord.reading || !!(currentWord as { hiragana?: string }).hiragana);
+  const hiraganaText = isJapanese && currentWord
+    ? ((currentWord as { hiragana?: string }).hiragana || currentWord.text)
+    : '';
+
+  // ローマ字マッチング結果（日本語の場合）
+  const currentRomajiMatch = useMemo(() => {
+    if (!isJapanese || !hiraganaText) return null;
+    return matchPartialRomaji(hiraganaText, gameState.currentInput);
+  }, [isJapanese, hiraganaText, gameState.currentInput]);
+
+  // ターゲットテキスト（日本語の場合は動的に生成）
+  const targetText = useMemo(() => {
+    if (!currentWord) return '';
+    if (!isJapanese) return currentWord.text;
+    // 日本語: 現在の入力パターンに基づいて残りのローマ字を生成
+    if (currentRomajiMatch) {
+      const confirmedInput = currentRomajiMatch.confirmedInput;
+      const remainingHiragana = hiraganaText.slice(currentRomajiMatch.matchedHiragana);
+      const remainingRomaji = getFirstRomajiPattern(remainingHiragana);
+      return confirmedInput + remainingRomaji;
+    }
+    return currentWord.reading || currentWord.text;
+  }, [currentWord, isJapanese, currentRomajiMatch, hiraganaText]);
+
   // Get character status for display
-  const getCharacterStatus = (charIndex: number, targetText: string): 'correct' | 'incorrect' | 'pending' => {
+  const getCharacterStatus = useCallback((charIndex: number): 'correct' | 'incorrect' | 'pending' => {
     if (charIndex >= gameState.currentInput.length) return 'pending';
+
+    if (isJapanese && currentRomajiMatch) {
+      // 日本語: ローマ字マッチング結果に基づく
+      if (currentRomajiMatch.isValid) {
+        // 入力が有効なら、入力済み部分はすべて正解
+        return 'correct';
+      } else {
+        // 無効な場合、最後の文字が間違い
+        return charIndex === gameState.currentInput.length - 1 ? 'incorrect' : 'correct';
+      }
+    }
+
+    // 英語: 従来の文字比較
     if (gameState.currentInput[charIndex] === targetText[charIndex]) return 'correct';
     return 'incorrect';
-  };
+  }, [gameState.currentInput, targetText, isJapanese, currentRomajiMatch]);
 
   const { wpm, accuracy } = calculateStats();
-  const currentWord = gameState.words[gameState.currentWordIndex];
-  const targetText = currentWord
-    ? (settings.language === 'ja' && currentWord.reading ? currentWord.reading : currentWord.text)
-    : '';
 
   const myProgress = (gameState.currentWordIndex / gameState.words.length) * 100;
   const opponentProgressPercent = opponentProgress
@@ -519,7 +584,7 @@ export function TypingBattle({
               )}
               <div className="text-4xl font-mono tracking-wider">
                 {targetText.split('').map((char, i) => {
-                  const status = getCharacterStatus(i, targetText);
+                  const status = getCharacterStatus(i);
                   return (
                     <span
                       key={i}

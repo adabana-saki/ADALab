@@ -101,7 +101,7 @@ export function TypingBattleLobby() {
     if (!nickname.trim()) return;
     saveNickname(nickname);
     setLobbyMode('quickmatch');
-    quickMatch(nickname);
+    quickMatch(nickname, localSettings);
   };
 
   const handleCreateRoom = () => {
