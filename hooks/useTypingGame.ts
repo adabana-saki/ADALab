@@ -13,6 +13,7 @@ import {
   getRandomSentences,
 } from '@/lib/typing-sentences';
 import { getSoundEngine } from '@/lib/sound-engine';
+import { matchPartialRomaji, getFirstRomajiPattern } from '@/lib/romaji-converter';
 
 // 新しいゲームモード
 export type GameMode = 'time' | 'sudden_death' | 'word_count';
@@ -275,17 +276,30 @@ export function useTypingGame(options: UseTypingGameOptions) {
       const currentItem = prev.items[prev.currentItemIndex];
       if (!currentItem) return prev;
 
-      // 対象テキスト（日本語はローマ字読み）
+      // 日本語判定（readingまたはhiraganaがあれば日本語）
+      const isJapanese = !!currentItem.reading || !!(currentItem as { hiragana?: string }).hiragana;
+      // ひらがなテキスト（hiraganaフィールド優先、なければtextを使用）
+      const hiraganaText = isJapanese
+        ? ((currentItem as { hiragana?: string }).hiragana || currentItem.text)
+        : '';
+      // 対象テキスト（フォールバック用：日本語はローマ字読み、英語はそのまま）
       const targetText = currentItem.reading || currentItem.text;
 
       // ゲーム開始
       const isStarted = prev.isStarted || input.length > 0;
       const startTime = prev.startTime || (isStarted ? Date.now() : null);
 
+      // 日本語のローマ字マッチング
+      const romajiMatch = isJapanese ? matchPartialRomaji(hiraganaText, input) : null;
+
       // sudden_death モード：間違えたら即終了
       if (mode === 'sudden_death' && input.length > 0) {
-        const lastCharIndex = input.length - 1;
-        if (input[lastCharIndex] !== targetText[lastCharIndex]) {
+        // 日本語: ローマ字マッチング / 英語: 文字比較
+        const isInputValid = isJapanese
+          ? (romajiMatch?.isValid ?? false)
+          : input[input.length - 1] === targetText[input.length - 1];
+
+        if (!isInputValid) {
           soundEngine.current?.typingMiss();
           onMistake?.();
 
@@ -304,17 +318,33 @@ export function useTypingGame(options: UseTypingGameOptions) {
       }
 
       // アイテム完了チェック
-      // 単語モード: スペースで区切り or 完全一致
-      // 文章モード: 完全一致のみ（Enterは別途処理）
       const isWordMode = inputType === 'word';
-      const shouldComplete = isWordMode
-        ? (input.endsWith(' ') || input === targetText)
-        : (input === targetText);
+      let shouldComplete = false;
+      let isCorrect = false;
+
+      if (isJapanese) {
+        // 日本語: ローマ字マッチングで完了判定
+        if (romajiMatch?.isComplete) {
+          shouldComplete = true;
+          isCorrect = true;
+        } else if (isWordMode && input.endsWith(' ')) {
+          // スペースで強制次へ（間違い扱い）
+          shouldComplete = true;
+          isCorrect = false;
+        }
+      } else {
+        // 英語: 従来の判定
+        shouldComplete = isWordMode
+          ? (input.endsWith(' ') || input === targetText)
+          : (input === targetText);
+        if (shouldComplete) {
+          const typedText = input.trim();
+          isCorrect = typedText === targetText;
+        }
+      }
 
       if (shouldComplete) {
         const typedText = input.trim();
-        const isCorrect = typedText === targetText;
-
         const newCorrectChars = prev.correctChars + (isCorrect ? targetText.length : 0);
         const newTotalChars = prev.totalChars + typedText.length;
         const newCorrectItems = prev.correctItems + (isCorrect ? 1 : 0);
@@ -365,8 +395,18 @@ export function useTypingGame(options: UseTypingGameOptions) {
 
       // リアルタイム入力チェック（効果音）
       if (input.length > prev.currentInput.length) {
-        const lastIndex = input.length - 1;
-        if (input[lastIndex] === targetText[lastIndex]) {
+        let isLastCharCorrect = false;
+
+        if (isJapanese) {
+          // 日本語: ローマ字マッチングで判定
+          isLastCharCorrect = romajiMatch?.isValid ?? false;
+        } else {
+          // 英語: 従来の文字比較
+          const lastIndex = input.length - 1;
+          isLastCharCorrect = input[lastIndex] === targetText[lastIndex];
+        }
+
+        if (isLastCharCorrect) {
           soundEngine.current?.typingCorrect();
         } else if (mode !== 'sudden_death') {
           soundEngine.current?.typingMiss();
@@ -379,16 +419,52 @@ export function useTypingGame(options: UseTypingGameOptions) {
 
   // 現在のアイテム
   const currentItem = gameState.items[gameState.currentItemIndex];
-  const targetText = currentItem
-    ? (currentItem.reading || currentItem.text)
+  const isJapanese = currentItem
+    ? (!!currentItem.reading || !!(currentItem as { hiragana?: string }).hiragana)
+    : false;
+  const hiraganaText = isJapanese && currentItem
+    ? ((currentItem as { hiragana?: string }).hiragana || currentItem.text)
     : '';
+
+  // ローマ字マッチング結果（日本語の場合）
+  const currentRomajiMatch = isJapanese
+    ? matchPartialRomaji(hiraganaText, gameState.currentInput)
+    : null;
+
+  // ターゲットテキスト（日本語の場合は動的に生成）
+  const targetText = (() => {
+    if (!currentItem) return '';
+    if (!isJapanese) return currentItem.text;
+    // 日本語: 現在の入力パターンに基づいて残りのローマ字を生成
+    if (currentRomajiMatch) {
+      // 確定した入力 + 残りのひらがなの第一ローマ字パターン
+      const confirmedInput = currentRomajiMatch.confirmedInput;
+      const remainingHiragana = hiraganaText.slice(currentRomajiMatch.matchedHiragana);
+      const remainingRomaji = getFirstRomajiPattern(remainingHiragana);
+      return confirmedInput + remainingRomaji;
+    }
+    return currentItem.reading || currentItem.text;
+  })();
 
   // 文字ステータス取得
   const getCharacterStatus = useCallback((charIndex: number): 'correct' | 'incorrect' | 'pending' => {
     if (charIndex >= gameState.currentInput.length) return 'pending';
+
+    if (isJapanese && currentRomajiMatch) {
+      // 日本語: ローマ字マッチング結果に基づく
+      if (currentRomajiMatch.isValid) {
+        // 入力が有効なら、入力済み部分はすべて正解
+        return 'correct';
+      } else {
+        // 無効な場合、最後の文字が間違い
+        return charIndex === gameState.currentInput.length - 1 ? 'incorrect' : 'correct';
+      }
+    }
+
+    // 英語: 従来の文字比較
     if (gameState.currentInput[charIndex] === targetText[charIndex]) return 'correct';
     return 'incorrect';
-  }, [gameState.currentInput, targetText]);
+  }, [gameState.currentInput, targetText, isJapanese, currentRomajiMatch]);
 
   // 経過時間
   const elapsedTime = gameState.startTime

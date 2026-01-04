@@ -303,14 +303,27 @@ async function handleMatchmaking(request: Request, env: Env, gameType: GameType 
     });
 
     const response = await queue.fetch(doRequest);
-    const result = await response.json() as { matched?: boolean; roomId?: string; needsInit?: boolean; wsUrl?: string };
+    const result = await response.json() as {
+      matched?: boolean;
+      roomId?: string;
+      needsInit?: boolean;
+      wsUrl?: string;
+      settings?: { wordCount?: number; language?: string; difficulty?: string };
+    };
 
-    // If matched, initialize the room
+    // If matched, initialize the room with settings
     if (result.matched && result.roomId && result.needsInit) {
       const namespace = getRoomNamespace(env, gameType);
       const roomId = namespace.idFromName(result.roomId);
       const room = namespace.get(roomId);
-      await room.fetch(new Request(`https://dummy/init?roomCode=${result.roomId}`));
+      // 設定をクエリパラメータとして渡す
+      let initUrl = `https://dummy/init?roomCode=${result.roomId}`;
+      if (result.settings) {
+        if (result.settings.wordCount) initUrl += `&wordCount=${result.settings.wordCount}`;
+        if (result.settings.language) initUrl += `&language=${result.settings.language}`;
+        if (result.settings.difficulty) initUrl += `&difficulty=${result.settings.difficulty}`;
+      }
+      await room.fetch(new Request(initUrl));
     }
 
     // Add wsUrl to response

@@ -9,7 +9,8 @@ export type SentenceDifficulty = 'easy' | 'normal' | 'hard';
 
 export interface TypingSentence {
   text: string;
-  reading?: string; // 日本語のローマ字読み
+  hiragana?: string; // 日本語のひらがな読み（ローマ字変換用）
+  reading?: string; // 日本語のローマ字読み（後方互換性・フォールバック用）
   language: SentenceLanguage;
   category: SentenceCategory;
   difficulty: SentenceDifficulty;
@@ -99,64 +100,64 @@ const ENGLISH_PROGRAMMING: TypingSentence[] = [
 // ===== 日本語ことわざ =====
 const JAPANESE_PROVERBS: TypingSentence[] = [
   // Easy
-  { text: '七転び八起き', reading: 'nanakorobiyaoki', language: 'ja', category: 'proverb', difficulty: 'easy' },
-  { text: '一期一会', reading: 'ichigoichie', language: 'ja', category: 'proverb', difficulty: 'easy' },
-  { text: '花より団子', reading: 'hanayoridango', language: 'ja', category: 'proverb', difficulty: 'easy' },
-  { text: '猿も木から落ちる', reading: 'sarumokikaraochiru', language: 'ja', category: 'proverb', difficulty: 'easy' },
-  { text: '塵も積もれば山となる', reading: 'chirimotsumorebayamatonaru', language: 'ja', category: 'proverb', difficulty: 'normal' },
-  { text: '石の上にも三年', reading: 'ishinouenimosannen', language: 'ja', category: 'proverb', difficulty: 'easy' },
-  { text: '井の中の蛙大海を知らず', reading: 'inonakanokawazutaikaiowoshirazu', language: 'ja', category: 'proverb', difficulty: 'normal' },
-  { text: '継続は力なり', reading: 'keizokuwachikaranari', language: 'ja', category: 'proverb', difficulty: 'easy' },
-  { text: '百聞は一見に如かず', reading: 'hyakubunwaikkenninishikazu', language: 'ja', category: 'proverb', difficulty: 'normal' },
-  { text: '急がば回れ', reading: 'isogabamaware', language: 'ja', category: 'proverb', difficulty: 'easy' },
-  { text: '初心忘るべからず', reading: 'shoshinwasurubekarazu', language: 'ja', category: 'proverb', difficulty: 'easy' },
-  { text: '案ずるより産むが易し', reading: 'anzuruyoriumugayasushi', language: 'ja', category: 'proverb', difficulty: 'normal' },
-  { text: '雨降って地固まる', reading: 'amefuttejikatamaru', language: 'ja', category: 'proverb', difficulty: 'easy' },
-  { text: '失敗は成功のもと', reading: 'shippaiwaseikounomoto', language: 'ja', category: 'proverb', difficulty: 'easy' },
-  { text: '笑う門には福来る', reading: 'waraukadoniwafukukitaru', language: 'ja', category: 'proverb', difficulty: 'easy' },
-  { text: '時は金なり', reading: 'tokiwakanenari', language: 'ja', category: 'proverb', difficulty: 'easy' },
-  { text: '習うより慣れろ', reading: 'narauyorinaero', language: 'ja', category: 'proverb', difficulty: 'easy' },
-  { text: '能ある鷹は爪を隠す', reading: 'nouarutakawatsumeowokakusu', language: 'ja', category: 'proverb', difficulty: 'normal' },
-  { text: '鉄は熱いうちに打て', reading: 'tetsuwaatsuiuchiniute', language: 'ja', category: 'proverb', difficulty: 'easy' },
-  { text: '転ばぬ先の杖', reading: 'korobanusakinotsue', language: 'ja', category: 'proverb', difficulty: 'easy' },
+  { text: '七転び八起き', hiragana: 'ななころびやおき', reading: 'nanakorobiyaoki', language: 'ja', category: 'proverb', difficulty: 'easy' },
+  { text: '一期一会', hiragana: 'いちごいちえ', reading: 'ichigoichie', language: 'ja', category: 'proverb', difficulty: 'easy' },
+  { text: '花より団子', hiragana: 'はなよりだんご', reading: 'hanayoridango', language: 'ja', category: 'proverb', difficulty: 'easy' },
+  { text: '猿も木から落ちる', hiragana: 'さるもきからおちる', reading: 'sarumokikaraochiru', language: 'ja', category: 'proverb', difficulty: 'easy' },
+  { text: '塵も積もれば山となる', hiragana: 'ちりもつもればやまとなる', reading: 'chirimotsumorebayamatonaru', language: 'ja', category: 'proverb', difficulty: 'normal' },
+  { text: '石の上にも三年', hiragana: 'いしのうえにもさんねん', reading: 'ishinouenimosannen', language: 'ja', category: 'proverb', difficulty: 'easy' },
+  { text: '井の中の蛙大海を知らず', hiragana: 'いのなかのかわずたいかいをしらず', reading: 'inonakanokawazutaikaiwoshirazu', language: 'ja', category: 'proverb', difficulty: 'normal' },
+  { text: '継続は力なり', hiragana: 'けいぞくはちからなり', reading: 'keizokuwachikaranari', language: 'ja', category: 'proverb', difficulty: 'easy' },
+  { text: '百聞は一見に如かず', hiragana: 'ひゃくぶんはいっけんにしかず', reading: 'hyakubunwaikkennnishikazu', language: 'ja', category: 'proverb', difficulty: 'normal' },
+  { text: '急がば回れ', hiragana: 'いそがばまわれ', reading: 'isogabamaware', language: 'ja', category: 'proverb', difficulty: 'easy' },
+  { text: '初心忘るべからず', hiragana: 'しょしんわするべからず', reading: 'shoshinwasurubekarazu', language: 'ja', category: 'proverb', difficulty: 'easy' },
+  { text: '案ずるより産むが易し', hiragana: 'あんずるよりうむがやすし', reading: 'anzuruyoriumugayasushi', language: 'ja', category: 'proverb', difficulty: 'normal' },
+  { text: '雨降って地固まる', hiragana: 'あめふってじかたまる', reading: 'amefuttejikatamaru', language: 'ja', category: 'proverb', difficulty: 'easy' },
+  { text: '失敗は成功のもと', hiragana: 'しっぱいはせいこうのもと', reading: 'shippaiwaseikounomoto', language: 'ja', category: 'proverb', difficulty: 'easy' },
+  { text: '笑う門には福来る', hiragana: 'わらうかどにはふくきたる', reading: 'waraukadoniwafukukitaru', language: 'ja', category: 'proverb', difficulty: 'easy' },
+  { text: '時は金なり', hiragana: 'ときはかねなり', reading: 'tokiwakanenari', language: 'ja', category: 'proverb', difficulty: 'easy' },
+  { text: '習うより慣れろ', hiragana: 'ならうよりなれろ', reading: 'narauyorinarero', language: 'ja', category: 'proverb', difficulty: 'easy' },
+  { text: '能ある鷹は爪を隠す', hiragana: 'のうあるたかはつめをかくす', reading: 'nouarutakawatsumewokakusu', language: 'ja', category: 'proverb', difficulty: 'normal' },
+  { text: '鉄は熱いうちに打て', hiragana: 'てつはあついうちにうて', reading: 'tetsuwaatsuiuchiniute', language: 'ja', category: 'proverb', difficulty: 'easy' },
+  { text: '転ばぬ先の杖', hiragana: 'ころばぬさきのつえ', reading: 'korobanusakinotsue', language: 'ja', category: 'proverb', difficulty: 'easy' },
 ];
 
 // ===== 日本語日常フレーズ =====
 const JAPANESE_DAILY: TypingSentence[] = [
   { text: 'おはようございます', reading: 'ohayougozaimasu', language: 'ja', category: 'daily', difficulty: 'easy' },
-  { text: 'こんにちは', reading: 'konnichiwa', language: 'ja', category: 'daily', difficulty: 'easy' },
-  { text: 'こんばんは', reading: 'konbanwa', language: 'ja', category: 'daily', difficulty: 'easy' },
+  { text: 'こんにちは', reading: 'konnnichiwa', language: 'ja', category: 'daily', difficulty: 'easy' },
+  { text: 'こんばんは', reading: 'konnbannwa', language: 'ja', category: 'daily', difficulty: 'easy' },
   { text: 'ありがとうございます', reading: 'arigatougozaimasu', language: 'ja', category: 'daily', difficulty: 'easy' },
   { text: 'よろしくおねがいします', reading: 'yoroshikuonegaishimasu', language: 'ja', category: 'daily', difficulty: 'normal' },
   { text: 'おつかれさまでした', reading: 'otsukaresamadeshita', language: 'ja', category: 'daily', difficulty: 'easy' },
   { text: 'いただきます', reading: 'itadakimasu', language: 'ja', category: 'daily', difficulty: 'easy' },
   { text: 'ごちそうさまでした', reading: 'gochisousamadeshita', language: 'ja', category: 'daily', difficulty: 'easy' },
-  { text: 'すみません', reading: 'sumimasen', language: 'ja', category: 'daily', difficulty: 'easy' },
-  { text: 'ごめんなさい', reading: 'gomennasai', language: 'ja', category: 'daily', difficulty: 'easy' },
+  { text: 'すみません', reading: 'sumimasenn', language: 'ja', category: 'daily', difficulty: 'easy' },
+  { text: 'ごめんなさい', reading: 'gomennnasai', language: 'ja', category: 'daily', difficulty: 'easy' },
   { text: 'おやすみなさい', reading: 'oyasuminasai', language: 'ja', category: 'daily', difficulty: 'easy' },
   { text: 'いってきます', reading: 'ittekimasu', language: 'ja', category: 'daily', difficulty: 'easy' },
   { text: 'ただいま', reading: 'tadaima', language: 'ja', category: 'daily', difficulty: 'easy' },
   { text: 'おかえりなさい', reading: 'okaerinasai', language: 'ja', category: 'daily', difficulty: 'easy' },
-  { text: 'お元気ですか', reading: 'ogenkidesuka', language: 'ja', category: 'daily', difficulty: 'easy' },
-  { text: '今日はいい天気ですね', reading: 'kyouwaiitenkidesune', language: 'ja', category: 'daily', difficulty: 'normal' },
-  { text: 'お会いできてうれしいです', reading: 'oaidekiteureshiidesu', language: 'ja', category: 'daily', difficulty: 'normal' },
-  { text: 'お手伝いしましょうか', reading: 'otetsudaishimashouka', language: 'ja', category: 'daily', difficulty: 'normal' },
+  { text: 'お元気ですか', hiragana: 'おげんきですか', reading: 'ogennkidesuka', language: 'ja', category: 'daily', difficulty: 'easy' },
+  { text: '今日はいい天気ですね', hiragana: 'きょうはいいてんきですね', reading: 'kyouhaiitennnkidesune', language: 'ja', category: 'daily', difficulty: 'normal' },
+  { text: 'お会いできてうれしいです', hiragana: 'おあいできてうれしいです', reading: 'oaidekiteureshiidesu', language: 'ja', category: 'daily', difficulty: 'normal' },
+  { text: 'お手伝いしましょうか', hiragana: 'おてつだいしましょうか', reading: 'otetsudaishimashouka', language: 'ja', category: 'daily', difficulty: 'normal' },
   { text: 'どうぞよろしくおねがいします', reading: 'douzoyoroshikuonegaishimasu', language: 'ja', category: 'daily', difficulty: 'normal' },
-  { text: 'お先に失礼します', reading: 'osakinishitsureishimasu', language: 'ja', category: 'daily', difficulty: 'normal' },
+  { text: 'お先に失礼します', hiragana: 'おさきにしつれいします', reading: 'osakinishitsureishimasu', language: 'ja', category: 'daily', difficulty: 'normal' },
 ];
 
 // ===== 日本語名言 =====
 const JAPANESE_QUOTES: TypingSentence[] = [
-  { text: '努力は必ず報われる', reading: 'doryokuwakanarazumukuwareru', language: 'ja', category: 'quotes', difficulty: 'easy' },
-  { text: '夢は逃げない、逃げるのはいつも自分だ', reading: 'yumewanigenai nigerunowaitumojibunda', language: 'ja', category: 'quotes', difficulty: 'normal' },
-  { text: '今日できることを明日に延ばすな', reading: 'kyoudekiru kotowo ashitani nobasuna', language: 'ja', category: 'quotes', difficulty: 'normal' },
-  { text: '挑戦しなければ何も始まらない', reading: 'chousenshinakereba nanimohajimara nai', language: 'ja', category: 'quotes', difficulty: 'normal' },
-  { text: '自分を信じることが成功への第一歩', reading: 'jibunwo shinjiru kotoga seikoueno daiippo', language: 'ja', category: 'quotes', difficulty: 'normal' },
-  { text: '諦めなければ夢は叶う', reading: 'akiramenakereba yumewa kanau', language: 'ja', category: 'quotes', difficulty: 'easy' },
-  { text: '一歩一歩進めば必ず目標に届く', reading: 'ippoippo susumeba kanarazu mokuhyouni todoku', language: 'ja', category: 'quotes', difficulty: 'normal' },
-  { text: '過去は変えられないが未来は変えられる', reading: 'kakowakaerarenai ga miraiwakaerareru', language: 'ja', category: 'quotes', difficulty: 'normal' },
-  { text: '失敗を恐れるな、挑戦しないことを恐れろ', reading: 'shippaiwo osoreru na, chousenshi naikotowo osorero', language: 'ja', category: 'quotes', difficulty: 'hard' },
-  { text: '今この瞬間を大切に生きよう', reading: 'ima kono shunkanwo taisetsuni ikiyou', language: 'ja', category: 'quotes', difficulty: 'normal' },
+  { text: '努力は必ず報われる', hiragana: 'どりょくはかならずむくわれる', reading: 'doryokuwakanarazumukuwareru', language: 'ja', category: 'quotes', difficulty: 'easy' },
+  { text: '夢は逃げない、逃げるのはいつも自分だ', hiragana: 'ゆめはにげない、にげるのはいつもじぶんだ', reading: 'yumewanigenai,nigerunowaitumojibunnda', language: 'ja', category: 'quotes', difficulty: 'normal' },
+  { text: '今日できることを明日に延ばすな', hiragana: 'きょうできることをあしたにのばすな', reading: 'kyoudekirukotowoashitaninobasuna', language: 'ja', category: 'quotes', difficulty: 'normal' },
+  { text: '挑戦しなければ何も始まらない', hiragana: 'ちょうせんしなければなにもはじまらない', reading: 'chousennshinnakerebananimohajimaranai', language: 'ja', category: 'quotes', difficulty: 'normal' },
+  { text: '自分を信じることが成功への第一歩', hiragana: 'じぶんをしんじることがせいこうへのだいいっぽ', reading: 'jibunnwoshinnjirukotogaseikouhenodaiippo', language: 'ja', category: 'quotes', difficulty: 'normal' },
+  { text: '諦めなければ夢は叶う', hiragana: 'あきらめなければゆめはかなう', reading: 'akiramenakerebayumewakanau', language: 'ja', category: 'quotes', difficulty: 'easy' },
+  { text: '一歩一歩進めば必ず目標に届く', hiragana: 'いっぽいっぽすすめばかならずもくひょうにとどく', reading: 'ippoipposusumebakanarazumokuhyounitodoku', language: 'ja', category: 'quotes', difficulty: 'normal' },
+  { text: '過去は変えられないが未来は変えられる', hiragana: 'かこはかえられないがみらいはかえられる', reading: 'kakowakaerareenaigamiraiwakaerareru', language: 'ja', category: 'quotes', difficulty: 'normal' },
+  { text: '失敗を恐れるな、挑戦しないことを恐れろ', hiragana: 'しっぱいをおそれるな、ちょうせんしないことをおそれろ', reading: 'shippaiwoosorerunna,chousennshinnaikotowoosorero', language: 'ja', category: 'quotes', difficulty: 'hard' },
+  { text: '今この瞬間を大切に生きよう', hiragana: 'いまこのしゅんかんをたいせつにいきよう', reading: 'imakonoshunnkannwotaisetsuniikyou', language: 'ja', category: 'quotes', difficulty: 'normal' },
 ];
 
 // ===== 全文章リスト =====

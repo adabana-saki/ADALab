@@ -129,12 +129,28 @@ export class TypingRoom extends DurableObject<Env> {
       return new Response(null, { headers: corsHeaders });
     }
 
-    // Initialize room with code
+    // Initialize room with code and settings
     if (url.pathname === '/init') {
       const roomCode = url.searchParams.get('roomCode');
       if (roomCode) {
         this.roomState.roomCode = roomCode;
         this.roomState.roomId = roomCode;
+      }
+      // クイックマッチの設定を適用
+      const wordCountParam = url.searchParams.get('wordCount');
+      const languageParam = url.searchParams.get('language');
+      const difficultyParam = url.searchParams.get('difficulty');
+      if (wordCountParam) {
+        const count = parseInt(wordCountParam, 10);
+        if (!isNaN(count) && count >= 10 && count <= 50) {
+          this.roomState.wordCount = count;
+        }
+      }
+      if (languageParam === 'en' || languageParam === 'ja') {
+        this.roomState.language = languageParam;
+      }
+      if (difficultyParam === 'easy' || difficultyParam === 'medium' || difficultyParam === 'hard') {
+        this.roomState.difficulty = difficultyParam;
       }
       return new Response(JSON.stringify({ success: true }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

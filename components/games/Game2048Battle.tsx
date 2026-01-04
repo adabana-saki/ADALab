@@ -275,29 +275,30 @@ function GridComponent({ grid }: { grid: Grid }) {
 function MiniGridComponent({ grid }: { grid?: (number | null)[][] }) {
   if (!grid) return null;
 
-  const cellSize = 18; // 小さいセルサイズ
-  const gridSize = cellSize * 4 + 3 * 2; // 4x4 + gap
+  const cellSize = 32; // セルサイズを大きく
+  const gap = 3;
+  const gridSize = cellSize * 4 + gap * 3; // 4x4 + gap
 
   return (
     <div
-      className="relative bg-[#bbada0] rounded mx-auto mt-2"
-      style={{ width: gridSize, height: gridSize }}
+      className="relative bg-[#bbada0] rounded-lg mx-auto mt-3"
+      style={{ width: gridSize, height: gridSize, padding: 2 }}
     >
       {grid.flat().map((value, i) => {
         const row = Math.floor(i / 4);
         const col = i % 4;
         const style = value ? getTileStyle(value) : { bg: 'bg-[#cdc1b4]', text: '' };
-        const fontSize = value && value >= 100 ? 'text-[6px]' : 'text-[8px]';
+        const fontSize = value && value >= 1000 ? 'text-[8px]' : value && value >= 100 ? 'text-[10px]' : 'text-xs';
 
         return (
           <div
             key={i}
-            className={`absolute flex items-center justify-center rounded-sm font-bold ${style.bg} ${style.text} ${fontSize}`}
+            className={`absolute flex items-center justify-center rounded font-bold ${style.bg} ${style.text} ${fontSize}`}
             style={{
               width: cellSize,
               height: cellSize,
-              left: col * (cellSize + 2),
-              top: row * (cellSize + 2),
+              left: col * (cellSize + gap) + 2,
+              top: row * (cellSize + gap) + 2,
             }}
           >
             {value || ''}

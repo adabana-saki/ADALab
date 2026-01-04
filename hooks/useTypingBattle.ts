@@ -358,22 +358,30 @@ export function useTypingBattle(options: UseTypingBattleOptions = {}) {
   }, [connectToRoom]);
 
   // Quick match
-  const quickMatch = useCallback(async (nickname: string) => {
+  const quickMatch = useCallback(async (nickname: string, matchSettings?: Partial<GameSettings>) => {
     setGameStatus('connecting');
     setError(null);
     const playerId = getDeviceId();
+
+    // マッチング用の設定を準備
+    const settingsForMatch = matchSettings ? {
+      wordCount: matchSettings.wordCount,
+      language: matchSettings.language,
+      difficulty: matchSettings.difficulty,
+    } : undefined;
 
     try {
       const response = await fetch(`${BATTLE_WORKER_URL}/api/battle/typing/queue`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nickname, playerId }),
+        body: JSON.stringify({ nickname, playerId, settings: settingsForMatch }),
       });
 
       const data = await response.json();
 
       if (data.success && data.matched) {
-        await connectToRoom(data.wsUrl, nickname, false);
+        // マッチした設定をルーム作成時に渡す
+        await connectToRoom(data.wsUrl, nickname, true, data.settings || matchSettings);
       } else if (data.success && !data.matched) {
         // ポーリング開始
         const pollForMatch = async () => {
@@ -381,13 +389,14 @@ export function useTypingBattle(options: UseTypingBattleOptions = {}) {
             const pollResponse = await fetch(`${BATTLE_WORKER_URL}/api/battle/typing/queue`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ nickname, playerId }),
+              body: JSON.stringify({ nickname, playerId, settings: settingsForMatch }),
             });
 
             const pollData = await pollResponse.json();
 
             if (pollData.success && pollData.matched) {
-              await connectToRoom(pollData.wsUrl, nickname, false);
+              // マッチした設定をルーム作成時に渡す
+              await connectToRoom(pollData.wsUrl, nickname, true, pollData.settings || matchSettings);
             } else {
               reconnectTimeoutRef.current = setTimeout(pollForMatch, 1000);
             }
