@@ -496,6 +496,14 @@ function addGarbageLines(
 
 - [テトリス実装（ADA Lab）](https://github.com/adabana-saki/ADALab/blob/main/components/games/TetrisBattle.tsx)
 
+## このシリーズの他の記事
+
+このサイトでは、他にもオンライン対戦ゲームの実装記事を公開しています：
+
+- [同一フィールドで戦うスネークバトルを実装してみた](/blog/snake-battle-implementation) - Durable Objectsでサーバー側ゲームロジック
+- [2048オンライン対戦で「公平」を実現する方法：シード乱数の魔法](/blog/2048-battle-seeded-random) - シード乱数で両プレイヤーに同じタイル配置を保証
+- [日本語タイピングゲームの「shi」と「si」問題を解決する](/blog/typing-game-romaji-converter) - 150以上のローマ字パターンに対応
+
 ## 参考リンク
 
 - [Tetris Guideline - Tetris Wiki](https://tetris.wiki/Tetris_Guideline)

@@ -294,16 +294,10 @@ export function useTypingGame(options: UseTypingGameOptions) {
 
       // sudden_death モード：間違えたら即終了
       if (mode === 'sudden_death' && input.length > 0) {
-        let isInputValid = true;
-
-        if (isJapanese) {
-          // 日本語: ローマ字マッチングで判定
-          isInputValid = romajiMatch?.isValid ?? false;
-        } else {
-          // 英語: 従来の文字比較
-          const lastCharIndex = input.length - 1;
-          isInputValid = input[lastCharIndex] === targetText[lastCharIndex];
-        }
+        // 日本語: ローマ字マッチング / 英語: 文字比較
+        const isInputValid = isJapanese
+          ? (romajiMatch?.isValid ?? false)
+          : input[input.length - 1] === targetText[input.length - 1];
 
         if (!isInputValid) {
           soundEngine.current?.typingMiss();
