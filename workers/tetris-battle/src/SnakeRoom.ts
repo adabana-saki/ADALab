@@ -91,7 +91,7 @@ const ROOM_CONFIG = {
   maxPlayers: 2,
   countdownSeconds: 3,
   defaultGridSize: 30, // 30x30に拡大
-  defaultTimeLimit: 180, // 3 minutes
+  defaultTimeLimit: 0, // 無制限
   gameTickMs: 100, // 100msごとにティック（10 FPS）
 };
 
