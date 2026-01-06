@@ -1,7 +1,7 @@
 ---
 title: "同一フィールドで戦うスネークバトルを実装してみた"
-date: "2025-01-04"
-publishDate: "2025-01-04"
+date: "2026-01-04"
+publishDate: "2026-01-04"
 description: "Cloudflare Durable Objectsを使ったリアルタイムスネークバトルゲームの実装解説。サーバー側でのゲームロジック処理、衝突判定、WebSocketによる状態同期の仕組みを詳しく紹介します。"
 tags: ["スネークゲーム", "Cloudflare Workers", "Durable Objects", "WebSocket", "リアルタイム通信", "TypeScript", "ゲーム開発"]
 author: "Adabana Saki"
