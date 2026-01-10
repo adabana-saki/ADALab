@@ -4,6 +4,7 @@ import { MatchmakingQueue } from './MatchmakingQueue';
 import { TypingRoom } from './TypingRoom';
 import { Game2048Room } from './Game2048Room';
 import { SnakeRoom } from './SnakeRoom';
+import { MinesweeperRoom } from './MinesweeperRoom';
 
 interface Env {
   TETRIS_ROOM: DurableObjectNamespace;
@@ -12,6 +13,7 @@ interface Env {
   TYPING_ROOM: DurableObjectNamespace;
   GAME_2048_ROOM: DurableObjectNamespace;
   SNAKE_ROOM: DurableObjectNamespace;
+  MINESWEEPER_ROOM: DurableObjectNamespace;
   ALLOWED_ORIGINS: string;
 }
 
@@ -125,6 +127,24 @@ export default {
       return handleWebSocket(request, env, roomId, 'snake');
     }
 
+    // Minesweeper Battle routes
+    if (path === '/api/battle/minesweeper/create') {
+      return handleCreateRoom(request, env, 'minesweeper');
+    }
+    if (path === '/api/battle/minesweeper/join') {
+      return handleJoinRoom(request, env, 'minesweeper');
+    }
+    if (path === '/api/battle/minesweeper/queue') {
+      return handleMatchmaking(request, env, 'minesweeper');
+    }
+    if (path === '/api/battle/minesweeper/queue/cancel') {
+      return handleMatchmakingCancel(request, env, 'minesweeper');
+    }
+    if (path.startsWith('/ws/minesweeper/')) {
+      const roomId = path.replace('/ws/minesweeper/', '');
+      return handleWebSocket(request, env, roomId, 'minesweeper');
+    }
+
     return new Response('Not Found', { status: 404, headers: corsHeaders });
   },
 };
@@ -139,13 +159,14 @@ function generateRoomCode(): string {
   return code;
 }
 
-type GameType = 'tetris' | 'typing' | '2048' | 'snake';
+type GameType = 'tetris' | 'typing' | '2048' | 'snake' | 'minesweeper';
 
 function getRoomNamespace(env: Env, gameType: GameType): DurableObjectNamespace {
   switch (gameType) {
     case 'typing': return env.TYPING_ROOM;
     case '2048': return env.GAME_2048_ROOM;
     case 'snake': return env.SNAKE_ROOM;
+    case 'minesweeper': return env.MINESWEEPER_ROOM;
     default: return env.TETRIS_ROOM;
   }
 }
@@ -155,6 +176,7 @@ function getWsPath(gameType: GameType): string {
     case 'typing': return '/ws/typing/';
     case '2048': return '/ws/2048/';
     case 'snake': return '/ws/snake/';
+    case 'minesweeper': return '/ws/minesweeper/';
     default: return '/ws/room/';
   }
 }
@@ -450,4 +472,4 @@ async function handlePresence(request: Request, env: Env, action: string): Promi
 }
 
 // Export Durable Object classes
-export { TetrisRoom, OnlinePresence, MatchmakingQueue, TypingRoom, Game2048Room, SnakeRoom };
+export { TetrisRoom, OnlinePresence, MatchmakingQueue, TypingRoom, Game2048Room, SnakeRoom, MinesweeperRoom };

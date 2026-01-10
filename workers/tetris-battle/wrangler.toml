@@ -28,6 +28,10 @@ class_name = "Game2048Room"
 name = "SNAKE_ROOM"
 class_name = "SnakeRoom"
 
+[[durable_objects.bindings]]
+name = "MINESWEEPER_ROOM"
+class_name = "MinesweeperRoom"
+
 # Migrations for Durable Objects with SQLite storage
 [[migrations]]
 tag = "v1"
@@ -44,6 +48,10 @@ new_sqlite_classes = ["MatchmakingQueue"]
 [[migrations]]
 tag = "v4"
 new_sqlite_classes = ["TypingRoom", "Game2048Room", "SnakeRoom"]
+
+[[migrations]]
+tag = "v5"
+new_sqlite_classes = ["MinesweeperRoom"]
 
 # CORS settings
 [vars]
