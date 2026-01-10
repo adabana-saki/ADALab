@@ -85,9 +85,10 @@ interface GameSettings {
   mines: number;
 }
 
-interface Env {
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+type Env = {
   // D1 database binding (if needed)
-}
+};
 
 export class MinesweeperRoom extends DurableObject<Env> {
   private sessions: Map<WebSocket, WebSocketSession> = new Map();

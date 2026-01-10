@@ -280,10 +280,21 @@ export function MinesweeperBattle({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Calculate cell size
-  const maxWidth = Math.min(window?.innerWidth || 400, 600) - 32;
-  const maxHeight = (window?.innerHeight || 600) - 280;
-  const cellSize = Math.floor(Math.min(maxWidth / width, maxHeight / height, 24));
+  // Calculate cell size (SSR-safe)
+  const [cellSize, setCellSize] = useState(20);
+
+  useEffect(() => {
+    const calculateCellSize = () => {
+      const maxWidth = Math.min(window.innerWidth, 600) - 32;
+      const maxHeight = window.innerHeight - 280;
+      const size = Math.floor(Math.min(maxWidth / width, maxHeight / height, 24));
+      setCellSize(size);
+    };
+
+    calculateCellSize();
+    window.addEventListener('resize', calculateCellSize);
+    return () => window.removeEventListener('resize', calculateCellSize);
+  }, [width, height]);
 
   const getCellColor = (cell: Cell) => {
     if (!cell.isRevealed) {

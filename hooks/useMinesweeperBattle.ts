@@ -132,7 +132,7 @@ export function useMinesweeperBattle(options: UseMinesweeperBattleOptions = {}) 
           optionsRef.current.onTimeUpdate?.(data.remaining);
           break;
 
-        case 'opponent_progress':
+        case 'opponent_progress': {
           const progress: OpponentProgress = {
             revealed: data.revealed,
             flagged: data.flagged,
@@ -141,6 +141,7 @@ export function useMinesweeperBattle(options: UseMinesweeperBattleOptions = {}) 
           setOpponentProgress(progress);
           optionsRef.current.onOpponentProgress?.(progress);
           break;
+        }
 
         case 'opponent_lost':
           optionsRef.current.onOpponentLost?.();
@@ -342,7 +343,7 @@ export function useMinesweeperBattle(options: UseMinesweeperBattleOptions = {}) 
   const sendFinished = useCallback((time: number) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify({
-        type: 'finish',
+        type: 'finished',
         time,
       }));
     }

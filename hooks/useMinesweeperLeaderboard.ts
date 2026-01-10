@@ -65,10 +65,11 @@ export function useMinesweeperLeaderboard(initialDifficulty: Difficulty = 'begin
       case 'daily':
         startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         break;
-      case 'weekly':
+      case 'weekly': {
         const dayOfWeek = now.getDay();
         startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek);
         break;
+      }
       case 'monthly':
         startDate = new Date(now.getFullYear(), now.getMonth(), 1);
         break;

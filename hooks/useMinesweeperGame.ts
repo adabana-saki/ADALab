@@ -368,16 +368,7 @@ export function useMinesweeperGame(options: UseMinesweeperGameOptions = {}) {
       // フラグ数が隣接地雷数と一致しない場合は何もしない
       if (flaggedCount !== cell.adjacentMines) return prev;
 
-      // 周囲の未開示・未フラグセルを開示
-      let newState = prev;
-      for (const [nx, ny] of neighbors) {
-        const neighborCell = prev.board[ny][nx];
-        if (!neighborCell.isRevealed && !neighborCell.isFlagged) {
-          // revealCellを直接呼ぶとstateが古くなるので、一旦保留
-          // ここでは単純にsetStateを返して、外部で順次revealCellを呼ぶ
-        }
-      }
-
+      // 周囲の未開示・未フラグセルは外部で順次開示するため、ここでは何もしない
       return prev;
     });
 
