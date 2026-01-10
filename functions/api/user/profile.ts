@@ -97,6 +97,16 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       .bind(user.id)
       .all();
 
+    // Get unlocked achievement IDs per game
+    const unlockedAchievements = await env.DB.prepare(
+      `SELECT game_type, achievement_id, unlocked_at
+       FROM user_achievements
+       WHERE user_id = ?
+       ORDER BY unlocked_at DESC`
+    )
+      .bind(user.id)
+      .all();
+
     // Get best rankings
     const rankings: Record<string, number | null> = {};
 
@@ -141,6 +151,15 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
           acc[item.game_type as string] = item.count as number;
           return acc;
         }, {} as Record<string, number>),
+        unlockedAchievements: unlockedAchievements.results.reduce((acc, item) => {
+          const gameType = item.game_type as string;
+          if (!acc[gameType]) acc[gameType] = [];
+          acc[gameType].push({
+            id: item.achievement_id as string,
+            unlockedAt: item.unlocked_at as string,
+          });
+          return acc;
+        }, {} as Record<string, Array<{ id: string; unlockedAt: string }>>),
         rankings,
       }),
       {

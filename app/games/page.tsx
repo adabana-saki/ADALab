@@ -29,6 +29,13 @@ const games = [
     title: 'Typing',
     description: 'タイピング速度を測定！日本語・英語・プログラミング用語モード搭載。',
     thumbnail: '/images/games/typing-thumbnail.png',
+    isNew: false,
+  },
+  {
+    id: 'minesweeper',
+    title: 'Minesweeper',
+    description: '地雷を避けてすべてのセルを開けよう！初級・中級・上級の3難易度。',
+    thumbnail: '/images/games/minesweeper-thumbnail.png',
     isNew: true,
   },
 ];

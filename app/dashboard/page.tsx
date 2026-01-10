@@ -5,11 +5,8 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
   User,
-  Trophy,
   Gamepad2,
-  Award,
   TrendingUp,
-  Calendar,
   Medal,
   Target,
 } from 'lucide-react';
@@ -27,10 +24,16 @@ interface UserProfile {
   total_achievements: number;
 }
 
+interface UnlockedAchievement {
+  id: string;
+  unlockedAt: string;
+}
+
 interface DashboardData {
   user: UserProfile;
   gameStats: Record<string, unknown>;
   achievementCounts: Record<string, number>;
+  unlockedAchievements: Record<string, UnlockedAchievement[]>;
   rankings: Record<string, number | null>;
 }
 
@@ -184,6 +187,7 @@ export default function DashboardPage() {
             <AchievementsOverview
               achievementCounts={data?.achievementCounts || {}}
               totalAchievements={data?.user?.total_achievements || 0}
+              unlockedAchievements={data?.unlockedAchievements || {}}
             />
           </div>
         </div>
