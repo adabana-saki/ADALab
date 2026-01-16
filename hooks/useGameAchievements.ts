@@ -12,6 +12,7 @@ import {
   DEFAULT_USER_GAME_ACHIEVEMENTS,
   getGameAchievementById,
 } from '@/lib/game-achievements';
+import { useAchievementSync } from './useAchievementSync';
 
 export interface AchievementUnlockEvent {
   achievement: GameAchievement;
@@ -43,6 +44,8 @@ export function useGameAchievements(): UseGameAchievementsReturn {
   const [stats, setStats] = useState<GameStats>(DEFAULT_GAME_STATS);
   const [recentUnlocks, setRecentUnlocks] = useState<AchievementUnlockEvent[]>([]);
   const isInitialized = useRef(false);
+  const { syncAchievements } = useAchievementSync();
+  const pendingSyncRef = useRef<string[]>([]);
 
   // LocalStorageから読み込み
   useEffect(() => {
@@ -109,6 +112,9 @@ export function useGameAchievements(): UseGameAchievementsReturn {
     setAchievements(newAchievements);
     saveAchievements(newAchievements);
 
+    // 同期待ちリストに追加
+    pendingSyncRef.current.push(id);
+
     // 最近の解除に追加
     setRecentUnlocks((prev) => [
       ...prev,
@@ -117,6 +123,15 @@ export function useGameAchievements(): UseGameAchievementsReturn {
 
     return achievement;
   }, [achievements, saveAchievements]);
+
+  // 実績をサーバーに同期
+  const flushAchievementSync = useCallback(async () => {
+    if (pendingSyncRef.current.length > 0) {
+      const toSync = [...pendingSyncRef.current];
+      pendingSyncRef.current = [];
+      await syncAchievements('tetris', toSync);
+    }
+  }, [syncAchievements]);
 
   // 解除済みかチェック
   const isUnlocked = useCallback((id: string): boolean => {
@@ -302,8 +317,11 @@ export function useGameAchievements(): UseGameAchievementsReturn {
       if (a) unlockedNow.push(a);
     }
 
+    // 新しく解除された実績をサーバーに同期
+    flushAchievementSync();
+
     return unlockedNow;
-  }, [stats, isUnlocked, unlockAchievement]);
+  }, [stats, isUnlocked, unlockAchievement, flushAchievementSync]);
 
   // 最近の解除をクリア
   const clearRecentUnlocks = useCallback(() => {

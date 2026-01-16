@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { SNAKE_ACHIEVEMENTS } from '@/lib/snake-achievements';
 import type { GameAchievement } from '@/lib/game-achievements';
+import { useAchievementSync } from './useAchievementSync';
 
 interface SnakeStats {
   totalGames: number;
@@ -34,6 +35,8 @@ const defaultStats: SnakeStats = {
 export function useSnakeAchievements(options: UseSnakeAchievementsOptions = {}) {
   const [unlockedIds, setUnlockedIds] = useState<Set<string>>(new Set());
   const [stats, setStats] = useState<SnakeStats>(defaultStats);
+  const { syncAchievements } = useAchievementSync();
+  const pendingSyncRef = useRef<string[]>([]);
 
   // 初期化
   useEffect(() => {
@@ -63,11 +66,23 @@ export function useSnakeAchievements(options: UseSnakeAchievementsOptions = {}) 
       setUnlockedIds(newUnlocked);
       localStorage.setItem(STORAGE_KEY, JSON.stringify([...newUnlocked]));
 
+      // 同期待ちリストに追加
+      pendingSyncRef.current.push(id);
+
       options.onAchievementUnlock?.(achievement);
       return achievement;
     },
     [unlockedIds, options]
   );
+
+  // 実績をサーバーに同期
+  const flushAchievementSync = useCallback(async () => {
+    if (pendingSyncRef.current.length > 0) {
+      const toSync = [...pendingSyncRef.current];
+      pendingSyncRef.current = [];
+      await syncAchievements('snake', toSync);
+    }
+  }, [syncAchievements]);
 
   // 実績解除チェック
   const isUnlocked = useCallback(
@@ -175,9 +190,12 @@ export function useSnakeAchievements(options: UseSnakeAchievementsOptions = {}) 
         if (a) unlockedNow.push(a);
       }
 
+      // 新しく解除された実績をサーバーに同期
+      flushAchievementSync();
+
       return unlockedNow;
     },
-    [stats, updateStats, unlockAchievement, isUnlocked]
+    [stats, updateStats, unlockAchievement, isUnlocked, flushAchievementSync]
   );
 
   // パーフェクトラン記録（壁に触れずに30点）

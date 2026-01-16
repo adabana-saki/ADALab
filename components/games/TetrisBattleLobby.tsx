@@ -133,6 +133,17 @@ export function TetrisBattleLobby() {
     setGameSeed(0);
   };
 
+  const handleRematch = () => {
+    // WebSocket接続を維持したまま待機室に戻る
+    setLobbyMode('create'); // 待機室モードに戻る
+    setIsReady(false);
+    setReady(false);
+    setOpponent(null);
+    setOpponentAlive(true);
+    setPendingGarbage(0);
+    setGameSeed(0);
+  };
+
   // メインメニュー
   if (lobbyMode === 'menu') {
     return (
@@ -547,6 +558,7 @@ export function TetrisBattleLobby() {
         nickname={nickname}
         seed={gameSeed}
         onLeave={handleBack}
+        onRematch={handleRematch}
         sendFieldUpdate={sendFieldUpdate}
         sendAttack={sendAttack}
         consumeGarbage={consumeGarbage}

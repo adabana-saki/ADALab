@@ -145,6 +145,17 @@ export function Game2048BattleLobby() {
     setEndReason('');
   };
 
+  const handleRematch = () => {
+    // WebSocket接続を維持したまま待機室に戻る
+    setLobbyMode('create'); // 待機室モードに戻る
+    setIsReady(false);
+    setReady(false);
+    setOpponentState(null);
+    setGameSeed(0);
+    setFinalResults([]);
+    setEndReason('');
+  };
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -495,6 +506,7 @@ export function Game2048BattleLobby() {
         onReachedTarget={sendReachedTarget}
         onGameOver={sendGameOver}
         onLeave={handleBack}
+        onRematch={handleRematch}
         results={finalResults}
         endReason={endReason}
       />

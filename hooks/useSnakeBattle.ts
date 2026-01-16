@@ -15,6 +15,13 @@ export interface PlayerInfo {
   id: string;
   nickname: string;
   isReady: boolean;
+  color: string;
+}
+
+export interface AvailableColor {
+  id: string;
+  hex: string;
+  name: string;
 }
 
 // 同一フィールド上のプレイヤー状態
@@ -95,6 +102,9 @@ export function useSnakeBattle(options: UseSnakeBattleOptions = {}) {
   const [food, setFood] = useState<Position | null>(null);
   const [lastDeath, setLastDeath] = useState<PlayerDiedInfo | null>(null);
 
+  // 色選択用の状態
+  const [availableColors, setAvailableColors] = useState<AvailableColor[]>([]);
+
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -127,10 +137,18 @@ export function useSnakeBattle(options: UseSnakeBattleOptions = {}) {
         case 'room_joined':
           setRoomId(data.roomId);
           setRoomCode(data.roomCode || null);
-          setPlayers(data.players);
+          setPlayers(data.players.map((p: { id: string; nickname: string; isReady: boolean; color?: string }) => ({
+            id: p.id,
+            nickname: p.nickname,
+            isReady: p.isReady,
+            color: p.color || '#22c55e',
+          })));
           if (data.settings) {
             setSettings(data.settings);
             setTimeRemaining(data.settings.timeLimit);
+          }
+          if (data.availableColors) {
+            setAvailableColors(data.availableColors);
           }
           if (data.players.length > 0) {
             setMyPlayerId(data.players[data.players.length - 1].id);
@@ -139,7 +157,13 @@ export function useSnakeBattle(options: UseSnakeBattleOptions = {}) {
           break;
 
         case 'player_joined':
-          setPlayers(prev => [...prev, { id: data.id, nickname: data.nickname, isReady: false }]);
+          setPlayers(prev => [...prev, { id: data.id, nickname: data.nickname, isReady: false, color: data.color || '#f97316' }]);
+          break;
+
+        case 'player_color_changed':
+          setPlayers(prev =>
+            prev.map(p => (p.id === data.id ? { ...p, color: data.color } : p))
+          );
           break;
 
         case 'player_left':
@@ -432,6 +456,13 @@ export function useSnakeBattle(options: UseSnakeBattleOptions = {}) {
     }
   }, []);
 
+  // Select color
+  const selectColor = useCallback((colorId: string) => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ type: 'select_color', colorId }));
+    }
+  }, []);
+
   // Send state update (旧: 後方互換性のため残す)
   const sendStateUpdate = useCallback((snake: Position[], direction: Direction, score: number) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
@@ -527,11 +558,15 @@ export function useSnakeBattle(options: UseSnakeBattleOptions = {}) {
     food,
     lastDeath,
 
+    // 色選択用
+    availableColors,
+
     // Actions
     createRoom,
     joinRoom,
     quickMatch,
     setReady,
+    selectColor,
     sendStateUpdate,
     sendFoodEaten,
     sendGameOver,

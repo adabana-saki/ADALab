@@ -141,6 +141,16 @@ export function TypingBattleLobby() {
     setFinalResults([]);
   };
 
+  const handleRematch = () => {
+    // WebSocket接続を維持したまま待機室に戻る
+    setLobbyMode('create'); // 待機室モードに戻る
+    setIsReady(false);
+    setReady(false);
+    setOpponentProgress(null);
+    setGameSeed(0);
+    setFinalResults([]);
+  };
+
   // Main menu
   if (lobbyMode === 'menu') {
     return (
@@ -594,6 +604,7 @@ export function TypingBattleLobby() {
         onWordComplete={sendWordComplete}
         onGameFinished={sendGameFinished}
         onLeave={handleBack}
+        onRematch={handleRematch}
         results={finalResults}
       />
     );

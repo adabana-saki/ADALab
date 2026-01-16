@@ -380,8 +380,8 @@ export function useTypingBattle(options: UseTypingBattleOptions = {}) {
       const data = await response.json();
 
       if (data.success && data.matched) {
-        // マッチした設定をルーム作成時に渡す
-        await connectToRoom(data.wsUrl, nickname, true, data.settings || matchSettings);
+        // マッチした場合はjoinモードで接続（ルームは既にサーバーで初期化済み）
+        await connectToRoom(data.wsUrl, nickname, false, data.settings || matchSettings);
       } else if (data.success && !data.matched) {
         // ポーリング開始
         const pollForMatch = async () => {
@@ -395,8 +395,8 @@ export function useTypingBattle(options: UseTypingBattleOptions = {}) {
             const pollData = await pollResponse.json();
 
             if (pollData.success && pollData.matched) {
-              // マッチした設定をルーム作成時に渡す
-              await connectToRoom(pollData.wsUrl, nickname, true, pollData.settings || matchSettings);
+              // マッチした場合はjoinモードで接続（ルームは既にサーバーで初期化済み）
+              await connectToRoom(pollData.wsUrl, nickname, false, pollData.settings || matchSettings);
             } else {
               reconnectTimeoutRef.current = setTimeout(pollForMatch, 1000);
             }
