@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { TYPING_ACHIEVEMENTS } from '@/lib/typing-achievements';
 import type { GameAchievement } from '@/lib/game-achievements';
 import type { TypingLanguage, TypingMode } from './useTypingLeaderboard';
+import { useAchievementSync } from './useAchievementSync';
 
 interface TypingStats {
   totalGames: number;
@@ -39,6 +40,8 @@ const defaultStats: TypingStats = {
 export function useTypingAchievements(options: UseTypingAchievementsOptions = {}) {
   const [unlockedIds, setUnlockedIds] = useState<Set<string>>(new Set());
   const [stats, setStats] = useState<TypingStats>(defaultStats);
+  const { syncAchievements } = useAchievementSync();
+  const pendingSyncRef = useRef<string[]>([]);
 
   // 初期化
   useEffect(() => {
@@ -68,11 +71,23 @@ export function useTypingAchievements(options: UseTypingAchievementsOptions = {}
       setUnlockedIds(newUnlocked);
       localStorage.setItem(STORAGE_KEY, JSON.stringify([...newUnlocked]));
 
+      // 同期待ちリストに追加
+      pendingSyncRef.current.push(id);
+
       options.onAchievementUnlock?.(achievement);
       return achievement;
     },
     [unlockedIds, options]
   );
+
+  // 実績をサーバーに同期
+  const flushAchievementSync = useCallback(async () => {
+    if (pendingSyncRef.current.length > 0) {
+      const toSync = [...pendingSyncRef.current];
+      pendingSyncRef.current = [];
+      await syncAchievements('typing', toSync);
+    }
+  }, [syncAchievements]);
 
   // 実績解除チェック
   const isUnlocked = useCallback(
@@ -197,9 +212,12 @@ export function useTypingAchievements(options: UseTypingAchievementsOptions = {}
         if (a) unlockedNow.push(a);
       }
 
+      // 新しく解除された実績をサーバーに同期
+      flushAchievementSync();
+
       return unlockedNow;
     },
-    [stats, updateStats, unlockAchievement, isUnlocked]
+    [stats, updateStats, unlockAchievement, isUnlocked, flushAchievementSync]
   );
 
   // 全実績取得

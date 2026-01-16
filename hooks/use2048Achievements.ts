@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   GAME_2048_ACHIEVEMENTS,
   Game2048Stats,
@@ -11,6 +11,7 @@ import {
 } from '@/lib/game-2048-achievements';
 import type { GameAchievement, GameAchievementProgress, UserGameAchievements } from '@/lib/game-achievements';
 import { DEFAULT_USER_GAME_ACHIEVEMENTS } from '@/lib/game-achievements';
+import { useAchievementSync } from './useAchievementSync';
 
 interface Use2048AchievementsOptions {
   onAchievementUnlock?: (achievement: GameAchievement) => void;
@@ -18,6 +19,8 @@ interface Use2048AchievementsOptions {
 
 export function use2048Achievements(options: Use2048AchievementsOptions = {}) {
   const { onAchievementUnlock } = options;
+  const { syncAchievements } = useAchievementSync();
+  const pendingSyncRef = useRef<string[]>([]);
 
   // 統計
   const [stats, setStats] = useState<Game2048Stats>(DEFAULT_GAME_2048_STATS);
@@ -91,12 +94,25 @@ export function use2048Achievements(options: Use2048AchievementsOptions = {}) {
       };
 
       saveAchievements(newAchievements);
+
+      // 同期待ちリストに追加
+      pendingSyncRef.current.push(achievementId);
+
       onAchievementUnlock?.(achievement);
 
       return true;
     },
     [userAchievements, saveAchievements, onAchievementUnlock]
   );
+
+  // 実績をサーバーに同期
+  const flushAchievementSync = useCallback(async () => {
+    if (pendingSyncRef.current.length > 0) {
+      const toSync = [...pendingSyncRef.current];
+      pendingSyncRef.current = [];
+      await syncAchievements('2048', toSync);
+    }
+  }, [syncAchievements]);
 
   // 実績が解除されているかチェック
   const isAchievementUnlocked = useCallback(
@@ -238,8 +254,11 @@ export function use2048Achievements(options: Use2048AchievementsOptions = {}) {
         totalPlayTime: stats.totalPlayTime + timeSeconds,
       };
       saveStats(newStats);
+
+      // 新しく解除された実績をサーバーに同期
+      flushAchievementSync();
     },
-    [stats, saveStats]
+    [stats, saveStats, flushAchievementSync]
   );
 
   // 解除された実績リスト

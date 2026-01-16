@@ -19,6 +19,7 @@ interface TypingBattleProps {
   onWordComplete: (wordIndex: number, correct: boolean, wpm: number, accuracy: number, correctChars: number, totalChars: number) => void;
   onGameFinished: (finalWpm: number, finalAccuracy: number, finishTime: number) => void;
   onLeave: () => void;
+  onRematch: () => void;
   results: GameResult[];
   activeAttacks?: StreakAttack[];
   myStreak?: number;
@@ -61,6 +62,7 @@ export function TypingBattle({
   onWordComplete,
   onGameFinished,
   onLeave,
+  onRematch,
   results,
   activeAttacks = [],
   myStreak = 0,
@@ -408,12 +410,20 @@ export function TypingBattle({
             </div>
           )}
 
-          <button
-            onClick={onLeave}
-            className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90"
-          >
-            ロビーに戻る
-          </button>
+          <div className="space-y-3">
+            <button
+              onClick={onRematch}
+              className="w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90"
+            >
+              再戦する
+            </button>
+            <button
+              onClick={onLeave}
+              className="w-full px-6 py-3 bg-card border border-border rounded-lg font-medium hover:bg-accent"
+            >
+              ロビーに戻る
+            </button>
+          </div>
         </div>
       </div>
     );

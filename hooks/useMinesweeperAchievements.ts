@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { MINESWEEPER_ACHIEVEMENTS } from '@/lib/minesweeper-achievements';
 import type { GameAchievement } from '@/lib/game-achievements';
 import type { Difficulty } from './useMinesweeperGame';
+import { useAchievementSync } from './useAchievementSync';
 
 interface MinesweeperStats {
   totalGames: number;
@@ -51,6 +52,8 @@ const defaultStats: MinesweeperStats = {
 export function useMinesweeperAchievements(options: UseMinesweeperAchievementsOptions = {}) {
   const [unlockedIds, setUnlockedIds] = useState<Set<string>>(new Set());
   const [stats, setStats] = useState<MinesweeperStats>(defaultStats);
+  const { syncAchievements } = useAchievementSync();
+  const pendingSyncRef = useRef<string[]>([]);
 
   // 初期化
   useEffect(() => {
@@ -88,11 +91,23 @@ export function useMinesweeperAchievements(options: UseMinesweeperAchievementsOp
       setUnlockedIds(newUnlocked);
       localStorage.setItem(STORAGE_KEY, JSON.stringify([...newUnlocked]));
 
+      // 同期待ちリストに追加
+      pendingSyncRef.current.push(id);
+
       options.onAchievementUnlock?.(achievement);
       return achievement;
     },
     [unlockedIds, options]
   );
+
+  // 実績をサーバーに同期
+  const flushAchievementSync = useCallback(async () => {
+    if (pendingSyncRef.current.length > 0) {
+      const toSync = [...pendingSyncRef.current];
+      pendingSyncRef.current = [];
+      await syncAchievements('minesweeper', toSync);
+    }
+  }, [syncAchievements]);
 
   // 実績解除チェック
   const isUnlocked = useCallback((id: string) => unlockedIds.has(id), [unlockedIds]);
@@ -132,8 +147,11 @@ export function useMinesweeperAchievements(options: UseMinesweeperAchievementsOp
       if (a) unlockedNow.push(a);
     }
 
+    // 新しく解除された実績をサーバーに同期
+    flushAchievementSync();
+
     return unlockedNow;
-  }, [stats, updateStats, unlockAchievement, isUnlocked]);
+  }, [stats, updateStats, unlockAchievement, isUnlocked, flushAchievementSync]);
 
   // ゲームクリア記録
   const recordGameClear = useCallback(
@@ -291,9 +309,12 @@ export function useMinesweeperAchievements(options: UseMinesweeperAchievementsOp
         if (a) unlockedNow.push(a);
       }
 
+      // 新しく解除された実績をサーバーに同期
+      flushAchievementSync();
+
       return unlockedNow;
     },
-    [stats, updateStats, unlockAchievement, isUnlocked]
+    [stats, updateStats, unlockAchievement, isUnlocked, flushAchievementSync]
   );
 
   // ゲームオーバー記録
@@ -320,8 +341,11 @@ export function useMinesweeperAchievements(options: UseMinesweeperAchievementsOp
       if (a) unlockedNow.push(a);
     }
 
+    // 新しく解除された実績をサーバーに同期
+    flushAchievementSync();
+
     return unlockedNow;
-  }, [stats, updateStats, unlockAchievement, isUnlocked]);
+  }, [stats, updateStats, unlockAchievement, isUnlocked, flushAchievementSync]);
 
   // 最初のクリックで大きく開いた記録
   const recordLargeFirstOpen = useCallback(
@@ -367,9 +391,12 @@ export function useMinesweeperAchievements(options: UseMinesweeperAchievementsOp
         if (a) unlockedNow.push(a);
       }
 
+      // 新しく解除された実績をサーバーに同期
+      flushAchievementSync();
+
       return unlockedNow;
     },
-    [stats, updateStats, unlockAchievement, isUnlocked]
+    [stats, updateStats, unlockAchievement, isUnlocked, flushAchievementSync]
   );
 
   // バトル敗北記録

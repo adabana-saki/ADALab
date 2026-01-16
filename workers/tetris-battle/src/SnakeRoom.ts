@@ -8,8 +8,17 @@ export interface Position {
 
 export type Direction = 'up' | 'down' | 'left' | 'right';
 
-// プレイヤーの色
-const PLAYER_COLORS = ['#22c55e', '#f97316']; // green, orange
+// プレイヤーの色（選択可能）
+const AVAILABLE_COLORS = [
+  { id: 'green', hex: '#22c55e', name: 'グリーン' },
+  { id: 'orange', hex: '#f97316', name: 'オレンジ' },
+  { id: 'blue', hex: '#3b82f6', name: 'ブルー' },
+  { id: 'purple', hex: '#a855f7', name: 'パープル' },
+  { id: 'pink', hex: '#ec4899', name: 'ピンク' },
+  { id: 'cyan', hex: '#06b6d4', name: 'シアン' },
+];
+// デフォルト色（後方互換性）
+const DEFAULT_COLORS = ['#22c55e', '#f97316']; // green, orange
 
 // Power-up types
 export type SnakePowerUpType = 'shield' | 'ghost' | 'speed' | 'magnet';
@@ -69,15 +78,17 @@ export type SnakeClientMessage =
   | { type: 'ready' }
   | { type: 'unready' }
   | { type: 'direction_change'; direction: Direction } // 新: 方向変更のみ送信
+  | { type: 'select_color'; colorId: string } // 色選択
   | { type: 'leave' }
   | { type: 'ping' };
 
 // Server -> Client messages
 export type SnakeServerMessage =
-  | { type: 'room_joined'; roomId: string; roomCode?: string; players: { id: string; nickname: string; isReady: boolean }[]; settings: { gridSize: number; timeLimit: number } }
-  | { type: 'player_joined'; id: string; nickname: string }
+  | { type: 'room_joined'; roomId: string; roomCode?: string; players: { id: string; nickname: string; isReady: boolean; color: string }[]; settings: { gridSize: number; timeLimit: number }; availableColors: { id: string; hex: string; name: string }[] }
+  | { type: 'player_joined'; id: string; nickname: string; color: string }
   | { type: 'player_left'; id: string; nickname: string }
   | { type: 'player_ready'; id: string; isReady: boolean }
+  | { type: 'player_color_changed'; id: string; color: string }
   | { type: 'countdown'; seconds: number }
   | { type: 'game_start'; gridSize: number; players: { id: string; nickname: string; color: string; snake: Position[]; score: number; isAlive: boolean }[]; food: Position }
   | { type: 'game_state'; players: { id: string; nickname: string; snake: Position[]; direction: Direction; score: number; isAlive: boolean; color: string }[]; food: Position } // 新: 全状態配信
@@ -375,6 +386,10 @@ export class SnakeRoom extends DurableObject<Env> {
         await this.handleDirectionChange(session, data.direction);
         break;
 
+      case 'select_color':
+        await this.handleSelectColor(session, data.colorId);
+        break;
+
       case 'leave':
         await this.handleDisconnect(ws);
         break;
@@ -388,6 +403,33 @@ export class SnakeRoom extends DurableObject<Env> {
 
     // 180度反転は禁止（次のティックでチェック）
     player.nextDirection = direction;
+  }
+
+  // 色選択のハンドリング
+  private async handleSelectColor(session: WebSocketSession, colorId: string): Promise<void> {
+    const player = this.roomState.players.get(session.playerId);
+    if (!player || this.roomState.gameStatus !== 'waiting') return;
+
+    // 選択された色を取得
+    const selectedColor = AVAILABLE_COLORS.find(c => c.id === colorId);
+    if (!selectedColor) return;
+
+    // 他のプレイヤーが同じ色を使っているか確認
+    const otherPlayer = Array.from(this.roomState.players.values()).find(p => p.id !== session.playerId);
+    if (otherPlayer && otherPlayer.color === selectedColor.hex) {
+      // 他のプレイヤーが同じ色を使用中 → 色を交換
+      const currentPlayerColor = player.color;
+      otherPlayer.color = currentPlayerColor;
+      player.color = selectedColor.hex;
+
+      // 両方の色変更を通知
+      this.broadcast({ type: 'player_color_changed', id: otherPlayer.id, color: otherPlayer.color });
+      this.broadcast({ type: 'player_color_changed', id: player.id, color: player.color });
+    } else {
+      // 他のプレイヤーは別の色を使用中 → そのまま変更
+      player.color = selectedColor.hex;
+      this.broadcast({ type: 'player_color_changed', id: player.id, color: player.color });
+    }
   }
 
   private async handleCreateRoom(
@@ -425,7 +467,7 @@ export class SnakeRoom extends DurableObject<Env> {
       score: 0,
       isReady: false,
       isAlive: true,
-      color: PLAYER_COLORS[playerIndex] || '#22c55e',
+      color: DEFAULT_COLORS[playerIndex] || '#22c55e',
     };
     this.roomState.players.set(session.playerId, player);
 
@@ -433,11 +475,12 @@ export class SnakeRoom extends DurableObject<Env> {
       type: 'room_joined',
       roomId: this.roomState.roomId,
       roomCode: this.roomState.roomCode,
-      players: [{ id: session.playerId, nickname: session.nickname, isReady: false }],
+      players: [{ id: session.playerId, nickname: session.nickname, isReady: false, color: player.color }],
       settings: {
         gridSize: this.roomState.gridSize,
         timeLimit: this.roomState.timeLimit,
       },
+      availableColors: AVAILABLE_COLORS,
     });
   }
 
@@ -468,7 +511,7 @@ export class SnakeRoom extends DurableObject<Env> {
       score: 0,
       isReady: false,
       isAlive: true,
-      color: PLAYER_COLORS[playerIndex] || '#f97316',
+      color: DEFAULT_COLORS[playerIndex] || '#f97316',
     };
     this.roomState.players.set(session.playerId, player);
 
@@ -480,6 +523,7 @@ export class SnakeRoom extends DurableObject<Env> {
       id: p.id,
       nickname: p.nickname,
       isReady: p.isReady,
+      color: p.color,
     }));
 
     this.sendToSocket(ws, {
@@ -491,12 +535,14 @@ export class SnakeRoom extends DurableObject<Env> {
         gridSize: this.roomState.gridSize,
         timeLimit: this.roomState.timeLimit,
       },
+      availableColors: AVAILABLE_COLORS,
     });
 
     this.broadcastExcept(session.playerId, {
       type: 'player_joined',
       id: session.playerId,
       nickname: session.nickname,
+      color: player.color,
     });
   }
 

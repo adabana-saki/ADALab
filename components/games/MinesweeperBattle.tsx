@@ -28,6 +28,7 @@ interface MinesweeperBattleProps {
   onFinished: (time: number) => void;
   onLost: () => void;
   onLeave: () => void;
+  onRematch: () => void;
   results: GameResult[];
 }
 
@@ -43,6 +44,7 @@ export function MinesweeperBattle({
   onFinished,
   onLost,
   onLeave,
+  onRematch,
   results,
 }: MinesweeperBattleProps) {
   const config = DIFFICULTIES[difficulty];
@@ -349,7 +351,10 @@ export function MinesweeperBattle({
           )}
 
           <div className="space-y-3">
-            <button onClick={onLeave} className="w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90">
+            <button onClick={onRematch} className="w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90">
+              再戦する
+            </button>
+            <button onClick={onLeave} className="w-full px-6 py-3 bg-card border border-border rounded-lg font-medium hover:bg-accent">
               ロビーに戻る
             </button>
           </div>

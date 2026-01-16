@@ -134,6 +134,15 @@ export function MinesweeperBattleLobby() {
     setFinalResults([]);
   };
 
+  const handleRematch = () => {
+    // WebSocket接続を維持したまま待機室に戻る
+    setLobbyMode('create'); // 待機室モードに戻る
+    setIsReady(false);
+    setReady(false);
+    setLocalOpponentProgress({ revealed: 0, flagged: 0, percentage: 0 });
+    setFinalResults([]);
+  };
+
   const handleProgress = useCallback(
     (revealed: number, flagged: number, totalNonMines: number) => {
       sendProgress(revealed, flagged, totalNonMines);
@@ -548,6 +557,7 @@ export function MinesweeperBattleLobby() {
         onFinished={handleFinished}
         onLost={handleLost}
         onLeave={handleBack}
+        onRematch={handleRematch}
         results={finalResults}
       />
     );

@@ -16,6 +16,7 @@ interface SnakeBattleProps {
   lastDeath: PlayerDiedInfo | null;
   onDirectionChange: (direction: Direction) => void;
   onLeave: () => void;
+  onRematch: () => void;
   results: GameResult[];
   endReason: string;
 }
@@ -55,6 +56,7 @@ export function SnakeBattle({
   lastDeath,
   onDirectionChange,
   onLeave,
+  onRematch,
   results,
   endReason,
 }: SnakeBattleProps) {
@@ -217,12 +219,20 @@ export function SnakeBattle({
             </div>
           )}
 
-          <button
-            onClick={onLeave}
-            className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90"
-          >
-            ロビーに戻る
-          </button>
+          <div className="space-y-3">
+            <button
+              onClick={onRematch}
+              className="w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90"
+            >
+              再戦する
+            </button>
+            <button
+              onClick={onLeave}
+              className="w-full px-6 py-3 bg-card border border-border rounded-lg font-medium hover:bg-accent"
+            >
+              ロビーに戻る
+            </button>
+          </div>
         </div>
       </div>
     );

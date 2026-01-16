@@ -84,6 +84,12 @@ export function TypingGame() {
   const [copied, setCopied] = useState(false);
   const [unlockedAchievement, setUnlockedAchievement] = useState<GameAchievement | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [pendingScore, setPendingScore] = useState<{
+    wpm: number;
+    accuracy: number;
+    wordsTyped: number;
+    timeSeconds: number;
+  } | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -157,6 +163,12 @@ export function TypingGame() {
 
       // ランキング入りチェック
       if (isRankingScore(finalStats.wpm) && finalStats.wpm > 0) {
+        setPendingScore({
+          wpm: finalStats.wpm,
+          accuracy: finalStats.accuracy,
+          wordsTyped: finalStats.correctWords,
+          timeSeconds: Math.floor(elapsedTime),
+        });
         setShowNicknameInput(true);
       }
     },
@@ -216,17 +228,18 @@ export function TypingGame() {
 
   // Submit score
   const handleSubmitScore = async () => {
-    if (!user || !profile || isSubmitting) return;
+    if (!user || !profile || isSubmitting || !pendingScore) return;
 
     await submitScore({
       nickname: userNickname.slice(0, 20),
-      wpm: stats.wpm,
-      accuracy: stats.accuracy,
-      words_typed: stats.correctWords,
-      time_seconds: Math.floor(elapsedTime),
+      wpm: pendingScore.wpm,
+      accuracy: pendingScore.accuracy,
+      words_typed: pendingScore.wordsTyped,
+      time_seconds: pendingScore.timeSeconds,
       date: new Date().toISOString(),
     });
 
+    setPendingScore(null);
     setShowNicknameInput(false);
     setShowLeaderboard(true);
   };
@@ -757,7 +770,7 @@ export function TypingGame() {
 
                   <div className="flex gap-2">
                     <button
-                      onClick={() => setShowNicknameInput(false)}
+                      onClick={() => { setShowNicknameInput(false); setPendingScore(null); }}
                       className="flex-1 px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
                     >
                       スキップ
@@ -781,7 +794,7 @@ export function TypingGame() {
 
                   <div className="flex gap-2">
                     <button
-                      onClick={() => setShowNicknameInput(false)}
+                      onClick={() => { setShowNicknameInput(false); setPendingScore(null); }}
                       className="flex-1 px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
                     >
                       閉じる

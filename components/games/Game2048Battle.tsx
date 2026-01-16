@@ -33,6 +33,7 @@ interface Game2048BattleProps {
   onReachedTarget: (score: number, maxTile: number, moves: number) => void;
   onGameOver: (score: number, maxTile: number, moves: number) => void;
   onLeave: () => void;
+  onRematch: () => void;
   results: GameResult[];
   endReason: string;
 }
@@ -322,6 +323,7 @@ export function Game2048Battle({
   onReachedTarget,
   onGameOver,
   onLeave,
+  onRematch,
   results,
   endReason,
 }: Game2048BattleProps) {
@@ -510,8 +512,8 @@ export function Game2048Battle({
     }[endReason] || '';
 
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <div className="w-full max-w-lg space-y-6 text-center">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div className="bg-card border border-border rounded-2xl p-6 w-full max-w-lg space-y-6 text-center">
           <div className={`text-6xl ${isWinner ? 'text-yellow-500' : 'text-muted-foreground'}`}>
             {isWinner ? '🏆' : '😢'}
           </div>
@@ -523,7 +525,7 @@ export function Game2048Battle({
           </div>
 
           {myResult && opponentResult && (
-            <div className="bg-card border border-border rounded-lg p-4">
+            <div className="bg-muted/50 border border-border rounded-lg p-4">
               <h3 className="font-medium mb-3">結果</h3>
               <div className="grid grid-cols-3 gap-2 text-sm">
                 <div></div>
@@ -541,12 +543,20 @@ export function Game2048Battle({
             </div>
           )}
 
-          <button
-            onClick={onLeave}
-            className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90"
-          >
-            ロビーに戻る
-          </button>
+          <div className="space-y-3">
+            <button
+              onClick={onRematch}
+              className="w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90"
+            >
+              再戦する
+            </button>
+            <button
+              onClick={onLeave}
+              className="w-full px-6 py-3 bg-card border border-border rounded-lg font-medium hover:bg-accent"
+            >
+              ロビーに戻る
+            </button>
+          </div>
         </div>
       </div>
     );

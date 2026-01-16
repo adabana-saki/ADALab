@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSnakeBattle, GameSettings, GameResult, BattlePlayerState, PlayerDiedInfo, Position } from '@/hooks/useSnakeBattle';
+import { useSnakeBattle, GameSettings, GameResult, BattlePlayerState, PlayerDiedInfo, Position, AvailableColor } from '@/hooks/useSnakeBattle';
 import { SnakeBattle } from './SnakeBattle';
 import {
   Users,
@@ -56,10 +56,12 @@ export function SnakeBattleLobby() {
     battlePlayers,
     food,
     lastDeath,
+    availableColors,
     createRoom,
     joinRoom,
     quickMatch,
     setReady,
+    selectColor,
     sendDirectionChange,
     leave,
   } = useSnakeBattle({
@@ -138,6 +140,18 @@ export function SnakeBattleLobby() {
     leave();
     setLobbyMode('menu');
     setIsReady(false);
+    setLocalBattlePlayers([]);
+    setLocalFood(null);
+    setLocalLastDeath(null);
+    setFinalResults([]);
+    setEndReason('');
+  };
+
+  const handleRematch = () => {
+    // WebSocket接続を維持したまま待機室に戻る
+    setLobbyMode('create'); // 待機室モードに戻る
+    setIsReady(false);
+    setReady(false);
     setLocalBattlePlayers([]);
     setLocalFood(null);
     setLocalLastDeath(null);
@@ -410,27 +424,73 @@ export function SnakeBattleLobby() {
             </span>
           </div>
 
+          {/* 色選択 */}
+          {availableColors.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium text-muted-foreground">スネークの色を選択</h3>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {availableColors.map((color) => {
+                  const myPlayer = players.find(p => p.nickname === nickname);
+                  const isMyColor = myPlayer?.color === color.hex;
+                  const isOtherPlayerColor = players.some(p => p.nickname !== nickname && p.color === color.hex);
+
+                  return (
+                    <button
+                      key={color.id}
+                      onClick={() => selectColor(color.id)}
+                      disabled={isMyColor}
+                      className={`relative w-10 h-10 rounded-lg transition-all ${
+                        isMyColor
+                          ? 'ring-2 ring-primary ring-offset-2 ring-offset-background scale-110'
+                          : 'hover:scale-105'
+                      } ${isOtherPlayerColor ? 'opacity-50' : ''}`}
+                      style={{ backgroundColor: color.hex }}
+                      title={`${color.name}${isOtherPlayerColor ? ' (相手が使用中)' : ''}`}
+                    >
+                      {isMyColor && (
+                        <Check className="absolute inset-0 m-auto w-5 h-5 text-white drop-shadow-md" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <div className="space-y-3">
             <h3 className="text-sm font-medium text-muted-foreground">プレイヤー ({players.length}/2)</h3>
 
             <div className="space-y-2">
-              <div className={`flex items-center justify-between p-3 rounded-lg border ${isReady ? 'bg-green-500/10 border-green-500/30' : 'bg-card border-border'}`}>
-                <div className="flex items-center gap-3">
-                  {isReady ? (
-                    <UserCheck className="w-5 h-5 text-green-500" />
-                  ) : (
-                    <UserX className="w-5 h-5 text-muted-foreground" />
-                  )}
-                  <span className="font-medium">{nickname} (あなた)</span>
-                </div>
-                <span className={`text-sm ${isReady ? 'text-green-500' : 'text-muted-foreground'}`}>
-                  {isReady ? '準備完了' : '待機中'}
-                </span>
-              </div>
+              {(() => {
+                const myPlayer = players.find(p => p.nickname === nickname);
+                return (
+                  <div className={`flex items-center justify-between p-3 rounded-lg border ${isReady ? 'bg-green-500/10 border-green-500/30' : 'bg-card border-border'}`}>
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-4 h-4 rounded-full border-2 border-white shadow-sm"
+                        style={{ backgroundColor: myPlayer?.color || '#22c55e' }}
+                      />
+                      {isReady ? (
+                        <UserCheck className="w-5 h-5 text-green-500" />
+                      ) : (
+                        <UserX className="w-5 h-5 text-muted-foreground" />
+                      )}
+                      <span className="font-medium">{nickname} (あなた)</span>
+                    </div>
+                    <span className={`text-sm ${isReady ? 'text-green-500' : 'text-muted-foreground'}`}>
+                      {isReady ? '準備完了' : '待機中'}
+                    </span>
+                  </div>
+                );
+              })()}
 
               {otherPlayer ? (
                 <div className={`flex items-center justify-between p-3 rounded-lg border ${otherPlayer.isReady ? 'bg-green-500/10 border-green-500/30' : 'bg-card border-border'}`}>
                   <div className="flex items-center gap-3">
+                    <div
+                      className="w-4 h-4 rounded-full border-2 border-white shadow-sm"
+                      style={{ backgroundColor: otherPlayer.color || '#f97316' }}
+                    />
                     {otherPlayer.isReady ? (
                       <UserCheck className="w-5 h-5 text-green-500" />
                     ) : (
@@ -506,6 +566,7 @@ export function SnakeBattleLobby() {
         lastDeath={activeLastDeath}
         onDirectionChange={sendDirectionChange}
         onLeave={handleBack}
+        onRematch={handleRematch}
         results={finalResults}
         endReason={endReason}
       />
