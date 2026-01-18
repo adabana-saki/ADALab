@@ -36,6 +36,11 @@ export const GAME_BGM_TRACKS: Record<string, BgmTrack[]> = {
     { id: 'typing-highscore', label: 'ハイスコアキータイプ', src: '/audio/typing-highscore.mp3' },
     { id: 'typing-rhythm', label: 'ハイスコアキータイプ 2', src: '/audio/typing-rhythm.mp3' },
   ],
+  minesweeper: [
+    { id: 'none', label: 'OFF', src: '' },
+    { id: 'minesweeper-hayate-samurai', label: '疾風サムライ', src: '/audio/minesweeper-hayate-samurai.mp3' },
+    { id: 'minesweeper-matsuri-beat', label: '祭りビートで恋しよう', src: '/audio/minesweeper-matsuri-beat.mp3' },
+  ],
 };
 
 export class SoundEngine {

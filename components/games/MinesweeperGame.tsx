@@ -27,6 +27,7 @@ import {
 import { useMinesweeperLeaderboard, LeaderboardPeriod, LEADERBOARD_PERIOD_LABELS } from '@/hooks/useMinesweeperLeaderboard';
 import { useMinesweeperAchievements } from '@/hooks/useMinesweeperAchievements';
 import { AchievementToast } from './AchievementToast';
+import { BgmControl } from './BgmControl';
 import type { GameAchievement } from '@/lib/game-achievements';
 import { getSoundEngine } from '@/lib/sound-engine';
 import { useAuth } from '@/contexts/AuthContext';
@@ -359,21 +360,24 @@ export function MinesweeperGame({ showBattleButton = true }: MinesweeperGameProp
         </div>
       </div>
 
-      {/* 難易度選択 */}
-      <div className="flex gap-2">
-        {(Object.keys(DIFFICULTIES) as Difficulty[]).map((diff) => (
-          <button
-            key={diff}
-            onClick={() => setDifficulty(diff)}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              difficulty === diff
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600'
-            }`}
-          >
-            {DIFFICULTY_LABELS[diff]}
-          </button>
-        ))}
+      {/* 難易度選択とBGMコントロール */}
+      <div className="flex items-center gap-4 flex-wrap justify-center">
+        <div className="flex gap-2">
+          {(Object.keys(DIFFICULTIES) as Difficulty[]).map((diff) => (
+            <button
+              key={diff}
+              onClick={() => setDifficulty(diff)}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                difficulty === diff
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600'
+              }`}
+            >
+              {DIFFICULTY_LABELS[diff]}
+            </button>
+          ))}
+        </div>
+        <BgmControl game="minesweeper" isPlaying={gameStatus === 'playing'} />
       </div>
 
       {/* ゲーム盤 */}

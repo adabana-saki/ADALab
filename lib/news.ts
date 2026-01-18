@@ -14,6 +14,12 @@ export interface NewsItem {
 export const newsData: Record<'ja' | 'en', NewsItem[]> = {
   ja: [
     {
+      date: '2026-01-18',
+      type: 'announcement',
+      title: 'ミニゲーム「マインスイーパー」を公開しました',
+      content: 'クラシックな地雷除去パズルゲーム「マインスイーパー」を公開しました。初級・中級・上級の3難易度に加え、オンライン対戦機能も搭載しています。',
+    },
+    {
       date: '2025-12-30',
       type: 'announcement',
       title: '全ゲームにオンライン対戦機能を追加しました',
@@ -63,6 +69,12 @@ export const newsData: Record<'ja' | 'en', NewsItem[]> = {
     },
   ],
   en: [
+    {
+      date: '2026-01-18',
+      type: 'announcement',
+      title: 'Mini Game "Minesweeper" Released',
+      content: 'We have released the classic mine-clearing puzzle game "Minesweeper". Features 3 difficulty levels (Beginner, Intermediate, Expert) and online battle mode.',
+    },
     {
       date: '2025-12-30',
       type: 'announcement',
