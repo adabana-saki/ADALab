@@ -21,7 +21,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (stored) {
       setTheme(stored);
     } else {
-      setTheme('system');
+      setTheme('dark');
     }
   }, []);
 

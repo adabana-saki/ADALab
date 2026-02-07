@@ -101,7 +101,7 @@ export function GoogleAnalytics() {
       {/* Inline script to initialize GA BEFORE gtag.js loads */}
       <Script
         id="ga-init"
-        strategy="beforeInteractive"
+        strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: `
             window.dataLayer = window.dataLayer || [];
