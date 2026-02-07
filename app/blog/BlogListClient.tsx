@@ -227,7 +227,6 @@ export function BlogListClient({
                     post={featuredPost}
                     engagement={engagement[featuredPost.slug]}
                     variant="featured"
-                    showThumbnail={true}
                   />
                 )}
 
@@ -240,8 +239,7 @@ export function BlogListClient({
                         post={post}
                         engagement={engagement[post.slug]}
                         variant="default"
-                        showThumbnail={true}
-                      />
+                          />
                     ))}
                   </div>
                 ) : (
@@ -252,8 +250,7 @@ export function BlogListClient({
                         post={post}
                         engagement={engagement[post.slug]}
                         variant="compact"
-                        showThumbnail={true}
-                      />
+                          />
                     ))}
                   </div>
                 )}
