@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     title: 'マインスイーパー | ADA Lab Games',
     description: 'クラシックなマインスイーパーゲーム。地雷を避けてすべてのセルを開けよう！',
     url: `${SITE_CONFIG.url}/games/minesweeper`,
-    images: ['/images/games/minesweeper.png'],
+    images: ['/images/games/minesweeper-thumbnail.png'],
     type: 'website',
     locale: 'ja_JP',
   },
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'マインスイーパー | ADA Lab Games',
     description: 'クラシックなマインスイーパーゲーム',
-    images: ['/images/games/minesweeper.png'],
+    images: ['/images/games/minesweeper-thumbnail.png'],
   },
 };
 
@@ -37,13 +37,13 @@ export default function MinesweeperPage() {
         name="マインスイーパー"
         description="クラシックなマインスイーパーゲーム。地雷を避けてすべてのセルを開けよう！初級・中級・上級の3つの難易度でプレイ可能。オンライン対戦モードも搭載。"
         url={`${SITE_CONFIG.url}/games/minesweeper`}
-        image={`${SITE_CONFIG.url}/images/games/minesweeper.png`}
+        image={`${SITE_CONFIG.url}/images/games/minesweeper-thumbnail.png`}
         genre={['Puzzle']}
         playMode="SinglePlayer"
         applicationCategory="Game"
       />
       <main className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-3 sm:px-4 py-4">
           {/* ナビゲーション */}
           <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
             <Link
@@ -62,7 +62,7 @@ export default function MinesweeperPage() {
               <Gamepad2 size={24} />
               <span className="text-sm font-medium uppercase tracking-wider">ADA Lab Games</span>
             </div>
-            <h1 className="text-4xl font-bold mb-4">マインスイーパー</h1>
+            <h1 className="text-2xl sm:text-4xl font-bold mb-4">マインスイーパー</h1>
             <p className="text-muted-foreground max-w-md mx-auto">
               地雷を避けてすべてのセルを開けよう！
             </p>

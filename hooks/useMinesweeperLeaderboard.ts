@@ -168,11 +168,6 @@ export function useMinesweeperLeaderboard(initialDifficulty: Difficulty = 'begin
     return false;
   }, [getLocalLeaderboard, saveLocalLeaderboard, filterByPeriod, period]);
 
-  // 初回読み込み
-  useEffect(() => {
-    fetchLeaderboard();
-  }, []);
-
   // 期間変更時にフィルタリング
   useEffect(() => {
     const localData = getLocalLeaderboard(difficulty);
