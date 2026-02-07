@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { Search, X, Filter, ChevronDown, ChevronUp, Tag, Calendar, TrendingUp } from 'lucide-react';
-import type { SortType, SortDirection } from './hooks/useBlogFilters';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { Search, X, Filter, ChevronDown, ChevronUp, Tag, Calendar, TrendingUp, Rss, Grid3X3, List } from 'lucide-react';
+import type { SortType, SortDirection, ViewMode } from './hooks/useBlogFilters';
 
 interface BlogFilterBarProps {
   // 検索
@@ -15,7 +15,7 @@ interface BlogFilterBarProps {
   onCategoryChange: (category: string | null) => void;
 
   // タグ
-  allTags: { name: string; count: number }[];  // 全タグ（将来のUI拡張用）
+  allTags: { name: string; count: number }[];
   filteredTags: { name: string; count: number }[];
   selectedTags: string[];
   tagSearchQuery: string;
@@ -28,6 +28,10 @@ interface BlogFilterBarProps {
   sortType: SortType;
   sortDirection: SortDirection;
   onSortClick: (type: SortType) => void;
+
+  // 表示モード
+  viewMode: ViewMode;
+  onViewModeChange: (mode: ViewMode) => void;
 
   // フィルターリセット
   hasActiveFilters: boolean;
@@ -43,7 +47,7 @@ export function BlogFilterBar({
   categories,
   selectedCategory,
   onCategoryChange,
-  allTags: _allTags,
+  allTags,
   filteredTags,
   selectedTags,
   tagSearchQuery,
@@ -54,13 +58,28 @@ export function BlogFilterBar({
   sortType,
   sortDirection,
   onSortClick,
+  viewMode,
+  onViewModeChange,
   hasActiveFilters,
   onClearFilters,
   totalResults,
 }: BlogFilterBarProps) {
   const [isTagPanelOpen, setIsTagPanelOpen] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [showTagCloud, setShowTagCloud] = useState(false);
   const tagPanelRef = useRef<HTMLDivElement>(null);
+
+  // タグクラウド用：上位20タグ
+  const tagCloudTags = useMemo(() => allTags.slice(0, 20), [allTags]);
+  const maxTagCount = useMemo(() => Math.max(...tagCloudTags.map((t) => t.count), 1), [tagCloudTags]);
+
+  const getTagCloudSize = (count: number) => {
+    const ratio = count / maxTagCount;
+    if (ratio > 0.75) return 'text-base font-semibold';
+    if (ratio > 0.5) return 'text-sm font-medium';
+    if (ratio > 0.25) return 'text-xs font-medium';
+    return 'text-xs';
+  };
 
   // タグパネル外クリックで閉じる
   useEffect(() => {
@@ -74,9 +93,9 @@ export function BlogFilterBar({
   }, []);
 
   return (
-    <div className="mb-8 space-y-4">
+    <div className="mb-6 space-y-4">
       {/* メイン検索バー */}
-      <div className="flex flex-col lg:flex-row gap-4">
+      <div className="flex flex-col lg:flex-row gap-3">
         {/* 検索入力 */}
         <div className="relative flex-1">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -98,7 +117,7 @@ export function BlogFilterBar({
           )}
         </div>
 
-        {/* ソートボタン */}
+        {/* ソートボタン + 表示モード + RSS */}
         <div className="flex gap-2">
           <button
             onClick={() => onSortClick('date')}
@@ -128,23 +147,62 @@ export function BlogFilterBar({
               sortDirection === 'desc' ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />
             )}
           </button>
-        </div>
 
-        {/* モバイルフィルターボタン */}
-        <button
-          onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
-          className="lg:hidden flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-border bg-background/50 hover:border-primary/50 transition-all duration-200 cursor-pointer"
-        >
-          <Filter className="w-4 h-4" />
-          <span>フィルター</span>
-          {hasActiveFilters && (
-            <span className="w-2 h-2 rounded-full bg-primary" />
-          )}
-        </button>
+          {/* 表示モード切替 */}
+          <div className="hidden md:flex border border-border rounded-xl overflow-hidden">
+            <button
+              onClick={() => onViewModeChange('list')}
+              className={`p-3 transition-colors cursor-pointer ${
+                viewMode === 'list'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-background/50 text-muted-foreground hover:text-foreground hover:bg-muted'
+              }`}
+              aria-label="リスト表示"
+            >
+              <List className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => onViewModeChange('grid')}
+              className={`p-3 transition-colors cursor-pointer ${
+                viewMode === 'grid'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-background/50 text-muted-foreground hover:text-foreground hover:bg-muted'
+              }`}
+              aria-label="グリッド表示"
+            >
+              <Grid3X3 className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* RSS/Atom リンク */}
+          <div className="hidden sm:flex gap-1">
+            <a
+              href="/feed.xml"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-3 rounded-xl border border-border bg-background/50 hover:border-orange-500/50 hover:text-orange-500 transition-all text-muted-foreground"
+              aria-label="RSS Feed"
+            >
+              <Rss className="w-4 h-4" />
+            </a>
+          </div>
+
+          {/* モバイルフィルターボタン */}
+          <button
+            onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
+            className="lg:hidden flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-border bg-background/50 hover:border-primary/50 transition-all duration-200 cursor-pointer"
+          >
+            <Filter className="w-4 h-4" />
+            <span className="hidden xs:inline">フィルター</span>
+            {hasActiveFilters && (
+              <span className="w-2 h-2 rounded-full bg-primary" />
+            )}
+          </button>
+        </div>
       </div>
 
-      {/* カテゴリーとタグフィルター（デスクトップ） */}
-      <div className={`lg:flex gap-4 ${isMobileFilterOpen ? 'block' : 'hidden lg:flex'}`}>
+      {/* カテゴリーとタグフィルター */}
+      <div className={`lg:flex gap-4 items-start ${isMobileFilterOpen ? 'block' : 'hidden lg:flex'}`}>
         {/* カテゴリー選択 */}
         <div className="flex flex-wrap gap-2 mb-4 lg:mb-0">
           <button
@@ -174,25 +232,41 @@ export function BlogFilterBar({
         </div>
 
         {/* タグ選択パネル */}
-        <div className="relative flex-1" ref={tagPanelRef}>
-          <button
-            onClick={() => setIsTagPanelOpen(!isTagPanelOpen)}
-            className={`w-full lg:w-auto flex items-center justify-between gap-2 px-4 py-2 rounded-xl border transition-all duration-200 cursor-pointer ${
-              selectedTags.length > 0
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border bg-background/50 hover:border-primary/50'
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <Tag className="w-4 h-4" />
-              <span>
-                {selectedTags.length > 0
-                  ? `${selectedTags.length}個のタグを選択中`
-                  : 'タグで絞り込み'}
-              </span>
-            </div>
-            {isTagPanelOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </button>
+        <div className="relative flex-shrink-0" ref={tagPanelRef}>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setIsTagPanelOpen(!isTagPanelOpen)}
+              className={`flex items-center justify-between gap-2 px-4 py-2 rounded-xl border transition-all duration-200 cursor-pointer ${
+                selectedTags.length > 0
+                  ? 'border-primary bg-primary/10 text-primary'
+                  : 'border-border bg-background/50 hover:border-primary/50'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Tag className="w-4 h-4" />
+                <span>
+                  {selectedTags.length > 0
+                    ? `${selectedTags.length}個のタグを選択中`
+                    : 'タグで絞り込み'}
+                </span>
+              </div>
+              {isTagPanelOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+
+            {/* タグクラウド表示切替 */}
+            {tagCloudTags.length > 0 && (
+              <button
+                onClick={() => setShowTagCloud(!showTagCloud)}
+                className={`px-3 py-2 rounded-xl border text-xs font-medium transition-all duration-200 cursor-pointer ${
+                  showTagCloud
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border bg-background/50 hover:border-primary/50 text-muted-foreground'
+                }`}
+              >
+                タグクラウド
+              </button>
+            )}
+          </div>
 
           {/* タグ選択ドロップダウン */}
           {isTagPanelOpen && (
@@ -287,6 +361,26 @@ export function BlogFilterBar({
         </div>
       </div>
 
+      {/* タグクラウド */}
+      {showTagCloud && tagCloudTags.length > 0 && (
+        <div className="flex flex-wrap gap-2 p-4 rounded-xl border border-border bg-card/50">
+          {tagCloudTags.map((tag) => (
+            <button
+              key={tag.name}
+              onClick={() => onTagToggle(tag.name)}
+              className={`px-3 py-1.5 rounded-lg transition-all duration-200 cursor-pointer ${getTagCloudSize(tag.count)} ${
+                selectedTags.includes(tag.name)
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted'
+              }`}
+            >
+              #{tag.name}
+              <span className="ml-1 opacity-60 text-xs">{tag.count}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* アクティブフィルター表示 */}
       {hasActiveFilters && (
         <div className="flex flex-wrap items-center gap-2 pt-2">
@@ -321,7 +415,7 @@ export function BlogFilterBar({
 
           {searchQuery && (
             <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-muted text-muted-foreground">
-              "{searchQuery}"
+              &ldquo;{searchQuery}&rdquo;
               <button
                 onClick={() => onSearchChange('')}
                 className="hover:text-foreground cursor-pointer"
