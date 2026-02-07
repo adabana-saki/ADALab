@@ -29,6 +29,20 @@ function formatDateKey(year: number, month: number, day: number): string {
 
 export function BlogCalendarView({ posts, postDates, engagement, onDateSelect }: BlogCalendarViewProps) {
   const today = useMemo(() => new Date(), []);
+  const [hoveredDate, setHoveredDate] = useState<string | null>(null);
+
+  // 日付ごとの記事タイトルマップ
+  const postsByDate = useMemo(() => {
+    const map = new Map<string, BlogMeta[]>();
+    for (const post of posts) {
+      const d = new Date(post.date);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const arr = map.get(key) || [];
+      arr.push(post);
+      map.set(key, arr);
+    }
+    return map;
+  }, [posts]);
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [selectedDate, setSelectedDate] = useState<{ year: number; month: number; day?: number } | null>(null);
@@ -219,43 +233,64 @@ export function BlogCalendarView({ posts, postDates, engagement, onDateSelect }:
             const isTodayDate = isToday(day);
             const isSelectedDate = isSelected(day);
 
-            return (
-              <button
-                key={dateKey}
-                onClick={() => handleDayClick(day)}
-                className={`relative aspect-square flex flex-col items-center justify-center border-b border-r border-border/30 transition-all duration-150 cursor-pointer
-                  ${isSelectedDate ? 'bg-primary/20' : 'hover:bg-muted/50'}
-                  ${dayOfWeek === 0 ? 'text-red-400' : dayOfWeek === 6 ? 'text-blue-400' : ''}
-                `}
-              >
-                <span
-                  className={`text-sm font-medium leading-none ${
-                    isTodayDate
-                      ? 'w-7 h-7 flex items-center justify-center rounded-full ring-2 ring-primary text-primary'
-                      : ''
-                  } ${isSelectedDate ? 'text-primary font-bold' : ''}`}
-                >
-                  {day}
-                </span>
+            const datePosts = postsByDate.get(dateKey) || [];
+            const isHovered = hoveredDate === dateKey && postCount > 0;
 
-                {/* 記事ドットインジケーター */}
-                {postCount > 0 && (
-                  <div className="flex gap-0.5 mt-1">
-                    {Array.from({ length: Math.min(postCount, 3) }).map((_, i) => (
-                      <div
-                        key={i}
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          postCount >= 3
-                            ? 'bg-cyan-400 shadow-sm shadow-cyan-400/50'
-                            : postCount >= 2
-                              ? 'bg-cyan-400/80'
-                              : 'bg-cyan-500/60'
-                        }`}
-                      />
+            return (
+              <div key={dateKey} className="relative">
+                <button
+                  onClick={() => handleDayClick(day)}
+                  onMouseEnter={() => postCount > 0 && setHoveredDate(dateKey)}
+                  onMouseLeave={() => setHoveredDate(null)}
+                  className={`relative w-full aspect-square flex flex-col items-center justify-center border-b border-r border-border/30 transition-all duration-150 cursor-pointer
+                    ${isSelectedDate ? 'bg-primary/20' : 'hover:bg-muted/50'}
+                    ${dayOfWeek === 0 ? 'text-red-400' : dayOfWeek === 6 ? 'text-blue-400' : ''}
+                  `}
+                >
+                  <span
+                    className={`text-sm font-medium leading-none ${
+                      isTodayDate
+                        ? 'w-7 h-7 flex items-center justify-center rounded-full ring-2 ring-primary text-primary'
+                        : ''
+                    } ${isSelectedDate ? 'text-primary font-bold' : ''}`}
+                  >
+                    {day}
+                  </span>
+
+                  {/* 記事ドットインジケーター */}
+                  {postCount > 0 && (
+                    <div className="flex gap-0.5 mt-1">
+                      {Array.from({ length: Math.min(postCount, 3) }).map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            postCount >= 3
+                              ? 'bg-cyan-400 shadow-sm shadow-cyan-400/50'
+                              : postCount >= 2
+                                ? 'bg-cyan-400/80'
+                                : 'bg-cyan-500/60'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </button>
+
+                {/* ホバーツールチップ */}
+                {isHovered && (
+                  <div className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 rounded-lg bg-popover border border-border shadow-lg pointer-events-none">
+                    <p className="text-xs font-medium text-muted-foreground mb-1">
+                      {currentMonth + 1}/{day}の記事
+                    </p>
+                    {datePosts.map((p) => (
+                      <p key={p.slug} className="text-xs text-foreground truncate">
+                        {p.title}
+                      </p>
                     ))}
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-border" />
                   </div>
                 )}
-              </button>
+              </div>
             );
           })}
         </div>
@@ -289,7 +324,6 @@ export function BlogCalendarView({ posts, postDates, engagement, onDateSelect }:
                     post={post}
                     engagement={engagement[post.slug]}
                     variant="compact"
-                    showThumbnail={true}
                   />
                 ))}
               </div>

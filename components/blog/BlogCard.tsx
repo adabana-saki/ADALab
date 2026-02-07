@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
-import { Calendar, Clock, Eye, Heart, ArrowRight, BookOpen, Tag } from 'lucide-react';
+import { Calendar, Clock, Eye, Heart, ArrowRight, Tag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { BlogMeta } from '@/lib/blog';
 import { SpotlightCard } from '@/components/effects/SpotlightCard';
@@ -11,7 +10,6 @@ interface BlogCardProps {
   post: BlogMeta;
   engagement?: { views: number; likes: number };
   variant?: 'default' | 'featured' | 'compact';
-  showThumbnail?: boolean;
 }
 
 // カテゴリーごとの色定義
@@ -78,7 +76,6 @@ export function BlogCard({
   post,
   engagement,
   variant = 'default',
-  showThumbnail = true,
 }: BlogCardProps) {
   const categoryColor = categoryColors[post.category?.toLowerCase() || 'default'] || categoryColors.default;
   const isNewPost = isNew(post.date);
@@ -95,27 +92,7 @@ export function BlogCard({
             transition={{ duration: 0.5 }}
             className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-lg transition-all duration-300 hover:shadow-xl hover:border-primary/30 dark:hover:shadow-primary/5"
           >
-            <div className="flex flex-col lg:flex-row">
-              {/* サムネイル */}
-              {showThumbnail && (
-                <div className="relative lg:w-2/5 aspect-video lg:aspect-auto overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20">
-                  {post.image ? (
-                    <Image
-                      src={post.image}
-                      alt={post.title}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <BookOpen className="w-16 h-16 text-muted-foreground/30" />
-                    </div>
-                  )}
-                  {/* オーバーレイ */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:bg-gradient-to-r" />
-                </div>
-              )}
-
+            <div className="flex flex-col">
               {/* コンテンツ */}
               <div className="flex-1 p-6 lg:p-8 flex flex-col">
                 {/* バッジ */}
@@ -211,24 +188,6 @@ export function BlogCard({
     return (
       <Link href={`/blog/${post.slug}`} className="group block">
         <article className="flex items-center gap-4 p-4 rounded-xl border border-border bg-card transition-all duration-200 hover:border-primary/30 hover:shadow-md">
-          {/* サムネイル */}
-          {showThumbnail && (
-            <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20">
-              {post.image ? (
-                <Image
-                  src={post.image}
-                  alt={post.title}
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <BookOpen className="w-8 h-8 text-muted-foreground/30" />
-                </div>
-              )}
-            </div>
-          )}
-
           {/* コンテンツ */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
@@ -282,42 +241,22 @@ export function BlogCard({
         transition={{ duration: 0.4 }}
         className="relative h-full overflow-hidden rounded-2xl border border-border bg-card shadow-md transition-all duration-300 hover:shadow-xl hover:border-primary/30 dark:hover:shadow-primary/5 flex flex-col"
       >
-        {/* サムネイル */}
-        {showThumbnail && (
-          <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20">
-            {post.image ? (
-              <Image
-                src={post.image}
-                alt={post.title}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <BookOpen className="w-12 h-12 text-muted-foreground/30" />
-              </div>
-            )}
-            {/* オーバーレイ */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
-            {/* バッジ（サムネイル上） */}
-            <div className="absolute top-3 left-3 flex items-center gap-2">
-              {isNewPost && (
-                <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-primary text-primary-foreground shadow-md animate-pulse">
-                  NEW
-                </span>
-              )}
-              {post.category && (
-                <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${categoryColor.bg} ${categoryColor.text} border ${categoryColor.border} backdrop-blur-sm`}>
-                  {post.category}
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* コンテンツ */}
         <div className="flex-1 p-5 flex flex-col">
+          {/* バッジ */}
+          <div className="flex items-center gap-2 mb-2">
+            {isNewPost && (
+              <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-primary text-primary-foreground animate-pulse">
+                NEW
+              </span>
+            )}
+            {post.category && (
+              <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${categoryColor.bg} ${categoryColor.text} border ${categoryColor.border}`}>
+                {post.category}
+              </span>
+            )}
+          </div>
+
           {/* シリーズ */}
           {post.series && (
             <div className="mb-2">

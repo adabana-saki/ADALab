@@ -98,7 +98,6 @@ export function BlogArchiveView({ postsByMonth, engagement }: BlogArchiveViewPro
                           post={post}
                           engagement={engagement[post.slug]}
                           variant="compact"
-                          showThumbnail={true}
                         />
                       ))}
                     </div>
