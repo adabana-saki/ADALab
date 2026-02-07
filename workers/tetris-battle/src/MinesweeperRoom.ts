@@ -129,13 +129,21 @@ export class MinesweeperRoom extends DurableObject<Env> {
       });
     }
 
-    // REST: ルーム初期化
-    if (url.pathname.endsWith('/init') && request.method === 'POST') {
-      const body = await request.json() as { roomCode: string; difficulty?: Difficulty; timeLimit?: number };
-      this.roomState.roomId = this.ctx.id.toString();
-      this.roomState.roomCode = body.roomCode;
-      this.roomState.difficulty = body.difficulty || 'beginner';
-      this.roomState.timeLimit = body.timeLimit || 300;
+    // REST: ルーム初期化（GET + クエリパラメータ、他のルームと統一）
+    if (url.pathname.endsWith('/init')) {
+      const roomCode = url.searchParams.get('roomCode');
+      if (roomCode) {
+        this.roomState.roomCode = roomCode;
+        this.roomState.roomId = roomCode;
+      }
+      const difficultyParam = url.searchParams.get('difficulty') as Difficulty | null;
+      if (difficultyParam && DIFFICULTIES[difficultyParam]) {
+        this.roomState.difficulty = difficultyParam;
+      }
+      const timeLimitParam = url.searchParams.get('timeLimit');
+      if (timeLimitParam) {
+        this.roomState.timeLimit = parseInt(timeLimitParam, 10) || 300;
+      }
       this.roomState.seed = Math.floor(Math.random() * 2147483647);
 
       return new Response(JSON.stringify({ success: true, roomId: this.roomState.roomId }), {
