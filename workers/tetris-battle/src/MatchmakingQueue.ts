@@ -1,7 +1,7 @@
 // マッチメイキングキュー用Durable Object
 // Workerのマルチインスタンス間でキューを共有するために必要
 
-type GameType = 'tetris' | 'typing' | '2048' | 'snake';
+type GameType = 'tetris' | 'typing' | '2048' | 'snake' | 'minesweeper';
 
 // ゲーム設定（Typing用）
 interface GameSettings {
@@ -33,6 +33,7 @@ function getWsPath(gameType: GameType): string {
     case 'typing': return '/ws/typing/';
     case '2048': return '/ws/2048/';
     case 'snake': return '/ws/snake/';
+    case 'minesweeper': return '/ws/minesweeper/';
     default: return '/ws/room/';
   }
 }
@@ -107,8 +108,14 @@ export class MatchmakingQueue {
         // Check if there's someone waiting (同じgameTypeかつ同じ設定のプレイヤーのみマッチング)
         const currentQueueKey = `${playerId}-${gameType}`;
 
-        // 設定比較関数（Typing用）
+        // 設定比較関数（Typing・Minesweeper用）
         const settingsMatch = (s1?: GameSettings, s2?: GameSettings): boolean => {
+          if (gameType === 'minesweeper') {
+            // minesweeper: 同じdifficultyのプレイヤーのみマッチング
+            const d1 = s1?.difficulty || 'beginner';
+            const d2 = s2?.difficulty || 'beginner';
+            return d1 === d2;
+          }
           // gameTypeがtyping以外の場合は設定を比較しない
           if (gameType !== 'typing') return true;
           // 両方undefined/nullの場合はマッチ

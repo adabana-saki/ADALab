@@ -311,6 +311,10 @@ async function handleMatchmaking(request: Request, env: Env, gameType: GameType 
   try {
     // Read the body and add gameType
     const body = await request.json() as Record<string, unknown>;
+    // minesweeper: difficultyをsettingsに変換（MatchmakingQueueで設定マッチングに使用）
+    if (gameType === 'minesweeper' && body.difficulty && !body.settings) {
+      body.settings = { difficulty: body.difficulty };
+    }
     const bodyWithGameType = { ...body, gameType };
 
     // Use a single global matchmaking queue (handles all game types)
