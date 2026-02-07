@@ -96,7 +96,7 @@ export default function MinesweeperPage() {
             <div className="bg-card border border-border rounded-xl p-6">
               <h2 className="font-semibold mb-3">ヒント</h2>
               <ul className="text-sm text-muted-foreground space-y-2">
-                <li>• 最初のクリックは地雷に当たらない</li>
+                <li>• すべての盤面は論理だけでクリア可能（推測不要）</li>
                 <li>• 数字と旗を照らし合わせて推理</li>
                 <li>• 難易度を上げると地雷が増える</li>
                 <li>• 対戦モードで友達と競おう</li>
