@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Trophy, X, AlertTriangle } from 'lucide-react';
+import { Medal, X, AlertTriangle } from 'lucide-react';
 import type { GameMode, TypingLanguage } from '@/hooks/useTypingGame';
 import type { LeaderboardPeriod, TypingLeaderboardEntry } from '@/hooks/useTypingLeaderboard';
 import { MODE_LABELS, LANGUAGE_LABELS, LEADERBOARD_PERIOD_LABELS } from '@/hooks/useTypingLeaderboard';
@@ -51,10 +51,10 @@ export function TypingLeaderboardModal({
         className="bg-card border border-border rounded-2xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto"
       >
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold flex items-center gap-2">
-            <Trophy className="text-yellow-500" size={20} />
-            ランキング
-          </h3>
+          <div className="flex items-center gap-2">
+            <Medal className="w-6 h-6 text-yellow-500" />
+            <h3 className="text-xl font-bold">ランキング</h3>
+          </div>
           <button
             onClick={onClose}
             className="p-2 rounded-lg hover:bg-muted transition-colors"
@@ -70,7 +70,7 @@ export function TypingLeaderboardModal({
               <button
                 key={m}
                 onClick={() => setLeaderboardMode(m)}
-                className={`flex-1 px-2 py-1 rounded text-xs transition-colors ${
+                className={`flex-1 px-2 py-1 rounded-full text-xs transition-colors ${
                   leaderboardMode === m
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted hover:bg-muted/80'
@@ -85,7 +85,7 @@ export function TypingLeaderboardModal({
               <button
                 key={lang}
                 onClick={() => setLeaderboardLanguage(lang)}
-                className={`flex-1 px-2 py-1 rounded text-xs transition-colors ${
+                className={`flex-1 px-2 py-1 rounded-full text-xs transition-colors ${
                   leaderboardLanguage === lang
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted hover:bg-muted/80'
@@ -100,7 +100,7 @@ export function TypingLeaderboardModal({
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
-                className={`flex-1 px-2 py-1 rounded text-xs transition-colors ${
+                className={`flex-1 px-2 py-1 rounded-full text-xs transition-colors ${
                   period === p
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted hover:bg-muted/80'
@@ -131,21 +131,29 @@ export function TypingLeaderboardModal({
               <div
                 key={entry.id || index}
                 className={`flex items-center gap-3 p-3 rounded-lg ${
-                  index < 3 ? 'bg-muted' : 'bg-muted/50'
+                  index === 0
+                    ? 'bg-yellow-500/20 border border-yellow-500/30'
+                    : index === 1
+                      ? 'bg-gray-400/20 border border-gray-400/30'
+                      : index === 2
+                        ? 'bg-orange-500/20 border border-orange-500/30'
+                        : 'bg-muted/30'
                 }`}
               >
-                <div className="w-8 text-center font-bold">
-                  {index === 0 ? (
-                    <span className="text-yellow-500">🥇</span>
-                  ) : index === 1 ? (
-                    <span className="text-gray-400">🥈</span>
-                  ) : index === 2 ? (
-                    <span className="text-amber-600">🥉</span>
-                  ) : (
-                    <span className="text-muted-foreground">{index + 1}</span>
-                  )}
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
+                    index === 0
+                      ? 'bg-yellow-500 text-white'
+                      : index === 1
+                        ? 'bg-gray-400 text-white'
+                        : index === 2
+                          ? 'bg-orange-500 text-white'
+                          : 'bg-muted text-muted-foreground'
+                  }`}
+                >
+                  {index + 1}
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <div className="font-medium truncate">{entry.nickname}</div>
                   <div className="text-xs text-muted-foreground">
                     {entry.words_typed}語 / 正確率 {entry.accuracy}%

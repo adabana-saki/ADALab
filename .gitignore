@@ -49,3 +49,7 @@ docs/
 public/fonts/
 public/og/
 workers/tetris-battle/node_modules/
+
+# Windows reserved names & temp
+nul
+out_tmp/

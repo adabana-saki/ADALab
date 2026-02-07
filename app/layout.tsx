@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Audiowide, Inter, Noto_Sans_JP } from 'next/font/google';
 import './globals.css';
-import 'katex/dist/katex.min.css';
 import { StructuredData } from '@/components/StructuredData';
 import { WebVitals } from '@/components/WebVitals';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
@@ -27,7 +26,7 @@ const inter = Inter({
 const notoSansJP = Noto_Sans_JP({
   subsets: ['latin'],
   variable: '--font-noto-sans-jp',
-  weight: ['300', '400', '500', '700'],
+  weight: ['400', '500', '700'],
   display: 'swap',
 });
 
@@ -129,7 +128,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ja" className={`scroll-smooth ${audiowide.variable} ${inter.variable} ${notoSansJP.variable}`}>
+    <html lang="ja" className={`dark scroll-smooth ${audiowide.variable} ${inter.variable} ${notoSansJP.variable}`}>
       <body className="font-sans antialiased">
         <StructuredData />
         <a

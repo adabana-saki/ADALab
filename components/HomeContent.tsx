@@ -15,7 +15,10 @@ import { GamesHighlight } from '@/components/sections/GamesHighlight';
 import { Projects } from '@/components/sections/Projects';
 import { News } from '@/components/sections/News';
 import { FAQ } from '@/components/sections/FAQ';
-import { Contact } from '@/components/sections/Contact';
+const Contact = dynamic(
+  () => import('@/components/sections/Contact').then(mod => ({ default: mod.Contact })),
+  { ssr: false }
+);
 import { LatestBlog } from '@/components/sections/LatestBlog';
 import { scrollToSection, scrollToTop } from '@/hooks/useKeyboardShortcuts';
 import type { BlogMeta } from '@/lib/blog';

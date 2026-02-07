@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useEffect, useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTetrisLeaderboard, LEADERBOARD_PERIOD_LABELS, type LeaderboardPeriod } from '@/hooks/useTetrisLeaderboard';
 import { useGameAchievements } from '@/hooks/useGameAchievements';
 import {
@@ -29,6 +30,7 @@ import {
   Settings,
   Award,
   BarChart3,
+  Calendar,
 } from 'lucide-react';
 import { AchievementToast } from './AchievementToast';
 import { AchievementPanel } from './AchievementPanel';
@@ -1534,16 +1536,21 @@ export function TetrisGame() {
           )}
         </div>
 
-        <div className="text-center text-xs text-muted-foreground hidden md:block">
-          ← → 移動 | ↓ 落下 | ↑/X 回転 | Z 逆回転 | SPACE ハードドロップ | C/Shift ホールド | G ゴースト
+        <div className="w-full p-4 rounded-lg bg-muted/50 text-sm hidden md:block">
+          <h3 className="font-bold mb-2">遊び方</h3>
+          <ul className="space-y-1 text-muted-foreground">
+            <li><strong>操作:</strong> ← → 移動 / ↓ 落下 / ↑・X 回転 / Z 逆回転</li>
+            <li><strong>特殊:</strong> SPACE ハードドロップ / C・Shift ホールド / G ゴースト</li>
+            <li><strong>目標:</strong> ラインを揃えて消していこう</li>
+          </ul>
         </div>
 
         <div className="flex gap-2 flex-wrap justify-center">
           {(!isStarted || gameOver) && (
-            <button onClick={() => setShowModeSelect(true)} className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors">
-              {gameOver ? <RotateCcw size={20} /> : <Play size={20} />}
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShowModeSelect(true)} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium">
+              {gameOver ? <RotateCcw size={18} /> : <Play size={18} />}
               {gameOver ? 'Retry' : 'Start'}
-            </button>
+            </motion.button>
           )}
           {/* ゲームオーバー時のシェアボタン */}
           {gameOver && (
@@ -1554,25 +1561,25 @@ export function TetrisGame() {
               mode={gameMode === 'sprint' ? 'sprint' : gameMode === 'timeAttack' ? 'timeAttack' : 'marathon'}
             />
           )}
-          <button onClick={() => setSoundEnabled(!soundEnabled)} className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors" title={soundEnabled ? 'Mute SE' : 'Unmute SE'}>
-            {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
-          </button>
-          <button onClick={() => {
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setSoundEnabled(!soundEnabled)} className="p-2 bg-muted rounded-lg" title={soundEnabled ? 'Mute SE' : 'Unmute SE'}>
+            {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+          </motion.button>
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => {
             const currentIndex = BGM_TRACKS.findIndex(t => t.id === bgmTrack);
             const nextIndex = (currentIndex + 1) % BGM_TRACKS.length;
             handleBgmTrackChange(BGM_TRACKS[nextIndex].id);
-          }} className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors" title={`BGM: ${BGM_TRACKS.find(t => t.id === bgmTrack)?.label}`}>
-            <Music size={20} className={bgmTrack !== 'none' ? 'text-primary' : ''} />
-          </button>
-          <button onClick={() => setShowAchievements(true)} className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors" title="実績">
-            <Award size={20} className={getProgress().percentage > 0 ? 'text-yellow-500' : ''} />
-          </button>
-          <button onClick={() => setShowStatsPanel(true)} className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors" title="統計">
-            <BarChart3 size={20} />
-          </button>
-          <button onClick={() => setShowSettings(true)} className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors" title="Settings">
-            <Settings size={20} />
-          </button>
+          }} className="p-2 bg-muted rounded-lg" title={`BGM: ${BGM_TRACKS.find(t => t.id === bgmTrack)?.label}`}>
+            <Music size={18} className={bgmTrack !== 'none' ? 'text-primary' : ''} />
+          </motion.button>
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShowAchievements(true)} className="p-2 bg-muted rounded-lg" title="実績">
+            <Award size={18} className={getProgress().percentage > 0 ? 'text-yellow-500' : ''} />
+          </motion.button>
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShowStatsPanel(true)} className="p-2 bg-muted rounded-lg" title="統計">
+            <BarChart3 size={18} />
+          </motion.button>
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShowSettings(true)} className="p-2 bg-muted rounded-lg" title="Settings">
+            <Settings size={18} />
+          </motion.button>
         </div>
       </div>
 
@@ -1665,11 +1672,11 @@ export function TetrisGame() {
 
       {/* モード選択モーダル */}
       {showModeSelect && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-card border border-border rounded-xl p-6 max-w-sm w-full">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-card border border-border rounded-2xl p-6 max-w-sm w-full">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold">ゲームモード</h3>
-              <button onClick={() => setShowModeSelect(false)} className="p-1 hover:bg-muted rounded-lg"><X size={20} /></button>
+              <button onClick={() => setShowModeSelect(false)} className="p-2 rounded-lg hover:bg-muted transition-colors"><X size={20} /></button>
             </div>
             <div className="space-y-2">
               {([
@@ -1696,11 +1703,11 @@ export function TetrisGame() {
 
       {/* 設定モーダル */}
       {showSettings && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-card border border-border rounded-xl p-6 max-w-sm w-full max-h-[80vh] overflow-auto">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-card border border-border rounded-2xl p-6 max-w-sm w-full max-h-[80vh] overflow-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold">設定</h3>
-              <button onClick={() => setShowSettings(false)} className="p-1 hover:bg-muted rounded-lg"><X size={20} /></button>
+              <button onClick={() => setShowSettings(false)} className="p-2 rounded-lg hover:bg-muted transition-colors"><X size={20} /></button>
             </div>
             <div className="space-y-4">
               <div>
@@ -1839,11 +1846,11 @@ export function TetrisGame() {
 
       {/* ニックネーム入力モーダル */}
       {showNicknameInput && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-card border border-border rounded-xl p-6 max-w-sm w-full">
-            <div className="flex items-center gap-2 mb-4">
-              <Trophy className="text-yellow-500" size={24} />
-              <h3 className="text-xl font-bold">{gameComplete ? 'クリア！' : 'ランキング入り！'}</h3>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => { setShowNicknameInput(false); setPendingScore(null); }}>
+          <div className="bg-card border border-border rounded-2xl p-6 max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
+            <div className="text-center mb-6">
+              <Trophy className="w-12 h-12 text-yellow-500 mx-auto mb-2" />
+              <h3 className="text-xl font-bold">{gameComplete ? 'クリア！' : 'ランキング入り!'}</h3>
             </div>
             <p className="text-muted-foreground mb-4">
               スコア: <span className="text-primary font-bold">{pendingScore?.score.toLocaleString()}</span>
@@ -1903,75 +1910,112 @@ export function TetrisGame() {
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
 
       {/* リーダーボードモーダル */}
-      {showLeaderboard && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-card border border-border rounded-xl p-6 max-w-md w-full max-h-[80vh] overflow-auto">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Medal className="text-yellow-500" size={24} />
-                <h3 className="text-xl font-bold">ランキング</h3>
-              </div>
-              <button onClick={() => setShowLeaderboard(false)} className="p-1 hover:bg-muted rounded-lg"><X size={20} /></button>
-            </div>
-
-            {/* 期間フィルタ */}
-            <div className="flex gap-1 mb-4 p-1 bg-muted/50 rounded-lg">
-              {(Object.keys(LEADERBOARD_PERIOD_LABELS) as LeaderboardPeriod[]).map(p => (
+      <AnimatePresence>
+        {showLeaderboard && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => setShowLeaderboard(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-card border border-border rounded-2xl p-6 w-full max-w-md max-h-[80vh] overflow-hidden flex flex-col"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Medal className="w-6 h-6 text-yellow-500" />
+                  <h3 className="text-xl font-bold">ランキング</h3>
+                </div>
                 <button
-                  key={p}
-                  onClick={() => setLeaderboardPeriod(p)}
-                  className={`flex-1 px-2 py-1.5 text-xs font-medium rounded transition-colors ${
-                    leaderboardPeriod === p
-                      ? 'bg-primary text-primary-foreground'
-                      : 'hover:bg-muted'
-                  }`}
+                  onClick={() => setShowLeaderboard(false)}
+                  className="p-2 rounded-lg hover:bg-muted transition-colors"
                 >
-                  {LEADERBOARD_PERIOD_LABELS[p]}
+                  <X size={20} />
                 </button>
-              ))}
-            </div>
+              </div>
 
-            {leaderboard.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">まだ記録がありません</p>
-            ) : (
-              <div className="space-y-2">
-                {leaderboard.map((entry, index) => (
-                  <div key={index} className={`flex items-center gap-3 p-3 rounded-lg ${
-                    index === 0 ? 'bg-yellow-500/20 border border-yellow-500/50' :
-                    index === 1 ? 'bg-gray-400/20 border border-gray-400/50' :
-                    index === 2 ? 'bg-orange-600/20 border border-orange-600/50' : 'bg-muted/50'
-                  }`}>
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
-                      index === 0 ? 'bg-yellow-500 text-black' :
-                      index === 1 ? 'bg-gray-400 text-black' :
-                      index === 2 ? 'bg-orange-600 text-white' : 'bg-muted text-muted-foreground'
-                    }`}>{index + 1}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate">{entry.nickname}</div>
-                      <div className="text-xs text-muted-foreground">
-                        Lv.{entry.level} / {entry.lines}ライン / {entry.date}
-                        {entry.time && ` / ${formatTime(entry.time)}`}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-bold text-primary">{entry.score.toLocaleString()}</div>
-                    </div>
-                  </div>
+              {/* 期間フィルター */}
+              <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
+                {(Object.keys(LEADERBOARD_PERIOD_LABELS) as LeaderboardPeriod[]).map(p => (
+                  <button
+                    key={p}
+                    onClick={() => setLeaderboardPeriod(p)}
+                    className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                      leaderboardPeriod === p
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted hover:bg-muted/80'
+                    }`}
+                  >
+                    <Calendar size={14} />
+                    {LEADERBOARD_PERIOD_LABELS[p]}
+                  </button>
                 ))}
               </div>
-            )}
-            <button onClick={() => setShowLeaderboard(false)} className="w-full mt-4 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors">
-              閉じる
-            </button>
-          </div>
-        </div>
-      )}
+
+              {/* ランキングリスト */}
+              <div className="flex-1 overflow-y-auto space-y-2">
+                {leaderboard.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    まだ記録がありません
+                  </div>
+                ) : (
+                  leaderboard.map((entry, index) => (
+                    <div
+                      key={index}
+                      className={`flex items-center gap-3 p-3 rounded-lg ${
+                        index === 0
+                          ? 'bg-yellow-500/20 border border-yellow-500/30'
+                          : index === 1
+                            ? 'bg-gray-400/20 border border-gray-400/30'
+                            : index === 2
+                              ? 'bg-orange-500/20 border border-orange-500/30'
+                              : 'bg-muted/30'
+                      }`}
+                    >
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
+                          index === 0
+                            ? 'bg-yellow-500 text-white'
+                            : index === 1
+                              ? 'bg-gray-400 text-white'
+                              : index === 2
+                                ? 'bg-orange-500 text-white'
+                                : 'bg-muted text-muted-foreground'
+                        }`}
+                      >
+                        {index + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{entry.nickname}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Lv.{entry.level} / {entry.lines}ライン
+                          {entry.time && ` / ${formatTime(entry.time)}`}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-primary">
+                          {entry.score.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ランキングボタン */}
       {leaderboard.length > 0 && !showNicknameInput && !showLeaderboard && !showModeSelect && !showSettings && (
-        <button onClick={() => setShowLeaderboard(true)} className="fixed bottom-24 right-4 p-3 bg-card border border-border rounded-full shadow-lg hover:bg-muted transition-colors z-30 md:bottom-8 md:right-8" title="ランキング">
+        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => setShowLeaderboard(true)} className="fixed bottom-24 right-4 p-3 bg-card border border-border rounded-full shadow-lg hover:bg-muted transition-colors z-30 md:bottom-8 md:right-8" title="ランキング">
           <Medal size={24} className="text-yellow-500" />
-        </button>
+        </motion.button>
       )}
 
       {/* 実績トースト通知 */}

@@ -1,12 +1,19 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import type { BlogMeta } from '@/lib/blog';
 
 export type SortType = 'date' | 'popular';
 export type SortDirection = 'desc' | 'asc';
 export type ViewMode = 'grid' | 'list';
+export type ViewTab = 'posts' | 'archive' | 'calendar';
+
+interface DateRange {
+  year?: number;
+  month?: number;
+  day?: number;
+}
 
 interface UseBlogFiltersOptions {
   posts: BlogMeta[];
@@ -26,7 +33,6 @@ export function useBlogFilters({
   postsPerPage = 12,
   engagement = {},
 }: UseBlogFiltersOptions) {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   // URLパラメータから初期値を取得
@@ -34,6 +40,7 @@ export function useBlogFilters({
   const rawPage = searchParams.get('page');
   const parsedPage = rawPage ? Number.parseInt(rawPage, 10) : 1;
   const initialPage = Number.isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage;
+  const initialViewTab = (searchParams.get('view') as ViewTab) || 'posts';
 
   // 状態管理
   const [searchQuery, setSearchQuery] = useState('');
@@ -44,15 +51,24 @@ export function useBlogFilters({
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [tagSearchQuery, setTagSearchQuery] = useState('');
   const [tagFilterMode, setTagFilterMode] = useState<'AND' | 'OR'>('OR');
+  const [dateRange, setDateRange] = useState<DateRange | null>(null);
+  const [viewTab, setViewTab] = useState<ViewTab>(
+    ['posts', 'archive', 'calendar'].includes(initialViewTab) ? initialViewTab : 'posts'
+  );
 
-  // URLパラメータを更新
-  const updateURL = useCallback((category: string | null, page: number) => {
+  // URLパラメータを更新（Next.jsがpatchしたreplaceStateを回避し、ネイティブAPIを直接使用）
+  const updateURL = useCallback((category: string | null, page: number, view?: ViewTab) => {
     const params = new URLSearchParams();
     if (category) params.set('category', category);
     if (page > 1) params.set('page', page.toString());
+    if (view && view !== 'posts') params.set('view', view);
     const queryString = params.toString();
-    router.push(`/blog${queryString ? `?${queryString}` : ''}`, { scroll: false });
-  }, [router]);
+    const url = `/blog${queryString ? `?${queryString}` : ''}`;
+    // Next.js App RouterはHistory.replaceStateをmonkey-patchしてsoft navigationをトリガーする。
+    // これによりChunkLoadErrorが発生するため、プロトタイプから直接呼び出す。
+    const nativeReplaceState = Object.getPrototypeOf(window.history).replaceState;
+    nativeReplaceState.call(window.history, window.history.state, '', url);
+  }, []);
 
   // 検索クエリを正規化
   const normalizedQuery = useMemo(() => searchQuery.toLowerCase().trim(), [searchQuery]);
@@ -105,6 +121,17 @@ export function useBlogFilters({
       );
     }
 
+    // 日付範囲フィルター
+    if (dateRange) {
+      result = result.filter((post) => {
+        const postDate = new Date(post.date);
+        if (dateRange.year && postDate.getFullYear() !== dateRange.year) return false;
+        if (dateRange.month !== undefined && postDate.getMonth() !== dateRange.month) return false;
+        if (dateRange.day !== undefined && postDate.getDate() !== dateRange.day) return false;
+        return true;
+      });
+    }
+
     // ソート
     if (sortType === 'popular') {
       const scored = result.map((post) => ({
@@ -122,7 +149,7 @@ export function useBlogFilters({
           : a._dateTimestamp - b._dateTimestamp
       );
     }
-  }, [normalizedPosts, selectedCategory, selectedTags, tagFilterMode, normalizedQuery, sortType, sortDirection, engagement]);
+  }, [normalizedPosts, selectedCategory, selectedTags, tagFilterMode, normalizedQuery, dateRange, sortType, sortDirection, engagement]);
 
   // ページネーション
   const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
@@ -164,18 +191,59 @@ export function useBlogFilters({
     return allTags.filter((tag) => tag.name.toLowerCase().includes(query));
   }, [allTags, tagSearchQuery]);
 
+  // 月別記事グループ（アーカイブ用）
+  const postsByMonth = useMemo(() => {
+    const map = new Map<string, BlogMeta[]>();
+    // 日付降順でソートされた全記事を使用
+    const sorted = [...posts].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+    sorted.forEach((post) => {
+      const d = new Date(post.date);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(post);
+    });
+    return map;
+  }, [posts]);
+
+  // 日付ごとの記事数（カレンダーのドット表示用）
+  const postDates = useMemo(() => {
+    const map = new Map<string, number>();
+    posts.forEach((post) => {
+      const d = new Date(post.date);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      map.set(key, (map.get(key) || 0) + 1);
+    });
+    return map;
+  }, [posts]);
+
+  // トレンド記事（engagementスコア上位5件）
+  const trendingPosts = useMemo(() => {
+    if (Object.keys(engagement).length === 0) return [];
+    return [...posts]
+      .map((post) => ({
+        post,
+        score: (engagement[post.slug]?.views || 0) + (engagement[post.slug]?.likes || 0) * 3,
+      }))
+      .filter((item) => item.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5)
+      .map((item) => item.post);
+  }, [posts, engagement]);
+
   // アクションハンドラー
   const handleCategoryChange = useCallback((category: string | null) => {
     setSelectedCategory(category);
     setCurrentPage(1);
-    updateURL(category, 1);
-  }, [updateURL]);
+    updateURL(category, 1, viewTab);
+  }, [updateURL, viewTab]);
 
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page);
-    updateURL(selectedCategory, page);
+    updateURL(selectedCategory, page, viewTab);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [selectedCategory, updateURL]);
+  }, [selectedCategory, updateURL, viewTab]);
 
   const handleSortClick = useCallback((type: SortType) => {
     if (sortType === type) {
@@ -201,19 +269,31 @@ export function useBlogFilters({
     setCurrentPage(1);
   }, []);
 
+  const handleViewTabChange = useCallback((tab: ViewTab) => {
+    setViewTab(tab);
+    setCurrentPage(1);
+    updateURL(selectedCategory, 1, tab);
+  }, [selectedCategory, updateURL]);
+
+  const handleDateRangeChange = useCallback((range: DateRange | null) => {
+    setDateRange(range);
+    setCurrentPage(1);
+  }, []);
+
   const clearFilters = useCallback(() => {
     setSearchQuery('');
     setSelectedTags([]);
     setSelectedCategory(null);
     setCurrentPage(1);
     setTagSearchQuery('');
-    updateURL(null, 1);
-  }, [updateURL]);
+    setDateRange(null);
+    updateURL(null, 1, viewTab);
+  }, [updateURL, viewTab]);
 
-  const hasActiveFilters = searchQuery || selectedTags.length > 0 || selectedCategory;
+  const hasActiveFilters = searchQuery || selectedTags.length > 0 || selectedCategory || dateRange;
 
   // 最新記事の判定
-  const showFeatured = !searchQuery && selectedTags.length === 0 && !selectedCategory && sortType === 'date' && sortDirection === 'desc' && currentPage === 1;
+  const showFeatured = !searchQuery && selectedTags.length === 0 && !selectedCategory && !dateRange && sortType === 'date' && sortDirection === 'desc' && currentPage === 1;
   const featuredPost = showFeatured ? paginatedPosts[0] : null;
   const regularPosts = showFeatured ? paginatedPosts.slice(1) : paginatedPosts;
 
@@ -227,6 +307,8 @@ export function useBlogFilters({
     currentPage,
     tagSearchQuery,
     tagFilterMode,
+    dateRange,
+    viewTab,
 
     // 計算値
     filteredPosts,
@@ -238,6 +320,9 @@ export function useBlogFilters({
     hasActiveFilters,
     featuredPost,
     regularPosts,
+    postsByMonth,
+    postDates,
+    trendingPosts,
 
     // アクション
     setSearchQuery: handleSearchChange,
@@ -245,6 +330,8 @@ export function useBlogFilters({
     setSelectedCategory: handleCategoryChange,
     setTagSearchQuery,
     setTagFilterMode,
+    setDateRange: handleDateRangeChange,
+    setViewTab: handleViewTabChange,
     handlePageChange,
     handleSortClick,
     handleTagToggle,

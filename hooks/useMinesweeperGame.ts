@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { isBoardSolvable } from '@/lib/minesweeper-solver';
 
 // セルの状態
 export interface Cell {
@@ -248,9 +249,21 @@ export function useMinesweeperGame(options: UseMinesweeperGameOptions = {}) {
       let endTime = prev.endTime;
       let isFirstClick = prev.isFirstClick;
 
-      // 最初のクリック時に地雷を配置
+      // 最初のクリック時に解ける盤面を生成
       if (isFirstClick) {
-        placeMines(newBoard, prev.width, prev.height, prev.mineCount, x, y, randomRef.current);
+        const maxAttempts = 50;
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
+          // ボードをリセット
+          for (let ny = 0; ny < prev.height; ny++) {
+            for (let nx = 0; nx < prev.width; nx++) {
+              newBoard[ny][nx] = { isMine: false, isRevealed: false, isFlagged: false, adjacentMines: 0 };
+            }
+          }
+          placeMines(newBoard, prev.width, prev.height, prev.mineCount, x, y, randomRef.current);
+          if (isBoardSolvable(newBoard, prev.width, prev.height, x, y)) {
+            break;
+          }
+        }
         startTime = Date.now();
         newGameStatus = 'playing';
         isFirstClick = false;
