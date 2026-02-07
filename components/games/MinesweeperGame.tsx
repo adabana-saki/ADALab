@@ -120,6 +120,8 @@ export function MinesweeperGame({ showBattleButton = true }: MinesweeperGameProp
     fetchLeaderboard,
     period,
     setPeriod,
+    difficulty: leaderboardDifficulty,
+    setDifficulty: setLeaderboardDifficulty,
   } = useMinesweeperLeaderboard(difficulty);
 
   const { user, profile, getIdToken } = useAuth();
@@ -209,7 +211,7 @@ export function MinesweeperGame({ showBattleButton = true }: MinesweeperGameProp
     setIsSubmitting(true);
     try {
       const token = await getIdToken();
-      await submitScore({
+      const success = await submitScore({
         nickname: userNickname.slice(0, 20),
         time_seconds: pendingStats.time,
         difficulty: pendingStats.difficulty,
@@ -217,6 +219,10 @@ export function MinesweeperGame({ showBattleButton = true }: MinesweeperGameProp
       });
       setShowNicknameModal(false);
       setPendingStats(null);
+      // サーバー送信失敗時は最新データを再取得してからモーダルを開く
+      if (!success) {
+        await fetchLeaderboard(pendingStats.difficulty);
+      }
       setShowLeaderboard(true);
     } catch (error) {
       console.error('Failed to submit score:', error);
@@ -502,12 +508,12 @@ export function MinesweeperGame({ showBattleButton = true }: MinesweeperGameProp
         <LeaderboardModal
           show={showLeaderboard}
           onClose={() => setShowLeaderboard(false)}
-          difficulty={difficulty}
+          difficulty={leaderboardDifficulty}
           leaderboard={leaderboard}
           leaderboardLoading={leaderboardLoading}
           period={period}
           onPeriodChange={setPeriod}
-          onDifficultyChange={setDifficulty}
+          onDifficultyChange={setLeaderboardDifficulty}
           onFetchLeaderboard={fetchLeaderboard}
         />
       )}
