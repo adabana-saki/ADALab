@@ -33,6 +33,11 @@ export function useMinesweeperLeaderboard(initialDifficulty: Difficulty = 'begin
   const [period, setPeriod] = useState<LeaderboardPeriod>('all');
   const [difficulty, setDifficulty] = useState<Difficulty>(initialDifficulty);
 
+  // ゲームの難易度変更に追従
+  useEffect(() => {
+    setDifficulty(initialDifficulty);
+  }, [initialDifficulty]);
+
   // ローカルストレージキー
   const getLocalStorageKey = (diff: Difficulty) => `minesweeper_leaderboard_${diff}`;
 
@@ -113,21 +118,34 @@ export function useMinesweeperLeaderboard(initialDifficulty: Difficulty = 'begin
   const submitScore = useCallback(async (params: SubmitScoreParams): Promise<boolean> => {
     const { nickname, time_seconds, difficulty: diff, token } = params;
 
-    // ローカルに保存
+    // ローカルに保存（一アカウント一エントリ、自己ベストのみ更新）
     const localEntries = getLocalLeaderboard(diff);
-    const newEntry: LeaderboardEntry = {
-      nickname,
-      time_seconds,
-      difficulty: diff,
-      date: new Date().toISOString(),
-    };
+    const existingIndex = localEntries.findIndex((e) => e.nickname === nickname);
 
-    // 挿入位置を見つける（時間が短い順）
-    const insertIndex = localEntries.findIndex((e) => e.time_seconds > time_seconds);
-    if (insertIndex === -1) {
-      localEntries.push(newEntry);
+    if (existingIndex !== -1) {
+      // 既存タイムより遅い場合はローカル更新をスキップ
+      if (time_seconds >= localEntries[existingIndex].time_seconds) {
+        // サーバーには送信するがローカルは更新しない
+      } else {
+        // 自己ベスト更新: 古いエントリを削除して新しい位置に挿入
+        localEntries.splice(existingIndex, 1);
+        const newEntry: LeaderboardEntry = { nickname, time_seconds, difficulty: diff, date: new Date().toISOString() };
+        const insertIndex = localEntries.findIndex((e) => e.time_seconds > time_seconds);
+        if (insertIndex === -1) {
+          localEntries.push(newEntry);
+        } else {
+          localEntries.splice(insertIndex, 0, newEntry);
+        }
+      }
     } else {
-      localEntries.splice(insertIndex, 0, newEntry);
+      // 新規エントリ
+      const newEntry: LeaderboardEntry = { nickname, time_seconds, difficulty: diff, date: new Date().toISOString() };
+      const insertIndex = localEntries.findIndex((e) => e.time_seconds > time_seconds);
+      if (insertIndex === -1) {
+        localEntries.push(newEntry);
+      } else {
+        localEntries.splice(insertIndex, 0, newEntry);
+      }
     }
     saveLocalLeaderboard(diff, localEntries);
 
