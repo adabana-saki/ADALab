@@ -8,6 +8,7 @@ import {
   useCallback,
   ReactNode,
 } from 'react';
+import type { User } from '@/lib/firebase';
 import {
   onAuthChange,
   signInWithGoogle,
@@ -18,7 +19,6 @@ import {
   resetPassword,
   getIdToken,
   handleRedirectResult,
-  User,
 } from '@/lib/firebase';
 
 interface UserProfile {
@@ -64,7 +64,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // 認証状態の監視
   useEffect(() => {
-    const unsubscribe = onAuthChange(async (firebaseUser) => {
+    let unsubscribe: (() => void) | null = null;
+    let cancelled = false;
+
+    onAuthChange(async (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser) {
         setProfile({
@@ -79,9 +82,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setProfile(null);
       }
       setLoading(false);
+    }).then((unsub) => {
+      if (cancelled) {
+        unsub();
+      } else {
+        unsubscribe = unsub;
+      }
     });
 
-    return () => unsubscribe();
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
   }, []);
 
   // バックエンドにユーザー情報を同期

@@ -1,19 +1,9 @@
-import { initializeApp, getApps } from 'firebase/app';
-import {
-  getAuth,
-  GoogleAuthProvider,
-  GithubAuthProvider,
-  signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut as firebaseSignOut,
-  onAuthStateChanged,
+import type { FirebaseApp } from 'firebase/app';
+import type {
+  Auth,
   User,
-  sendPasswordResetEmail,
-  updateProfile,
-  browserPopupRedirectResolver,
+  GoogleAuthProvider as GoogleAuthProviderType,
+  GithubAuthProvider as GithubAuthProviderType,
 } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -26,40 +16,44 @@ const firebaseConfig = {
 };
 
 // Lazy initialization for client-side only (prevents SSG errors)
-let app: ReturnType<typeof initializeApp> | null = null;
-let auth: ReturnType<typeof getAuth> | null = null;
-let googleProvider: GoogleAuthProvider | null = null;
-let githubProvider: GithubAuthProvider | null = null;
+let app: FirebaseApp | null = null;
+let auth: Auth | null = null;
+let googleProvider: GoogleAuthProviderType | null = null;
+let githubProvider: GithubAuthProviderType | null = null;
 
-function getFirebaseApp() {
+async function getFirebaseApp(): Promise<FirebaseApp | null> {
   if (typeof window === 'undefined') return null;
   if (!app) {
+    const { initializeApp, getApps } = await import('firebase/app');
     app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
   }
   return app;
 }
 
-function getFirebaseAuth() {
+async function getFirebaseAuth(): Promise<Auth | null> {
   if (typeof window === 'undefined') return null;
-  const firebaseApp = getFirebaseApp();
+  const firebaseApp = await getFirebaseApp();
   if (!firebaseApp) return null;
   if (!auth) {
+    const { getAuth } = await import('firebase/auth');
     auth = getAuth(firebaseApp);
   }
   return auth;
 }
 
-function getGoogleProvider() {
+async function getGoogleProvider(): Promise<GoogleAuthProviderType | null> {
   if (typeof window === 'undefined') return null;
   if (!googleProvider) {
+    const { GoogleAuthProvider } = await import('firebase/auth');
     googleProvider = new GoogleAuthProvider();
   }
   return googleProvider;
 }
 
-function getGithubProvider() {
+async function getGithubProvider(): Promise<GithubAuthProviderType | null> {
   if (typeof window === 'undefined') return null;
   if (!githubProvider) {
+    const { GithubAuthProvider } = await import('firebase/auth');
     githubProvider = new GithubAuthProvider();
   }
   return githubProvider;
@@ -73,11 +67,14 @@ function isMobile(): boolean {
 
 // Google認証
 export async function signInWithGoogle(): Promise<User | null> {
-  const firebaseAuth = getFirebaseAuth();
-  const provider = getGoogleProvider();
+  const firebaseAuth = await getFirebaseAuth();
+  const provider = await getGoogleProvider();
   if (!firebaseAuth || !provider) {
     throw new Error('Firebase not initialized');
   }
+
+  const { signInWithPopup, signInWithRedirect, browserPopupRedirectResolver } =
+    await import('firebase/auth');
 
   // モバイルの場合はリダイレクト認証を使用
   if (isMobile()) {
@@ -107,11 +104,14 @@ export async function signInWithGoogle(): Promise<User | null> {
 
 // GitHub認証
 export async function signInWithGithub(): Promise<User | null> {
-  const firebaseAuth = getFirebaseAuth();
-  const provider = getGithubProvider();
+  const firebaseAuth = await getFirebaseAuth();
+  const provider = await getGithubProvider();
   if (!firebaseAuth || !provider) {
     throw new Error('Firebase not initialized');
   }
+
+  const { signInWithPopup, signInWithRedirect, browserPopupRedirectResolver } =
+    await import('firebase/auth');
 
   // モバイルの場合はリダイレクト認証を使用
   if (isMobile()) {
@@ -144,11 +144,12 @@ export async function signInWithEmail(
   email: string,
   password: string
 ): Promise<User | null> {
-  const firebaseAuth = getFirebaseAuth();
+  const firebaseAuth = await getFirebaseAuth();
   if (!firebaseAuth) {
     throw new Error('Firebase not initialized');
   }
   try {
+    const { signInWithEmailAndPassword } = await import('firebase/auth');
     const result = await signInWithEmailAndPassword(firebaseAuth, email, password);
     return result.user;
   } catch (error) {
@@ -163,11 +164,12 @@ export async function signUpWithEmail(
   password: string,
   displayName: string
 ): Promise<User | null> {
-  const firebaseAuth = getFirebaseAuth();
+  const firebaseAuth = await getFirebaseAuth();
   if (!firebaseAuth) {
     throw new Error('Firebase not initialized');
   }
   try {
+    const { createUserWithEmailAndPassword, updateProfile } = await import('firebase/auth');
     const result = await createUserWithEmailAndPassword(firebaseAuth, email, password);
     if (result.user) {
       await updateProfile(result.user, { displayName });
@@ -181,11 +183,12 @@ export async function signUpWithEmail(
 
 // サインアウト
 export async function signOut(): Promise<void> {
-  const firebaseAuth = getFirebaseAuth();
+  const firebaseAuth = await getFirebaseAuth();
   if (!firebaseAuth) {
     throw new Error('Firebase not initialized');
   }
   try {
+    const { signOut: firebaseSignOut } = await import('firebase/auth');
     await firebaseSignOut(firebaseAuth);
   } catch (error) {
     console.error('Sign-out error:', error);
@@ -195,11 +198,12 @@ export async function signOut(): Promise<void> {
 
 // パスワードリセット
 export async function resetPassword(email: string): Promise<void> {
-  const firebaseAuth = getFirebaseAuth();
+  const firebaseAuth = await getFirebaseAuth();
   if (!firebaseAuth) {
     throw new Error('Firebase not initialized');
   }
   try {
+    const { sendPasswordResetEmail } = await import('firebase/auth');
     await sendPasswordResetEmail(firebaseAuth, email);
   } catch (error) {
     console.error('Password reset error:', error);
@@ -209,9 +213,10 @@ export async function resetPassword(email: string): Promise<void> {
 
 // リダイレクト結果の処理
 export async function handleRedirectResult(): Promise<User | null> {
-  const firebaseAuth = getFirebaseAuth();
+  const firebaseAuth = await getFirebaseAuth();
   if (!firebaseAuth) return null;
   try {
+    const { getRedirectResult } = await import('firebase/auth');
     const result = await getRedirectResult(firebaseAuth);
     if (result) {
       return result.user;
@@ -224,25 +229,27 @@ export async function handleRedirectResult(): Promise<User | null> {
 }
 
 // 認証状態の監視
-export function onAuthChange(callback: (user: User | null) => void) {
-  const firebaseAuth = getFirebaseAuth();
+export async function onAuthChange(
+  callback: (user: User | null) => void
+): Promise<() => void> {
+  const firebaseAuth = await getFirebaseAuth();
   if (!firebaseAuth) {
-    // Return a no-op unsubscribe function for SSR
     return () => {};
   }
+  const { onAuthStateChanged } = await import('firebase/auth');
   return onAuthStateChanged(firebaseAuth, callback);
 }
 
 // 現在のユーザー取得
-export function getCurrentUser(): User | null {
-  const firebaseAuth = getFirebaseAuth();
+export async function getCurrentUser(): Promise<User | null> {
+  const firebaseAuth = await getFirebaseAuth();
   if (!firebaseAuth) return null;
   return firebaseAuth.currentUser;
 }
 
 // IDトークン取得（API認証用）
 export async function getIdToken(): Promise<string | null> {
-  const firebaseAuth = getFirebaseAuth();
+  const firebaseAuth = await getFirebaseAuth();
   if (!firebaseAuth) return null;
   const user = firebaseAuth.currentUser;
   if (!user) return null;
