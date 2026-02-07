@@ -18,7 +18,6 @@ import {
   Skull,
   Clock,
   Hash,
-  Medal,
   Award,
   AlertTriangle,
 } from 'lucide-react';
@@ -472,7 +471,7 @@ export function TypingGame() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={startGame}
-          className="flex items-center gap-2 px-8 py-4 rounded-xl bg-primary text-primary-foreground font-bold text-lg"
+          className="flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium text-lg"
         >
           <Play size={24} />
           スタート
@@ -693,7 +692,7 @@ export function TypingGame() {
               <span>文字: {stats.correctChars}</span>
             </div>
 
-            <div className="flex justify-center gap-3 flex-wrap">
+            <div className="flex justify-center gap-2 flex-wrap">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -702,7 +701,7 @@ export function TypingGame() {
                   setShowNicknameInput(false);
                   setTimeout(() => inputRef.current?.focus(), 100);
                 }}
-                className="flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium"
               >
                 <RotateCcw size={18} />
                 もう一度
@@ -711,7 +710,7 @@ export function TypingGame() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowShare(true)}
-                className="flex items-center gap-2 px-6 py-3 rounded-lg bg-muted font-medium"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted font-medium"
               >
                 <Share2 size={18} />
                 シェア
@@ -720,7 +719,7 @@ export function TypingGame() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowLeaderboard(true)}
-                className="flex items-center gap-2 px-6 py-3 rounded-lg bg-muted font-medium"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted font-medium"
               >
                 <Trophy size={18} />
                 ランキング
@@ -729,7 +728,7 @@ export function TypingGame() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={backToSettings}
-                className="flex items-center gap-2 px-6 py-3 rounded-lg bg-muted font-medium"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted font-medium"
               >
                 設定
               </motion.button>
@@ -754,7 +753,7 @@ export function TypingGame() {
               className="bg-card border border-border rounded-2xl p-6 w-full max-w-sm"
             >
               <div className="text-center mb-4">
-                <Medal className="mx-auto mb-2 text-yellow-500" size={40} />
+                <Trophy className="w-12 h-12 text-yellow-500 mx-auto mb-2" />
                 <h3 className="text-lg font-bold">ランキング入り！</h3>
                 <p className="text-sm text-muted-foreground">
                   WPM: {stats.wpm} / 正確率: {stats.accuracy}%

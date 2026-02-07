@@ -48,14 +48,14 @@ export function GameOverOverlay({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={() => {}}
         >
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
+            initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-sm w-full mx-4 text-center"
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-card border border-border rounded-2xl p-6 w-full max-w-sm text-center"
             onClick={(e) => e.stopPropagation()}
           >
             {gameStatus === 'won' ? (
@@ -79,7 +79,7 @@ export function GameOverOverlay({
             <div className="flex gap-3 justify-center flex-wrap">
               <button
                 onClick={onNewGame}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium"
               >
                 <RotateCcw className="w-5 h-5" />
                 もう一度
@@ -89,24 +89,24 @@ export function GameOverOverlay({
                 <div className="relative">
                   <button
                     onClick={() => setShowShareMenu(!showShareMenu)}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg font-medium"
                   >
                     <Share2 className="w-5 h-5" />
                     シェア
                   </button>
 
                   {showShareMenu && (
-                    <div className="absolute top-full mt-2 right-0 bg-white dark:bg-gray-700 rounded-lg shadow-lg p-2 min-w-[150px]">
+                    <div className="absolute top-full mt-2 right-0 bg-card border border-border rounded-lg shadow-lg p-2 min-w-[150px]">
                       <button
                         onClick={shareToTwitter}
-                        className="flex items-center gap-2 w-full px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded"
+                        className="flex items-center gap-2 w-full px-3 py-2 hover:bg-muted rounded"
                       >
                         <Twitter className="w-4 h-4" />
                         Twitter
                       </button>
                       <button
                         onClick={copyToClipboard}
-                        className="flex items-center gap-2 w-full px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded"
+                        className="flex items-center gap-2 w-full px-3 py-2 hover:bg-muted rounded"
                       >
                         {copied ? (
                           <Check className="w-4 h-4 text-green-500" />

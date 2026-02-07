@@ -24,14 +24,14 @@ export function AchievementsModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={onClose}
         >
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
+            initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-lg w-full mx-4 max-h-[80vh] overflow-auto"
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-card border border-border rounded-2xl p-6 w-full max-w-lg max-h-[80vh] overflow-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
@@ -41,9 +41,9 @@ export function AchievementsModal({
               </h3>
               <button
                 onClick={onClose}
-                className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                className="p-2 rounded-lg hover:bg-muted transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X size={20} />
               </button>
             </div>
 

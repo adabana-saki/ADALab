@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
+import { motion } from 'framer-motion';
 import {
   RotateCcw,
-  Trophy,
+  Medal,
   Flag,
   Bomb,
   Timer,
@@ -121,7 +122,8 @@ export function MinesweeperGame({ showBattleButton = true }: MinesweeperGameProp
     setPeriod,
   } = useMinesweeperLeaderboard(difficulty);
 
-  const { user, profile: _profile, getIdToken } = useAuth();
+  const { user, profile, getIdToken } = useAuth();
+  const userNickname = profile?.displayName || profile?.email?.split('@')[0] || 'ゲスト';
 
   // 実績フック
   const showAchievementToast = useCallback((ach: GameAchievement) => {
@@ -146,7 +148,6 @@ export function MinesweeperGame({ showBattleButton = true }: MinesweeperGameProp
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showAchievements, setShowAchievements] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
-  const [nickname, setNickname] = useState('');
   const [pendingStats, setPendingStats] = useState<MinesweeperStats | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isPressing, setIsPressing] = useState(false);
@@ -157,14 +158,6 @@ export function MinesweeperGame({ showBattleButton = true }: MinesweeperGameProp
   // Sound
   const soundEngineRef = useRef(getSoundEngine());
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // ニックネーム初期化
-  useEffect(() => {
-    const savedNickname = localStorage.getItem('minesweeper_nickname');
-    if (savedNickname) {
-      setNickname(savedNickname);
-    }
-  }, []);
 
   // 実績キュー処理
   useEffect(() => {
@@ -210,24 +203,18 @@ export function MinesweeperGame({ showBattleButton = true }: MinesweeperGameProp
 
   // ランキング登録
   const handleSubmitScore = async () => {
-    if (!pendingStats || !nickname.trim()) return;
+    if (!pendingStats || !user || !profile) return;
     if (isSubmitting) return;
-
-    if (!user) {
-      setShowAuthModal(true);
-      return;
-    }
 
     setIsSubmitting(true);
     try {
       const token = await getIdToken();
       await submitScore({
-        nickname: nickname.trim(),
+        nickname: userNickname.slice(0, 20),
         time_seconds: pendingStats.time,
         difficulty: pendingStats.difficulty,
         token,
       });
-      localStorage.setItem('minesweeper_nickname', nickname.trim());
       setShowNicknameModal(false);
       setPendingStats(null);
       setShowLeaderboard(true);
@@ -385,7 +372,7 @@ export function MinesweeperGame({ showBattleButton = true }: MinesweeperGameProp
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 difficulty === diff
                   ? 'bg-primary text-primary-foreground'
-                  : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600'
+                  : 'bg-muted hover:bg-muted/80'
               }`}
             >
               {DIFFICULTY_LABELS[diff]}
@@ -418,52 +405,65 @@ export function MinesweeperGame({ showBattleButton = true }: MinesweeperGameProp
 
       {/* コントロールボタン */}
       <div className="flex gap-2 flex-wrap justify-center max-w-md w-full">
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => newGame()}
-          className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium"
         >
-          <RotateCcw className="w-4 h-4" />
+          <RotateCcw size={18} />
           New Game
-        </button>
+        </motion.button>
 
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => {
             fetchLeaderboard();
             setShowLeaderboard(true);
           }}
-          className="flex items-center gap-2 px-3 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors text-sm"
+          className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg font-medium"
         >
-          <Trophy className="w-4 h-4" />
+          <Medal size={18} className="text-yellow-500" />
           ランキング
-        </button>
+        </motion.button>
 
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setShowAchievements(true)}
-          className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+          className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg font-medium"
         >
-          <Award className="w-4 h-4" />
+          <Award size={18} />
           実績
-          <span className="bg-white/20 px-1.5 py-0.5 rounded text-xs">
+          <span className="bg-primary/10 text-primary px-1.5 py-0.5 rounded text-xs">
             {achievementProgress.unlocked}/{achievementProgress.total}
           </span>
-        </button>
+        </motion.button>
 
         {showBattleButton && (
-          <Link
-            href="/games/minesweeper/battle"
-            className="flex items-center gap-2 px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm"
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <Swords className="w-4 h-4" />
-            オンライン対戦
-          </Link>
+            <Link
+              href="/games/minesweeper/battle"
+              className="flex items-center gap-2 px-4 py-2 bg-muted rounded-lg font-medium"
+            >
+              <Swords size={18} />
+              オンライン対戦
+            </Link>
+          </motion.div>
         )}
 
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setShowHelp(true)}
-          className="flex items-center gap-2 px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
+          className="p-2 bg-muted rounded-lg"
         >
-          <HelpCircle className="w-4 h-4" />
-        </button>
+          <HelpCircle size={18} />
+        </motion.button>
       </div>
 
       {/* ゲームオーバー/勝利オーバーレイ */}
@@ -482,12 +482,11 @@ export function MinesweeperGame({ showBattleButton = true }: MinesweeperGameProp
           show={showNicknameModal}
           difficulty={difficulty}
           pendingStats={pendingStats}
-          nickname={nickname}
-          onNicknameChange={setNickname}
+          user={user}
+          userNickname={userNickname}
           isSubmitting={isSubmitting}
-          isLoggedIn={!!user}
           onSubmit={handleSubmitScore}
-          onCancel={() => {
+          onSkip={() => {
             setShowNicknameModal(false);
             setPendingStats(null);
           }}
@@ -542,9 +541,14 @@ export function MinesweeperGame({ showBattleButton = true }: MinesweeperGameProp
         />
       )}
 
-      {/* 操作説明 */}
-      <div className="text-center text-xs text-muted-foreground mt-2">
-        <p>クリック: 開く | 右クリック/長押し: フラグ | ダブルクリック: 一括開示</p>
+      {/* 遊び方 */}
+      <div className="w-full max-w-md p-4 rounded-lg bg-muted/50 text-sm">
+        <h3 className="font-bold mb-2">遊び方</h3>
+        <ul className="space-y-1 text-muted-foreground">
+          <li><strong>操作:</strong> クリックで開く / 右クリック・長押しでフラグ</li>
+          <li><strong>ダブルクリック:</strong> 数字セル周囲を一括開示</li>
+          <li><strong>目標:</strong> 地雷を踏まずにすべてのセルを開けよう</li>
+        </ul>
       </div>
     </div>
   );

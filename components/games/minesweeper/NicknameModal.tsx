@@ -1,8 +1,10 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
+import { Trophy } from 'lucide-react';
 import type { Difficulty } from '@/hooks/useMinesweeperGame';
 import type { MinesweeperStats } from '@/hooks/useMinesweeperGame';
+import type { User } from 'firebase/auth';
 
 const DIFFICULTY_LABELS: Record<Difficulty, string> = {
   beginner: '初級',
@@ -14,12 +16,11 @@ interface NicknameModalProps {
   show: boolean;
   difficulty: Difficulty;
   pendingStats: MinesweeperStats | null;
-  nickname: string;
-  onNicknameChange: (value: string) => void;
+  user: User | null;
+  userNickname: string;
   isSubmitting: boolean;
-  isLoggedIn: boolean;
   onSubmit: () => void;
-  onCancel: () => void;
+  onSkip: () => void;
   onLogin: () => void;
 }
 
@@ -27,12 +28,11 @@ export function NicknameModal({
   show,
   difficulty,
   pendingStats,
-  nickname,
-  onNicknameChange,
+  user,
+  userNickname,
   isSubmitting,
-  isLoggedIn,
   onSubmit,
-  onCancel,
+  onSkip,
   onLogin,
 }: NicknameModalProps) {
   return (
@@ -42,57 +42,70 @@ export function NicknameModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={onSkip}
         >
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
+            initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-sm w-full mx-4"
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-card border border-border rounded-2xl p-6 w-full max-w-sm"
+            onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-xl font-bold mb-4 text-center">ランキング登録</h3>
-            <p className="text-sm text-muted-foreground mb-4 text-center">
-              {DIFFICULTY_LABELS[difficulty]} - {pendingStats?.time}秒
-            </p>
+            <div className="text-center mb-6">
+              <Trophy className="w-12 h-12 text-yellow-500 mx-auto mb-2" />
+              <h3 className="text-xl font-bold">ランキング入り!</h3>
+              <p className="text-muted-foreground text-sm">
+                {DIFFICULTY_LABELS[difficulty]} - {pendingStats?.time}秒
+              </p>
+            </div>
 
-            {!isLoggedIn ? (
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground mb-4">
-                  ランキングに登録するにはログインが必要です
-                </p>
-                <button
-                  onClick={onLogin}
-                  className="px-4 py-2 bg-primary text-primary-foreground rounded-lg"
-                >
-                  ログイン
-                </button>
-              </div>
-            ) : (
-              <>
-                <input
-                  type="text"
-                  value={nickname}
-                  onChange={(e) => onNicknameChange(e.target.value)}
-                  placeholder="ニックネーム"
-                  maxLength={20}
-                  className="w-full px-4 py-2 border rounded-lg mb-4 dark:bg-gray-700 dark:border-gray-600"
-                />
-                <div className="flex gap-3 justify-center">
+            {user ? (
+              <div className="space-y-4">
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-sm text-muted-foreground mb-1">登録名</p>
+                  <p className="font-medium text-lg">{userNickname}</p>
+                </div>
+
+                <div className="flex gap-2">
                   <button
-                    onClick={onCancel}
-                    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg"
+                    onClick={onSkip}
+                    className="flex-1 px-4 py-2 rounded-lg bg-muted font-medium"
                   >
-                    キャンセル
+                    スキップ
                   </button>
                   <button
                     onClick={onSubmit}
-                    disabled={!nickname.trim() || isSubmitting}
-                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg disabled:opacity-50"
+                    disabled={isSubmitting}
+                    className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? '送信中...' : '登録'}
                   </button>
                 </div>
-              </>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                  <p className="text-sm text-muted-foreground">
+                    ランキングに登録するにはログインが必要です
+                  </p>
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={onSkip}
+                    className="flex-1 px-4 py-2 rounded-lg bg-muted font-medium"
+                  >
+                    閉じる
+                  </button>
+                  <button
+                    onClick={onLogin}
+                    className="flex-1 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium"
+                  >
+                    ログイン
+                  </button>
+                </div>
+              </div>
             )}
           </motion.div>
         </motion.div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy, X } from 'lucide-react';
+import { Medal, Calendar, X } from 'lucide-react';
 import type { Difficulty } from '@/hooks/useMinesweeperGame';
 import { DIFFICULTIES } from '@/hooks/useMinesweeperGame';
 import type { LeaderboardEntry, LeaderboardPeriod } from '@/hooks/useMinesweeperLeaderboard';
@@ -43,41 +43,42 @@ export function LeaderboardModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={onClose}
         >
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
+            initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full mx-4 max-h-[80vh] overflow-auto"
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-card border border-border rounded-2xl p-6 w-full max-w-md max-h-[80vh] overflow-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold flex items-center gap-2">
-                <Trophy className="w-6 h-6 text-yellow-500" />
-                ランキング - {DIFFICULTY_LABELS[difficulty]}
-              </h3>
+              <div className="flex items-center gap-2">
+                <Medal className="w-6 h-6 text-yellow-500" />
+                <h3 className="text-xl font-bold">ランキング - {DIFFICULTY_LABELS[difficulty]}</h3>
+              </div>
               <button
                 onClick={onClose}
-                className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                className="p-2 rounded-lg hover:bg-muted transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X size={20} />
               </button>
             </div>
 
             {/* 期間フィルター */}
-            <div className="flex gap-2 mb-4 flex-wrap">
+            <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
               {(Object.keys(LEADERBOARD_PERIOD_LABELS) as LeaderboardPeriod[]).map((p) => (
                 <button
                   key={p}
                   onClick={() => onPeriodChange(p)}
-                  className={`px-3 py-1 rounded-full text-sm transition-colors ${
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
                     period === p
                       ? 'bg-primary text-primary-foreground'
-                      : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
+                      : 'bg-muted hover:bg-muted/80'
                   }`}
                 >
+                  <Calendar size={14} />
                   {LEADERBOARD_PERIOD_LABELS[p]}
                 </button>
               ))}
@@ -94,8 +95,8 @@ export function LeaderboardModal({
                   }}
                   className={`px-3 py-1 rounded-full text-sm transition-colors ${
                     difficulty === diff
-                      ? 'bg-green-600 text-white'
-                      : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted hover:bg-muted/80'
                   }`}
                 >
                   {DIFFICULTY_LABELS[diff]}
@@ -104,27 +105,41 @@ export function LeaderboardModal({
             </div>
 
             {leaderboardLoading ? (
-              <div className="text-center py-8">
-                <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto" />
+              <div className="text-center py-8 text-muted-foreground">
+                読み込み中...
               </div>
             ) : leaderboard.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">
+              <div className="text-center py-8 text-muted-foreground">
                 まだ記録がありません
-              </p>
+              </div>
             ) : (
               <div className="space-y-2">
                 {leaderboard.map((entry, index) => (
                   <div
                     key={index}
                     className={`flex items-center gap-3 p-3 rounded-lg ${
-                      index < 3
-                        ? 'bg-gradient-to-r from-yellow-500/10 to-transparent'
-                        : 'bg-gray-100 dark:bg-gray-700'
+                      index === 0
+                        ? 'bg-yellow-500/20 border border-yellow-500/30'
+                        : index === 1
+                          ? 'bg-gray-400/20 border border-gray-400/30'
+                          : index === 2
+                            ? 'bg-orange-500/20 border border-orange-500/30'
+                            : 'bg-muted/30'
                     }`}
                   >
-                    <span className="font-bold w-8 text-center">
-                      {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}`}
-                    </span>
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
+                        index === 0
+                          ? 'bg-yellow-500 text-white'
+                          : index === 1
+                            ? 'bg-gray-400 text-white'
+                            : index === 2
+                              ? 'bg-orange-500 text-white'
+                              : 'bg-muted text-muted-foreground'
+                      }`}
+                    >
+                      {index + 1}
+                    </div>
                     <span className="flex-1 truncate">{entry.nickname}</span>
                     <span className="font-mono font-bold">{entry.time_seconds}秒</span>
                   </div>
