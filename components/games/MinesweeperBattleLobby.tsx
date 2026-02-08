@@ -40,6 +40,8 @@ export function MinesweeperBattleLobby() {
     flagged: 0,
     percentage: 0,
   });
+  const [opponentStatus, setOpponentStatus] = useState<'playing' | 'lost' | 'finished'>('playing');
+  const [opponentFinishTime, setOpponentFinishTime] = useState<number | null>(null);
 
   const {
     gameStatus,
@@ -65,10 +67,19 @@ export function MinesweeperBattleLobby() {
   } = useMinesweeperBattle({
     onGameStart: () => {
       setLocalOpponentProgress({ revealed: 0, flagged: 0, percentage: 0 });
+      setOpponentStatus('playing');
+      setOpponentFinishTime(null);
       setLobbyMode('playing');
     },
     onOpponentProgress: (progress) => {
       setLocalOpponentProgress(progress);
+    },
+    onOpponentLost: () => {
+      setOpponentStatus('lost');
+    },
+    onOpponentFinished: (time) => {
+      setOpponentStatus('finished');
+      setOpponentFinishTime(time);
     },
     onGameEnd: (_winnerId, _winnerNickname, results) => {
       setFinalResults(results);
@@ -132,6 +143,8 @@ export function MinesweeperBattleLobby() {
     setIsReady(false);
     setLocalOpponentProgress({ revealed: 0, flagged: 0, percentage: 0 });
     setFinalResults([]);
+    setOpponentStatus('playing');
+    setOpponentFinishTime(null);
   };
 
   const handleRematch = () => {
@@ -141,6 +154,8 @@ export function MinesweeperBattleLobby() {
     setReady(false);
     setLocalOpponentProgress({ revealed: 0, flagged: 0, percentage: 0 });
     setFinalResults([]);
+    setOpponentStatus('playing');
+    setOpponentFinishTime(null);
   };
 
   const handleProgress = useCallback(
@@ -543,14 +558,19 @@ export function MinesweeperBattleLobby() {
   // Playing
   if ((gameStatus === 'playing' || lobbyMode === 'playing') && gameSeed !== null) {
     const activeOpponentProgress = opponentProgress.percentage > 0 ? opponentProgress : localOpponentProgress;
+    const opponent = players.find(p => p.id !== myPlayerId);
+    const opponentNickname = opponent?.nickname || '対戦相手';
 
     return (
       <MinesweeperBattle
         nickname={nickname}
+        opponentNickname={opponentNickname}
         difficulty={difficulty}
         seed={gameSeed}
         timeRemaining={timeRemaining}
         opponentProgress={activeOpponentProgress}
+        opponentStatus={opponentStatus}
+        opponentFinishTime={opponentFinishTime}
         winner={winner}
         myPlayerId={myPlayerId}
         onProgress={handleProgress}

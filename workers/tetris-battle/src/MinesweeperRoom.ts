@@ -46,10 +46,11 @@ interface WebSocketSession {
 
 // クライアント → サーバー メッセージ
 type ClientMessage =
+  | { type: 'create_room'; nickname: string; difficulty?: Difficulty }
   | { type: 'join'; nickname: string; roomCode?: string }
   | { type: 'ready' }
   | { type: 'unready' }
-  | { type: 'progress'; revealed: number; flagged: number }
+  | { type: 'progress'; revealed: number; flagged: number; percentage?: number }
   | { type: 'finished'; time: number }
   | { type: 'lost' }
   | { type: 'leave' }
@@ -63,10 +64,10 @@ type ServerMessage =
   | { type: 'player_ready'; playerId: string; isReady: boolean }
   | { type: 'countdown'; seconds: number }
   | { type: 'game_start'; seed: number; settings: GameSettings }
-  | { type: 'opponent_progress'; playerId: string; revealed: number; flagged: number }
+  | { type: 'opponent_progress'; playerId: string; revealed: number; flagged: number; percentage: number }
   | { type: 'opponent_lost'; playerId: string }
   | { type: 'opponent_finished'; playerId: string; time: number }
-  | { type: 'game_end'; winner: string; winnerNickname: string; reason: string; times: Record<string, number | null> }
+  | { type: 'game_end'; winner: string; winnerNickname: string; reason: string; times: Record<string, number | null>; results: Array<{ id: string; nickname: string; time: number | null; status: 'won' | 'lost' | 'timeout' }> }
   | { type: 'time_update'; remaining: number }
   | { type: 'error'; message: string }
   | { type: 'pong' };
@@ -197,6 +198,9 @@ export class MinesweeperRoom extends DurableObject<Env> {
 
   private async handleMessage(ws: WebSocket, message: ClientMessage): Promise<void> {
     switch (message.type) {
+      case 'create_room':
+        await this.handleJoin(ws, message.nickname);
+        break;
       case 'join':
         await this.handleJoin(ws, message.nickname, message.roomCode);
         break;
@@ -207,7 +211,7 @@ export class MinesweeperRoom extends DurableObject<Env> {
         this.handleReady(ws, false);
         break;
       case 'progress':
-        this.handleProgress(ws, message.revealed, message.flagged);
+        this.handleProgress(ws, message.revealed, message.flagged, message.percentage);
         break;
       case 'finished':
         this.handleFinished(ws, message.time);
@@ -295,7 +299,7 @@ export class MinesweeperRoom extends DurableObject<Env> {
     }
   }
 
-  private handleProgress(ws: WebSocket, revealed: number, flagged: number): void {
+  private handleProgress(ws: WebSocket, revealed: number, flagged: number, percentage?: number): void {
     const session = this.sessions.get(ws);
     if (!session || this.roomState.status !== 'playing') return;
 
@@ -312,6 +316,7 @@ export class MinesweeperRoom extends DurableObject<Env> {
       playerId: session.playerId,
       revealed,
       flagged,
+      percentage: percentage || 0,
     });
   }
 
@@ -512,8 +517,15 @@ export class MinesweeperRoom extends DurableObject<Env> {
     this.roomState.winnerNickname = winnerNickname;
 
     const times: Record<string, number | null> = {};
+    const results: Array<{ id: string; nickname: string; time: number | null; status: 'won' | 'lost' | 'timeout' }> = [];
     for (const player of this.players.values()) {
       times[player.id] = player.finishTime;
+      results.push({
+        id: player.id,
+        nickname: player.nickname,
+        time: player.finishTime,
+        status: player.id === winnerId ? 'won' : !player.isAlive ? 'lost' : 'timeout',
+      });
     }
 
     this.broadcast({
@@ -522,6 +534,7 @@ export class MinesweeperRoom extends DurableObject<Env> {
       winnerNickname,
       reason,
       times,
+      results,
     });
   }
 
