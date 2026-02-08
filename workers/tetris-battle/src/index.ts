@@ -187,8 +187,7 @@ async function handleCreateRoom(request: Request, env: Env, gameType: GameType =
   }
 
   try {
-    // Consume JSON body (nickname is passed via WebSocket later)
-    await request.json();
+    const body = await request.json() as { nickname?: string; difficulty?: string };
 
     const namespace = getRoomNamespace(env, gameType);
 
@@ -208,8 +207,10 @@ async function handleCreateRoom(request: Request, env: Env, gameType: GameType =
 
       // Room doesn't exist or is empty - safe to use
       if (!roomInfo.roomCode && roomInfo.playerCount === 0) {
-        // Initialize the DO with the room code
-        await room.fetch(new Request(`https://dummy/init?roomCode=${roomCode}`));
+        // Initialize the DO with the room code and settings
+        let initUrl = `https://dummy/init?roomCode=${roomCode}`;
+        if (body.difficulty) initUrl += `&difficulty=${body.difficulty}`;
+        await room.fetch(new Request(initUrl));
 
         return new Response(JSON.stringify({
           success: true,

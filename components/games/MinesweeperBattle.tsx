@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Timer, Flag, Bomb, Trophy, XCircle } from 'lucide-react';
+import { ArrowLeft, Timer, Flag, Bomb, Trophy, XCircle, Skull, Zap } from 'lucide-react';
 import { Difficulty, DIFFICULTIES, Cell } from '@/hooks/useMinesweeperGame';
 import { OpponentProgress, GameResult } from '@/hooks/useMinesweeperBattle';
 
@@ -18,10 +18,13 @@ function mulberry32(seed: number) {
 
 interface MinesweeperBattleProps {
   nickname: string;
+  opponentNickname: string;
   difficulty: Difficulty;
   seed: number;
   timeRemaining: number;
   opponentProgress: OpponentProgress;
+  opponentStatus: 'playing' | 'lost' | 'finished';
+  opponentFinishTime: number | null;
   winner: { id: string; nickname: string } | null;
   myPlayerId: string | null;
   onProgress: (revealed: number, flagged: number, totalNonMines: number) => void;
@@ -34,10 +37,13 @@ interface MinesweeperBattleProps {
 
 export function MinesweeperBattle({
   nickname,
+  opponentNickname,
   difficulty,
   seed,
   timeRemaining,
   opponentProgress,
+  opponentStatus,
+  opponentFinishTime,
   winner,
   myPlayerId,
   onProgress,
@@ -332,18 +338,18 @@ export function MinesweeperBattle({
 
           {myResult && opponentResult && (
             <div className="bg-card border border-border rounded-lg p-4">
-              <h3 className="font-medium mb-2">結果</h3>
+              <h3 className="font-medium mb-3">結果</h3>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="text-left">
-                  <div className="font-medium">{myResult.id === myPlayerId ? 'あなた' : myResult.nickname}</div>
+                  <div className="font-medium">{nickname} (あなた)</div>
                   <div className={myResult.status === 'won' ? 'text-green-500' : 'text-red-500'}>
-                    {myResult.status === 'won' ? `${myResult.time?.toFixed(1)}秒` : myResult.status === 'lost' ? '地雷を踏んだ' : 'タイムアップ'}
+                    {myResult.status === 'won' ? `${myResult.time?.toFixed(1)}秒 🏆` : myResult.status === 'lost' ? '💀 地雷を踏んだ' : '⏰ タイムアップ'}
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="font-medium text-muted-foreground">{opponentResult.nickname}</div>
                   <div className={opponentResult.status === 'won' ? 'text-green-500' : 'text-red-500'}>
-                    {opponentResult.status === 'won' ? `${opponentResult.time?.toFixed(1)}秒` : opponentResult.status === 'lost' ? '地雷を踏んだ' : 'タイムアップ'}
+                    {opponentResult.status === 'won' ? `${opponentResult.time?.toFixed(1)}秒 🏆` : opponentResult.status === 'lost' ? '💀 地雷を踏んだ' : '⏰ タイムアップ'}
                   </div>
                 </div>
               </div>
@@ -380,43 +386,91 @@ export function MinesweeperBattle({
 
         {/* Progress comparison */}
         <div className="bg-card border border-border rounded-lg p-4 space-y-3">
+          {/* 自分の進捗 */}
           <div className="flex items-center justify-between text-sm">
-            <span className="font-medium">{nickname} (あなた)</span>
-            <span className="text-primary font-bold">{myProgress}%</span>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">{nickname}</span>
+              <span className="text-xs text-muted-foreground">(あなた)</span>
+              {gameStatus === 'lost' && <Skull className="w-3.5 h-3.5 text-red-500" />}
+              {gameStatus === 'won' && <Trophy className="w-3.5 h-3.5 text-yellow-500" />}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">{revealedCount}/{totalNonMines}</span>
+              <span className="text-primary font-bold">{myProgress}%</span>
+            </div>
           </div>
           <div className="h-2 bg-muted rounded-full overflow-hidden">
             <motion.div className="h-full bg-primary" initial={{ width: 0 }} animate={{ width: `${myProgress}%` }} transition={{ duration: 0.3 }} />
           </div>
 
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>対戦相手</span>
-            <span className="font-bold">{opponentProgress.percentage}%</span>
+          <div className="border-t border-border/50 my-1" />
+
+          {/* 相手の進捗 */}
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-orange-400">{opponentNickname}</span>
+              {opponentStatus === 'lost' && (
+                <span className="flex items-center gap-1 text-xs text-red-500">
+                  <Skull className="w-3.5 h-3.5" />
+                  地雷を踏んだ
+                </span>
+              )}
+              {opponentStatus === 'finished' && (
+                <span className="flex items-center gap-1 text-xs text-yellow-500">
+                  <Zap className="w-3.5 h-3.5" />
+                  クリア{opponentFinishTime !== null ? ` (${opponentFinishTime.toFixed(1)}秒)` : ''}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {opponentStatus === 'playing' && (
+                <span className="text-xs text-muted-foreground">
+                  {opponentProgress.revealed > 0 && <><Flag className="w-3 h-3 inline" /> {opponentProgress.flagged}</>}
+                </span>
+              )}
+              <span className={`font-bold ${opponentStatus === 'lost' ? 'text-red-500 line-through' : 'text-orange-400'}`}>
+                {opponentProgress.percentage}%
+              </span>
+            </div>
           </div>
           <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <motion.div className="h-full bg-orange-500" initial={{ width: 0 }} animate={{ width: `${opponentProgress.percentage}%` }} transition={{ duration: 0.3 }} />
+            <motion.div
+              className={`h-full ${opponentStatus === 'lost' ? 'bg-red-500/50' : opponentStatus === 'finished' ? 'bg-yellow-500' : 'bg-orange-500'}`}
+              initial={{ width: 0 }}
+              animate={{ width: `${opponentProgress.percentage}%` }}
+              transition={{ duration: 0.3 }}
+            />
           </div>
         </div>
       </div>
 
       {/* Game status */}
       <AnimatePresence>
-        {gameStatus === 'lost' && (
-          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
+        {gameStatus === 'lost' && !winner && (
+          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="fixed inset-0 flex items-center justify-center bg-black/50 z-10">
             <div className="bg-card border border-border rounded-lg p-8 text-center">
               <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-red-500 mb-2">GAME OVER</h2>
               <p className="text-muted-foreground">地雷を踏んでしまいました...</p>
-              <p className="text-sm text-muted-foreground mt-2">相手の結果を待っています...</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                {opponentStatus === 'finished' ? `${opponentNickname}はクリア済み` :
+                 opponentStatus === 'lost' ? `${opponentNickname}も地雷を踏みました` :
+                 `${opponentNickname}の結果を待っています...`}
+              </p>
             </div>
           </motion.div>
         )}
-        {gameStatus === 'won' && (
-          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
+        {gameStatus === 'won' && !winner && (
+          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="fixed inset-0 flex items-center justify-center bg-black/50 z-10">
             <div className="bg-card border border-border rounded-lg p-8 text-center">
               <Trophy className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-yellow-500 mb-2">CLEAR!</h2>
               <p className="text-muted-foreground">タイム: {elapsedTime}秒</p>
-              <p className="text-sm text-muted-foreground mt-2">相手の結果を待っています...</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                {opponentStatus === 'finished' ? `${opponentNickname}もクリア済み - 判定中...` :
+                 opponentStatus === 'lost' ? '勝利確定！' :
+                 `${opponentNickname}の結果を待っています...`}
+              </p>
             </div>
           </motion.div>
         )}

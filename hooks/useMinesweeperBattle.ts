@@ -89,8 +89,8 @@ export function useMinesweeperBattle(options: UseMinesweeperBattleOptions = {}) 
           setRoomId(data.roomId);
           setRoomCode(data.roomCode || null);
           setPlayers(data.players);
-          if (data.difficulty) {
-            setDifficulty(data.difficulty);
+          if (data.settings?.difficulty) {
+            setDifficulty(data.settings.difficulty);
           }
           if (data.players.length > 0) {
             setMyPlayerId(data.players[data.players.length - 1].id);
@@ -98,17 +98,19 @@ export function useMinesweeperBattle(options: UseMinesweeperBattleOptions = {}) 
           setGameStatus('waiting');
           break;
 
-        case 'player_joined':
-          setPlayers(prev => [...prev, { id: data.id, nickname: data.nickname, isReady: false }]);
+        case 'player_joined': {
+          const p = data.player || data;
+          setPlayers(prev => [...prev, { id: p.id, nickname: p.nickname, isReady: p.isReady || false }]);
           break;
+        }
 
         case 'player_left':
-          setPlayers(prev => prev.filter(p => p.id !== data.id));
+          setPlayers(prev => prev.filter(p => p.id !== (data.playerId || data.id)));
           break;
 
         case 'player_ready':
           setPlayers(prev =>
-            prev.map(p => (p.id === data.id ? { ...p, isReady: data.isReady } : p))
+            prev.map(p => (p.id === (data.playerId || data.id) ? { ...p, isReady: data.isReady } : p))
           );
           break;
 
@@ -117,15 +119,17 @@ export function useMinesweeperBattle(options: UseMinesweeperBattleOptions = {}) 
           setGameStatus('countdown');
           break;
 
-        case 'game_start':
+        case 'game_start': {
+          const settings = data.settings || {};
           setCountdown(null);
           setGameStatus('playing');
           setGameSeed(data.seed);
-          setDifficulty(data.difficulty);
-          setTimeRemaining(data.timeLimit || 300);
+          setDifficulty(settings.difficulty || data.difficulty || 'intermediate');
+          setTimeRemaining(settings.timeLimit || data.timeLimit || 300);
           setOpponentProgress({ revealed: 0, flagged: 0, percentage: 0 });
-          optionsRef.current.onGameStart?.(data.seed, data.difficulty);
+          optionsRef.current.onGameStart?.(data.seed, settings.difficulty || data.difficulty || 'intermediate');
           break;
+        }
 
         case 'time_update':
           setTimeRemaining(data.remaining);
@@ -136,7 +140,7 @@ export function useMinesweeperBattle(options: UseMinesweeperBattleOptions = {}) 
           const progress: OpponentProgress = {
             revealed: data.revealed,
             flagged: data.flagged,
-            percentage: data.percentage,
+            percentage: data.percentage || 0,
           };
           setOpponentProgress(progress);
           optionsRef.current.onOpponentProgress?.(progress);
