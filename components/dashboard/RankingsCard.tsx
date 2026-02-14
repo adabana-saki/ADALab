@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Trophy, Medal, Award, Target } from 'lucide-react';
+import { Trophy, Medal, Award, Target, Bomb } from 'lucide-react';
 
 interface RankingsCardProps {
   rankings: Record<string, number | null>;
@@ -12,6 +12,7 @@ const gameInfo = [
   { key: '2048', name: '2048', icon: <Target size={16} className="text-orange-500" /> },
   { key: 'snake', name: 'Snake', icon: <Medal size={16} className="text-green-500" /> },
   { key: 'typing', name: 'Typing', icon: <Award size={16} className="text-blue-500" /> },
+  { key: 'minesweeper', name: 'Minesweeper', icon: <Bomb size={16} className="text-red-500" /> },
 ];
 
 export function RankingsCard({ rankings }: RankingsCardProps) {

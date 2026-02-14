@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Award, Gamepad2, Target, TrendingUp, Medal, ChevronDown, Lock, HelpCircle } from 'lucide-react';
+import { Award, Gamepad2, Target, TrendingUp, Medal, Bomb, ChevronDown, Lock, HelpCircle } from 'lucide-react';
 import { GAME_ACHIEVEMENTS, GAME_RARITY_STYLES, type GameAchievement } from '@/lib/game-achievements';
 import { GAME_2048_ACHIEVEMENTS } from '@/lib/game-2048-achievements';
 import { SNAKE_ACHIEVEMENTS } from '@/lib/snake-achievements';
 import { TYPING_ACHIEVEMENTS } from '@/lib/typing-achievements';
+import { MINESWEEPER_ACHIEVEMENTS } from '@/lib/minesweeper-achievements';
 
 interface UnlockedAchievement {
   id: string;
@@ -60,6 +61,14 @@ const gameInfo: GameAchievementInfo[] = [
     color: 'bg-blue-500',
     bgColor: 'bg-blue-500/10',
     achievements: TYPING_ACHIEVEMENTS,
+  },
+  {
+    key: 'minesweeper',
+    name: 'Minesweeper',
+    icon: <Bomb size={18} />,
+    color: 'bg-red-500',
+    bgColor: 'bg-red-500/10',
+    achievements: MINESWEEPER_ACHIEVEMENTS,
   },
 ];
 

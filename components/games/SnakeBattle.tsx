@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Timer, Skull, Swords } from 'lucide-react';
+import { ArrowLeft, Timer, Skull, Swords, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { BattlePlayerState, GameSettings, GameResult, Position, Direction, PlayerDiedInfo } from '@/hooks/useSnakeBattle';
 
 interface SnakeBattleProps {
@@ -32,17 +32,39 @@ const getDeathReasonText = (killedBy: string): string => {
   }
 };
 
+// hex値から色名へのマッピング
+const hexToColorName: Record<string, string> = {
+  '#22c55e': 'green',
+  '#f97316': 'orange',
+  '#3b82f6': 'blue',
+  '#a855f7': 'purple',
+  '#ec4899': 'pink',
+  '#06b6d4': 'cyan',
+};
+
 // 色名からCSSクラスへのマッピング
+const colorStyles: Record<string, { head: string; body: string; bg: string; border: string; text: string }> = {
+  green:  { head: 'bg-green-500',  body: 'bg-green-400',  bg: 'bg-green-500/10',  border: 'border-green-500/20',  text: 'text-green-500' },
+  orange: { head: 'bg-orange-500', body: 'bg-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20', text: 'text-orange-500' },
+  blue:   { head: 'bg-blue-500',   body: 'bg-blue-400',   bg: 'bg-blue-500/10',   border: 'border-blue-500/20',   text: 'text-blue-500' },
+  purple: { head: 'bg-purple-500', body: 'bg-purple-400', bg: 'bg-purple-500/10', border: 'border-purple-500/20', text: 'text-purple-500' },
+  pink:   { head: 'bg-pink-500',   body: 'bg-pink-400',   bg: 'bg-pink-500/10',   border: 'border-pink-500/20',   text: 'text-pink-500' },
+  cyan:   { head: 'bg-cyan-500',   body: 'bg-cyan-400',   bg: 'bg-cyan-500/10',   border: 'border-cyan-500/20',   text: 'text-cyan-500' },
+};
+
+const resolveColor = (color: string): string => {
+  return hexToColorName[color] || color;
+};
+
 const getColorClass = (color: string, isHead: boolean): string => {
-  const colors: Record<string, { head: string; body: string }> = {
-    green: { head: 'bg-green-500', body: 'bg-green-400' },
-    blue: { head: 'bg-blue-500', body: 'bg-blue-400' },
-    red: { head: 'bg-red-500', body: 'bg-red-400' },
-    purple: { head: 'bg-purple-500', body: 'bg-purple-400' },
-    orange: { head: 'bg-orange-500', body: 'bg-orange-400' },
-  };
-  const colorSet = colors[color] || colors.green;
+  const name = resolveColor(color);
+  const colorSet = colorStyles[name] || colorStyles.green;
   return isHead ? colorSet.head : colorSet.body;
+};
+
+const getColorStyle = (color: string): { bg: string; border: string; text: string } => {
+  const name = resolveColor(color);
+  return colorStyles[name] || colorStyles.green;
 };
 
 export function SnakeBattle({
@@ -159,6 +181,17 @@ export function SnakeBattle({
     touchStartRef.current = null;
   }, [currentDirection, onDirectionChange]);
 
+  // モバイル方向ボタン
+  const handleDirectionButton = useCallback((direction: Direction) => {
+    const opposites: Record<Direction, Direction> = {
+      up: 'down', down: 'up', left: 'right', right: 'left',
+    };
+    if (opposites[direction] !== currentDirection) {
+      setCurrentDirection(direction);
+      onDirectionChange(direction);
+    }
+  }, [currentDirection, onDirectionChange]);
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -261,9 +294,10 @@ export function SnakeBattle({
 
       {/* スコア比較 */}
       <div className="grid grid-cols-2 gap-4 mb-4">
-        <div className={`border rounded-lg p-3 text-center ${myPlayer?.color === 'green' ? 'bg-green-500/10 border-green-500/20' : 'bg-blue-500/10 border-blue-500/20'}`}>
+        {(() => { const myStyle = getColorStyle(myPlayer?.color || '#22c55e'); return (
+        <div className={`border rounded-lg p-3 text-center ${myStyle.bg} ${myStyle.border}`}>
           <p className="text-xs text-muted-foreground mb-1">{nickname} (あなた)</p>
-          <p className={`text-2xl font-bold ${myPlayer?.color === 'green' ? 'text-green-500' : 'text-blue-500'}`}>
+          <p className={`text-2xl font-bold ${myStyle.text}`}>
             {myPlayer?.score ?? 0}
           </p>
           <p className="text-xs text-muted-foreground">
@@ -271,11 +305,13 @@ export function SnakeBattle({
             {myPlayer && !myPlayer.isAlive && <span className="ml-2 text-red-500">(終了)</span>}
           </p>
         </div>
-        <div className={`border rounded-lg p-3 text-center ${opponentPlayer?.color === 'green' ? 'bg-green-500/10 border-green-500/20' : 'bg-blue-500/10 border-blue-500/20'}`}>
+        ); })()}
+        {(() => { const opStyle = getColorStyle(opponentPlayer?.color || '#f97316'); return (
+        <div className={`border rounded-lg p-3 text-center ${opStyle.bg} ${opStyle.border}`}>
           <p className="text-xs text-muted-foreground mb-1">
             {opponentPlayer?.nickname || '対戦相手'}
           </p>
-          <p className={`text-2xl font-bold ${opponentPlayer?.color === 'green' ? 'text-green-500' : 'text-blue-500'}`}>
+          <p className={`text-2xl font-bold ${opStyle.text}`}>
             {opponentPlayer?.score ?? '---'}
           </p>
           <p className="text-xs text-muted-foreground">
@@ -283,6 +319,7 @@ export function SnakeBattle({
             {opponentPlayer && !opponentPlayer.isAlive && <span className="ml-2 text-red-500">(終了)</span>}
           </p>
         </div>
+        ); })()}
       </div>
 
       {/* 死亡通知 */}
@@ -386,9 +423,39 @@ export function SnakeBattle({
         </div>
       </div>
 
-      {/* 操作ヒント */}
-      <div className="text-center text-xs text-muted-foreground mt-4">
-        矢印キー / WASD / スワイプで操作
+      {/* 方向ボタン（モバイル用） */}
+      <div className="flex flex-col items-center gap-2 sm:hidden mt-4">
+        <button
+          onTouchStart={(e) => { e.preventDefault(); handleDirectionButton('up'); }}
+          className="w-14 h-14 rounded-xl bg-muted/80 border border-border flex items-center justify-center active:bg-primary/20 active:scale-95 transition-all"
+        >
+          <ChevronUp className="w-7 h-7" />
+        </button>
+        <div className="flex gap-12">
+          <button
+            onTouchStart={(e) => { e.preventDefault(); handleDirectionButton('left'); }}
+            className="w-14 h-14 rounded-xl bg-muted/80 border border-border flex items-center justify-center active:bg-primary/20 active:scale-95 transition-all"
+          >
+            <ChevronLeft className="w-7 h-7" />
+          </button>
+          <button
+            onTouchStart={(e) => { e.preventDefault(); handleDirectionButton('right'); }}
+            className="w-14 h-14 rounded-xl bg-muted/80 border border-border flex items-center justify-center active:bg-primary/20 active:scale-95 transition-all"
+          >
+            <ChevronRight className="w-7 h-7" />
+          </button>
+        </div>
+        <button
+          onTouchStart={(e) => { e.preventDefault(); handleDirectionButton('down'); }}
+          className="w-14 h-14 rounded-xl bg-muted/80 border border-border flex items-center justify-center active:bg-primary/20 active:scale-95 transition-all"
+        >
+          <ChevronDown className="w-7 h-7" />
+        </button>
+      </div>
+
+      {/* 操作ヒント（PC用） */}
+      <div className="text-center text-xs text-muted-foreground mt-4 hidden sm:block">
+        矢印キー / WASD で操作
       </div>
     </div>
   );
