@@ -9,6 +9,7 @@ import {
   TrendingUp,
   Medal,
   Target,
+  Bomb,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProfileCard } from '@/components/dashboard/ProfileCard';
@@ -180,6 +181,13 @@ export default function DashboardPage() {
                 icon={<Medal size={20} />}
                 stats={data?.gameStats?.typing}
                 achievementCount={data?.achievementCounts?.typing || 0}
+              />
+              <GameStatsCard
+                game="minesweeper"
+                title="Minesweeper"
+                icon={<Bomb size={20} />}
+                stats={data?.gameStats?.minesweeper}
+                achievementCount={data?.achievementCounts?.minesweeper || 0}
               />
             </div>
 

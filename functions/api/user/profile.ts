@@ -134,6 +134,43 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       .first();
     rankings['2048'] = game2048Rank?.rank as number | null;
 
+    // Snake ranking
+    const snakeRank = await env.DB.prepare(
+      `SELECT COUNT(*) + 1 as rank
+       FROM snake_leaderboard t1
+       WHERE t1.score > (
+         SELECT COALESCE(MAX(score), 0) FROM snake_leaderboard WHERE user_id = ?
+       )`
+    )
+      .bind(user.id)
+      .first();
+    rankings.snake = snakeRank?.rank as number | null;
+
+    // Typing ranking (by WPM)
+    const typingRank = await env.DB.prepare(
+      `SELECT COUNT(*) + 1 as rank
+       FROM typing_leaderboard t1
+       WHERE t1.wpm > (
+         SELECT COALESCE(MAX(wpm), 0) FROM typing_leaderboard WHERE user_id = ?
+       )`
+    )
+      .bind(user.id)
+      .first();
+    rankings.typing = typingRank?.rank as number | null;
+
+    // Minesweeper ranking (by best time - lower is better, using expert difficulty)
+    const minesweeperRank = await env.DB.prepare(
+      `SELECT COUNT(*) + 1 as rank
+       FROM minesweeper_leaderboard t1
+       WHERE t1.difficulty = 'expert'
+         AND t1.time_seconds < (
+           SELECT COALESCE(MIN(time_seconds), 999999) FROM minesweeper_leaderboard WHERE user_id = ? AND difficulty = 'expert'
+         )`
+    )
+      .bind(user.id)
+      .first();
+    rankings.minesweeper = minesweeperRank?.rank as number | null;
+
     return new Response(
       JSON.stringify({
         user: {

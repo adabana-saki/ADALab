@@ -109,6 +109,27 @@ export function GameStatsCard({
             </div>
           </div>
         );
+      case 'minesweeper':
+        return (
+          <div className="space-y-1 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">クリア数</span>
+              <span className="font-medium">{Number(gameStats.totalClears) || 0}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">ベストタイム(上級)</span>
+              <span className="font-medium">
+                {gameStats.bestTimesExpert && Number(gameStats.bestTimesExpert) < 999999
+                  ? `${Number(gameStats.bestTimesExpert).toFixed(1)}秒`
+                  : '-'}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">プレイ回数</span>
+              <span className="font-medium">{Number(gameStats.totalGames) || 0}</span>
+            </div>
+          </div>
+        );
       default:
         return null;
     }
