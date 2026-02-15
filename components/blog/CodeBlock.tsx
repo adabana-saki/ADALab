@@ -125,14 +125,17 @@ export function CodeBlock({
   const [highlightedCode, setHighlightedCode] = useState<string>('');
   const codeRef = useRef<HTMLDivElement>(null);
 
-  // Shikiでハイライト
+  // Shikiでハイライト（テーマ対応）
   useEffect(() => {
     const highlight = async () => {
       try {
         const { codeToHtml } = await import('shiki');
+        // ダークモードとライトモードの両方をサポート
+        const isDarkMode = document.documentElement.classList.contains('dark') ||
+                          !document.documentElement.classList.contains('light');
         let html = await codeToHtml(code, {
           lang: language === 'plaintext' ? 'text' : language,
-          theme: 'github-dark-dimmed',
+          theme: isDarkMode ? 'github-dark-dimmed' : 'github-light',
         });
         // Shikiの出力から行間の改行を削除（display: blockとの重複を防ぐ）
         html = html.replace(/<\/span>\n<span class="line">/g, '</span><span class="line">');
@@ -143,6 +146,18 @@ export function CodeBlock({
       }
     };
     highlight();
+
+    // テーマ変更を監視
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.attributeName === 'class') {
+          highlight();
+          break;
+        }
+      }
+    });
+    observer.observe(document.documentElement, { attributes: true });
+    return () => observer.disconnect();
   }, [code, language]);
 
   const handleCopy = useCallback(async () => {
@@ -160,9 +175,9 @@ export function CodeBlock({
   const isDiff = language === 'diff';
 
   return (
-    <div className="group relative my-6 rounded-xl overflow-hidden border border-border/50 bg-[#22272e]">
+    <div className="group relative my-6 rounded-xl overflow-hidden border border-border/50 bg-muted dark:bg-[#22272e]">
       {/* ヘッダー */}
-      <div className="flex items-center justify-between px-4 py-2 bg-[#2d333b] border-b border-border/30">
+      <div className="flex items-center justify-between px-4 py-2 bg-muted/80 dark:bg-[#2d333b] border-b border-border/30">
         <div className="flex items-center gap-3">
           {/* 言語バッジ */}
           <div className="flex items-center gap-2">
@@ -205,7 +220,7 @@ export function CodeBlock({
       {/* コード本体 */}
       <div className="relative overflow-x-auto">
         {showLineNumbers && (
-          <div className="absolute left-0 top-0 bottom-0 w-12 bg-[#1c2128] border-r border-border/20 pointer-events-none">
+          <div className="absolute left-0 top-0 bottom-0 w-12 bg-muted/50 dark:bg-[#1c2128] border-r border-border/20 pointer-events-none">
             <div className="py-4 text-right pr-3">
               {code.split('\n').map((_, i) => (
                 <div

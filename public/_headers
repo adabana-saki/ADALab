@@ -4,9 +4,8 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), accelerometer=(), gyroscope=(), magnetometer=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' static.cloudflareinsights.com *.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: *.githubusercontent.com ghchart.rshah.org wakatime.com *.google-analytics.com *.analytics.google.com *.googletagmanager.com qiita.com; font-src 'self' data:; connect-src 'self' cloudflareinsights.com static.cloudflareinsights.com *.google-analytics.com *.analytics.google.com *.googletagmanager.com *.ingest.sentry.io *.ingest.us.sentry.io api.github.com qiita.com *.workers.dev wss://*.workers.dev api.emailjs.com; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
-  Cross-Origin-Embedder-Policy: credentialless
-  Cross-Origin-Opener-Policy: same-origin
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' static.cloudflareinsights.com *.googletagmanager.com apis.google.com *.firebaseapp.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: *.githubusercontent.com ghchart.rshah.org wakatime.com *.google-analytics.com *.analytics.google.com *.googletagmanager.com qiita.com *.googleusercontent.com; font-src 'self' data:; connect-src 'self' cloudflareinsights.com static.cloudflareinsights.com *.google-analytics.com *.analytics.google.com *.googletagmanager.com *.ingest.sentry.io *.ingest.us.sentry.io api.github.com qiita.com *.workers.dev wss://*.workers.dev api.emailjs.com *.firebaseapp.com *.googleapis.com identitytoolkit.googleapis.com securetoken.googleapis.com *.firebaseio.com; frame-src 'self' *.firebaseapp.com accounts.google.com; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
   Cross-Origin-Resource-Policy: same-origin
 
 /_next/static/*

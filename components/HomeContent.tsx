@@ -11,10 +11,14 @@ import { KeyboardShortcutsHelper } from '@/components/KeyboardShortcutsHelper';
 import { Hero } from '@/components/sections/Hero';
 import { About } from '@/components/sections/About';
 import { Technologies } from '@/components/sections/Technologies';
+import { GamesHighlight } from '@/components/sections/GamesHighlight';
 import { Projects } from '@/components/sections/Projects';
 import { News } from '@/components/sections/News';
 import { FAQ } from '@/components/sections/FAQ';
-import { Contact } from '@/components/sections/Contact';
+const Contact = dynamic(
+  () => import('@/components/sections/Contact').then(mod => ({ default: mod.Contact })),
+  { ssr: false }
+);
 import { LatestBlog } from '@/components/sections/LatestBlog';
 import { scrollToSection, scrollToTop } from '@/hooks/useKeyboardShortcuts';
 import type { BlogMeta } from '@/lib/blog';
@@ -85,6 +89,10 @@ export function HomeContent({ latestPosts }: HomeContentProps) {
           e.preventDefault();
           scrollToSection('projects');
           break;
+        case 'g':
+          e.preventDefault();
+          scrollToSection('games');
+          break;
         case 'b':
           e.preventDefault();
           scrollToSection('blog');
@@ -141,6 +149,7 @@ export function HomeContent({ latestPosts }: HomeContentProps) {
         <Hero />
         <About />
         <Technologies />
+        <GamesHighlight />
         <Projects />
         <LatestBlog posts={latestPosts} />
         <News />

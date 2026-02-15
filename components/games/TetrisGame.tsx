@@ -1,7 +1,9 @@
 'use client';
 
 import { useRef, useEffect, useState, useCallback } from 'react';
-import { useTetrisLeaderboard } from '@/hooks/useTetrisLeaderboard';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useTetrisLeaderboard, LEADERBOARD_PERIOD_LABELS, type LeaderboardPeriod } from '@/hooks/useTetrisLeaderboard';
+import { useGameAchievements } from '@/hooks/useGameAchievements';
 import {
   RotateCw,
   ArrowLeft,
@@ -26,7 +28,16 @@ import {
   Timer,
   Infinity,
   Settings,
+  Award,
+  BarChart3,
+  Calendar,
 } from 'lucide-react';
+import { AchievementToast } from './AchievementToast';
+import { AchievementPanel } from './AchievementPanel';
+import { StatsPanel } from './StatsPanel';
+import { ShareButton } from './ShareButton';
+import { useAuth } from '@/contexts/AuthContext';
+import { AuthModal } from '@/components/auth/AuthModal';
 
 // ゲーム設定
 const FIELD_COL = 10;
@@ -49,8 +60,43 @@ const MAX_LOCK_MOVES = 15; // 最大移動回数
 const PERFECT_CLEAR_BONUS = 3000;
 
 // ゲームモード
-type GameMode = 'endless' | 'sprint';
+type GameMode = 'endless' | 'sprint' | 'timeAttack';
 const SPRINT_LINES = 40;
+const TIME_ATTACK_DURATION = 120; // 2分（秒）
+
+// キーバインド設定
+interface KeyBindings {
+  moveLeft: string[];
+  moveRight: string[];
+  softDrop: string[];
+  hardDrop: string[];
+  rotateClockwise: string[];
+  rotateCounterClockwise: string[];
+  hold: string[];
+  pause: string[];
+}
+
+const DEFAULT_KEY_BINDINGS: KeyBindings = {
+  moveLeft: ['ArrowLeft'],
+  moveRight: ['ArrowRight'],
+  softDrop: ['ArrowDown'],
+  hardDrop: ['Space'],
+  rotateClockwise: ['ArrowUp', 'KeyX'],
+  rotateCounterClockwise: ['KeyZ'],
+  hold: ['KeyC', 'ShiftLeft', 'ShiftRight'],
+  pause: ['KeyP', 'Escape'],
+};
+
+const KEY_BINDING_LABELS: Record<keyof KeyBindings, string> = {
+  moveLeft: '左移動',
+  moveRight: '右移動',
+  softDrop: 'ソフトドロップ',
+  hardDrop: 'ハードドロップ',
+  rotateClockwise: '右回転',
+  rotateCounterClockwise: '左回転',
+  hold: 'ホールド',
+  pause: 'ポーズ',
+};
 
 // レベルごとの落下速度（ミリ秒）
 const LEVEL_SPEEDS = [800, 720, 640, 560, 480, 400, 320, 240, 160, 100, 80, 60, 50, 40, 30];
@@ -129,6 +175,7 @@ interface LineClearAnimation {
 class SoundEngine {
   private audioContext: AudioContext | null = null;
   private enabled: boolean = true;
+  private seVolume: number = 0.5;
   private bgmEnabled: boolean = true;
   private bgmPlaying: boolean = false;
   private bgmTrack: BgmTrack = 'none';
@@ -143,6 +190,14 @@ class SoundEngine {
 
   setEnabled(enabled: boolean) {
     this.enabled = enabled;
+  }
+
+  setSeVolume(volume: number) {
+    this.seVolume = Math.max(0, Math.min(1, volume));
+  }
+
+  getSeVolume() {
+    return this.seVolume;
   }
 
   setBgmEnabled(enabled: boolean) {
@@ -187,7 +242,9 @@ class SoundEngine {
 
     oscillator.frequency.value = frequency;
     oscillator.type = type;
-    gainNode.gain.setValueAtTime(volume, this.audioContext.currentTime);
+    // 効果音音量を適用
+    const actualVolume = volume * this.seVolume;
+    gainNode.gain.setValueAtTime(actualVolume, this.audioContext.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
 
     oscillator.start();
@@ -294,16 +351,20 @@ export function TetrisGame() {
   const [holdPiece, setHoldPiece] = useState<number | null>(null);
   const [canHold, setCanHold] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [seVolume, setSeVolume] = useState(0.5);
   const [bgmEnabled, setBgmEnabled] = useState(false);
   const [bgmTrack, setBgmTrack] = useState<BgmTrack>('none');
   const [bgmVolume, setBgmVolume] = useState(0.5);
   const [lastAction, setLastAction] = useState<string>('');
   const [timeBonus, setTimeBonus] = useState(0);
   const [showNicknameInput, setShowNicknameInput] = useState(false);
-  const [nickname, setNickname] = useState('');
   const [pendingScore, setPendingScore] = useState<{ score: number; lines: number; level: number; time: number } | null>(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // 認証状態
+  const { user, profile } = useAuth();
 
   // 新機能の状態
   const [ghostEnabled, setGhostEnabled] = useState(true);
@@ -311,6 +372,8 @@ export function TetrisGame() {
   const [showModeSelect, setShowModeSelect] = useState(false);
   const [theme, setTheme] = useState<ThemeType>('classic');
   const [showSettings, setShowSettings] = useState(false);
+  const [keyBindings, setKeyBindings] = useState<KeyBindings>(DEFAULT_KEY_BINDINGS);
+  const [editingKey, setEditingKey] = useState<keyof KeyBindings | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [lineClearAnim, setLineClearAnim] = useState<LineClearAnimation | null>(null);
   const [gameComplete, setGameComplete] = useState(false);
@@ -318,11 +381,29 @@ export function TetrisGame() {
   // グローバルリーダーボード（D1 API）
   const {
     leaderboard,
+    period: leaderboardPeriod,
+    setPeriod: setLeaderboardPeriod,
     isLoading: _leaderboardLoading,
     error: _leaderboardError,
     submitScore,
     isRankingScore,
   } = useTetrisLeaderboard({ mode: gameMode });
+
+  // ゲーム実績・統計システム
+  const {
+    achievements: userAchievements,
+    stats: gameStats,
+    recentUnlocks,
+    checkAchievements,
+    updateStats,
+    clearRecentUnlocks,
+    getProgress,
+    getAllAchievements,
+  } = useGameAchievements();
+
+  // 実績・統計パネル表示状態
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [showStatsPanel, setShowStatsPanel] = useState(false);
 
   // タッチ操作用
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
@@ -366,14 +447,21 @@ export function TetrisGame() {
 
     // Leaderboard is now managed by useTetrisLeaderboard hook (D1 API)
 
-    const savedNickname = localStorage.getItem('tetris-nickname');
-    if (savedNickname) setNickname(savedNickname);
-
     const savedTheme = localStorage.getItem('tetris-theme') as ThemeType;
     if (savedTheme && THEMES[savedTheme]) setTheme(savedTheme);
 
     const savedGhost = localStorage.getItem('tetris-ghost');
     if (savedGhost !== null) setGhostEnabled(savedGhost === 'true');
+
+    const savedKeyBindings = localStorage.getItem('tetris-keybindings');
+    if (savedKeyBindings) {
+      try {
+        const parsed = JSON.parse(savedKeyBindings) as KeyBindings;
+        setKeyBindings(parsed);
+      } catch {
+        // 無効なデータの場合はデフォルトを使用
+      }
+    }
 
     const savedBgmTrack = localStorage.getItem('tetris-bgm-track') as BgmTrack;
     if (savedBgmTrack && BGM_TRACKS.some(t => t.id === savedBgmTrack)) {
@@ -393,15 +481,27 @@ export function TetrisGame() {
       }
     }
 
+    const savedSeVolume = localStorage.getItem('tetris-se-volume');
+    if (savedSeVolume !== null) {
+      const vol = parseFloat(savedSeVolume);
+      if (!isNaN(vol)) {
+        setSeVolume(vol);
+        soundEngine.setSeVolume(vol);
+      }
+    }
+
     soundEngine.init();
   }, []);
 
   // リーダーボード送信（D1 API経由）
-  const submitNickname = useCallback(async () => {
-    if (!pendingScore || !nickname.trim() || isSubmitting) return;
+  // ログインユーザーのニックネームを取得
+  const userNickname = profile?.displayName || profile?.email?.split('@')[0] || 'ゲスト';
+
+  const submitToLeaderboard = useCallback(async () => {
+    if (!pendingScore || !user || !profile || isSubmitting) return;
     setIsSubmitting(true);
     const entry = {
-      nickname: nickname.trim().slice(0, 12),
+      nickname: userNickname.slice(0, 20),
       score: pendingScore.score,
       lines: pendingScore.lines,
       level: pendingScore.level,
@@ -411,19 +511,30 @@ export function TetrisGame() {
     };
     try {
       await submitScore(entry);
-      localStorage.setItem('tetris-nickname', nickname.trim().slice(0, 12));
       setShowNicknameInput(false);
       setPendingScore(null);
       setShowLeaderboard(true);
     } finally {
       setIsSubmitting(false);
     }
-  }, [pendingScore, nickname, submitScore, isSubmitting]);
+  }, [pendingScore, user, profile, userNickname, submitScore, isSubmitting]);
+
+  // ログイン後にpendingScoreがあればモーダルを再表示
+  useEffect(() => {
+    if (user && profile && pendingScore && !showNicknameInput) {
+      setShowNicknameInput(true);
+    }
+  }, [user, profile, pendingScore, showNicknameInput]);
 
   // サウンド設定
   useEffect(() => {
     soundEngine.setEnabled(soundEnabled);
   }, [soundEnabled]);
+
+  useEffect(() => {
+    soundEngine.setSeVolume(seVolume);
+    localStorage.setItem('tetris-se-volume', seVolume.toString());
+  }, [seVolume]);
 
   useEffect(() => {
     soundEngine.setBgmEnabled(bgmEnabled);
@@ -466,6 +577,11 @@ export function TetrisGame() {
   useEffect(() => {
     localStorage.setItem('tetris-ghost', ghostEnabled.toString());
   }, [ghostEnabled]);
+
+  // キーバインド保存
+  useEffect(() => {
+    localStorage.setItem('tetris-keybindings', JSON.stringify(keyBindings));
+  }, [keyBindings]);
 
   // フィールド初期化
   const initField = useCallback(() => {
@@ -731,17 +847,43 @@ export function TetrisGame() {
     soundEngine.gameOver();
     soundEngine.stopBgm();
 
-    const finalScore = gameState.current.stats.score;
+    const finalStats = gameState.current.stats;
+
+    // ゲーム統計を更新
+    updateStats({
+      totalGames: gameStats.totalGames + 1,
+      totalLines: gameStats.totalLines + finalStats.lines,
+      totalScore: gameStats.totalScore + finalStats.score,
+      totalTetris: gameStats.totalTetris + finalStats.tetrises,
+      totalTSpins: gameStats.totalTSpins + finalStats.tSpins,
+      totalCombo: gameStats.totalCombo + finalStats.combo,
+      maxCombo: Math.max(gameStats.maxCombo, finalStats.combo),
+      highScore: Math.max(gameStats.highScore, finalStats.score),
+      totalPlayTime: gameStats.totalPlayTime + finalStats.playTime,
+    });
+
+    // 実績チェック
+    checkAchievements({
+      totalGames: gameStats.totalGames + 1,
+      totalLines: gameStats.totalLines + finalStats.lines,
+      highScore: Math.max(gameStats.highScore, finalStats.score),
+      maxCombo: Math.max(gameStats.maxCombo, finalStats.combo),
+      totalTetris: gameStats.totalTetris + finalStats.tetrises,
+      totalTSpins: gameStats.totalTSpins + finalStats.tSpins,
+      totalPlayTime: gameStats.totalPlayTime + finalStats.playTime,
+    });
+
+    const finalScore = finalStats.score;
     if (isRankingScore(finalScore)) {
       setPendingScore({
         score: finalScore,
-        lines: gameState.current.stats.lines,
-        level: gameState.current.stats.level,
-        time: gameState.current.stats.playTime,
+        lines: finalStats.lines,
+        level: finalStats.level,
+        time: finalStats.playTime,
       });
       setShowNicknameInput(true);
     }
-  }, [isRankingScore]);
+  }, [isRankingScore, updateStats, checkAchievements, gameStats]);
 
   const hardDrop = useCallback(() => {
     const ghostY = getGhostY();
@@ -986,7 +1128,8 @@ export function TetrisGame() {
       return;
     }
 
-    if (e.code === 'KeyP' || e.code === 'Escape') {
+    // ポーズ判定（カスタムキーバインド使用）
+    if (keyBindings.pause.includes(e.code)) {
       gameState.current.isPaused = !gameState.current.isPaused;
       setIsPaused(gameState.current.isPaused);
       return;
@@ -1003,53 +1146,43 @@ export function TetrisGame() {
       }
     };
 
-    switch (e.code) {
-      case 'ArrowLeft':
-        if (!checkCollision(-1, 0)) {
-          gameState.current.tetroX--;
-          gameState.current.lastRotation = false;
-          resetLockTimer();
-          soundEngine.move();
-        }
-        break;
-      case 'ArrowRight':
-        if (!checkCollision(1, 0)) {
-          gameState.current.tetroX++;
-          gameState.current.lastRotation = false;
-          resetLockTimer();
-          soundEngine.move();
-        }
-        break;
-      case 'ArrowDown':
-        if (!checkCollision(0, 1)) {
-          gameState.current.tetroY++;
-          gameState.current.stats.score += 1;
-          gameState.current.lastRotation = false;
-          setStats({ ...gameState.current.stats });
-        }
-        break;
-      case 'ArrowUp':
-      case 'KeyX':
-        tryRotate();
-        break;
-      case 'Space':
-        hardDrop();
-        break;
-      case 'KeyC':
-      case 'ShiftLeft':
-      case 'ShiftRight':
-        holdTetro();
-        break;
-      case 'KeyZ':
-        tryRotate(); tryRotate(); tryRotate();
-        break;
-      case 'KeyG':
-        setGhostEnabled(g => !g);
-        break;
+    // カスタムキーバインドでアクション判定
+    if (keyBindings.moveLeft.includes(e.code)) {
+      if (!checkCollision(-1, 0)) {
+        gameState.current.tetroX--;
+        gameState.current.lastRotation = false;
+        resetLockTimer();
+        soundEngine.move();
+      }
+    } else if (keyBindings.moveRight.includes(e.code)) {
+      if (!checkCollision(1, 0)) {
+        gameState.current.tetroX++;
+        gameState.current.lastRotation = false;
+        resetLockTimer();
+        soundEngine.move();
+      }
+    } else if (keyBindings.softDrop.includes(e.code)) {
+      if (!checkCollision(0, 1)) {
+        gameState.current.tetroY++;
+        gameState.current.stats.score += 1;
+        gameState.current.lastRotation = false;
+        setStats({ ...gameState.current.stats });
+      }
+    } else if (keyBindings.rotateClockwise.includes(e.code)) {
+      tryRotate();
+    } else if (keyBindings.rotateCounterClockwise.includes(e.code)) {
+      tryRotate(); tryRotate(); tryRotate();
+    } else if (keyBindings.hardDrop.includes(e.code)) {
+      hardDrop();
+    } else if (keyBindings.hold.includes(e.code)) {
+      holdTetro();
+    } else if (e.code === 'KeyG') {
+      // ゴースト切り替えは固定キー
+      setGhostEnabled(g => !g);
     }
     draw();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isStarted, checkCollision, tryRotate, hardDrop, holdTetro, draw, countdown]);
+  }, [isStarted, checkCollision, tryRotate, hardDrop, holdTetro, draw, countdown, keyBindings]);
 
   // ゲーム開始（カウントダウン付き）
   const startGameWithCountdown = useCallback((mode: GameMode) => {
@@ -1134,6 +1267,32 @@ export function TetrisGame() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
+  // キーバインド設定用リスナー
+  useEffect(() => {
+    if (!editingKey) return;
+
+    const handleKeyBindingInput = (e: KeyboardEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Escapeでキャンセル
+      if (e.code === 'Escape') {
+        setEditingKey(null);
+        return;
+      }
+
+      // 新しいキーバインドを設定
+      setKeyBindings(prev => ({
+        ...prev,
+        [editingKey]: [e.code],
+      }));
+      setEditingKey(null);
+    };
+
+    window.addEventListener('keydown', handleKeyBindingInput);
+    return () => window.removeEventListener('keydown', handleKeyBindingInput);
+  }, [editingKey]);
+
   // ゲームループ
   useEffect(() => {
     if (!isStarted || gameOver || isPaused || countdown !== null) return;
@@ -1142,7 +1301,7 @@ export function TetrisGame() {
     return () => clearInterval(interval);
   }, [isStarted, gameOver, isPaused, stats.level, timeBonus, drop, getCurrentSpeed, countdown]);
 
-  // 時間加速
+  // 時間加速 & タイムアタック判定
   useEffect(() => {
     if (!isStarted || gameOver || isPaused || countdown !== null) return;
     const timer = setInterval(() => {
@@ -1154,6 +1313,17 @@ export function TetrisGame() {
       }
       gameState.current.stats.playTime = Math.floor(elapsed / 1000);
       setStats({ ...gameState.current.stats });
+
+      // タイムアタックモード終了判定
+      if (gameState.current.mode === 'timeAttack') {
+        const elapsedSeconds = Math.floor(elapsed / 1000);
+        if (elapsedSeconds >= TIME_ATTACK_DURATION) {
+          gameState.current.gameOver = true;
+          setGameOver(true);
+          setGameComplete(true);
+          soundEngine.stopBgm();
+        }
+      }
     }, 1000);
     return () => clearInterval(timer);
   }, [isStarted, gameOver, isPaused, countdown]);
@@ -1255,6 +1425,7 @@ export function TetrisGame() {
     const labels: Record<GameMode, string> = {
       endless: 'エンドレス',
       sprint: `スプリント (${SPRINT_LINES}ライン)`,
+      timeAttack: `タイムアタック (${TIME_ATTACK_DURATION / 60}分)`,
     };
     return labels[mode];
   };
@@ -1279,10 +1450,26 @@ export function TetrisGame() {
 
         <div className="bg-card border border-border rounded-lg p-3">
           <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1">
-            <Clock size={12} />Time
+            <Clock size={12} />{gameMode === 'timeAttack' ? '残り時間' : 'Time'}
           </div>
-          <div className="text-lg font-mono text-foreground">{formatTime(stats.playTime)}</div>
-          {timeBonus > 0 && <div className="text-xs text-red-500">+{timeBonus}ms</div>}
+          {gameMode === 'timeAttack' ? (
+            <>
+              <div className={`text-lg font-mono ${Math.max(0, TIME_ATTACK_DURATION - stats.playTime) <= 10 ? 'text-red-500 animate-pulse' : 'text-foreground'}`}>
+                {formatTime(Math.max(0, TIME_ATTACK_DURATION - stats.playTime))}
+              </div>
+              <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mt-1">
+                <div
+                  className="h-full bg-primary transition-all duration-1000"
+                  style={{ width: `${Math.max(0, (TIME_ATTACK_DURATION - stats.playTime) / TIME_ATTACK_DURATION * 100)}%` }}
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="text-lg font-mono text-foreground">{formatTime(stats.playTime)}</div>
+              {timeBonus > 0 && <div className="text-xs text-red-500">+{timeBonus}ms</div>}
+            </>
+          )}
         </div>
 
         {/* モード表示 */}
@@ -1294,6 +1481,9 @@ export function TetrisGame() {
             <div className="text-sm font-medium">{getModeLabel(gameMode)}</div>
             {gameMode === 'sprint' && (
               <div className="text-xs text-muted-foreground">{stats.lines}/{SPRINT_LINES}</div>
+            )}
+            {gameMode === 'timeAttack' && (
+              <div className="text-xs text-primary">{stats.playTime}秒経過</div>
             )}
           </div>
         )}
@@ -1346,30 +1536,50 @@ export function TetrisGame() {
           )}
         </div>
 
-        <div className="text-center text-xs text-muted-foreground hidden md:block">
-          ← → 移動 | ↓ 落下 | ↑/X 回転 | Z 逆回転 | SPACE ハードドロップ | C/Shift ホールド | G ゴースト
+        <div className="w-full p-4 rounded-lg bg-muted/50 text-sm hidden md:block">
+          <h3 className="font-bold mb-2">遊び方</h3>
+          <ul className="space-y-1 text-muted-foreground">
+            <li><strong>操作:</strong> ← → 移動 / ↓ 落下 / ↑・X 回転 / Z 逆回転</li>
+            <li><strong>特殊:</strong> SPACE ハードドロップ / C・Shift ホールド / G ゴースト</li>
+            <li><strong>目標:</strong> ラインを揃えて消していこう</li>
+          </ul>
         </div>
 
         <div className="flex gap-2 flex-wrap justify-center">
           {(!isStarted || gameOver) && (
-            <button onClick={() => setShowModeSelect(true)} className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors">
-              {gameOver ? <RotateCcw size={20} /> : <Play size={20} />}
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShowModeSelect(true)} className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium">
+              {gameOver ? <RotateCcw size={18} /> : <Play size={18} />}
               {gameOver ? 'Retry' : 'Start'}
-            </button>
+            </motion.button>
           )}
-          <button onClick={() => setSoundEnabled(!soundEnabled)} className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors" title={soundEnabled ? 'Mute SE' : 'Unmute SE'}>
-            {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
-          </button>
-          <button onClick={() => {
+          {/* ゲームオーバー時のシェアボタン */}
+          {gameOver && (
+            <ShareButton
+              score={stats.score}
+              lines={stats.lines}
+              level={stats.level}
+              mode={gameMode === 'sprint' ? 'sprint' : gameMode === 'timeAttack' ? 'timeAttack' : 'marathon'}
+            />
+          )}
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setSoundEnabled(!soundEnabled)} className="p-2 bg-muted rounded-lg" title={soundEnabled ? 'Mute SE' : 'Unmute SE'}>
+            {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+          </motion.button>
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => {
             const currentIndex = BGM_TRACKS.findIndex(t => t.id === bgmTrack);
             const nextIndex = (currentIndex + 1) % BGM_TRACKS.length;
             handleBgmTrackChange(BGM_TRACKS[nextIndex].id);
-          }} className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors" title={`BGM: ${BGM_TRACKS.find(t => t.id === bgmTrack)?.label}`}>
-            <Music size={20} className={bgmTrack !== 'none' ? 'text-primary' : ''} />
-          </button>
-          <button onClick={() => setShowSettings(true)} className="p-3 bg-muted hover:bg-muted/80 rounded-lg transition-colors" title="Settings">
-            <Settings size={20} />
-          </button>
+          }} className="p-2 bg-muted rounded-lg" title={`BGM: ${BGM_TRACKS.find(t => t.id === bgmTrack)?.label}`}>
+            <Music size={18} className={bgmTrack !== 'none' ? 'text-primary' : ''} />
+          </motion.button>
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShowAchievements(true)} className="p-2 bg-muted rounded-lg" title="実績">
+            <Award size={18} className={getProgress().percentage > 0 ? 'text-yellow-500' : ''} />
+          </motion.button>
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShowStatsPanel(true)} className="p-2 bg-muted rounded-lg" title="統計">
+            <BarChart3 size={18} />
+          </motion.button>
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShowSettings(true)} className="p-2 bg-muted rounded-lg" title="Settings">
+            <Settings size={18} />
+          </motion.button>
         </div>
       </div>
 
@@ -1462,16 +1672,17 @@ export function TetrisGame() {
 
       {/* モード選択モーダル */}
       {showModeSelect && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-card border border-border rounded-xl p-6 max-w-sm w-full">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-card border border-border rounded-2xl p-6 max-w-sm w-full">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold">ゲームモード</h3>
-              <button onClick={() => setShowModeSelect(false)} className="p-1 hover:bg-muted rounded-lg"><X size={20} /></button>
+              <button onClick={() => setShowModeSelect(false)} className="p-2 rounded-lg hover:bg-muted transition-colors"><X size={20} /></button>
             </div>
             <div className="space-y-2">
               {([
                 { mode: 'endless' as GameMode, icon: Infinity, label: 'エンドレス', desc: '限界までプレイ' },
                 { mode: 'sprint' as GameMode, icon: Timer, label: 'スプリント', desc: `${SPRINT_LINES}ライン最速クリア` },
+                { mode: 'timeAttack' as GameMode, icon: Clock, label: 'タイムアタック', desc: `${TIME_ATTACK_DURATION / 60}分間で最高スコア` },
               ]).map(({ mode, icon: Icon, label, desc }) => (
                 <button
                   key={mode}
@@ -1492,11 +1703,11 @@ export function TetrisGame() {
 
       {/* 設定モーダル */}
       {showSettings && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-card border border-border rounded-xl p-6 max-w-sm w-full max-h-[80vh] overflow-auto">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-card border border-border rounded-2xl p-6 max-w-sm w-full max-h-[80vh] overflow-auto">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xl font-bold">設定</h3>
-              <button onClick={() => setShowSettings(false)} className="p-1 hover:bg-muted rounded-lg"><X size={20} /></button>
+              <button onClick={() => setShowSettings(false)} className="p-2 rounded-lg hover:bg-muted transition-colors"><X size={20} /></button>
             </div>
             <div className="space-y-4">
               <div>
@@ -1510,6 +1721,36 @@ export function TetrisGame() {
                 >
                   {ghostEnabled ? 'ON' : 'OFF'}
                 </button>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Volume2 size={16} />
+                  <span className="font-medium">効果音</span>
+                  <button
+                    onClick={() => setSoundEnabled(!soundEnabled)}
+                    className={`ml-auto px-2 py-0.5 rounded text-xs font-medium transition-colors ${
+                      soundEnabled
+                        ? 'bg-green-500/20 text-green-400'
+                        : 'bg-muted text-muted-foreground'
+                    }`}
+                  >
+                    {soundEnabled ? 'ON' : 'OFF'}
+                  </button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <VolumeX size={14} className="text-muted-foreground" />
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={seVolume * 100}
+                    onChange={(e) => setSeVolume(parseInt(e.target.value) / 100)}
+                    disabled={!soundEnabled}
+                    className="flex-1 h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-yellow-500 disabled:opacity-50"
+                  />
+                  <Volume2 size={14} className="text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground w-8 text-right">{Math.round(seVolume * 100)}%</span>
+                </div>
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-2">
@@ -1557,6 +1798,44 @@ export function TetrisGame() {
                   ))}
                 </div>
               </div>
+
+              {/* キーバインド設定 */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Settings size={16} />
+                    <span className="font-medium">キーバインド</span>
+                  </div>
+                  <button
+                    onClick={() => setKeyBindings(DEFAULT_KEY_BINDINGS)}
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    リセット
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {(Object.keys(keyBindings) as (keyof KeyBindings)[]).map(action => (
+                    <div key={action} className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
+                      <span className="text-sm">{KEY_BINDING_LABELS[action]}</span>
+                      <button
+                        onClick={() => setEditingKey(editingKey === action ? null : action)}
+                        className={`px-3 py-1 text-xs rounded border transition-colors ${
+                          editingKey === action
+                            ? 'bg-primary text-primary-foreground border-primary animate-pulse'
+                            : 'bg-muted border-border hover:border-primary'
+                        }`}
+                      >
+                        {editingKey === action ? 'キーを押してください...' : keyBindings[action].map(k => k.replace('Key', '').replace('Arrow', '→')).join(' / ')}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                {editingKey && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    設定中: {KEY_BINDING_LABELS[editingKey]}（Escでキャンセル）
+                  </p>
+                )}
+              </div>
             </div>
             <button onClick={() => setShowSettings(false)} className="w-full mt-4 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors">
               閉じる
@@ -1567,94 +1846,206 @@ export function TetrisGame() {
 
       {/* ニックネーム入力モーダル */}
       {showNicknameInput && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-card border border-border rounded-xl p-6 max-w-sm w-full">
-            <div className="flex items-center gap-2 mb-4">
-              <Trophy className="text-yellow-500" size={24} />
-              <h3 className="text-xl font-bold">{gameComplete ? 'クリア！' : 'ランキング入り！'}</h3>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => { setShowNicknameInput(false); setPendingScore(null); }}>
+          <div className="bg-card border border-border rounded-2xl p-6 max-w-sm w-full" onClick={(e) => e.stopPropagation()}>
+            <div className="text-center mb-6">
+              <Trophy className="w-12 h-12 text-yellow-500 mx-auto mb-2" />
+              <h3 className="text-xl font-bold">{gameComplete ? 'クリア！' : 'ランキング入り!'}</h3>
             </div>
             <p className="text-muted-foreground mb-4">
               スコア: <span className="text-primary font-bold">{pendingScore?.score.toLocaleString()}</span>
               {pendingScore?.time && <span className="ml-2">({formatTime(pendingScore.time)})</span>}
             </p>
-            <div className="mb-4">
-              <label className="block text-sm text-muted-foreground mb-2">ニックネーム (最大12文字)</label>
-              <input
-                type="text"
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && submitNickname()}
-                maxLength={12}
-                placeholder="あなたの名前"
-                className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                autoFocus
-              />
-            </div>
-            <div className="flex gap-2">
-              <button onClick={submitNickname} disabled={!nickname.trim() || isSubmitting} className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                登録
-              </button>
-              <button onClick={() => { setShowNicknameInput(false); setPendingScore(null); }} className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg font-medium transition-colors">
-                スキップ
-              </button>
-            </div>
+
+            {user ? (
+              <>
+                <div className="mb-4 p-3 bg-muted rounded-lg">
+                  <p className="text-sm text-muted-foreground mb-1">登録名</p>
+                  <p className="font-medium text-lg">{userNickname}</p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={submitToLeaderboard}
+                    disabled={isSubmitting}
+                    className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? '登録中...' : 'ランキングに登録'}
+                  </button>
+                  <button
+                    onClick={() => { setShowNicknameInput(false); setPendingScore(null); }}
+                    className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg font-medium transition-colors"
+                  >
+                    スキップ
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="mb-4 p-4 bg-muted/50 rounded-lg border border-border">
+                  <p className="text-sm text-muted-foreground mb-2">
+                    ランキングに登録するにはログインが必要です
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => { setShowNicknameInput(false); setShowAuthModal(true); }}
+                    className="flex-1 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors"
+                  >
+                    ログインして登録
+                  </button>
+                  <button
+                    onClick={() => { setShowNicknameInput(false); setPendingScore(null); }}
+                    className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg font-medium transition-colors"
+                  >
+                    閉じる
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
 
+      {/* 認証モーダル */}
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+
       {/* リーダーボードモーダル */}
-      {showLeaderboard && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-card border border-border rounded-xl p-6 max-w-md w-full max-h-[80vh] overflow-auto">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Medal className="text-yellow-500" size={24} />
-                <h3 className="text-xl font-bold">ランキング</h3>
+      <AnimatePresence>
+        {showLeaderboard && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => setShowLeaderboard(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-card border border-border rounded-2xl p-6 w-full max-w-md max-h-[80vh] overflow-hidden flex flex-col"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Medal className="w-6 h-6 text-yellow-500" />
+                  <h3 className="text-xl font-bold">ランキング</h3>
+                </div>
+                <button
+                  onClick={() => setShowLeaderboard(false)}
+                  className="p-2 rounded-lg hover:bg-muted transition-colors"
+                >
+                  <X size={20} />
+                </button>
               </div>
-              <button onClick={() => setShowLeaderboard(false)} className="p-1 hover:bg-muted rounded-lg"><X size={20} /></button>
-            </div>
-            {leaderboard.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">まだ記録がありません</p>
-            ) : (
-              <div className="space-y-2">
-                {leaderboard.map((entry, index) => (
-                  <div key={index} className={`flex items-center gap-3 p-3 rounded-lg ${
-                    index === 0 ? 'bg-yellow-500/20 border border-yellow-500/50' :
-                    index === 1 ? 'bg-gray-400/20 border border-gray-400/50' :
-                    index === 2 ? 'bg-orange-600/20 border border-orange-600/50' : 'bg-muted/50'
-                  }`}>
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
-                      index === 0 ? 'bg-yellow-500 text-black' :
-                      index === 1 ? 'bg-gray-400 text-black' :
-                      index === 2 ? 'bg-orange-600 text-white' : 'bg-muted text-muted-foreground'
-                    }`}>{index + 1}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate">{entry.nickname}</div>
-                      <div className="text-xs text-muted-foreground">
-                        Lv.{entry.level} / {entry.lines}ライン / {entry.date}
-                        {entry.time && ` / ${formatTime(entry.time)}`}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-bold text-primary">{entry.score.toLocaleString()}</div>
-                    </div>
-                  </div>
+
+              {/* 期間フィルター */}
+              <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
+                {(Object.keys(LEADERBOARD_PERIOD_LABELS) as LeaderboardPeriod[]).map(p => (
+                  <button
+                    key={p}
+                    onClick={() => setLeaderboardPeriod(p)}
+                    className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                      leaderboardPeriod === p
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted hover:bg-muted/80'
+                    }`}
+                  >
+                    <Calendar size={14} />
+                    {LEADERBOARD_PERIOD_LABELS[p]}
+                  </button>
                 ))}
               </div>
-            )}
-            <button onClick={() => setShowLeaderboard(false)} className="w-full mt-4 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors">
-              閉じる
-            </button>
-          </div>
-        </div>
-      )}
+
+              {/* ランキングリスト */}
+              <div className="flex-1 overflow-y-auto space-y-2">
+                {leaderboard.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    まだ記録がありません
+                  </div>
+                ) : (
+                  leaderboard.map((entry, index) => (
+                    <div
+                      key={index}
+                      className={`flex items-center gap-3 p-3 rounded-lg ${
+                        index === 0
+                          ? 'bg-yellow-500/20 border border-yellow-500/30'
+                          : index === 1
+                            ? 'bg-gray-400/20 border border-gray-400/30'
+                            : index === 2
+                              ? 'bg-orange-500/20 border border-orange-500/30'
+                              : 'bg-muted/30'
+                      }`}
+                    >
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
+                          index === 0
+                            ? 'bg-yellow-500 text-white'
+                            : index === 1
+                              ? 'bg-gray-400 text-white'
+                              : index === 2
+                                ? 'bg-orange-500 text-white'
+                                : 'bg-muted text-muted-foreground'
+                        }`}
+                      >
+                        {index + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{entry.nickname}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Lv.{entry.level} / {entry.lines}ライン
+                          {entry.time && ` / ${formatTime(entry.time)}`}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-primary">
+                          {entry.score.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ランキングボタン */}
       {leaderboard.length > 0 && !showNicknameInput && !showLeaderboard && !showModeSelect && !showSettings && (
-        <button onClick={() => setShowLeaderboard(true)} className="fixed bottom-24 right-4 p-3 bg-card border border-border rounded-full shadow-lg hover:bg-muted transition-colors z-30 md:bottom-8 md:right-8" title="ランキング">
+        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => setShowLeaderboard(true)} className="fixed bottom-24 right-4 p-3 bg-card border border-border rounded-full shadow-lg hover:bg-muted transition-colors z-30 md:bottom-8 md:right-8" title="ランキング">
           <Medal size={24} className="text-yellow-500" />
-        </button>
+        </motion.button>
       )}
+
+      {/* 実績トースト通知 */}
+      {recentUnlocks.length > 0 && (
+        <div className="fixed top-4 right-4 z-[100] space-y-3">
+          {recentUnlocks.slice(0, 3).map(({ achievement, timestamp }) => (
+            <AchievementToast
+              key={timestamp}
+              achievement={achievement}
+              onClose={() => clearRecentUnlocks()}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* 実績パネル */}
+      <AchievementPanel
+        achievements={getAllAchievements()}
+        progress={getProgress()}
+        totalXp={userAchievements.totalXp}
+        isOpen={showAchievements}
+        onClose={() => setShowAchievements(false)}
+      />
+
+      {/* 統計パネル */}
+      <StatsPanel
+        stats={gameStats}
+        isOpen={showStatsPanel}
+        onClose={() => setShowStatsPanel(false)}
+      />
     </div>
   );
 }

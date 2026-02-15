@@ -14,6 +14,36 @@ export interface NewsItem {
 export const newsData: Record<'ja' | 'en', NewsItem[]> = {
   ja: [
     {
+      date: '2026-01-18',
+      type: 'announcement',
+      title: 'ミニゲーム「マインスイーパー」を公開しました',
+      content: 'クラシックな地雷除去パズルゲーム「マインスイーパー」を公開しました。初級・中級・上級の3難易度に加え、オンライン対戦機能も搭載しています。',
+    },
+    {
+      date: '2025-12-30',
+      type: 'announcement',
+      title: '全ゲームにオンライン対戦機能を追加しました',
+      content: 'Tetris、2048、Snake、Typingの全ゲームでリアルタイムオンライン対戦が可能になりました。クイックマッチで即座にマッチング、またはルームコードで友達と対戦できます。',
+    },
+    {
+      date: '2025-12-30',
+      type: 'announcement',
+      title: 'ミニゲーム「Snake」「Typing」を公開しました',
+      content: 'クラシックなスネークゲームとタイピング速度測定ゲームを公開しました。タイピングは日本語・英語・プログラミング用語モードを搭載しています。',
+    },
+    {
+      date: '2025-12-30',
+      type: 'announcement',
+      title: 'ミニゲーム「2048」を公開しました',
+      content: 'ブラウザで遊べる2048パズルゲームを公開しました。スワイプ操作対応、アンドゥ機能（3回まで）、ベストスコア記録機能を搭載しています。',
+    },
+    {
+      date: '2025-12-30',
+      type: 'announcement',
+      title: 'テトリスに新機能を多数追加しました',
+      content: 'タイムアタックモード（2分間スコアアタック）、キーバインドカスタマイズ、期間別ランキング（今日/今週/今月/全期間）、実績システム、SNS共有機能、プレイ統計ダッシュボードを追加しました。',
+    },
+    {
       date: '2025-12-21',
       type: 'announcement',
       title: 'カスタムドメイン adalabtech.com に移行しました',
@@ -39,6 +69,36 @@ export const newsData: Record<'ja' | 'en', NewsItem[]> = {
     },
   ],
   en: [
+    {
+      date: '2026-01-18',
+      type: 'announcement',
+      title: 'Mini Game "Minesweeper" Released',
+      content: 'We have released the classic mine-clearing puzzle game "Minesweeper". Features 3 difficulty levels (Beginner, Intermediate, Expert) and online battle mode.',
+    },
+    {
+      date: '2025-12-30',
+      type: 'announcement',
+      title: 'Online Battle Mode Added to All Games',
+      content: 'Real-time online battles are now available for all games: Tetris, 2048, Snake, and Typing. Use Quick Match for instant matchmaking, or create a room code to play with friends.',
+    },
+    {
+      date: '2025-12-30',
+      type: 'announcement',
+      title: 'Mini Games "Snake" and "Typing" Released',
+      content: 'We have released a classic Snake game and a typing speed test game. Typing features Japanese, English, and programming terminology modes.',
+    },
+    {
+      date: '2025-12-30',
+      type: 'announcement',
+      title: 'Mini Game "2048" Released',
+      content: 'We have released a 2048 puzzle game playable in browser. Features include swipe controls, undo function (up to 3 times), and best score tracking.',
+    },
+    {
+      date: '2025-12-30',
+      type: 'announcement',
+      title: 'Added Multiple New Features to Tetris',
+      content: 'We have added Time Attack mode (2-min score attack), key binding customization, period-based leaderboard (daily/weekly/monthly/all-time), achievement system, SNS sharing, and play statistics dashboard.',
+    },
     {
       date: '2025-12-21',
       type: 'announcement',

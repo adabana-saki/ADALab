@@ -46,6 +46,7 @@ export function TetrisBattleLobby() {
     joinRoom,
     quickMatch,
     setReady,
+    rematch,
     leave,
     sendFieldUpdate,
     sendAttack,
@@ -126,6 +127,17 @@ export function TetrisBattleLobby() {
     leave();
     // すべての状態をリセット
     setLobbyMode('menu');
+    setIsReady(false);
+    setOpponent(null);
+    setOpponentAlive(true);
+    setPendingGarbage(0);
+    setGameSeed(0);
+  };
+
+  const handleRematch = () => {
+    // WebSocket接続を維持したまま待機室に戻る
+    rematch(); // フック内のgameStatusをwaitingに戻し、unreadyを送信
+    setLobbyMode('create');
     setIsReady(false);
     setOpponent(null);
     setOpponentAlive(true);
@@ -547,6 +559,7 @@ export function TetrisBattleLobby() {
         nickname={nickname}
         seed={gameSeed}
         onLeave={handleBack}
+        onRematch={handleRematch}
         sendFieldUpdate={sendFieldUpdate}
         sendAttack={sendAttack}
         consumeGarbage={consumeGarbage}

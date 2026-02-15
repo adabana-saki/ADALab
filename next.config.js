@@ -28,7 +28,7 @@ const nextConfig = {
   },
 
   experimental: {
-    optimizePackageImports: ['framer-motion', 'lucide-react', '@react-three/fiber'],
+    optimizePackageImports: ['framer-motion', 'lucide-react', '@react-three/fiber', '@react-three/drei', 'react-icons', '@sentry/react', 'shiki'],
   },
 
   async headers() {

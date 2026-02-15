@@ -79,6 +79,8 @@ const config: Config = {
         'neon-flicker': 'neon-flicker 1.5s infinite',
         'cyber-slide': 'cyber-slide 20s linear infinite',
         'scan-line': 'scan-line 8s ease-in-out infinite',
+        'streak-pulse': 'streak-pulse 0.8s ease-in-out infinite',
+        'receive-attack': 'receive-attack 0.3s ease-in-out',
       },
       keyframes: {
         'fade-in': {
@@ -145,6 +147,16 @@ const config: Config = {
           '10%': { opacity: '1' },
           '90%': { opacity: '1' },
           '100%': { transform: 'translateY(100vh)', opacity: '0' },
+        },
+        'streak-pulse': {
+          '0%, 100%': { transform: 'scale(1)', textShadow: '0 0 10px rgba(251, 191, 36, 0.5)' },
+          '50%': { transform: 'scale(1.1)', textShadow: '0 0 20px rgba(251, 191, 36, 0.8), 0 0 30px rgba(251, 191, 36, 0.5)' },
+        },
+        'receive-attack': {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '25%': { transform: 'translateX(-5px)' },
+          '50%': { transform: 'translateX(5px)' },
+          '75%': { transform: 'translateX(-3px)' },
         },
       },
     },

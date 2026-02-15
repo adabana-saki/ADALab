@@ -353,6 +353,17 @@ export function useTetrisBattle(options: UseTetrisBattleOptions = {}) {
     }
   }, []);
 
+  // 再戦（WebSocket接続を維持したまま待機状態に戻す）
+  const rematch = useCallback(() => {
+    setGameStatus('waiting');
+    setWinner(null);
+    setOpponent(null);
+    setPendingGarbage(0);
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ type: 'unready' }));
+    }
+  }, []);
+
   // Leave room
   const leave = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
@@ -394,6 +405,7 @@ export function useTetrisBattle(options: UseTetrisBattleOptions = {}) {
     sendAttack,
     consumeGarbage,
     sendGameOver,
+    rematch,
     leave,
   };
 }

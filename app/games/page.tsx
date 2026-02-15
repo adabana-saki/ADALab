@@ -8,6 +8,35 @@ const games = [
     title: 'Tetris',
     description: 'クラシックなテトリス。ブロックを回転させてラインを消そう！',
     thumbnail: '/images/games/tetris-thumbnail.png',
+    isNew: false,
+  },
+  {
+    id: '2048',
+    title: '2048',
+    description: '数字タイルをスライドして合体！2048を目指すパズルゲーム。',
+    thumbnail: '/images/games/2048-thumbnail.png',
+    isNew: true,
+  },
+  {
+    id: 'snake',
+    title: 'Snake',
+    description: 'スネークを操作してエサを食べよう！壁や自分にぶつからないように！',
+    thumbnail: '/images/games/snake-thumbnail.png',
+    isNew: true,
+  },
+  {
+    id: 'typing',
+    title: 'Typing',
+    description: 'タイピング速度を測定！日本語・英語・プログラミング用語モード搭載。',
+    thumbnail: '/images/games/typing-thumbnail.png',
+    isNew: false,
+  },
+  {
+    id: 'minesweeper',
+    title: 'Minesweeper',
+    description: '地雷を避けてすべてのセルを開けよう！初級・中級・上級の3難易度。',
+    thumbnail: '/images/games/minesweeper-thumbnail.png',
+    isNew: true,
   },
 ];
 
@@ -43,6 +72,11 @@ export default function GamesPage() {
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />
+                {game.isNew && (
+                  <span className="absolute top-2 right-2 px-2 py-1 text-xs font-bold bg-primary text-primary-foreground rounded-full">
+                    NEW
+                  </span>
+                )}
               </div>
 
               {/* コンテンツ */}

@@ -51,6 +51,7 @@ export interface TetrisBattleProps {
   nickname: string;
   seed: number;
   onLeave: () => void;
+  onRematch: () => void;
   sendFieldUpdate: (field: number[][], score: number, lines: number, level: number) => void;
   sendAttack: (attackType: AttackType, combo: number, b2b: boolean) => void;
   consumeGarbage: (lines: number) => void;
@@ -87,6 +88,7 @@ export function TetrisBattle({
   nickname,
   seed,
   onLeave,
+  onRematch,
   sendFieldUpdate,
   sendAttack,
   consumeGarbage,
@@ -365,8 +367,14 @@ export function TetrisBattle({
       const attackLines = ATTACK_TABLE[attackType] + (state.combo > 1 ? state.combo - 1 : 0) + (state.b2b ? 1 : 0);
       if (localPendingGarbage > 0 && attackLines > 0) {
         const offset = Math.min(localPendingGarbage, attackLines);
-        setLocalPendingGarbage((prev) => Math.max(0, prev - offset));
+        const remaining = localPendingGarbage - offset;
+        setLocalPendingGarbage(0);
         consumeGarbage(offset);
+        // 相殺後に残ったお邪魔を即座に追加
+        if (remaining > 0) {
+          addGarbageLines(remaining);
+          consumeGarbage(remaining);
+        }
       }
     } else {
       state.combo = 0;
@@ -716,12 +724,20 @@ export function TetrisBattle({
               {winnerFromServer.nickname === nickname ? 'WIN!' : 'LOSE'}
             </h2>
             <p className="text-muted-foreground">勝者: {winnerFromServer.nickname}</p>
-            <button
-              onClick={handleLeave}
-              className="px-6 py-3 bg-primary text-primary-foreground rounded-lg"
-            >
-              ロビーに戻る
-            </button>
+            <div className="space-y-3">
+              <button
+                onClick={onRematch}
+                className="w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90"
+              >
+                再戦する
+              </button>
+              <button
+                onClick={handleLeave}
+                className="w-full px-6 py-3 bg-card border border-border rounded-lg font-medium hover:bg-accent"
+              >
+                ロビーに戻る
+              </button>
+            </div>
           </div>
         </div>
       )}
