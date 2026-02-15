@@ -67,7 +67,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       return errorResponse('Invalid nickname', 400, corsHeaders);
     }
 
-    if (typeof body.time_seconds !== 'number' || body.time_seconds < 0 || body.time_seconds > 9999) {
+    if (typeof body.time_seconds !== 'number' || !isFinite(body.time_seconds) || body.time_seconds < 0 || body.time_seconds > 9999) {
       return errorResponse('Invalid time', 400, corsHeaders);
     }
 
@@ -75,6 +75,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       return errorResponse('Invalid difficulty', 400, corsHeaders);
     }
 
+    // ニックネームをサニタイズ
+    const sanitizedNickname = body.nickname.trim().slice(0, 20);
     const deviceId = body.device_id || null;
 
     // UPSERTロジック: user_id優先、なければdevice_id
@@ -98,7 +100,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
              WHERE id = ?`
           )
             .bind(
-              body.nickname,
+              sanitizedNickname,
               body.time_seconds,
               body.date,
               userId,
@@ -120,7 +122,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
            VALUES (?, ?, ?, ?, ?, ?)`
         )
           .bind(
-            body.nickname,
+            sanitizedNickname,
             body.time_seconds,
             body.difficulty,
             body.date,
@@ -135,7 +137,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         `INSERT INTO minesweeper_leaderboard (nickname, time_seconds, difficulty, date)
          VALUES (?, ?, ?, ?)`
       )
-        .bind(body.nickname, body.time_seconds, body.difficulty, body.date)
+        .bind(sanitizedNickname, body.time_seconds, body.difficulty, body.date)
         .run();
     }
 

@@ -66,7 +66,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       return errorResponse('Invalid nickname', 400, corsHeaders);
     }
 
-    if (typeof body.wpm !== 'number' || body.wpm < 0 || body.wpm > 500) {
+    if (typeof body.wpm !== 'number' || !isFinite(body.wpm) || body.wpm < 0 || body.wpm > 500) {
       return errorResponse('Invalid wpm', 400, corsHeaders);
     }
 
@@ -78,20 +78,22 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       return errorResponse('Invalid language', 400, corsHeaders);
     }
 
-    if (typeof body.accuracy !== 'number' || body.accuracy < 0 || body.accuracy > 100) {
+    if (typeof body.accuracy !== 'number' || !isFinite(body.accuracy) || body.accuracy < 0 || body.accuracy > 100) {
       return errorResponse('Invalid accuracy (must be 0-100)', 400, corsHeaders);
     }
 
-    if (typeof body.words_typed !== 'number' || body.words_typed < 0 || body.words_typed > 10000) {
+    if (typeof body.words_typed !== 'number' || !isFinite(body.words_typed) || body.words_typed < 0 || body.words_typed > 10000) {
       return errorResponse('Invalid words_typed', 400, corsHeaders);
     }
 
     if (body.time_seconds !== undefined && body.time_seconds !== null) {
-      if (typeof body.time_seconds !== 'number' || body.time_seconds < 0 || body.time_seconds > 3600) {
+      if (typeof body.time_seconds !== 'number' || !isFinite(body.time_seconds) || body.time_seconds < 0 || body.time_seconds > 3600) {
         return errorResponse('Invalid time_seconds', 400, corsHeaders);
       }
     }
 
+    // ニックネームをサニタイズ
+    const sanitizedNickname = body.nickname.trim().slice(0, 20);
     const deviceId = body.device_id || null;
 
     // UPSERTロジック: user_id優先、なければdevice_id
@@ -114,7 +116,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
              WHERE id = ?`
           )
             .bind(
-              body.nickname,
+              sanitizedNickname,
               body.wpm,
               body.accuracy,
               body.words_typed,
@@ -139,7 +141,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         )
           .bind(
-            body.nickname,
+            sanitizedNickname,
             body.wpm,
             body.accuracy,
             body.mode,
@@ -159,7 +161,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
       )
         .bind(
-          body.nickname,
+          sanitizedNickname,
           body.wpm,
           body.accuracy,
           body.mode,

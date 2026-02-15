@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
@@ -38,12 +38,132 @@ interface DashboardData {
   rankings: Record<string, number | null>;
 }
 
+// ゲームごとのlocalStorageキーマッピング
+const GAME_LOCAL_STORAGE_MAP = [
+  {
+    gameType: 'tetris' as const,
+    achievementsKey: 'adalab-game-achievements',
+    statsKey: 'adalab-game-stats',
+    achievementFormat: 'object' as const, // { unlocked: [{ achievementId }] }
+  },
+  {
+    gameType: '2048' as const,
+    achievementsKey: 'adalab-2048-achievements',
+    statsKey: 'adalab-2048-stats',
+    achievementFormat: 'object' as const, // { unlocked: [{ achievementId }] }
+  },
+  {
+    gameType: 'snake' as const,
+    achievementsKey: 'snake-achievements-v1',
+    statsKey: 'snake-stats-v1',
+    achievementFormat: 'array' as const, // string[]
+  },
+  {
+    gameType: 'typing' as const,
+    achievementsKey: 'typing-achievements-v1',
+    statsKey: 'typing-stats-v1',
+    achievementFormat: 'array' as const, // string[]
+  },
+  {
+    gameType: 'minesweeper' as const,
+    achievementsKey: 'minesweeper-achievements-v1',
+    statsKey: 'minesweeper-stats-v1',
+    achievementFormat: 'array' as const, // string[]
+  },
+];
+
+/**
+ * localStorageから全ゲームの実績・統計を読み取りサーバーに同期
+ */
+async function syncLocalDataToServer(token: string): Promise<void> {
+  const promises: Promise<void>[] = [];
+
+  for (const game of GAME_LOCAL_STORAGE_MAP) {
+    // 実績の同期
+    try {
+      const rawAchievements = localStorage.getItem(game.achievementsKey);
+      if (rawAchievements) {
+        const parsed = JSON.parse(rawAchievements);
+        let achievementIds: string[] = [];
+
+        if (game.achievementFormat === 'object') {
+          // Tetris/2048: { unlocked: [{ achievementId, ... }] }
+          if (parsed.unlocked && Array.isArray(parsed.unlocked)) {
+            achievementIds = parsed.unlocked
+              .map((u: { achievementId?: string }) => u.achievementId)
+              .filter((id: unknown): id is string => typeof id === 'string' && id.length > 0);
+          }
+        } else {
+          // Snake/Typing/Minesweeper: string[]
+          if (Array.isArray(parsed)) {
+            achievementIds = parsed.filter((id: unknown): id is string => typeof id === 'string' && id.length > 0);
+          }
+        }
+
+        if (achievementIds.length > 0) {
+          promises.push(
+            fetch('/api/user/achievements', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                gameType: game.gameType,
+                achievementIds,
+              }),
+            }).then((res) => {
+              if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            }).catch((e) => {
+              console.error(`Failed to sync ${game.gameType} achievements:`, e);
+            })
+          );
+        }
+      }
+    } catch (e) {
+      console.error(`Failed to read ${game.gameType} achievements from localStorage:`, e);
+    }
+
+    // 統計の同期
+    try {
+      const rawStats = localStorage.getItem(game.statsKey);
+      if (rawStats) {
+        const stats = JSON.parse(rawStats);
+        if (stats && typeof stats === 'object' && stats.totalGames > 0) {
+          promises.push(
+            fetch('/api/user/stats', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                gameType: game.gameType,
+                stats,
+              }),
+            }).then((res) => {
+              if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            }).catch((e) => {
+              console.error(`Failed to sync ${game.gameType} stats:`, e);
+            })
+          );
+        }
+      }
+    } catch (e) {
+      console.error(`Failed to read ${game.gameType} stats from localStorage:`, e);
+    }
+  }
+
+  await Promise.allSettled(promises);
+}
+
 export default function DashboardPage() {
   const { user, profile, getIdToken, loading: authLoading } = useAuth();
   const router = useRouter();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const syncedRef = useRef(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -65,6 +185,12 @@ export default function DashboardPage() {
           return;
         }
 
+        // 初回のみローカルデータをサーバーに同期
+        if (!syncedRef.current) {
+          syncedRef.current = true;
+          await syncLocalDataToServer(token);
+        }
+
         const response = await fetch('/api/user/profile', {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -75,6 +201,8 @@ export default function DashboardPage() {
           const result = await response.json();
           setData(result);
           setError(null);
+        } else if (response.status === 401) {
+          setError('セッションが期限切れです。再ログインしてください。');
         } else if (response.status === 404 && retryCount < 3) {
           // ユーザーデータがまだ同期されていない場合、少し待ってリトライ
           await new Promise((resolve) => setTimeout(resolve, 1000));

@@ -63,7 +63,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       return errorResponse('Invalid nickname', 400, corsHeaders);
     }
 
-    if (typeof body.score !== 'number' || body.score < 0 || body.score > 10000000) {
+    if (typeof body.score !== 'number' || !isFinite(body.score) || body.score < 0 || body.score > 10000000) {
       return errorResponse('Invalid score', 400, corsHeaders);
     }
 
