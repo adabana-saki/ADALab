@@ -15,11 +15,16 @@ import {
   Loader2,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useGameSettings, GlobalSettings } from '@/hooks/useGameSettings';
+import { getSoundEngine } from '@/lib/sound-engine';
 
 export default function SettingsPage() {
   const { user, profile, loading: authLoading } = useAuth();
   const router = useRouter();
+  const { setTheme } = useTheme();
+  const { setLanguage } = useLanguage();
   const { settings, updateSettings, loading: settingsLoading, error } = useGameSettings('global');
   const [localSettings, setLocalSettings] = useState<GlobalSettings | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -41,6 +46,17 @@ export default function SettingsPage() {
       setIsSaving(true);
       try {
         await updateSettings(localSettings);
+
+        // Sync to actual consumers
+        if (localSettings.theme) {
+          setTheme(localSettings.theme);
+        }
+        if (localSettings.language) {
+          setLanguage(localSettings.language);
+        }
+        const soundEngine = getSoundEngine();
+        soundEngine.setEnabled(localSettings.soundEnabled ?? true);
+        soundEngine.setVolume(localSettings.soundVolume ?? 0.5);
       } finally {
         setIsSaving(false);
       }
