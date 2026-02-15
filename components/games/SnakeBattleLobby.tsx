@@ -61,6 +61,7 @@ export function SnakeBattleLobby() {
     joinRoom,
     quickMatch,
     setReady,
+    rematch,
     selectColor,
     sendDirectionChange,
     leave,
@@ -149,9 +150,9 @@ export function SnakeBattleLobby() {
 
   const handleRematch = () => {
     // WebSocket接続を維持したまま待機室に戻る
-    setLobbyMode('create'); // 待機室モードに戻る
+    rematch(); // フック内のgameStatusをwaitingに戻し、unreadyを送信
+    setLobbyMode('create');
     setIsReady(false);
-    setReady(false);
     setLocalBattlePlayers([]);
     setLocalFood(null);
     setLocalLastDeath(null);

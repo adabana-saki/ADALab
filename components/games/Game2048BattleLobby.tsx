@@ -55,6 +55,7 @@ export function Game2048BattleLobby() {
     joinRoom,
     quickMatch,
     setReady,
+    rematch,
     sendMoveUpdate,
     sendReachedTarget,
     sendGameOver,
@@ -147,9 +148,9 @@ export function Game2048BattleLobby() {
 
   const handleRematch = () => {
     // WebSocket接続を維持したまま待機室に戻る
-    setLobbyMode('create'); // 待機室モードに戻る
+    rematch(); // フック内のgameStatusをwaitingに戻し、unreadyを送信
+    setLobbyMode('create');
     setIsReady(false);
-    setReady(false);
     setOpponentState(null);
     setGameSeed(0);
     setFinalResults([]);
