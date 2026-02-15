@@ -462,6 +462,19 @@ export function useTypingBattle(options: UseTypingBattleOptions = {}) {
     }
   }, []);
 
+  // 再戦（WebSocket接続を維持したまま待機状態に戻す）
+  const rematch = useCallback(() => {
+    setGameStatus('waiting');
+    setWinner(null);
+    setResults([]);
+    setOpponent(null);
+    setActiveAttacks([]);
+    setMyStreak(0);
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ type: 'unready' }));
+    }
+  }, []);
+
   // Leave room
   const leave = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
@@ -509,6 +522,7 @@ export function useTypingBattle(options: UseTypingBattleOptions = {}) {
     sendInputUpdate,
     sendWordComplete,
     sendGameFinished,
+    rematch,
     leave,
   };
 }

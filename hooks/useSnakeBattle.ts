@@ -514,6 +514,21 @@ export function useSnakeBattle(options: UseSnakeBattleOptions = {}) {
     return obstacles;
   }, [pendingObstacles]);
 
+  // 再戦（WebSocket接続を維持したまま待機状態に戻す）
+  const rematch = useCallback(() => {
+    setGameStatus('waiting');
+    setWinner(null);
+    setResults([]);
+    setOpponent(null);
+    setBattlePlayers([]);
+    setFood(null);
+    setLastDeath(null);
+    setPendingObstacles([]);
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ type: 'unready' }));
+    }
+  }, []);
+
   // Leave room
   const leave = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
@@ -571,6 +586,7 @@ export function useSnakeBattle(options: UseSnakeBattleOptions = {}) {
     sendFoodEaten,
     sendGameOver,
     consumeObstacles,
+    rematch,
     leave,
 
     // 同一フィールドバトル用

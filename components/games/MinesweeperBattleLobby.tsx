@@ -59,6 +59,7 @@ export function MinesweeperBattleLobby() {
     joinRoom,
     quickMatch,
     setReady,
+    rematch,
     sendProgress,
     sendFinished,
     sendLost,
@@ -149,9 +150,9 @@ export function MinesweeperBattleLobby() {
 
   const handleRematch = () => {
     // WebSocket接続を維持したまま待機室に戻る
-    setLobbyMode('create'); // 待機室モードに戻る
+    rematch(); // フック内のgameStatusをwaitingに戻し、unreadyを送信
+    setLobbyMode('create');
     setIsReady(false);
-    setReady(false);
     setLocalOpponentProgress({ revealed: 0, flagged: 0, percentage: 0 });
     setFinalResults([]);
     setOpponentStatus('playing');

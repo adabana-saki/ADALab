@@ -536,6 +536,16 @@ export class MinesweeperRoom extends DurableObject<Env> {
       times,
       results,
     });
+
+    // Reset for rematch
+    for (const player of this.players.values()) {
+      player.isReady = false;
+      player.isAlive = true;
+      player.revealedCount = 0;
+      player.flaggedCount = 0;
+      player.finishTime = null;
+    }
+    this.roomState.status = 'waiting';
   }
 
   private clearGameInterval(): void {

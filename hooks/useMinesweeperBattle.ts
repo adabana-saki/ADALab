@@ -362,6 +362,18 @@ export function useMinesweeperBattle(options: UseMinesweeperBattleOptions = {}) 
     }
   }, []);
 
+  // 再戦（WebSocket接続を維持したまま待機状態に戻す）
+  const rematch = useCallback(() => {
+    setGameStatus('waiting');
+    setWinner(null);
+    setResults([]);
+    setGameSeed(null);
+    setOpponentProgress({ revealed: 0, flagged: 0, percentage: 0 });
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ type: 'unready' }));
+    }
+  }, []);
+
   // Leave room
   const leave = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
@@ -416,6 +428,7 @@ export function useMinesweeperBattle(options: UseMinesweeperBattleOptions = {}) 
     sendProgress,
     sendFinished,
     sendLost,
+    rematch,
     leave,
     cancelMatchmaking,
   };

@@ -422,6 +422,17 @@ export function use2048Battle(options: Use2048BattleOptions = {}) {
     }
   }, []);
 
+  // 再戦（WebSocket接続を維持したまま待機状態に戻す）
+  const rematch = useCallback(() => {
+    setGameStatus('waiting');
+    setWinner(null);
+    setResults([]);
+    setOpponent(null);
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({ type: 'unready' }));
+    }
+  }, []);
+
   // Leave room
   const leave = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
@@ -467,6 +478,7 @@ export function use2048Battle(options: Use2048BattleOptions = {}) {
     sendMoveUpdate,
     sendReachedTarget,
     sendGameOver,
+    rematch,
     leave,
   };
 }
