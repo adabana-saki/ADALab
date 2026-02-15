@@ -112,11 +112,14 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
     // Tetris ranking
     const tetrisRank = await env.DB.prepare(
-      `SELECT COUNT(*) + 1 as rank
-       FROM tetris_leaderboard t1
-       WHERE t1.score > (
-         SELECT COALESCE(MAX(score), 0) FROM tetris_leaderboard WHERE user_id = ?
-       )`
+      `WITH user_best AS (
+         SELECT MAX(score) as best_score FROM tetris_leaderboard WHERE user_id = ?
+       )
+       SELECT CASE
+         WHEN user_best.best_score IS NULL THEN NULL
+         ELSE (SELECT COUNT(*) + 1 FROM tetris_leaderboard WHERE score > user_best.best_score)
+       END as rank
+       FROM user_best`
     )
       .bind(user.id)
       .first();
@@ -124,11 +127,14 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
     // 2048 ranking
     const game2048Rank = await env.DB.prepare(
-      `SELECT COUNT(*) + 1 as rank
-       FROM game_2048_leaderboard t1
-       WHERE t1.score > (
-         SELECT COALESCE(MAX(score), 0) FROM game_2048_leaderboard WHERE user_id = ?
-       )`
+      `WITH user_best AS (
+         SELECT MAX(score) as best_score FROM game_2048_leaderboard WHERE user_id = ?
+       )
+       SELECT CASE
+         WHEN user_best.best_score IS NULL THEN NULL
+         ELSE (SELECT COUNT(*) + 1 FROM game_2048_leaderboard WHERE score > user_best.best_score)
+       END as rank
+       FROM user_best`
     )
       .bind(user.id)
       .first();
@@ -136,11 +142,14 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
     // Snake ranking
     const snakeRank = await env.DB.prepare(
-      `SELECT COUNT(*) + 1 as rank
-       FROM snake_leaderboard t1
-       WHERE t1.score > (
-         SELECT COALESCE(MAX(score), 0) FROM snake_leaderboard WHERE user_id = ?
-       )`
+      `WITH user_best AS (
+         SELECT MAX(score) as best_score FROM snake_leaderboard WHERE user_id = ?
+       )
+       SELECT CASE
+         WHEN user_best.best_score IS NULL THEN NULL
+         ELSE (SELECT COUNT(*) + 1 FROM snake_leaderboard WHERE score > user_best.best_score)
+       END as rank
+       FROM user_best`
     )
       .bind(user.id)
       .first();
@@ -148,11 +157,14 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
     // Typing ranking (by WPM)
     const typingRank = await env.DB.prepare(
-      `SELECT COUNT(*) + 1 as rank
-       FROM typing_leaderboard t1
-       WHERE t1.wpm > (
-         SELECT COALESCE(MAX(wpm), 0) FROM typing_leaderboard WHERE user_id = ?
-       )`
+      `WITH user_best AS (
+         SELECT MAX(wpm) as best_wpm FROM typing_leaderboard WHERE user_id = ?
+       )
+       SELECT CASE
+         WHEN user_best.best_wpm IS NULL THEN NULL
+         ELSE (SELECT COUNT(*) + 1 FROM typing_leaderboard WHERE wpm > user_best.best_wpm)
+       END as rank
+       FROM user_best`
     )
       .bind(user.id)
       .first();
@@ -160,12 +172,17 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
     // Minesweeper ranking (by best time - lower is better, using expert difficulty)
     const minesweeperRank = await env.DB.prepare(
-      `SELECT COUNT(*) + 1 as rank
-       FROM minesweeper_leaderboard t1
-       WHERE t1.difficulty = 'expert'
-         AND t1.time_seconds < (
-           SELECT COALESCE(MIN(time_seconds), 999999) FROM minesweeper_leaderboard WHERE user_id = ? AND difficulty = 'expert'
-         )`
+      `WITH user_best AS (
+         SELECT MIN(time_seconds) as best_time
+         FROM minesweeper_leaderboard
+         WHERE user_id = ? AND difficulty = 'expert'
+       )
+       SELECT CASE
+         WHEN user_best.best_time IS NULL THEN NULL
+         ELSE (SELECT COUNT(*) + 1 FROM minesweeper_leaderboard
+               WHERE difficulty = 'expert' AND time_seconds < user_best.best_time)
+       END as rank
+       FROM user_best`
     )
       .bind(user.id)
       .first();

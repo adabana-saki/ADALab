@@ -60,10 +60,12 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       return errorResponse('Invalid nickname', 400, corsHeaders);
     }
 
-    if (typeof body.score !== 'number' || body.score < 0 || body.score > 100000) {
+    if (typeof body.score !== 'number' || !isFinite(body.score) || body.score < 0 || body.score > 100000) {
       return errorResponse('Invalid score', 400, corsHeaders);
     }
 
+    // ニックネームをサニタイズ
+    const sanitizedNickname = body.nickname.trim().slice(0, 20);
     const deviceId = body.device_id || null;
 
     // UPSERTロジック: user_id優先、なければdevice_id
@@ -86,7 +88,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
              WHERE id = ?`
           )
             .bind(
-              body.nickname,
+              sanitizedNickname,
               body.score,
               body.length,
               body.time_survived || null,
@@ -110,7 +112,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
            VALUES (?, ?, ?, ?, ?, ?, ?)`
         )
           .bind(
-            body.nickname,
+            sanitizedNickname,
             body.score,
             body.length,
             body.time_survived || null,
@@ -126,7 +128,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         `INSERT INTO snake_leaderboard (nickname, score, length, time_survived, date)
          VALUES (?, ?, ?, ?, ?)`
       )
-        .bind(body.nickname, body.score, body.length, body.time_survived || null, body.date)
+        .bind(sanitizedNickname, body.score, body.length, body.time_survived || null, body.date)
         .run();
     }
 

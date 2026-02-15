@@ -26,6 +26,7 @@ export function ProfileCard({ profile, userProfile, totalAchievements }: Profile
   const [nickname, setNickname] = useState(userProfile?.nickname || profile?.displayName || '');
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [savedNickname, setSavedNickname] = useState<string | null>(null);
 
   const handleSave = async () => {
     if (!profile?.uid || !nickname.trim()) return;
@@ -52,6 +53,7 @@ export function ProfileCard({ profile, userProfile, totalAchievements }: Profile
       });
 
       if (response.ok) {
+        setSavedNickname(nickname.trim());
         setIsEditing(false);
       } else {
         setSaveError('保存に失敗しました');
@@ -65,7 +67,7 @@ export function ProfileCard({ profile, userProfile, totalAchievements }: Profile
     }
   };
 
-  const displayName = userProfile?.nickname || profile?.displayName || 'ユーザー';
+  const displayName = savedNickname || userProfile?.nickname || profile?.displayName || 'ユーザー';
   const avatarUrl = userProfile?.avatar_url || profile?.photoURL;
   const joinDate = userProfile?.created_at
     ? new Date(userProfile.created_at).toLocaleDateString('ja-JP')
