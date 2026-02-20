@@ -36,10 +36,10 @@ const productsData = {
     {
       slug: 'navi',
       name: 'Navi',
-      tagline: '片手操作アプリ',
-      description: 'スマートフォンを片手で快適に操作するためのユーティリティアプリ',
+      tagline: '片手操作トラックパッド',
+      description: '画面下部をトラックパッドにして、片手でカーソル操作・タップ・スクロールを実現するAndroidアプリ',
       image: '/images/products/Navi.png',
-      features: ['片手操作最適化', 'カスタムジェスチャー', 'クイックアクション', 'ウィジェット'],
+      features: ['トラックパッド操作', 'カーソル＆タップ', 'スクロール＆ドラッグ', '37種のアクション'],
     },
     {
       slug: 'qraft',
@@ -78,10 +78,10 @@ const productsData = {
     {
       slug: 'navi',
       name: 'Navi',
-      tagline: 'One-handed Operation App',
-      description: 'A utility app for comfortable one-handed smartphone operation',
+      tagline: 'One-handed Trackpad',
+      description: 'An Android app that turns the bottom of your screen into a trackpad for one-handed cursor control, tapping, and scrolling',
       image: '/images/products/Navi.png',
-      features: ['One-hand Optimization', 'Custom Gestures', 'Quick Actions', 'Widgets'],
+      features: ['Trackpad Control', 'Cursor & Tap', 'Scroll & Drag', '37 Actions'],
     },
     {
       slug: 'qraft',
