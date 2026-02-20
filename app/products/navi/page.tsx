@@ -158,7 +158,7 @@ export default function NaviPage() {
                   <ExternalLink className="w-4 h-4" />
                 </a>
                 <a
-                  href="/legal/privacy"
+                  href="/privacy#navi"
                   className="inline-flex items-center gap-2 px-6 py-3 border border-input rounded-lg hover:bg-accent transition-colors"
                 >
                   {content[language].privacyPolicy}
