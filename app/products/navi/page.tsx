@@ -17,7 +17,7 @@ const featuresData = {
     {
       icon: Zap,
       title: 'タップ＆スクロール',
-      description: 'カーソル位置でのタップ、2本指スクロールに対応。Webブラウジングも快適に。',
+      description: 'カーソル位置でのタップ、スクロールモードで上下左右に快適スクロール。',
     },
     {
       icon: Layout,
@@ -39,7 +39,7 @@ const featuresData = {
     {
       icon: Zap,
       title: 'Tap & Scroll',
-      description: 'Tap at cursor position, two-finger scroll support. Comfortable web browsing and more.',
+      description: 'Tap at cursor position, scroll mode for smooth directional scrolling.',
     },
     {
       icon: Layout,
