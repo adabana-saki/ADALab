@@ -32,7 +32,7 @@ export interface OthelloGameState {
 }
 
 interface UseOthelloGameOptions {
-  onWin?: () => void;
+  onWin?: (info: { allCorners: boolean; wasLosingBy10: boolean }) => void;
   onLose?: () => void;
   onDraw?: () => void;
 }
@@ -47,12 +47,15 @@ export function useOthelloGame(options: UseOthelloGameOptions = {}) {
   const [isAIThinking, setIsAIThinking] = useState(false);
   const [passCount, setPassCount] = useState(0);
 
+  // 実績用トラッキング: ゲーム中の最大ビハインド
+  const worstDeficitRef = useRef(0);
+
   const aiTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const optionsRef = useRef(options);
   optionsRef.current = options;
 
   const pieces = countPieces(board);
-  const validMoves = currentPlayer === 1 && gameStatus === 'playing'
+  const validMoves = currentPlayer === 1 && (gameStatus === 'playing' || gameStatus === 'idle')
     ? getValidMoves(board, 1)
     : [];
 
@@ -64,8 +67,12 @@ export function useOthelloGame(options: UseOthelloGameOptions = {}) {
     if (blackMoves.length === 0 && whiteMoves.length === 0) {
       const { black, white } = countPieces(b);
       if (black > white) {
+        // 角の所有チェック
+        const corners: [number, number][] = [[0, 0], [0, 7], [7, 0], [7, 7]];
+        const allCorners = corners.every(([r, c]) => b[r][c] === 1);
+        const wasLosingBy10 = worstDeficitRef.current >= 10;
         setGameStatus('won');
-        optionsRef.current.onWin?.();
+        optionsRef.current.onWin?.({ allCorners, wasLosingBy10 });
       } else if (white > black) {
         setGameStatus('lost');
         optionsRef.current.onLose?.();
@@ -119,6 +126,13 @@ export function useOthelloGame(options: UseOthelloGameOptions = {}) {
       setLastFlips(flips);
       setPassCount(0);
 
+      // ビハインドトラッキング（実績用）
+      const piecesAfterAI = countPieces(newBoard);
+      const deficit = piecesAfterAI.white - piecesAfterAI.black;
+      if (deficit > worstDeficitRef.current) {
+        worstDeficitRef.current = deficit;
+      }
+
       if (checkGameEnd(newBoard)) {
         setIsAIThinking(false);
         return;
@@ -131,7 +145,7 @@ export function useOthelloGame(options: UseOthelloGameOptions = {}) {
         setPassCount(1);
         setIsAIThinking(false);
         // 次のAIターンをスケジュール
-        setTimeout(() => {
+        aiTimerRef.current = setTimeout(() => {
           executeAIMove(newBoard, diff, 1);
         }, 300);
         return;
@@ -185,6 +199,7 @@ export function useOthelloGame(options: UseOthelloGameOptions = {}) {
     setLastFlips([]);
     setIsAIThinking(false);
     setPassCount(0);
+    worstDeficitRef.current = 0;
   }, [difficulty]);
 
   // 難易度変更

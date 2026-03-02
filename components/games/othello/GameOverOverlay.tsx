@@ -36,17 +36,21 @@ export function GameOverOverlay({
       gameStatus === 'won' ? '勝利' : gameStatus === 'lost' ? '敗北' : '引き分け';
     const text = `オセロ（${DIFFICULTY_LABELS[difficulty]}）で${resultText}！ ●${blackCount} - ○${whiteCount}\n\n#ADALab #オセロ`;
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent('https://adalabtech.com/games/othello')}`;
-    window.open(url, '_blank');
+    window.open(url, '_blank', 'noopener,noreferrer');
     setShowShareMenu(false);
   };
 
-  const copyToClipboard = () => {
+  const copyToClipboard = async () => {
     const resultText =
       gameStatus === 'won' ? '勝利' : gameStatus === 'lost' ? '敗北' : '引き分け';
     const text = `オセロ（${DIFFICULTY_LABELS[difficulty]}）で${resultText}！ ●${blackCount} - ○${whiteCount}\nhttps://adalabtech.com/games/othello`;
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // clipboard API not available
+    }
   };
 
   return (

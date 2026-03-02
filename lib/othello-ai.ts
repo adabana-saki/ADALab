@@ -40,7 +40,7 @@ function isInBounds(r: number, c: number): boolean {
 
 /** 指定位置に駒を置いた場合に反転できる駒のリストを返す */
 export function getFlips(board: Board, row: number, col: number, player: CellState): [number, number][] {
-  if (board[row][col] !== 0) return [];
+  if (!isInBounds(row, col) || board[row][col] !== 0) return [];
   const opponent = player === 1 ? 2 : 1;
   const allFlips: [number, number][] = [];
 
