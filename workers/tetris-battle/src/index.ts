@@ -5,6 +5,7 @@ import { TypingRoom } from './TypingRoom';
 import { Game2048Room } from './Game2048Room';
 import { SnakeRoom } from './SnakeRoom';
 import { MinesweeperRoom } from './MinesweeperRoom';
+import { OthelloRoom } from './OthelloRoom';
 
 interface Env {
   TETRIS_ROOM: DurableObjectNamespace;
@@ -14,6 +15,7 @@ interface Env {
   GAME_2048_ROOM: DurableObjectNamespace;
   SNAKE_ROOM: DurableObjectNamespace;
   MINESWEEPER_ROOM: DurableObjectNamespace;
+  OTHELLO_ROOM: DurableObjectNamespace;
   ALLOWED_ORIGINS: string;
 }
 
@@ -145,6 +147,24 @@ export default {
       return handleWebSocket(request, env, roomId, 'minesweeper');
     }
 
+    // Othello Battle routes
+    if (path === '/api/battle/othello/create') {
+      return handleCreateRoom(request, env, 'othello');
+    }
+    if (path === '/api/battle/othello/join') {
+      return handleJoinRoom(request, env, 'othello');
+    }
+    if (path === '/api/battle/othello/queue') {
+      return handleMatchmaking(request, env, 'othello');
+    }
+    if (path === '/api/battle/othello/queue/cancel') {
+      return handleMatchmakingCancel(request, env, 'othello');
+    }
+    if (path.startsWith('/ws/othello/')) {
+      const roomId = path.replace('/ws/othello/', '');
+      return handleWebSocket(request, env, roomId, 'othello');
+    }
+
     return new Response('Not Found', { status: 404, headers: corsHeaders });
   },
 };
@@ -159,7 +179,7 @@ function generateRoomCode(): string {
   return code;
 }
 
-type GameType = 'tetris' | 'typing' | '2048' | 'snake' | 'minesweeper';
+type GameType = 'tetris' | 'typing' | '2048' | 'snake' | 'minesweeper' | 'othello';
 
 function getRoomNamespace(env: Env, gameType: GameType): DurableObjectNamespace {
   switch (gameType) {
@@ -167,6 +187,7 @@ function getRoomNamespace(env: Env, gameType: GameType): DurableObjectNamespace 
     case '2048': return env.GAME_2048_ROOM;
     case 'snake': return env.SNAKE_ROOM;
     case 'minesweeper': return env.MINESWEEPER_ROOM;
+    case 'othello': return env.OTHELLO_ROOM;
     default: return env.TETRIS_ROOM;
   }
 }
@@ -177,6 +198,7 @@ function getWsPath(gameType: GameType): string {
     case '2048': return '/ws/2048/';
     case 'snake': return '/ws/snake/';
     case 'minesweeper': return '/ws/minesweeper/';
+    case 'othello': return '/ws/othello/';
     default: return '/ws/room/';
   }
 }
@@ -477,4 +499,4 @@ async function handlePresence(request: Request, env: Env, action: string): Promi
 }
 
 // Export Durable Object classes
-export { TetrisRoom, OnlinePresence, MatchmakingQueue, TypingRoom, Game2048Room, SnakeRoom, MinesweeperRoom };
+export { TetrisRoom, OnlinePresence, MatchmakingQueue, TypingRoom, Game2048Room, SnakeRoom, MinesweeperRoom, OthelloRoom };
