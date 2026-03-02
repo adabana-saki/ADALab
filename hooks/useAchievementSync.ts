@@ -3,7 +3,7 @@
 import { useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
-type GameType = 'tetris' | '2048' | 'snake' | 'typing' | 'minesweeper';
+type GameType = 'tetris' | '2048' | 'snake' | 'typing' | 'minesweeper' | 'othello';
 
 /**
  * 実績をサーバーに同期するためのフック

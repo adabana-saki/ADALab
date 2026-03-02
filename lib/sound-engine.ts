@@ -41,6 +41,9 @@ export const GAME_BGM_TRACKS: Record<string, BgmTrack[]> = {
     { id: 'minesweeper-hayate-samurai', label: '疾風サムライ', src: '/audio/minesweeper-hayate-samurai.mp3' },
     { id: 'minesweeper-matsuri-beat', label: '祭りビートで恋しよう', src: '/audio/minesweeper-matsuri-beat.mp3' },
   ],
+  othello: [
+    { id: 'none', label: 'OFF', src: '' },
+  ],
 };
 
 export class SoundEngine {

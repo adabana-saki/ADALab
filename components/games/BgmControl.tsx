@@ -5,7 +5,7 @@ import { Music, Volume2, VolumeX, ChevronDown, Zap } from 'lucide-react';
 import { getSoundEngine, GAME_BGM_TRACKS, BgmTrack } from '@/lib/sound-engine';
 
 interface BgmControlProps {
-  game: 'snake' | '2048' | 'typing' | 'minesweeper';
+  game: 'snake' | '2048' | 'typing' | 'minesweeper' | 'othello';
   isPlaying: boolean;
   className?: string;
 }
