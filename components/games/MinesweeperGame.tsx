@@ -418,7 +418,8 @@ export function MinesweeperGame({ showBattleButton = true }: MinesweeperGameProp
           className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium"
         >
           <RotateCcw size={18} />
-          New Game
+          <span className="hidden sm:inline">新しいゲーム</span>
+          <span className="sm:hidden">リセット</span>
         </motion.button>
 
         <motion.button

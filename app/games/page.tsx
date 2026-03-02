@@ -15,14 +15,14 @@ const games = [
     title: '2048',
     description: '数字タイルをスライドして合体！2048を目指すパズルゲーム。',
     thumbnail: '/images/games/2048-thumbnail.png',
-    isNew: true,
+    isNew: false,
   },
   {
     id: 'snake',
     title: 'Snake',
     description: 'スネークを操作してエサを食べよう！壁や自分にぶつからないように！',
     thumbnail: '/images/games/snake-thumbnail.png',
-    isNew: true,
+    isNew: false,
   },
   {
     id: 'typing',
@@ -36,6 +36,13 @@ const games = [
     title: 'Minesweeper',
     description: '地雷を避けてすべてのセルを開けよう！初級・中級・上級の3難易度。',
     thumbnail: '/images/games/minesweeper-thumbnail.png',
+    isNew: false,
+  },
+  {
+    id: 'othello',
+    title: 'Othello',
+    description: 'AIと対戦できるオセロ。3つの難易度で頭脳バトル！',
+    thumbnail: '/images/games/othello-thumbnail.png',
     isNew: true,
   },
 ];
