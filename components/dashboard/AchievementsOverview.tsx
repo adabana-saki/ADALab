@@ -2,12 +2,13 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Award, Gamepad2, Target, TrendingUp, Medal, Bomb, ChevronDown, Lock, HelpCircle } from 'lucide-react';
+import { Award, Gamepad2, Target, TrendingUp, Medal, Bomb, Circle, ChevronDown, Lock, HelpCircle } from 'lucide-react';
 import { GAME_ACHIEVEMENTS, GAME_RARITY_STYLES, type GameAchievement } from '@/lib/game-achievements';
 import { GAME_2048_ACHIEVEMENTS } from '@/lib/game-2048-achievements';
 import { SNAKE_ACHIEVEMENTS } from '@/lib/snake-achievements';
 import { TYPING_ACHIEVEMENTS } from '@/lib/typing-achievements';
 import { MINESWEEPER_ACHIEVEMENTS } from '@/lib/minesweeper-achievements';
+import { OTHELLO_ACHIEVEMENTS } from '@/lib/othello-achievements';
 
 interface UnlockedAchievement {
   id: string;
@@ -69,6 +70,14 @@ const gameInfo: GameAchievementInfo[] = [
     color: 'bg-red-500',
     bgColor: 'bg-red-500/10',
     achievements: MINESWEEPER_ACHIEVEMENTS,
+  },
+  {
+    key: 'othello',
+    name: 'Othello',
+    icon: <Circle size={18} />,
+    color: 'bg-emerald-500',
+    bgColor: 'bg-emerald-500/10',
+    achievements: OTHELLO_ACHIEVEMENTS,
   },
 ];
 

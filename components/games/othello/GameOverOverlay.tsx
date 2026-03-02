@@ -34,7 +34,7 @@ export function GameOverOverlay({
   const shareToTwitter = () => {
     const resultText =
       gameStatus === 'won' ? '勝利' : gameStatus === 'lost' ? '敗北' : '引き分け';
-    const text = `オセロ（${DIFFICULTY_LABELS[difficulty]}）で${resultText}！ ●${blackCount} - ○${whiteCount}\n\n#ADALab #オセロ`;
+    const text = `オセロ（${DIFFICULTY_LABELS[difficulty]}）で${resultText}！ 黒${blackCount} - 白${whiteCount}\n\n#ADALab #オセロ`;
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent('https://adalabtech.com/games/othello')}`;
     window.open(url, '_blank', 'noopener,noreferrer');
     setShowShareMenu(false);
@@ -43,7 +43,7 @@ export function GameOverOverlay({
   const copyToClipboard = async () => {
     const resultText =
       gameStatus === 'won' ? '勝利' : gameStatus === 'lost' ? '敗北' : '引き分け';
-    const text = `オセロ（${DIFFICULTY_LABELS[difficulty]}）で${resultText}！ ●${blackCount} - ○${whiteCount}\nhttps://adalabtech.com/games/othello`;
+    const text = `オセロ（${DIFFICULTY_LABELS[difficulty]}）で${resultText}！ 黒${blackCount} - 白${whiteCount}\nhttps://adalabtech.com/games/othello`;
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
@@ -96,10 +96,16 @@ export function GameOverOverlay({
               </>
             )}
 
-            <div className="text-2xl font-bold mb-6">
-              <span className="text-foreground">●{blackCount}</span>
-              <span className="text-muted-foreground mx-3">-</span>
-              <span className="text-foreground">○{whiteCount}</span>
+            <div className="flex items-center justify-center gap-3 text-2xl font-bold mb-6">
+              <div className="flex items-center gap-1.5">
+                <div className="w-5 h-5 rounded-full" style={{ background: 'radial-gradient(circle at 35% 35%, #555, #111)' }} />
+                <span>{blackCount}</span>
+              </div>
+              <span className="text-muted-foreground">-</span>
+              <div className="flex items-center gap-1.5">
+                <span>{whiteCount}</span>
+                <div className="w-5 h-5 rounded-full border border-gray-300" style={{ background: 'radial-gradient(circle at 35% 35%, #fff, #ccc)' }} />
+              </div>
             </div>
 
             <div className="flex gap-3 justify-center flex-wrap">

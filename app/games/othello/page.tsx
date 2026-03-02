@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { OthelloGame } from '@/components/games/OthelloGame';
 import { GameStructuredData } from '@/components/games/GameStructuredData';
 import { SITE_CONFIG } from '@/lib/constants';
-import { Gamepad2, ArrowLeft } from 'lucide-react';
+import { Gamepad2, ArrowLeft, Swords } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
@@ -51,6 +51,13 @@ export default function OthelloPage() {
             >
               <ArrowLeft size={16} />
               ゲーム一覧に戻る
+            </Link>
+            <Link
+              href="/games/othello/battle"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+            >
+              <Swords size={16} />
+              オンライン対戦
             </Link>
           </div>
 
