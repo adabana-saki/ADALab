@@ -34,7 +34,7 @@ export function GameOverOverlay({
   const shareToTwitter = () => {
     const resultText =
       gameStatus === 'won' ? '勝利' : gameStatus === 'lost' ? '敗北' : '引き分け';
-    const text = `オセロ（${DIFFICULTY_LABELS[difficulty]}）で${resultText}！ 黒${blackCount} - 白${whiteCount}\n\n#ADALab #オセロ`;
+    const text = `リバーシ（${DIFFICULTY_LABELS[difficulty]}）で${resultText}！ 黒${blackCount} - 白${whiteCount}\n\n#ADALab #リバーシ`;
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent('https://adalabtech.com/games/othello')}`;
     window.open(url, '_blank', 'noopener,noreferrer');
     setShowShareMenu(false);
@@ -43,7 +43,7 @@ export function GameOverOverlay({
   const copyToClipboard = async () => {
     const resultText =
       gameStatus === 'won' ? '勝利' : gameStatus === 'lost' ? '敗北' : '引き分け';
-    const text = `オセロ（${DIFFICULTY_LABELS[difficulty]}）で${resultText}！ 黒${blackCount} - 白${whiteCount}\nhttps://adalabtech.com/games/othello`;
+    const text = `リバーシ（${DIFFICULTY_LABELS[difficulty]}）で${resultText}！ 黒${blackCount} - 白${whiteCount}\nhttps://adalabtech.com/games/othello`;
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);

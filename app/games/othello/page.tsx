@@ -6,16 +6,16 @@ import { Gamepad2, ArrowLeft, Swords } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'オセロ',
+  title: 'リバーシ',
   description:
-    'AIと対戦できるオセロ（リバーシ）ゲーム。かんたん・ふつう・むずかしいの3つの難易度でプレイ可能。',
-  keywords: ['オセロ', 'リバーシ', 'Othello', 'Reversi', 'ブラウザゲーム', '無料', 'AI対戦', 'ADA Lab'],
+    'AIと対戦できるリバーシ（オセロ）ゲーム。かんたん・ふつう・むずかしいの3つの難易度でプレイ可能。',
+  keywords: ['リバーシ', 'オセロ', 'Reversi', 'Othello', 'ブラウザゲーム', '無料', 'AI対戦', 'ADA Lab'],
   alternates: {
     canonical: `${SITE_CONFIG.url}/games/othello`,
   },
   openGraph: {
-    title: 'オセロ | ADA Lab Games',
-    description: 'AIと対戦できるオセロゲーム。3つの難易度で遊べます！',
+    title: 'リバーシ | ADA Lab Games',
+    description: 'AIと対戦できるリバーシゲーム。3つの難易度で遊べます！',
     url: `${SITE_CONFIG.url}/games/othello`,
     images: ['/images/games/othello-thumbnail.png'],
     type: 'website',
@@ -23,8 +23,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'オセロ | ADA Lab Games',
-    description: 'AIと対戦できるオセロゲーム',
+    title: 'リバーシ | ADA Lab Games',
+    description: 'AIと対戦できるリバーシゲーム',
     images: ['/images/games/othello-thumbnail.png'],
   },
 };
@@ -33,8 +33,8 @@ export default function OthelloPage() {
   return (
     <>
       <GameStructuredData
-        name="オセロ"
-        description="AIと対戦できるオセロ（リバーシ）ゲーム。かんたん・ふつう・むずかしいの3つの難易度でプレイ可能。"
+        name="リバーシ"
+        description="AIと対戦できるリバーシ（オセロ）ゲーム。かんたん・ふつう・むずかしいの3つの難易度でプレイ可能。"
         url={`${SITE_CONFIG.url}/games/othello`}
         image={`${SITE_CONFIG.url}/images/games/othello-thumbnail.png`}
         genre={['Board', 'Strategy']}
@@ -67,7 +67,7 @@ export default function OthelloPage() {
               <Gamepad2 size={24} />
               <span className="text-sm font-medium uppercase tracking-wider">ADA Lab Games</span>
             </div>
-            <h1 className="text-2xl sm:text-4xl font-bold mb-4">オセロ</h1>
+            <h1 className="text-2xl sm:text-4xl font-bold mb-4">リバーシ</h1>
             <p className="text-muted-foreground max-w-md mx-auto">
               AIと対戦！相手より多くの駒を自分の色にしよう！
             </p>

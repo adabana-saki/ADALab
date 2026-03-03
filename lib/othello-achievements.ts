@@ -5,7 +5,7 @@ export const OTHELLO_ACHIEVEMENTS: GameAchievement[] = [
   {
     id: 'othello_first_game',
     name: 'はじめの一手',
-    description: '最初のオセロをプレイ',
+    description: '最初のリバーシをプレイ',
     icon: '⚫',
     category: 'gameplay' as GameAchievementCategory,
     rarity: 'common' as GameAchievementRarity,
@@ -24,7 +24,7 @@ export const OTHELLO_ACHIEVEMENTS: GameAchievement[] = [
   // マイルストーン
   {
     id: 'othello_10_games',
-    name: 'オセロ練習生',
+    name: 'リバーシ練習生',
     description: '10回プレイする',
     icon: '📊',
     category: 'milestone' as GameAchievementCategory,
@@ -33,7 +33,7 @@ export const OTHELLO_ACHIEVEMENTS: GameAchievement[] = [
   },
   {
     id: 'othello_50_games',
-    name: 'オセロマスター',
+    name: 'リバーシマスター',
     description: '50回プレイする',
     icon: '🎯',
     category: 'milestone' as GameAchievementCategory,
@@ -42,7 +42,7 @@ export const OTHELLO_ACHIEVEMENTS: GameAchievement[] = [
   },
   {
     id: 'othello_100_games',
-    name: 'オセロレジェンド',
+    name: 'リバーシレジェンド',
     description: '100回プレイする',
     icon: '🏆',
     category: 'milestone' as GameAchievementCategory,
@@ -169,14 +169,14 @@ export const OTHELLO_ACHIEVEMENTS: GameAchievement[] = [
   // 隠し実績
   {
     id: 'othello_night_owl',
-    name: '夜更かしオセロ',
+    name: '夜更かしリバーシ',
     description: '深夜2時〜5時にプレイ',
     icon: '🦉',
     category: 'special' as GameAchievementCategory,
     rarity: 'rare' as GameAchievementRarity,
     xp: 75,
     hidden: true,
-    hint: '夜更かしするオセロプレイヤー...',
+    hint: '夜更かしするリバーシプレイヤー...',
   },
   {
     id: 'othello_all_difficulties',

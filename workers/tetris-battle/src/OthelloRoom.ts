@@ -1,6 +1,6 @@
 import { DurableObject } from 'cloudflare:workers';
 
-// ===== オセロ盤面ロジック（サーバー側） =====
+// ===== リバーシ盤面ロジック（サーバー側） =====
 
 type CellState = 0 | 1 | 2; // 0=空, 1=黒, 2=白
 type Board = CellState[][];
