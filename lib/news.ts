@@ -14,6 +14,12 @@ export interface NewsItem {
 export const newsData: Record<'ja' | 'en', NewsItem[]> = {
   ja: [
     {
+      date: '2026-03-03',
+      type: 'announcement',
+      title: 'ミニゲーム「リバーシ」を公開しました',
+      content: 'AIと対戦できるリバーシ（オセロ）ゲームを公開しました。かんたん・ふつう・むずかしいの3つの難易度に加え、実績システムやオンライン対戦機能も搭載しています。',
+    },
+    {
       date: '2026-01-18',
       type: 'announcement',
       title: 'ミニゲーム「マインスイーパー」を公開しました',
@@ -69,6 +75,12 @@ export const newsData: Record<'ja' | 'en', NewsItem[]> = {
     },
   ],
   en: [
+    {
+      date: '2026-03-03',
+      type: 'announcement',
+      title: 'Mini Game "Reversi" Released',
+      content: 'We have released a Reversi (Othello) game where you can play against AI. Features 3 difficulty levels (Easy, Normal, Hard), achievement system, and online battle mode.',
+    },
     {
       date: '2026-01-18',
       type: 'announcement',

@@ -40,8 +40,8 @@ const games = [
   },
   {
     id: 'othello',
-    title: 'Othello',
-    description: 'AIと対戦できるオセロ。3つの難易度で頭脳バトル！',
+    title: 'Reversi',
+    description: 'AIと対戦できるリバーシ。3つの難易度で頭脳バトル！',
     thumbnail: '/images/games/othello-thumbnail.png',
     isNew: true,
   },
