@@ -41,7 +41,7 @@ function verifyAuth(request: Request): { uid: string } | null {
 }
 
 // Valid game types (matches database CHECK constraint)
-const VALID_GAME_TYPES = ['tetris', '2048', 'snake', 'typing', 'minesweeper'];
+const VALID_GAME_TYPES = ['tetris', '2048', 'snake', 'typing', 'minesweeper', 'othello'];
 
 // POST: 実績を同期
 export const onRequestPost: PagesFunction<Env> = async (context) => {
