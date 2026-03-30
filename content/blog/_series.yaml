@@ -16,6 +16,16 @@ omarchy-guide:
   # 完結しているか
   completed: true
 
+othello-dev:
+  title: "リバーシ開発の舞台裏"
+  description: "リバーシ（オセロ）ゲームの開発で使ったAIアルゴリズム、オンライン対戦の実装、評価関数の設計を解説"
+  posts:
+    - programming/othello-ai-algorithm
+    - programming/othello-battle-durable-objects
+    - programming/othello-evaluation-function
+  level: "中級者〜上級者"
+  completed: true
+
 # 今後追加予定のシリーズ例:
 #
 # nextjs-tutorial:
