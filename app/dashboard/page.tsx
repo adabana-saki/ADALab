@@ -70,6 +70,12 @@ const GAME_LOCAL_STORAGE_MAP = [
     statsKey: 'minesweeper-stats-v1',
     achievementFormat: 'array' as const, // string[]
   },
+  {
+    gameType: 'othello' as const,
+    achievementsKey: 'othello-achievements-v1',
+    statsKey: 'othello-stats-v1',
+    achievementFormat: 'array' as const, // string[]
+  },
 ];
 
 /**

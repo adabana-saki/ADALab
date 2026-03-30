@@ -4,6 +4,7 @@ import { GameStructuredData } from '@/components/games/GameStructuredData';
 import { SITE_CONFIG } from '@/lib/constants';
 import { Gamepad2, ArrowLeft, Swords } from 'lucide-react';
 import Link from 'next/link';
+import { OnlineIndicator } from '@/components/OnlineIndicator';
 
 export const metadata: Metadata = {
   title: 'リバーシ',
@@ -52,13 +53,7 @@ export default function OthelloPage() {
               <ArrowLeft size={16} />
               ゲーム一覧に戻る
             </Link>
-            <Link
-              href="/games/othello/battle"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
-            >
-              <Swords size={16} />
-              オンライン対戦
-            </Link>
+            <OnlineIndicator page="othello" />
           </div>
 
           {/* ヘッダー */}
@@ -71,6 +66,15 @@ export default function OthelloPage() {
             <p className="text-muted-foreground max-w-md mx-auto">
               AIと対戦！相手より多くの駒を自分の色にしよう！
             </p>
+
+            {/* 対戦モードへのリンク */}
+            <Link
+              href="/games/othello/battle"
+              className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors"
+            >
+              <Swords className="w-5 h-5" />
+              オンライン対戦
+            </Link>
           </div>
 
           {/* ゲーム本体 */}
