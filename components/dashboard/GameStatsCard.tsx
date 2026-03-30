@@ -130,6 +130,29 @@ export function GameStatsCard({
             </div>
           </div>
         );
+      case 'othello':
+        return (
+          <div className="space-y-1 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">勝敗</span>
+              <span className="font-medium">
+                {Number(gameStats.totalWins) || 0}勝 {Number(gameStats.totalLosses) || 0}敗 {Number(gameStats.totalDraws) || 0}分
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">勝率</span>
+              <span className="font-medium">
+                {(Number(gameStats.totalGames) || 0) > 0
+                  ? `${Math.round(((Number(gameStats.totalWins) || 0) / Number(gameStats.totalGames)) * 100)}%`
+                  : '-'}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">プレイ回数</span>
+              <span className="font-medium">{Number(gameStats.totalGames) || 0}</span>
+            </div>
+          </div>
+        );
       default:
         return null;
     }
