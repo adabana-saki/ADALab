@@ -10,6 +10,7 @@ import {
   Medal,
   Target,
   Bomb,
+  Circle,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProfileCard } from '@/components/dashboard/ProfileCard';
@@ -322,6 +323,13 @@ export default function DashboardPage() {
                 icon={<Bomb size={20} />}
                 stats={data?.gameStats?.minesweeper}
                 achievementCount={data?.achievementCounts?.minesweeper || 0}
+              />
+              <GameStatsCard
+                game="othello"
+                title="Reversi"
+                icon={<Circle size={20} />}
+                stats={data?.gameStats?.othello}
+                achievementCount={data?.achievementCounts?.othello || 0}
               />
             </div>
 
