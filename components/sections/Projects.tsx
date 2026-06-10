@@ -70,9 +70,15 @@ export function Projects() {
                     <h3 className="text-xl font-bold text-white mb-2 drop-shadow-md">
                       {project.title}
                     </h3>
-                    <span className="px-3 py-1 bg-yellow-500/90 text-black text-xs font-bold rounded-full">
-                      Coming Soon
-                    </span>
+                    {project.link ? (
+                      <span className="px-3 py-1 bg-emerald-500/90 text-black text-xs font-bold rounded-full">
+                        LIVE
+                      </span>
+                    ) : (
+                      <span className="px-3 py-1 bg-yellow-500/90 text-black text-xs font-bold rounded-full">
+                        Coming Soon
+                      </span>
+                    )}
                   </div>
                   {/* Action Icons */}
                   <div className="absolute top-4 right-4 flex gap-2">
@@ -168,6 +174,19 @@ export function Projects() {
                                 ))}
                               </ul>
                             </div>
+                          )}
+
+                          {/* Live Site Link */}
+                          {project.link && (
+                            <a
+                              href={project.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center justify-center w-full mt-2 h-9 rounded-md px-4 bg-primary text-primary-foreground hover:opacity-90 transition-all text-sm font-medium"
+                            >
+                              サイトを開く
+                              <ArrowRight size={14} className="ml-2" />
+                            </a>
                           )}
 
                           {/* Detail Page Link */}
