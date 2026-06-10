@@ -31,6 +31,7 @@ export function Navigation() {
     { name: 'About', href: '/#about' },
     { name: 'Products', href: '/products' },
     { name: 'Games', href: '/games' },
+    { name: 'Study', href: 'https://study.adalabtech.com', external: true },
     { name: 'Blog', href: '/blog' },
     { name: 'News', href: '/news' },
     { name: 'FAQ', href: '/#faq' },
@@ -103,18 +104,33 @@ export function Navigation() {
               <ul className="flex items-center gap-1">
                 {navItems.map((item) => (
                   <li key={item.name}>
-                    <Link
-                      href={item.href}
-                      onClick={(e) => handleNavClick(e, item.href)}
-                      className={cn(
-                        "px-4 py-2 rounded-lg text-sm font-medium transition-all",
-                        isActiveLink(item.href)
-                          ? "bg-primary/10 text-primary"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                      )}
-                    >
-                      {item.name}
-                    </Link>
+                    {item.external ? (
+                      <a
+                        href={item.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={cn(
+                          "px-4 py-2 rounded-lg text-sm font-medium transition-all inline-flex items-center gap-1",
+                          "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                        )}
+                      >
+                        {item.name}
+                        <span aria-hidden className="text-[10px] opacity-60">↗</span>
+                      </a>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        onClick={(e) => handleNavClick(e, item.href)}
+                        className={cn(
+                          "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                          isActiveLink(item.href)
+                            ? "bg-primary/10 text-primary"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                        )}
+                      >
+                        {item.name}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -157,21 +173,37 @@ export function Navigation() {
             className="fixed inset-x-0 top-[72px] z-40 bg-background/95 backdrop-blur-xl border-b border-border/50 md:hidden"
           >
             <div className="container mx-auto px-4 py-4 space-y-2">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={(e) => handleNavClick(e, item.href)}
-                  className={cn(
-                    "block px-4 py-3 rounded-lg text-base font-medium transition-all",
-                    isActiveLink(item.href)
-                      ? "bg-primary/10 text-primary"
-                      : "text-foreground hover:bg-muted/50"
-                  )}
-                >
-                  {item.name}
-                </Link>
-              ))}
+              {navItems.map((item) =>
+                item.external ? (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(
+                      "block px-4 py-3 rounded-lg text-base font-medium transition-all",
+                      "text-foreground hover:bg-muted/50 inline-flex items-center gap-1"
+                    )}
+                  >
+                    {item.name}
+                    <span aria-hidden className="text-xs opacity-60">↗</span>
+                  </a>
+                ) : (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={(e) => handleNavClick(e, item.href)}
+                    className={cn(
+                      "block px-4 py-3 rounded-lg text-base font-medium transition-all",
+                      isActiveLink(item.href)
+                        ? "bg-primary/10 text-primary"
+                        : "text-foreground hover:bg-muted/50"
+                    )}
+                  >
+                    {item.name}
+                  </Link>
+                ),
+              )}
 
               <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/50">
                 <div className="flex items-center gap-2">
