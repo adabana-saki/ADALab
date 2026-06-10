@@ -2,6 +2,38 @@ import type { Project } from '@/types';
 
 export const PROJECTS: Project[] = [
   {
+    id: '0',
+    title: 'adalab focus',
+    description:
+      '集中力を可視化する PWA。TODO・ポモドーロ・学習記録・統計・カウントダウンを 1 つのダークなネオン画面に。',
+    longDescription:
+      'TickTick / Todoist 系のタスク管理に、ポモドーロタイマー・学習記録・統計・試験カウントダウンを統合した個人向け集中管理 PWA。Cyberpunk Neon デザインで、PC とスマホで自動同期、完全オフライン対応。Cloudflare D1 + Google OAuth で稼働。',
+    category: 'web',
+    image: '/images/products/Adalabstudy.png',
+    technologies: ['React 19', 'TypeScript', 'Vite', 'Tailwind v4', 'Cloudflare Pages', 'D1', 'PWA'],
+    features: [
+      'TODO 管理',
+      'ポモドーロ',
+      '学習統計',
+      '試験カウントダウン',
+      'オフライン PWA',
+      'Google ログイン',
+    ],
+    gradient: 'from-cyan-500 to-purple-500',
+    duration: '公開中',
+    teamSize: '1名',
+    role: 'フルスタック開発',
+    challenges: [
+      'PWA オフライン同期 (Dexie + Outbox + Background Sync)',
+      'Cloudflare D1 + Google OAuth (PKCE) のサーバーレス認証',
+      'Cyberpunk Neon デザインシステム構築',
+    ],
+    results: [
+      'study.adalabtech.com で稼働中',
+    ],
+    link: 'https://study.adalabtech.com',
+  },
+  {
     id: '1',
     title: 'ShortShield',
     description:
