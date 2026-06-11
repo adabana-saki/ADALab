@@ -19,11 +19,11 @@ const productsData = {
       externalUrl: 'https://study.adalabtech.com',
     },
     {
-      slug: 'shortshield',
-      name: 'ShortShield',
+      slug: 'adalab-shield',
+      name: 'adalab shield',
       tagline: 'ショート動画ブロッカー',
       description: 'ショート動画の視聴を制限し、集中力を取り戻すためのブラウザ拡張機能',
-      image: '/images/products/ShortShield.png',
+      image: '/images/products/adalab-shield.png',
       features: ['ショート動画ブロック', '時間制限設定', '集中モード', '統計表示'],
     },
     {
@@ -70,11 +70,11 @@ const productsData = {
       externalUrl: 'https://study.adalabtech.com',
     },
     {
-      slug: 'shortshield',
-      name: 'ShortShield',
+      slug: 'adalab-shield',
+      name: 'adalab shield',
       tagline: 'Short Video Blocker',
       description: 'A browser extension to limit short video viewing and regain your focus',
-      image: '/images/products/ShortShield.png',
+      image: '/images/products/adalab-shield.png',
       features: ['Block Shorts', 'Time Limits', 'Focus Mode', 'Statistics'],
     },
     {

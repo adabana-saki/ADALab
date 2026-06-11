@@ -35,13 +35,13 @@ export const PROJECTS: Project[] = [
   },
   {
     id: '1',
-    title: 'ShortShield',
+    title: 'adalab shield',
     description:
       'ショート動画の視聴を制限し、集中力を取り戻すためのブラウザ拡張機能。',
     longDescription:
-      'YouTube Shorts、TikTok、Instagramリールなど、主要なショート動画プラットフォームをブロック。時間制限設定や集中モード、ブロック統計表示など、デジタルウェルビーイングをサポートする機能を搭載しています。',
+      'YouTube Shorts、TikTok、Instagramリールなど、主要なショート動画プラットフォームをブロック。adalab focus (study.adalabtech.com) のポモドーロと連携し、フォーカス中はサイトを自動ブロック・休憩中は解除。時間制限設定や集中モード、ブロック統計表示など、デジタルウェルビーイングをサポートする機能を搭載しています。',
     category: 'web',
-    image: '/images/products/ShortShield.png',
+    image: '/images/products/adalab-shield.png',
     technologies: ['JavaScript', 'Chrome Extension API', 'Firefox WebExtensions'],
     features: [
       'ショート動画ブロック',
@@ -49,6 +49,7 @@ export const PROJECTS: Project[] = [
       '集中モード',
       '統計表示',
       'ホワイトリスト機能',
+      'adalab focus 連携 (フォーカス中の自動ブロック)',
       'ポモドーロ対応',
     ],
     gradient: 'from-orange-500 to-red-500',
@@ -63,7 +64,7 @@ export const PROJECTS: Project[] = [
     results: [
       'Coming Soon',
     ],
-    detailPath: '/products/shortshield',
+    detailPath: '/products/adalab-shield',
   },
   {
     id: '2',
