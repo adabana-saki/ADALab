@@ -85,7 +85,7 @@ const faqsData = {
   ],
 };
 
-export default function ShortShieldPage() {
+export default function AdalabShieldPage() {
   const { language } = useLanguage();
   const features = featuresData[language];
   const faqs = faqsData[language];
@@ -125,14 +125,14 @@ export default function ShortShieldPage() {
             <div className="text-center mb-16">
               <div className="relative w-48 h-48 md:w-64 md:h-64 mx-auto mb-6 rounded-3xl overflow-hidden shadow-2xl">
                 <Image
-                  src="/images/products/ShortShield.png"
-                  alt="ShortShield"
+                  src="/images/products/adalab-shield.png"
+                  alt="adalab shield"
                   fill
                   className="object-cover"
                   priority
                 />
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">ShortShield</h1>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">adalab shield</h1>
               <p className="text-xl text-muted-foreground mb-8">
                 {content[language].tagline}
               </p>

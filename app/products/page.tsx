@@ -10,11 +10,20 @@ import { useLanguage } from '@/contexts/LanguageContext';
 const productsData = {
   ja: [
     {
-      slug: 'shortshield',
-      name: 'ShortShield',
+      slug: 'adalabstudy',
+      name: 'adalab focus',
+      tagline: '集中力を可視化する PWA',
+      description: 'TODO・ポモドーロ・学習記録・統計・カウントダウンを 1 つのダークなネオン画面に統合した集中管理 PWA。PC とスマホで自動同期、オフライン対応。',
+      image: '/images/products/Adalabstudy.png',
+      features: ['TODO 管理', 'ポモドーロ', '学習統計', 'オフライン PWA'],
+      externalUrl: 'https://study.adalabtech.com',
+    },
+    {
+      slug: 'adalab-shield',
+      name: 'adalab shield',
       tagline: 'ショート動画ブロッカー',
       description: 'ショート動画の視聴を制限し、集中力を取り戻すためのブラウザ拡張機能',
-      image: '/images/products/ShortShield.png',
+      image: '/images/products/adalab-shield.png',
       features: ['ショート動画ブロック', '時間制限設定', '集中モード', '統計表示'],
     },
     {
@@ -52,11 +61,20 @@ const productsData = {
   ],
   en: [
     {
-      slug: 'shortshield',
-      name: 'ShortShield',
+      slug: 'adalabstudy',
+      name: 'adalab focus',
+      tagline: 'Visualize Your Focus',
+      description: 'An integrated focus management PWA combining TODO, Pomodoro, study records, statistics, and countdowns in a single dark neon interface. Auto-syncs between PC and phone with full offline support.',
+      image: '/images/products/Adalabstudy.png',
+      features: ['TODO', 'Pomodoro', 'Stats', 'Offline PWA'],
+      externalUrl: 'https://study.adalabtech.com',
+    },
+    {
+      slug: 'adalab-shield',
+      name: 'adalab shield',
       tagline: 'Short Video Blocker',
       description: 'A browser extension to limit short video viewing and regain your focus',
-      image: '/images/products/ShortShield.png',
+      image: '/images/products/adalab-shield.png',
       features: ['Block Shorts', 'Time Limits', 'Focus Mode', 'Statistics'],
     },
     {
@@ -123,45 +141,63 @@ export default function ProductsPage() {
             </p>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {products.map((product) => (
-                <Link
-                  key={product.slug}
-                  href={`/products/${product.slug}`}
-                  className="glass p-6 rounded-2xl hover:bg-muted/30 transition-all group"
-                >
-                  <div className="w-14 h-14 rounded-xl overflow-hidden mb-4">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      width={56}
-                      height={56}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+              {products.map((product) => {
+                const cardClass = 'glass p-6 rounded-2xl hover:bg-muted/30 transition-all group';
+                const Inner = (
+                  <>
+                    <div className="w-14 h-14 rounded-xl overflow-hidden mb-4">
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        width={56}
+                        height={56}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
 
-                  <h2 className="text-2xl font-bold mb-1 group-hover:text-primary transition-colors">
-                    {product.name}
-                  </h2>
-                  <p className="text-sm text-primary mb-3">{product.tagline}</p>
-                  <p className="text-muted-foreground mb-4">{product.description}</p>
+                    <h2 className="text-2xl font-bold mb-1 group-hover:text-primary transition-colors">
+                      {product.name}
+                    </h2>
+                    <p className="text-sm text-primary mb-3">{product.tagline}</p>
+                    <p className="text-muted-foreground mb-4">{product.description}</p>
 
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {product.features.map((feature) => (
-                      <span
-                        key={feature}
-                        className="text-xs bg-muted px-2 py-1 rounded"
-                      >
-                        {feature}
-                      </span>
-                    ))}
-                  </div>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {product.features.map((feature) => (
+                        <span
+                          key={feature}
+                          className="text-xs bg-muted px-2 py-1 rounded"
+                        >
+                          {feature}
+                        </span>
+                      ))}
+                    </div>
 
-                  <div className="flex items-center gap-2 text-primary group-hover:translate-x-1 transition-transform">
-                    {content[language].viewDetails}
-                    <ArrowRight className="w-4 h-4" />
-                  </div>
-                </Link>
-              ))}
+                    <div className="flex items-center gap-2 text-primary group-hover:translate-x-1 transition-transform">
+                      {product.externalUrl ? (language === 'ja' ? 'サイトを開く' : 'Open Site') : content[language].viewDetails}
+                      <ArrowRight className="w-4 h-4" />
+                    </div>
+                  </>
+                );
+                return product.externalUrl ? (
+                  <a
+                    key={product.slug}
+                    href={product.externalUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cardClass}
+                  >
+                    {Inner}
+                  </a>
+                ) : (
+                  <Link
+                    key={product.slug}
+                    href={`/products/${product.slug}`}
+                    className={cardClass}
+                  >
+                    {Inner}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </div>
