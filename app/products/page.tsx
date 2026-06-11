@@ -21,10 +21,10 @@ const productsData = {
     {
       slug: 'adalab-shield',
       name: 'adalab shield',
-      tagline: 'ショート動画ブロッカー',
-      description: 'ショート動画の視聴を制限し、集中力を取り戻すためのブラウザ拡張機能',
+      tagline: '集中ガード拡張機能',
+      description: 'adalab focus と連携し、フォーカス中の誘惑サイトを自動ブロック・休憩中は解除するブラウザ拡張機能',
       image: '/images/products/adalab-shield.png',
-      features: ['ショート動画ブロック', '時間制限設定', '集中モード', '統計表示'],
+      features: ['adalab focus 連携', '読み込み前ブロック', 'タイマー操作', 'ブロック統計'],
     },
     {
       slug: 'sumio',
@@ -72,10 +72,10 @@ const productsData = {
     {
       slug: 'adalab-shield',
       name: 'adalab shield',
-      tagline: 'Short Video Blocker',
-      description: 'A browser extension to limit short video viewing and regain your focus',
+      tagline: 'Focus Guard Extension',
+      description: 'A browser extension that syncs with adalab focus: distracting sites are blocked during focus sessions and unblocked during breaks',
       image: '/images/products/adalab-shield.png',
-      features: ['Block Shorts', 'Time Limits', 'Focus Mode', 'Statistics'],
+      features: ['adalab focus sync', 'Pre-load blocking', 'Timer control', 'Block stats'],
     },
     {
       slug: 'sumio',

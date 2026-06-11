@@ -4,52 +4,52 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
-import { Clock, Focus, BarChart3, Ban, ArrowLeft } from 'lucide-react';
+import { Focus, BarChart3, Ban, ArrowLeft, Zap } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const featuresData = {
   ja: [
     {
-      icon: Ban,
-      title: 'ショート動画ブロック',
-      description: 'YouTube Shorts、TikTok、Instagramリールなど、主要なショート動画プラットフォームをブロック。',
+      icon: Zap,
+      title: 'adalab focus 連携',
+      description: 'study.adalabtech.com のポモドーロと同期。フォーカス中は誘惑サイトを自動ブロック、休憩中は自動解除。ポップアップからタイマー操作やタスク完了も可能。',
     },
     {
-      icon: Clock,
-      title: '時間制限設定',
-      description: '1日の視聴時間を設定可能。制限時間に達すると自動でブロック。',
+      icon: Ban,
+      title: '読み込み前ブロック',
+      description: 'ページが表示される前のネットワーク層でブロック。ブロック画面にはフォーカスの残り時間と取組中のタスクが表示されます。',
     },
     {
       icon: Focus,
-      title: '集中モード',
-      description: '作業時間中は完全ブロック。ポモドーロテクニックにも対応。',
+      title: 'ショート動画・サイトブロック',
+      description: 'YouTube Shorts、TikTok、Instagramリールなどをブロック。サイト全体ブロックやカスタムドメインの追加にも対応。',
     },
     {
       icon: BarChart3,
-      title: '統計表示',
-      description: 'ブロック回数や節約時間を可視化。自己管理をサポート。',
+      title: '統計とストリーク',
+      description: 'ブロック回数・時間制限・連続達成日数を可視化。ブロック統計は adalab focus の週次レポートにも表示されます。',
     },
   ],
   en: [
     {
-      icon: Ban,
-      title: 'Block Short Videos',
-      description: 'Block major short video platforms including YouTube Shorts, TikTok, and Instagram Reels.',
+      icon: Zap,
+      title: 'adalab focus Sync',
+      description: 'Syncs with the study.adalabtech.com pomodoro. Sites are auto-blocked during focus and unblocked during breaks. Control the timer and complete tasks from the popup.',
     },
     {
-      icon: Clock,
-      title: 'Time Limits',
-      description: 'Set daily viewing time limits. Automatically blocks when limit is reached.',
+      icon: Ban,
+      title: 'Pre-load Blocking',
+      description: 'Blocks at the network layer before the page renders. The block screen shows your remaining focus time and current task.',
     },
     {
       icon: Focus,
-      title: 'Focus Mode',
-      description: 'Complete blocking during work hours. Compatible with Pomodoro Technique.',
+      title: 'Shorts & Site Blocking',
+      description: 'Block YouTube Shorts, TikTok, Instagram Reels and more. Full-site blocking and custom domains supported.',
     },
     {
       icon: BarChart3,
-      title: 'Statistics',
-      description: 'Visualize block counts and time saved. Support your self-management.',
+      title: 'Stats & Streaks',
+      description: 'Visualize block counts, time limits, and streaks. Block statistics also appear in the adalab focus weekly report.',
     },
   ],
 };
@@ -68,6 +68,10 @@ const faqsData = {
       q: 'ブロックを一時的に解除できますか？',
       a: 'はい、設定から一時解除が可能です。ただし、解除回数も記録されます。',
     },
+    {
+      q: 'adalab focus がなくても使えますか？',
+      a: 'はい、ショート動画ブロックや時間制限などの機能は単体で利用できます。adalab focus と併用すると、ポモドーロ連動の自動ブロックが有効になります。',
+    },
   ],
   en: [
     {
@@ -82,6 +86,10 @@ const faqsData = {
       q: 'Can I temporarily disable blocking?',
       a: 'Yes, you can temporarily disable from settings. However, disable counts are also recorded.',
     },
+    {
+      q: 'Can I use it without adalab focus?',
+      a: 'Yes. Shorts blocking, time limits, and other features work standalone. Pairing with adalab focus enables pomodoro-synced auto blocking.',
+    },
   ],
 };
 
@@ -93,14 +101,14 @@ export default function AdalabShieldPage() {
   const content = {
     ja: {
       backToProducts: '製品一覧に戻る',
-      tagline: 'ショート動画の誘惑から解放される',
+      tagline: 'フォーカス中の誘惑を、仕組みで断つ',
       comingSoon: 'Coming Soon',
       featuresTitle: '機能',
       faqTitle: 'よくある質問',
     },
     en: {
       backToProducts: 'Back to Products',
-      tagline: 'Break free from short video addiction',
+      tagline: 'Guard your focus, automatically',
       comingSoon: 'Coming Soon',
       featuresTitle: 'Features',
       faqTitle: 'FAQ',
