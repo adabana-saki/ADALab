@@ -41,7 +41,7 @@ export const PROJECTS: Project[] = [
     longDescription:
       'adalab focus (study.adalabtech.com) のポモドーロと連携し、フォーカス中は YouTube・TikTok などの誘惑サイトを自動ブロック、休憩中は自動解除。ブロックはページ読み込み前のネットワーク層で行われ、ブロック画面にはフォーカスの残り時間と取組中のタスクが表示されます。拡張のポップアップからタイマーの開始/停止やタスク完了も操作可能。ショート動画ブロック・時間制限・ストリークなど単体でも使える集中機能を搭載し、9 言語に対応しています。',
     category: 'web',
-    image: '/images/products/adalab-shield.png',
+    image: '/images/products/adalab-shield-v2.png',
     technologies: ['TypeScript', 'React', 'Chrome Extension API (MV3)', 'Firefox WebExtensions', 'declarativeNetRequest'],
     features: [
       'adalab focus 連携 (フォーカス中の自動ブロック・休憩で解除)',

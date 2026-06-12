@@ -57,6 +57,8 @@ export function UserButton() {
         className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-muted transition-colors"
       >
         {profile?.photoURL && !imageError ? (
+          // Google アバターは外部 URL かつ static export のため next/image の恩恵がない
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={profile.photoURL}
             alt={profile.displayName || 'User'}

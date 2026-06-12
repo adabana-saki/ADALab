@@ -133,7 +133,7 @@ export default function AdalabShieldPage() {
             <div className="text-center mb-16">
               <div className="relative w-48 h-48 md:w-64 md:h-64 mx-auto mb-6 rounded-3xl overflow-hidden shadow-2xl">
                 <Image
-                  src="/images/products/adalab-shield.png"
+                  src="/images/products/adalab-shield-v2.png"
                   alt="adalab shield"
                   fill
                   className="object-cover"

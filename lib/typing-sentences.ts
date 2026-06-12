@@ -17,8 +17,8 @@ export interface TypingSentence {
   source?: string;
 }
 
-// 難易度判定（文字数ベース）
-function getDifficulty(text: string): SentenceDifficulty {
+// 難易度判定（文字数ベース）。文章追加時の difficulty 付けに使う
+export function getDifficulty(text: string): SentenceDifficulty {
   const len = text.length;
   if (len <= 30) return 'easy';
   if (len <= 60) return 'normal';

@@ -23,7 +23,7 @@ const productsData = {
       name: 'adalab shield',
       tagline: '集中ガード拡張機能',
       description: 'adalab focus と連携し、フォーカス中の誘惑サイトを自動ブロック・休憩中は解除するブラウザ拡張機能',
-      image: '/images/products/adalab-shield.png',
+      image: '/images/products/adalab-shield-v2.png',
       features: ['adalab focus 連携', '読み込み前ブロック', 'タイマー操作', 'ブロック統計'],
     },
     {
@@ -74,7 +74,7 @@ const productsData = {
       name: 'adalab shield',
       tagline: 'Focus Guard Extension',
       description: 'A browser extension that syncs with adalab focus: distracting sites are blocked during focus sessions and unblocked during breaks',
-      image: '/images/products/adalab-shield.png',
+      image: '/images/products/adalab-shield-v2.png',
       features: ['adalab focus sync', 'Pre-load blocking', 'Timer control', 'Block stats'],
     },
     {

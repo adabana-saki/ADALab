@@ -49,6 +49,8 @@ function Particles() {
 export function ParticleField() {
   const [isMounted, setIsMounted] = useState(false);
   const [webGLSupported, setWebGLSupported] = useState(false);
+  // コンテキストロストから復帰したら Canvas を作り直すためのキー
+  const [glKey, setGlKey] = useState(0);
 
   useEffect(() => {
     setIsMounted(true);
@@ -60,9 +62,19 @@ export function ParticleField() {
   return (
     <div className="absolute inset-0 z-0">
       <Canvas
+        key={glKey}
         camera={{ position: [0, 0, 3], fov: 75 }}
-        gl={{ alpha: true }}
+        // 装飾背景なので低電力 GPU を指定し、コンテキストロストの発生自体を減らす
+        gl={{ alpha: true, powerPreference: 'low-power' }}
+        dpr={[1, 1.5]}
         style={{ background: 'transparent' }}
+        onCreated={({ gl }) => {
+          const canvas = gl.domElement;
+          // preventDefault しないとブラウザは webglcontextrestored を発火しない
+          canvas.addEventListener('webglcontextlost', (e) => e.preventDefault());
+          // 復帰したら Canvas ごと作り直して背景が固まったままになるのを防ぐ
+          canvas.addEventListener('webglcontextrestored', () => setGlKey((k) => k + 1));
+        }}
       >
         <Particles />
       </Canvas>

@@ -76,7 +76,7 @@ export function Game2048BattleLobby() {
     onOpponentGameOver: (id, score) => {
       setOpponentState(prev => prev ? { ...prev, isFinished: true, score } : null);
     },
-    onTimeUpdate: (remaining) => {
+    onTimeUpdate: (_remaining) => {
       // Timer update handled in state
     },
     onGameEnd: (winnerId, winnerNickname, reason, results) => {

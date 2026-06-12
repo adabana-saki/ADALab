@@ -82,6 +82,8 @@ export function ProfileCard({ profile, userProfile, totalAchievements }: Profile
       <div className="flex flex-col items-center text-center">
         {/* アバター */}
         {avatarUrl ? (
+          // Google アバターは外部 URL かつ static export のため next/image の恩恵がない
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={avatarUrl}
             alt={displayName}

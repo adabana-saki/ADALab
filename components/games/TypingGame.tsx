@@ -19,7 +19,6 @@ import {
   Clock,
   Hash,
   Award,
-  AlertTriangle,
 } from 'lucide-react';
 import { useTypingGame, GameMode, TypingLanguage, TypingDifficulty, InputType } from '@/hooks/useTypingGame';
 import { SentenceCategory, CATEGORY_LABELS } from '@/lib/typing-sentences';
@@ -125,7 +124,7 @@ export function TypingGame() {
   });
 
   const {
-    currentWord,
+    currentWord: _currentWord,
     currentInput,
     targetText,
     displayText,

@@ -14,6 +14,18 @@ export interface NewsItem {
 export const newsData: Record<'ja' | 'en', NewsItem[]> = {
   ja: [
     {
+      date: '2026-06-12',
+      type: 'announcement',
+      title: '学習管理アプリ「adalab focus」を公開しました',
+      content: 'TODO・ポモドーロタイマー・学習記録・統計・試験カウントダウンを 1 つにまとめた集中管理アプリ「adalab focus」を公開しました。PWA としてスマホにもインストールでき、Google アカウントでログインすると PC とスマホで自動同期、オフラインでも動作します。学習時間のシェア画像生成や、同じ時間に勉強している人が見えるランキングなどコミュニティ機能も搭載しています。study.adalabtech.com からご利用いただけます。',
+    },
+    {
+      date: '2026-06-12',
+      type: 'announcement',
+      title: '集中ガード拡張機能「adalab shield」v0.2 を公開しました',
+      content: 'adalab focus のポモドーロと連携し、フォーカス中は YouTube や TikTok などの誘惑サイトを自動でブロックするブラウザ拡張機能「adalab shield」v0.2 を GitHub で公開しました。休憩中は自動で解除され、ブロック画面にはフォーカスの残り時間と取組中のタスクが表示されます。現在ストア申請を準備中です。',
+    },
+    {
       date: '2026-03-03',
       type: 'announcement',
       title: 'ミニゲーム「リバーシ」を公開しました',
@@ -75,6 +87,18 @@ export const newsData: Record<'ja' | 'en', NewsItem[]> = {
     },
   ],
   en: [
+    {
+      date: '2026-06-12',
+      type: 'announcement',
+      title: 'Study Management App "adalab focus" Released',
+      content: 'We have released "adalab focus", a focus management app that combines TODO, Pomodoro timer, study logs, statistics, and exam countdowns in one place. As a PWA it can be installed on smartphones, syncs automatically between PC and mobile with a Google account, and works fully offline. It also features share-card image generation and community features such as a live study ranking. Available at study.adalabtech.com.',
+    },
+    {
+      date: '2026-06-12',
+      type: 'announcement',
+      title: 'Focus Guard Extension "adalab shield" v0.2 Released',
+      content: 'We have released "adalab shield" v0.2 on GitHub, a browser extension that works with the adalab focus Pomodoro to automatically block distracting sites like YouTube and TikTok during focus sessions. Blocking is lifted automatically during breaks, and the block page shows the remaining focus time and your current task. Store submission is in preparation.',
+    },
     {
       date: '2026-03-03',
       type: 'announcement',
