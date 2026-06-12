@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSnakeBattle, GameSettings, GameResult, BattlePlayerState, PlayerDiedInfo, Position, AvailableColor } from '@/hooks/useSnakeBattle';
+import { useSnakeBattle, GameSettings, GameResult, BattlePlayerState, PlayerDiedInfo, Position } from '@/hooks/useSnakeBattle';
 import { SnakeBattle } from './SnakeBattle';
 import {
   Users,

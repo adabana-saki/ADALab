@@ -26,6 +26,18 @@ othello-dev:
   level: "中級者〜上級者"
   completed: true
 
+adalab-focus-dev:
+  title: "adalab focus 開発記"
+  description: "学習管理 PWA「adalab focus」の開発で得た知見を解説。ローカルファースト設計、オフライン同期、サーバーレス認証、タイマーの状態設計、ブラウザ拡張との連携まで"
+  posts:
+    - programming/adalab-focus-architecture
+    - programming/offline-first-sync-outbox-pattern
+    - programming/serverless-google-oauth-pkce
+    - programming/pomodoro-timer-state-design
+    - programming/webapp-extension-bridge
+  level: "中級者〜上級者"
+  completed: true
+
 # 今後追加予定のシリーズ例:
 #
 # nextjs-tutorial:

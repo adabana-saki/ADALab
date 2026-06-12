@@ -26,16 +26,16 @@ export function Navigation() {
   const pathname = usePathname();
   const isHomePage = pathname === '/';
 
-  // ナビ項目
+  // ナビ項目 (外部リンクの Study は一番端に置く)
   const navItems = [
     { name: 'About', href: '/#about' },
     { name: 'Products', href: '/products' },
     { name: 'Games', href: '/games' },
-    { name: 'Study', href: 'https://study.adalabtech.com', external: true },
     { name: 'Blog', href: '/blog' },
     { name: 'News', href: '/news' },
     { name: 'FAQ', href: '/#faq' },
     { name: 'Contact', href: '/#contact' },
+    { name: 'Study', href: 'https://study.adalabtech.com', external: true },
   ];
 
   useEffect(() => {
@@ -51,7 +51,9 @@ export function Navigation() {
     if (href === '/products') return pathname.startsWith('/products');
     if (href === '/games') return pathname.startsWith('/games');
     if (href === '/news') return pathname === '/news';
-    if (href.startsWith('/#')) return isHomePage;
+    // ハッシュリンク (About/FAQ/Contact) はホームで 3 つ同時に点灯して
+    // 他のボタンと見た目が揃わないため、アクティブ表示しない
+    if (href.startsWith('/#')) return false;
     return pathname === href;
   };
 
