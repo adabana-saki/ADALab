@@ -59,11 +59,19 @@
     @apply border-border;
   }
 
+  /* Prevent horizontal scroll.
+     html にも指定するのが重要: body だけだと はみ出した内容が html 側に残り、
+     モバイルではレイアウトビューポートが広がって画面が縮小表示され、
+     右側に余白が出てしまう。
+     100vw はスクロールバー幅を含むため 100% を使う。 */
+  html,
+  body {
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
   body {
     @apply bg-background text-foreground;
-    /* Prevent horizontal scroll */
-    overflow-x: hidden;
-    max-width: 100vw;
     font-feature-settings: 'rlig' 1, 'calt' 1;
   }
 
