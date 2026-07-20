@@ -152,14 +152,11 @@ export function GamesHighlight() {
                           <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                         </span>
                       </motion.div>
-                      <Link
-                        href="/games"
-                        onClick={(e) => e.stopPropagation()}
-                        className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-primary text-primary font-medium hover:bg-primary/10 transition-colors"
-                      >
+                      {/* カード全体が同じ /games へのリンクなので、入れ子の <a> を避けて span にする */}
+                      <span className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-primary text-primary font-medium hover:bg-primary/10 transition-colors">
                         <Gamepad2 size={18} />
                         ゲーム一覧へ
-                      </Link>
+                      </span>
                     </div>
                   </div>
                 </div>

@@ -179,7 +179,7 @@ export function Footer() {
             transition={{ duration: 0.6, delay: 0.4 }}
           >
             <h4 className="font-semibold mb-4">{content[language].connect}</h4>
-            <div className="flex gap-3 mb-4">
+            <div className="flex flex-wrap gap-3 mb-4">
               {footerLinksData.social.map((social) => (
                 <a
                   key={social.name}
@@ -196,7 +196,7 @@ export function Footer() {
                 </a>
               ))}
             </div>
-            <p className="text-muted-foreground text-sm mb-3">
+            <p className="text-muted-foreground text-sm mb-3 break-all">
               info.adalabtech@gmail.com
             </p>
             <a
