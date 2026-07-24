@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Audiowide, Inter, Noto_Sans_JP } from 'next/font/google';
+import { Audiowide, Space_Grotesk, Zen_Kaku_Gothic_New } from 'next/font/google';
 import './globals.css';
 import { StructuredData } from '@/components/StructuredData';
 import { WebVitals } from '@/components/WebVitals';
@@ -17,15 +17,15 @@ const audiowide = Audiowide({
   display: 'swap',
 });
 
-const inter = Inter({
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-space-grotesk',
   display: 'swap',
 });
 
-const notoSansJP = Noto_Sans_JP({
+const zenKakuGothicNew = Zen_Kaku_Gothic_New({
   subsets: ['latin'],
-  variable: '--font-noto-sans-jp',
+  variable: '--font-zen-kaku',
   weight: ['400', '500', '700'],
   display: 'swap',
 });
@@ -40,19 +40,20 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://adalabtech.com'),
   title: {
-    default: 'ADA Lab | あなたの"ほしい"を、カタチに',
+    default: 'ADA Lab | 集中できない人のための集中アプリ adalab focus',
     template: '%s | ADA Lab',
   },
   description:
-    'ADA Labは、シンプルで使いやすいアプリやサービスを開発する個人開発チーム。Rem bot（Discord多機能Bot）やNavi（片手操作アプリ）など、かゆいところに手が届くプロダクトを提供します。',
+    '勉強に集中できなかったので、集中するためのアプリを作りました。adalab focus はポモドーロ・TODO・学習記録・誘惑サイトブロックを1つにまとめた無料の学習集中アプリ（Web / PWA）。個人開発です。',
   keywords: [
-    'Discord Bot',
-    'Rem bot',
-    'Navi',
-    'モバイルアプリ',
+    'adalab focus',
+    '集中アプリ',
+    'ポモドーロ',
+    '学習記録',
+    '勉強タイマー',
+    'サイトブロック',
+    'PWA',
     '個人開発',
-    'シンプル',
-    '使いやすい',
     'Next.js',
     'React',
     'TypeScript',
@@ -69,9 +70,9 @@ export const metadata: Metadata = {
     telephone: false,
   },
   openGraph: {
-    title: 'ADA Lab | あなたの"ほしい"を、カタチに',
+    title: 'ADA Lab | 集中できない人のための集中アプリ adalab focus',
     description:
-      'シンプルで使いやすいアプリを開発する個人開発チーム。Rem bot、Naviなど、かゆいところに手が届くプロダクトを提供します。',
+      '勉強に集中できなかったので、集中するためのアプリを作りました。ポモドーロ・TODO・学習記録・誘惑サイトブロックを1つに。無料の学習集中アプリ、個人開発です。',
     url: 'https://adalabtech.com',
     siteName: 'ADA Lab',
     type: 'website',
@@ -82,7 +83,7 @@ export const metadata: Metadata = {
         url: 'https://adalabtech.com/opengraph-image.png',
         width: 1200,
         height: 630,
-        alt: 'ADA Lab - あなたの"ほしい"を、カタチに',
+        alt: 'ADA Lab - 集中できない人のための集中アプリ',
         type: 'image/png',
       },
     ],
@@ -91,12 +92,12 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     site: '@ADA_Lab_tech',
     creator: '@ADA_Lab_tech',
-    title: 'ADA Lab | あなたの"ほしい"を、カタチに',
+    title: 'ADA Lab | 集中できない人のための集中アプリ adalab focus',
     description:
-      'シンプルで使いやすいアプリを開発する個人開発チーム。Rem bot、Naviなど、かゆいところに手が届くプロダクトを提供。',
+      '勉強に集中できなかったので、集中するためのアプリを作りました。ポモドーロ・TODO・学習記録・誘惑サイトブロックを1つに。無料・個人開発。',
     images: {
       url: 'https://adalabtech.com/twitter-image.png',
-      alt: 'ADA Lab - あなたの"ほしい"を、カタチに',
+      alt: 'ADA Lab - 集中できない人のための集中アプリ',
     },
   },
   alternates: {
@@ -128,7 +129,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ja" className={`dark scroll-smooth ${audiowide.variable} ${inter.variable} ${notoSansJP.variable}`}>
+    <html lang="ja" className={`dark scroll-smooth ${audiowide.variable} ${spaceGrotesk.variable} ${zenKakuGothicNew.variable}`}>
       <body className="font-sans antialiased">
         <StructuredData />
         <a

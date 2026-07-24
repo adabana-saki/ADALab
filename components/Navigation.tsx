@@ -26,15 +26,12 @@ export function Navigation() {
   const pathname = usePathname();
   const isHomePage = pathname === '/';
 
-  // ナビ項目 (外部リンクの Study は一番端に置く)
+  // ナビ項目は絞る（News/FAQ/Contact はフッター導線へ）。外部リンクの Study は端に置く
   const navItems = [
     { name: 'About', href: '/#about' },
     { name: 'Products', href: '/products' },
-    { name: 'Games', href: '/games' },
     { name: 'Blog', href: '/blog' },
-    { name: 'News', href: '/news' },
-    { name: 'FAQ', href: '/#faq' },
-    { name: 'Contact', href: '/#contact' },
+    { name: 'Games', href: '/games' },
     { name: 'Study', href: 'https://study.adalabtech.com', external: true },
   ];
 
