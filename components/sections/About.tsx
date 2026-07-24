@@ -2,10 +2,8 @@
 
 import { motion } from 'framer-motion';
 import { WifiOff, SlidersHorizontal, Hand, MessageSquare } from 'lucide-react';
-import { CounterAnimation } from '../effects/CounterAnimation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { GitHubHologram } from '../effects/GitHubHologram';
 import { QiitaFeed } from '../QiitaFeed';
 import { GitHubContributions } from '../GitHubContributions';
 import { WakaTimeStats } from '../WakaTimeStats';
@@ -153,12 +151,7 @@ export function About() {
                   >
                     <div className="text-3xl md:text-4xl font-bold mb-1">
                       <span className="holographic-text">
-                        <CounterAnimation
-                          end={stat.value}
-                          suffix={stat.suffix}
-                          duration={2.5}
-                          className="text-3xl md:text-4xl"
-                        />
+                        {stat.value}{stat.suffix}
                       </span>
                     </div>
                     <div className="text-xs text-muted-foreground uppercase tracking-wider">{stat.label}</div>
@@ -230,20 +223,8 @@ export function About() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.7 }}
-            className="col-span-1 md:col-span-3 lg:col-span-4 h-full"
-          >
-            <div className="h-full">
-              <GitHubHologram />
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.8 }}
-            className="col-span-1 md:col-span-3 lg:col-span-8 h-full"
+            className="col-span-1 md:col-span-6 lg:col-span-12 h-full"
           >
             <div className="h-full">
               <GitHubContributions />

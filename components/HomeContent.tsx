@@ -134,8 +134,8 @@ export function HomeContent({ latestPosts }: HomeContentProps) {
       <main id="main-content" tabIndex={-1} className="focus:outline-none relative z-10">
         <Hero />
         <About />
-        <LatestBlog posts={latestPosts} />
         <Projects />
+        <LatestBlog posts={latestPosts} />
         <GamesHighlight />
         <Technologies />
         <News />

@@ -40,24 +40,42 @@ export function QiitaFeed() {
   };
 
   useEffect(() => {
+    const controller = new AbortController();
+    // 取得が固まっても「読み込み中」に留まらないよう 8 秒でタイムアウト
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
     async function fetchQiitaArticles() {
       try {
-        const response = await fetch('https://qiita.com/api/v2/users/adabana-saki/items?per_page=3');
+        const response = await fetch(
+          'https://qiita.com/api/v2/users/adabana-saki/items?per_page=3',
+          { signal: controller.signal }
+        );
         if (!response.ok) {
           throw new Error('Failed to fetch');
         }
         const data = await response.json();
-        setArticles(data);
+        setArticles(Array.isArray(data) ? data : []);
       } catch (err) {
-        setError(content[language].error);
+        // エラー時はコンポーネントごと非表示にするため、文言は表示されない
+        setError('error');
         console.error('Failed to fetch Qiita articles:', err);
       } finally {
+        clearTimeout(timeoutId);
         setIsLoading(false);
       }
     }
 
     fetchQiitaArticles();
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
   }, [language]);
+
+  // 取得できない/記事ゼロのときは要素ごと隠す（「読み込み中…」「失敗」を残さない）
+  if (isLoading || error || articles.length === 0) {
+    return null;
+  }
 
   return (
     <motion.div

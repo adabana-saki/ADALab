@@ -223,7 +223,7 @@ export function Footer() {
             © {new Date().getFullYear()} ADA Lab. All rights reserved.
           </p>
           <p className="text-muted-foreground text-sm flex items-center gap-1">
-            {language === 'ja' ? '日本で' : 'Made with'} <Heart size={14} className="text-red-500 fill-red-500" /> {language === 'ja' ? 'を込めて' : 'in Japan'}
+            {language === 'ja' ? '日本で' : 'Made with'} <Heart size={14} className="text-red-500 fill-red-500" /> {language === 'ja' ? '作っています' : 'in Japan'}
           </p>
         </motion.div>
       </div>
