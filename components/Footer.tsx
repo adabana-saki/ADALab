@@ -23,14 +23,14 @@ const footerLinksData = {
   },
   company: {
     ja: [
-      { name: '会社情報', href: '/company' },
+      { name: '作っている人', href: '/company' },
       { name: 'ブログ', href: '/blog' },
       { name: 'ニュース', href: '/news' },
       { name: 'ロードマップ', href: '/roadmap' },
       { name: '技術スタック', href: '/tech-stack' },
     ],
     en: [
-      { name: 'About Us', href: '/company' },
+      { name: 'About Me', href: '/company' },
       { name: 'Blog', href: '/blog' },
       { name: 'News', href: '/news' },
       { name: 'Roadmap', href: '/roadmap' },
@@ -70,17 +70,17 @@ export function Footer() {
 
   const content = {
     ja: {
-      description: 'あなたの"ほしい"を、カタチに。シンプルで使いやすいアプリを開発しています。',
+      description: '自分が欲しかったツールを作って、公開しています。今は集中管理アプリ「adalab focus」がメイン。個人開発です。',
       products: 'プロダクト',
-      company: '会社',
+      company: 'ADA Lab について',
       legal: 'サポート',
       connect: 'つながる',
       madeWith: '日本で作られました',
     },
     en: {
-      description: 'Simple tools for everyday needs. We develop easy-to-use apps.',
+      description: 'I build the tools I wish existed, then ship them. Right now that\'s mostly adalab focus, a study-focus app. A one-person project.',
       products: 'Products',
-      company: 'Company',
+      company: 'About',
       legal: 'Support',
       connect: 'Connect',
       madeWith: 'Made in Japan',
@@ -223,7 +223,7 @@ export function Footer() {
             © {new Date().getFullYear()} ADA Lab. All rights reserved.
           </p>
           <p className="text-muted-foreground text-sm flex items-center gap-1">
-            {language === 'ja' ? '作られました' : 'Made with'} <Heart size={14} className="text-red-500 fill-red-500" /> {language === 'ja' ? '日本で' : 'in Japan'}
+            {language === 'ja' ? '日本で' : 'Made with'} <Heart size={14} className="text-red-500 fill-red-500" /> {language === 'ja' ? 'を込めて' : 'in Japan'}
           </p>
         </motion.div>
       </div>

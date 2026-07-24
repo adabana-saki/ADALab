@@ -10,6 +10,10 @@ import { Card, CardContent } from '../ui/card';
 import { PROJECTS } from '@/lib/projects';
 import { useTheme } from '@/contexts/ThemeContext';
 
+// トップには今すぐ使えるものだけ載せる（開発中は /products へ）
+const FEATURED_IDS = ['0', '1']; // adalab focus / adalab shield
+const featuredProjects = PROJECTS.filter((p) => FEATURED_IDS.includes(p.id));
+
 export function Projects() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const { resolvedTheme } = useTheme();
@@ -36,16 +40,16 @@ export function Projects() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Our <span className="gradient-text">Products</span>
+            Products
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            私たちが開発・運営している革新的なプロダクトをご紹介します
+            今すぐ使えるものと、開発中のもの。ステータスは正直に書いています。
           </p>
         </motion.div>
 
         {/* Projects Grid */}
         <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-          {PROJECTS.map((project, index) => (
+          {featuredProjects.map((project, index) => (
             <motion.div
               key={project.id}
               initial={{ opacity: 0, y: 20 }}
@@ -73,6 +77,10 @@ export function Projects() {
                     {project.link ? (
                       <span className="px-3 py-1 bg-emerald-500/90 text-black text-xs font-bold rounded-full">
                         LIVE
+                      </span>
+                    ) : project.id === '1' ? (
+                      <span className="px-3 py-1 bg-emerald-500/90 text-black text-xs font-bold rounded-full">
+                        公開中 v0.2
                       </span>
                     ) : (
                       <span className="px-3 py-1 bg-yellow-500/90 text-black text-xs font-bold rounded-full">
@@ -208,6 +216,26 @@ export function Projects() {
             </motion.div>
           ))}
         </div>
+
+        {/* 開発中のプロダクトは一覧ページへ（トップにハリボテを並べない） */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="text-center mt-12"
+        >
+          <p className="text-muted-foreground mb-4">
+            このほか Rem bot・Navi・Sumio・QRaft などを開発中です。
+          </p>
+          <Link
+            href="/products"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-primary/40 text-primary hover:bg-primary/10 font-semibold transition-colors"
+          >
+            開発中のものも含めて全部見る
+            <ArrowRight size={18} />
+          </Link>
+        </motion.div>
       </div>
     </section>
   );
