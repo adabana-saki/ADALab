@@ -23,16 +23,9 @@ import { LatestBlog } from '@/components/sections/LatestBlog';
 import { scrollToSection, scrollToTop } from '@/hooks/useKeyboardShortcuts';
 import type { BlogMeta } from '@/lib/blog';
 
-// 遅延読み込みエフェクト（軽量化済み）
-const AnimatedBackground = dynamic(() => import('@/components/effects/AnimatedBackground').then(mod => ({ default: mod.AnimatedBackground })), { ssr: false });
-const CyberGrid = dynamic(() => import('@/components/effects/CyberGrid').then(mod => ({ default: mod.CyberGrid })), { ssr: false });
-const ScanLines = dynamic(() => import('@/components/effects/ScanLines').then(mod => ({ default: mod.ScanLines })), { ssr: false });
-const MouseGlow = dynamic(() => import('@/components/effects/MouseGlow').then(mod => ({ default: mod.MouseGlow })), { ssr: false });
+// 機能系のみ遅延読み込み（装飾エフェクトはテンプレ感が強いため撤去）
 const KonamiCode = dynamic(() => import('@/components/effects/KonamiCode').then(mod => ({ default: mod.KonamiCode })), { ssr: false });
-const MatrixRain = dynamic(() => import('@/components/effects/MatrixRain').then(mod => ({ default: mod.MatrixRain })), { ssr: false });
 const CommandPalette = dynamic(() => import('@/components/CommandPalette').then(mod => ({ default: mod.CommandPalette })), { ssr: false });
-const FloatingElements = dynamic(() => import('@/components/effects/FloatingElements').then(mod => ({ default: mod.FloatingElements })), { ssr: false });
-const CinematicIntro = dynamic(() => import('@/components/effects/CinematicIntro').then(mod => ({ default: mod.CinematicIntro })), { ssr: false });
 const PageLoader = dynamic(() => import('@/components/PageLoader').then(mod => ({ default: mod.PageLoader })), { ssr: false });
 
 interface HomeContentProps {
@@ -127,16 +120,9 @@ export function HomeContent({ latestPosts }: HomeContentProps) {
       {/* Page Loader */}
       <PageLoader />
 
-      {/* Desktop only: all effects disabled on mobile for performance */}
+      {/* Desktop only: 機能系のみ（コマンドパレット + Konami イースターエッグ） */}
       {!isMobile && (
         <>
-          <AnimatedBackground />
-          <CyberGrid />
-          <ScanLines />
-          <MatrixRain />
-          <MouseGlow />
-          <FloatingElements />
-          <CinematicIntro />
           <KonamiCode />
           <CommandPalette />
         </>
@@ -148,10 +134,10 @@ export function HomeContent({ latestPosts }: HomeContentProps) {
       <main id="main-content" tabIndex={-1} className="focus:outline-none relative z-10">
         <Hero />
         <About />
-        <Technologies />
-        <GamesHighlight />
-        <Projects />
         <LatestBlog posts={latestPosts} />
+        <Projects />
+        <GamesHighlight />
+        <Technologies />
         <News />
         <FAQ />
         <Contact />

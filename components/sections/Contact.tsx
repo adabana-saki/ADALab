@@ -50,8 +50,8 @@ export function Contact() {
       subtitle: 'プロダクトに関するお問い合わせ、ご質問などお気軽にご連絡ください',
       contactUs: 'お気軽にご連絡ください',
       email: 'メールアドレス',
-      hours: '対応時間',
-      operator: '運営者',
+      hours: '返信の目安',
+      operator: '作っている人',
       name: 'お名前',
       namePlaceholder: '山田太郎',
       emailLabel: 'メールアドレス',
@@ -79,27 +79,27 @@ export function Contact() {
       messageMinLength: 'メッセージは10文字以上で入力してください',
     },
     en: {
-      subtitle: 'Feel free to contact us with any questions about our products',
+      subtitle: 'Questions about the apps? Feel free to reach out — it comes straight to me.',
       contactUs: 'Get in Touch',
       email: 'Email',
-      hours: 'Hours',
-      operator: 'Operator',
+      hours: 'Response time',
+      operator: 'Built by',
       name: 'Name',
       namePlaceholder: 'John Doe',
       emailLabel: 'Email',
       inquiryType: 'Inquiry Type',
       selectPlaceholder: 'Please select',
       message: 'Message',
-      messagePlaceholder: 'Please write your questions or feedback about our products',
+      messagePlaceholder: 'Write your questions or feedback about the apps',
       submit: 'Send Message',
       submitting: 'Sending...',
       submitted: 'Message Sent',
       thankYou: 'Thank you for your inquiry.',
       confirmEmail: 'Please check your email for confirmation.',
-      willContact: 'We will contact you as soon as we review your message.',
+      willContact: 'I\'ll get back to you once I\'ve read your message.',
       newInquiry: 'New Inquiry',
       formUnavailable: 'The contact form is currently unavailable.',
-      contactByEmail: 'Please contact us by email: ',
+      contactByEmail: 'Please email me: ',
       followUs: 'Follow Us',
       checkInput: 'Please check your input',
       sendFailed: 'Failed to send. Please try again.',
@@ -329,7 +329,7 @@ export function Contact() {
                 <div>
                   <h4 className="font-semibold mb-2">{content[language].hours}</h4>
                   <p className="text-muted-foreground">
-                    8:00 - 24:00（JST）
+                    {language === 'ja' ? 'だいたい2〜3日以内に返信します' : 'Usually within 2–3 days'}
                   </p>
                 </div>
 

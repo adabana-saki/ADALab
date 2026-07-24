@@ -70,7 +70,7 @@ export const PROJECTS: Project[] = [
     id: '2',
     title: 'Sumio',
     description:
-      '閲覧中のWebページをAIが瞬時に要約。情報収集を効率化するブラウザ拡張機能。',
+      '閲覧中のWebページをAIが要約。長文記事も数行で把握できるブラウザ拡張機能。',
     longDescription:
       'ワンクリックでページ全体をAIが要約。ChatGPT、Claude、Geminiなど複数のAIモデルに対応し、長文記事も3行で把握できます。多言語対応で、英語のページも日本語で要約可能。',
     category: 'web',
@@ -168,7 +168,7 @@ export const PROJECTS: Project[] = [
     description:
       'QRコードの読み取り・生成・保存を素早く行えるオールインワンアプリ。',
     longDescription:
-      'カメラを向けるだけで瞬時にQRコードを認識。Wi-Fi接続情報のQRコード化、スキャン履歴の自動保存、複数QRコードの一括生成など、QRコードに関するあらゆるニーズに対応するユーティリティアプリです。',
+      'カメラを向けるだけでQRコードを認識。Wi-Fi接続情報のQRコード化、スキャン履歴の自動保存、複数QRコードの一括生成など、QRコード周りの作業をまとめて扱えるユーティリティアプリです。',
     category: 'mobile',
     image: '/images/products/QRaft.png',
     technologies: ['Kotlin', 'Android', 'CameraX', 'ML Kit'],

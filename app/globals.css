@@ -149,9 +149,9 @@
   background: hsl(var(--secondary));
 }
 
-/* Gradient Text */
+/* Heading accent — 単色（レインボーのグラデ文字は AI 生成 LP の最頻出パターンなので廃止） */
 .gradient-text {
-  @apply bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent;
+  color: hsl(var(--foreground));
 }
 
 /* Epic Logo Style */
@@ -200,9 +200,8 @@
   padding: 1px;
   background: linear-gradient(
     135deg,
-    rgba(6, 182, 212, 0.3) 0%,
-    transparent 50%,
-    rgba(217, 70, 239, 0.3) 100%
+    rgba(6, 182, 212, 0.25) 0%,
+    transparent 60%
   );
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -277,21 +276,9 @@
               inset 0 0 10px rgba(217, 70, 239, 0.2);
 }
 
-/* Holographic Text */
+/* Data highlight — 統計などの数字。単色シアン（レインボー廃止） */
 .holographic-text {
-  background: linear-gradient(
-    90deg,
-    #06b6d4 0%,
-    #8b5cf6 25%,
-    #d946ef 50%,
-    #06b6d4 75%,
-    #8b5cf6 100%
-  );
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.5));
+  color: #06b6d4;
 }
 
 /* Cyber Grid */

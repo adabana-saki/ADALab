@@ -124,7 +124,7 @@ export function Technologies() {
             Tech <span className="gradient-text">Stack</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            プロジェクトの要件に応じて最適な技術を選定し、品質とパフォーマンスを重視した開発を行っています
+            実際にプロダクトで使っている技術です。数を増やすより、使い慣れたものを深く使う方針でやっています。
           </p>
         </motion.div>
 
@@ -182,21 +182,6 @@ export function Technologies() {
           </div>
         </motion.div>
 
-        {/* Tech Count */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-16 text-center"
-        >
-          <p className="text-muted-foreground">
-            <span className="text-primary font-semibold">
-              {Object.values(TECHNOLOGIES).flat().length}+
-            </span>{' '}
-            の技術・ツールを活用しています
-          </p>
-        </motion.div>
       </div>
     </section>
   );

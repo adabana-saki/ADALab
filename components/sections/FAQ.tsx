@@ -27,51 +27,27 @@ const faqsData = {
   ja: [
     {
       id: '1',
-      question: 'ADA Labとは何ですか？',
+      question: 'ADA Lab とは？',
       answer:
-        'ADA Labは、日常の「あったらいいな」を形にするプロダクトカンパニーです。シンプルで使いやすいアプリケーションを個人開発で提供しています。「あなたの"ほしい"を、カタチに。」をモットーに活動しています。',
+        'ADA Lab は、私が自分の困りごとを解決するために作ったアプリを公開している場所です。会社ではなく、一人でやっています。今のメインは集中管理アプリ「adalab focus」です。',
     },
     {
       id: '2',
-      question: 'どのようなプロダクトを開発していますか？',
+      question: 'どのプロダクトが今すぐ使えますか？',
       answer:
-        '現在、以下のプロダクトを開発中です：\n\n- **Rem bot**: Discordの多機能管理Bot。リマインド、投票作成、読み上げ、サーバー管理、ゲームなど\n- **Navi**: 片手でスマホを完全操作できるモバイルアプリ。満員電車でも快適に使えます\n\n今後もユーザーの声を聞きながら、新しいプロダクトを開発していきます。',
+        '今すぐ使えるのは2つです。\n\n- **adalab focus**: ポモドーロ・学習記録・試験カウントダウンをまとめた集中管理アプリ（Web / PWA、無料で公開中）\n- **adalab shield**: フォーカス中に誘惑サイトを自動ブロックするブラウザ拡張（v0.2、GitHub で公開中）\n\nこのほか Rem bot・Navi などを開発中です。動くようになったものから順番に公開します。',
     },
     {
       id: '3',
-      question: 'プロダクトは無料で使えますか？',
+      question: '無料で使えますか？',
       answer:
-        '基本的な機能は無料でお使いいただけます。\n\n一部の高度な機能やプレミアム機能については、将来的に有料プランを設ける可能性がありますが、コア機能は常に無料で提供する予定です。詳細は各プロダクトのページでご確認ください。',
+        '公開しているものはすべて無料で使えます。\n\n将来もし有料プランを作ることがあっても、今ある機能を後から有料に閉じ込めることはしません。',
     },
     {
       id: '4',
-      question: 'Rem botをDiscordサーバーに導入するにはどうすればいいですか？',
+      question: 'バグ報告・要望・サポートはどこに送ればいい？',
       answer:
-        'Rem botの導入は簡単です：\n\n1. プロダクトページの「Discordに追加」ボタンをクリック\n2. DiscordのOAuth認証画面で、導入するサーバーを選択\n3. 必要な権限を許可\n4. 完了！\n\n導入後は「/help」コマンドで使い方を確認できます。',
-    },
-    {
-      id: '5',
-      question: 'バグを見つけた場合や機能リクエストはどこに送ればいいですか？',
-      answer:
-        'バグ報告や機能リクエストは以下の方法で受け付けています：\n\n- **お問い合わせフォーム**: このサイトのContactセクションから\n- **メール**: info.adalabtech@gmail.com\n- **X**: @ADA_Lab_tech へDMまたはリプライ\n- **GitHub Issues**: 各プロダクトのリポジトリにて\n\nユーザーからのフィードバックは大歓迎です！',
-    },
-    {
-      id: '6',
-      question: 'プライバシーやデータの取り扱いはどうなっていますか？',
-      answer:
-        'ユーザーのプライバシーは最優先で保護しています。\n\n- 必要最小限のデータのみを収集\n- データは暗号化して保存\n- 第三者への提供は行いません\n- いつでもデータの削除をリクエスト可能\n\n詳細はプライバシーポリシーをご確認ください。',
-    },
-    {
-      id: '7',
-      question: 'サポートの対応時間は？',
-      answer:
-        'メールやSNSでのお問い合わせは、8:00〜24:00（日本時間）で対応しています。\n\n個人開発のため、回答には数日お時間をいただく場合がありますが、必ず返信いたします。緊急の問題（セキュリティ関連など）については優先的に対応します。',
-    },
-    {
-      id: '8',
-      question: 'どのような技術を使っていますか？',
-      answer:
-        '主に以下の技術スタックを使用しています：\n\n- **フロントエンド**: React, Next.js, TypeScript, Tailwind CSS\n- **バックエンド**: Node.js, Python, Discord.js\n- **モバイル**: React Native, Expo\n- **インフラ**: Vercel, Google Cloud, MongoDB\n\n常に最新の技術をキャッチアップし、最適なものを選択しています。',
+        '個人開発なので、私一人で対応しています。\n\n- **Discord / X (@ADA_Lab_tech)**: 一番早いです。だいたい2〜3日以内に返します\n- **メール**: info.adalabtech@gmail.com\n\n即レスや24時間対応はできませんが、もらった要望はかなりの割合でそのまま取り込んでいます。',
     },
   ],
   en: [
@@ -79,49 +55,25 @@ const faqsData = {
       id: '1',
       question: 'What is ADA Lab?',
       answer:
-        'ADA Lab is a product company that turns everyday "nice-to-haves" into reality. We provide simple and easy-to-use applications through indie development. Our motto is "Turning your wishes into reality."',
+        'ADA Lab is where I publish the apps I build to solve my own problems. It\'s not a company — it\'s just me. Right now the main one is adalab focus, a study-focus app.',
     },
     {
       id: '2',
-      question: 'What products are you developing?',
+      question: 'Which products can I use right now?',
       answer:
-        'We are currently developing the following products:\n\n- **Rem bot**: A multi-functional Discord management bot with reminders, polls, text-to-speech, server management, games, and more\n- **Navi**: A mobile app for complete one-handed smartphone control, perfect for crowded trains\n\nWe continue to develop new products based on user feedback.',
+        'Two of them are live today:\n\n- **adalab focus**: a focus app that combines Pomodoro, a study log, and an exam countdown (Web / PWA, free)\n- **adalab shield**: a browser extension that blocks distracting sites while you\'re in a focus session (v0.2, on GitHub)\n\nRem bot, Navi and a few others are still in development. I ship them one by one as they actually start working.',
     },
     {
       id: '3',
-      question: 'Are your products free to use?',
+      question: 'Are they free?',
       answer:
-        'Basic features are free to use.\n\nWhile we may introduce paid plans for some advanced or premium features in the future, core functionality will always remain free. Please check each product page for details.',
+        'Everything I\'ve published is free to use.\n\nIf I ever add a paid plan, I won\'t take today\'s features and lock them behind it later.',
     },
     {
       id: '4',
-      question: 'How do I add Rem bot to my Discord server?',
+      question: 'Where do I report a bug or request a feature?',
       answer:
-        'Adding Rem bot is easy:\n\n1. Click the "Add to Discord" button on the product page\n2. Select the server you want to add it to on the Discord OAuth screen\n3. Grant the required permissions\n4. Done!\n\nAfter installation, use the "/help" command to learn how to use it.',
-    },
-    {
-      id: '5',
-      question: 'Where can I report bugs or request features?',
-      answer:
-        'We accept bug reports and feature requests through:\n\n- **Contact Form**: From the Contact section on this site\n- **Email**: info.adalabtech@gmail.com\n- **X**: DM or reply to @ADA_Lab_tech\n- **GitHub Issues**: On each product repository\n\nWe welcome feedback from our users!',
-    },
-    {
-      id: '6',
-      question: 'How do you handle privacy and data?',
-      answer:
-        'We prioritize protecting user privacy.\n\n- We collect only minimal necessary data\n- Data is stored encrypted\n- We do not share data with third parties\n- You can request data deletion at any time\n\nPlease see our Privacy Policy for details.',
-    },
-    {
-      id: '7',
-      question: 'What are your support hours?',
-      answer:
-        'We respond to email and social media inquiries from 8:00 to 24:00 (Japan Time).\n\nAs an indie developer, responses may take a few days, but we will always reply. Urgent issues (such as security concerns) are prioritized.',
-    },
-    {
-      id: '8',
-      question: 'What technologies do you use?',
-      answer:
-        'We primarily use the following tech stack:\n\n- **Frontend**: React, Next.js, TypeScript, Tailwind CSS\n- **Backend**: Node.js, Python, Discord.js\n- **Mobile**: React Native, Expo\n- **Infrastructure**: Vercel, Google Cloud, MongoDB\n\nWe constantly keep up with the latest technologies and choose the best fit for each project.',
+        'It\'s a one-person project, so I handle everything myself.\n\n- **Discord / X (@ADA_Lab_tech)**: fastest — I usually reply within 2–3 days\n- **Email**: info.adalabtech@gmail.com\n\nI can\'t do instant or 24/7 support, but a good chunk of the requests I get end up shipped as-is.',
     },
   ],
 };
