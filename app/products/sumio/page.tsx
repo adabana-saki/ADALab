@@ -58,29 +58,29 @@ const faqsData = {
   ja: [
     {
       q: 'APIキーは必要ですか？',
-      a: 'はい、お好みのAIサービス（OpenAI、Anthropic等）のAPIキーが必要です。',
+      a: 'はい、お好みのAIサービス（OpenAI、Anthropic等）のAPIキーが必要になる予定です。',
     },
     {
-      q: '対応ブラウザは？',
-      a: 'Chrome、Firefox、Edgeに対応しています。',
+      q: '対応予定のブラウザは？',
+      a: 'Chrome、Firefox、Edge への対応を予定しています。',
     },
     {
       q: 'データはどこに保存されますか？',
-      a: '要約データはローカルに保存されます。外部サーバーには送信しません。',
+      a: '要約データは端末内にローカル保存し、外部サーバーには送信しない設計を予定しています。',
     },
   ],
   en: [
     {
-      q: 'Do I need an API key?',
-      a: 'Yes, you need an API key from your preferred AI service (OpenAI, Anthropic, etc.).',
+      q: 'Will I need an API key?',
+      a: 'Yes, you\'ll need an API key from your preferred AI service (OpenAI, Anthropic, etc.).',
     },
     {
-      q: 'Which browsers are supported?',
-      a: 'Chrome, Firefox, and Edge are supported.',
+      q: 'Which browsers will be supported?',
+      a: 'Chrome, Firefox, and Edge are planned.',
     },
     {
-      q: 'Where is data stored?',
-      a: 'Summary data is stored locally. It is not sent to external servers.',
+      q: 'Where will data be stored?',
+      a: 'Summary data is planned to be stored locally on your device and not sent to external servers.',
     },
   ],
 };

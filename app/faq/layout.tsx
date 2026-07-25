@@ -4,14 +4,14 @@ const baseUrl = 'https://adalabtech.com';
 
 export const metadata: Metadata = {
   title: 'よくある質問 (FAQ)',
-  description: 'ADA Labに関するよくある質問と回答。開発依頼、サービス内容、料金、技術スタック、サポートについてお答えします。',
-  keywords: ['FAQ', 'よくある質問', 'ADA Lab', '開発依頼', 'サポート', '質問'],
+  description: 'ADA Lab のプロダクトに関するよくある質問と回答。adalab focus のデータ同期・オフライン・アカウント・料金・不具合報告などについてまとめています。',
+  keywords: ['FAQ', 'よくある質問', 'adalab focus', 'ADA Lab', 'サポート', 'データ同期'],
   alternates: {
     canonical: `${baseUrl}/faq`,
   },
   openGraph: {
     title: 'よくある質問 (FAQ) | ADA Lab',
-    description: 'ADA Labに関するよくある質問と回答。開発依頼、サービス内容についてお答えします。',
+    description: 'ADA Lab のプロダクトに関するよくある質問と回答。adalab focus の使い方・データ・料金・不具合報告など。',
     url: `${baseUrl}/faq`,
     type: 'website',
     locale: 'ja_JP',

@@ -20,7 +20,7 @@ export default function PrivacyPolicyPage() {
         },
         {
           title: 'アクセス解析',
-          content: '当サイトではCloudflare Web Analyticsを使用しています。これはプライバシーに配慮した解析ツールで、Cookieを使用せず、個人を特定する情報は収集しません。',
+          content: '当サイトではアクセス状況の把握に Google Analytics（GA4）を使用しています。GA4 は Cookie を使ってアクセスを計測しますが、氏名や連絡先などの個人を特定する情報は取得しません。計測はブラウザの設定や Google のオプトアウト機能で無効化できます。',
         },
         {
           title: '各サービスでのデータ',
@@ -81,7 +81,7 @@ export default function PrivacyPolicyPage() {
         },
         {
           title: 'Analytics',
-          content: 'This site uses Cloudflare Web Analytics, a privacy-focused analytics tool that doesn\'t use cookies and doesn\'t collect personally identifiable information.',
+          content: 'This site uses Google Analytics (GA4) to understand traffic. GA4 uses cookies to measure visits but does not collect personally identifiable information such as your name or contact details. You can opt out via your browser settings or Google\'s opt-out tools.',
         },
         {
           title: 'Data in Our Services',

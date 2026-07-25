@@ -12,7 +12,7 @@ export default function CompanyInfoPage() {
   const content = {
     ja: {
       title: 'About ADA Lab',
-      subtitle: 'あなたの"ほしい"を、カタチに。',
+      subtitle: '自分が困ったものを、自分のために。',
       info: [
         { icon: Code, label: '運営', value: '個人開発' },
         { icon: Calendar, label: '活動開始', value: '2025年' },
@@ -21,7 +21,7 @@ export default function CompanyInfoPage() {
       sections: [
         {
           title: 'ADA Labとは',
-          content: 'ADA Labは、日常の「あったらいいな」を形にする個人開発チームです。\n\n使いやすさとシンプルさを大切に、自分たちが本当に欲しいと思えるアプリケーションを開発しています。',
+          content: 'ADA Labは、日常の「あったらいいな」を形にする個人開発です。\n\n使いやすさとシンプルさを大切に、自分が本当に欲しいと思えるアプリを作っています。',
         },
         {
           title: '開発スタイル',
@@ -33,7 +33,7 @@ export default function CompanyInfoPage() {
         },
         {
           title: '現在のプロダクト',
-          content: '• Rem bot - Discord多機能管理Bot（開発中）\n• Navi - 片手操作モバイルアプリ（開発中）\n\n自分たちが使いたいものを、自分たちのペースで作っています。',
+          content: '• adalab focus — 集中管理アプリ / PWA（公開中）\n• adalab shield — 集中ガード拡張機能（GitHubで公開中）\n• Rem bot・Navi・Sumio・QRaft（開発中）\n\n自分が使いたいものを、自分のペースで作っています。',
         },
         {
           title: 'お問い合わせ',
@@ -43,7 +43,7 @@ export default function CompanyInfoPage() {
     },
     en: {
       title: 'About ADA Lab',
-      subtitle: 'Simple tools for everyday needs.',
+      subtitle: 'The things I got stuck on, built for myself.',
       info: [
         { icon: Code, label: 'Operation', value: 'Independent Development' },
         { icon: Calendar, label: 'Started', value: '2025' },
@@ -52,19 +52,19 @@ export default function CompanyInfoPage() {
       sections: [
         {
           title: 'What is ADA Lab',
-          content: 'ADA Lab is an indie development team that turns everyday "nice to haves" into reality.\n\nWe focus on usability and simplicity, building applications that we genuinely want to use ourselves.',
+          content: 'ADA Lab is a one-person project that turns everyday "nice to haves" into real tools.\n\nI focus on usability and simplicity, building the apps I genuinely want to use myself.',
         },
         {
           title: 'Development Style',
-          content: 'We work at our own relaxed pace.\n\nWe can\'t handle urgent projects or tight deadlines, but we might be a good fit if you prefer careful, thoughtful development.',
+          content: 'I work at my own relaxed pace.\n\nI can\'t handle urgent projects or tight deadlines, but it might be a good fit if you prefer careful, thoughtful development.',
         },
         {
           title: 'About Commissions',
-          content: 'We occasionally accept project requests.\n\n• Projects with flexible timelines\n• Projects where we handle everything from planning to coding\n\nWe generally don\'t accept partial work like design-only or coding-only requests.',
+          content: 'I occasionally accept project requests.\n\n• Projects with flexible timelines\n• Projects where I handle everything from planning to coding\n\nI generally don\'t accept partial work like design-only or coding-only requests.',
         },
         {
           title: 'Current Products',
-          content: '• Rem bot - Discord multi-function management Bot (In Development)\n• Navi - One-hand operation mobile app (In Development)\n\nWe build what we want to use, at our own pace.',
+          content: '• adalab focus — study-focus app / PWA (Live)\n• adalab shield — focus-guard extension (Open source on GitHub)\n• Rem bot, Navi, Sumio, QRaft (In Development)\n\nI build what I want to use, at my own pace.',
         },
         {
           title: 'Contact',

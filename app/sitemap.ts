@@ -25,8 +25,6 @@ const STATIC_PAGES = [
   { path: '/games/minesweeper/battle', changeFrequency: 'monthly' as const, priority: 0.7 },
   { path: '/company', changeFrequency: 'monthly' as const, priority: 0.7 },
   { path: '/tech-stack', changeFrequency: 'monthly' as const, priority: 0.6 },
-  { path: '/roadmap', changeFrequency: 'weekly' as const, priority: 0.6 },
-  { path: '/changelog', changeFrequency: 'weekly' as const, priority: 0.6 },
   { path: '/news', changeFrequency: 'weekly' as const, priority: 0.7 },
   { path: '/faq', changeFrequency: 'monthly' as const, priority: 0.6 },
   { path: '/security', changeFrequency: 'monthly' as const, priority: 0.5 },

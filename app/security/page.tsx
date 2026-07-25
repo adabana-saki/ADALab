@@ -12,7 +12,7 @@ export default function SecurityPage() {
   const content = {
     ja: {
       title: 'セキュリティポリシー',
-      subtitle: 'お客様のデータを守るための取り組み',
+      subtitle: 'このサイトのセキュリティについて',
       lastUpdated: '最終更新',
       sections: [
         {
@@ -28,7 +28,7 @@ export default function SecurityPage() {
         {
           icon: Eye,
           title: 'プライバシー優先',
-          description: '不要な個人情報は収集しません。アクセス解析もCookieを使わないCloudflare Web Analyticsを採用。',
+          description: '不要な個人情報は収集しません。アクセス状況の把握には Google Analytics（GA4）を使用しています。',
         },
         {
           icon: FileCheck,
@@ -42,7 +42,7 @@ export default function SecurityPage() {
     },
     en: {
       title: 'Security Policy',
-      subtitle: 'How we protect your data',
+      subtitle: 'How this site is secured',
       lastUpdated: 'Last Updated',
       sections: [
         {
@@ -58,7 +58,7 @@ export default function SecurityPage() {
         {
           icon: Eye,
           title: 'Privacy First',
-          description: 'We don\'t collect unnecessary personal data. Our analytics (Cloudflare Web Analytics) doesn\'t use cookies.',
+          description: 'We don\'t collect unnecessary personal data. We use Google Analytics (GA4) to understand site traffic.',
         },
         {
           icon: FileCheck,

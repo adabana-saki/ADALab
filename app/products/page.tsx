@@ -112,6 +112,16 @@ const productsData = {
   ],
 };
 
+// 公開状況（トップの「ステータスは正直に書いています」と一致させる）
+const productStatus: Record<string, 'live' | 'dev'> = {
+  adalabstudy: 'live',
+  'adalab-shield': 'dev',
+  sumio: 'dev',
+  rem: 'dev',
+  navi: 'dev',
+  qraft: 'dev',
+};
+
 export default function ProductsPage() {
   const { language } = useLanguage();
   const products = productsData[language];
@@ -120,10 +130,14 @@ export default function ProductsPage() {
     ja: {
       subtitle: 'シンプルで使いやすいプロダクト',
       viewDetails: '詳細を見る',
+      live: '公開中',
+      dev: '開発中',
     },
     en: {
       subtitle: 'Simple and easy-to-use products',
       viewDetails: 'View Details',
+      live: 'Live',
+      dev: 'In Development',
     },
   };
 
@@ -155,9 +169,20 @@ export default function ProductsPage() {
                       />
                     </div>
 
-                    <h2 className="text-2xl font-bold mb-1 group-hover:text-primary transition-colors">
-                      {product.name}
-                    </h2>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h2 className="text-2xl font-bold group-hover:text-primary transition-colors">
+                        {product.name}
+                      </h2>
+                      {productStatus[product.slug] === 'live' ? (
+                        <span className="px-2 py-0.5 bg-emerald-500/90 text-black text-[10px] font-bold rounded-full">
+                          {content[language].live}
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 bg-yellow-500/90 text-black text-[10px] font-bold rounded-full">
+                          {content[language].dev}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm text-primary mb-3">{product.tagline}</p>
                     <p className="text-muted-foreground mb-4">{product.description}</p>
 

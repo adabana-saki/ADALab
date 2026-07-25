@@ -4,14 +4,14 @@ const baseUrl = 'https://adalabtech.com';
 
 export const metadata: Metadata = {
   title: 'About ADA Lab',
-  description: 'ADA Labは「あなたの"ほしい"を、カタチに」をモットーに、シンプルで使いやすいアプリを開発する個人開発チーム。受託開発のご相談も承ります。',
-  keywords: ['ADA Lab', '個人開発', '開発チーム', 'アプリ開発', '受託開発', 'Web開発'],
+  description: '自分が困ったものを自分のために作っている個人開発 ADA Lab について。集中管理アプリ「adalab focus」を中心に、実際に使うツールを公開しています。',
+  keywords: ['ADA Lab', '個人開発', 'adalab focus', 'アプリ開発', '作っている人', 'Web開発'],
   alternates: {
     canonical: `${baseUrl}/company`,
   },
   openGraph: {
-    title: 'About ADA Lab | あなたの"ほしい"を、カタチに',
-    description: 'シンプルで使いやすいアプリを開発する個人開発チーム。受託開発のご相談も承ります。',
+    title: 'About ADA Lab | 作っている人',
+    description: '自分が困ったものを自分のために作っている個人開発 ADA Lab について。adalab focus を中心に公開しています。',
     url: `${baseUrl}/company`,
     type: 'website',
     locale: 'ja_JP',
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'About ADA Lab',
-    description: 'シンプルで使いやすいアプリを開発する個人開発チーム。',
+    description: '自分が困ったものを自分のために作っている個人開発 ADA Lab について。',
   },
 };
 

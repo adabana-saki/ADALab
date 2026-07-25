@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'セキュリティポリシー | ADA Lab',
-    description: 'ADA Labのセキュリティポリシー。お客様のデータを守るための取り組み。',
+    description: 'ADA Labのセキュリティポリシー。このサイトのセキュリティについて。',
     url: `${baseUrl}/security`,
     type: 'website',
     locale: 'ja_JP',

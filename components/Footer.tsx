@@ -10,14 +10,14 @@ const footerLinksData = {
   products: {
     ja: [
       { name: 'すべてのプロダクト', href: '/products' },
-      { name: 'Rem bot', href: '/products/rem' },
-      { name: 'Navi', href: '/products/navi' },
+      { name: 'adalab focus', href: 'https://study.adalabtech.com' },
+      { name: 'adalab shield', href: '/products/adalab-shield' },
       { name: 'ゲーム', href: '/games' },
     ],
     en: [
       { name: 'All Products', href: '/products' },
-      { name: 'Rem bot', href: '/products/rem' },
-      { name: 'Navi', href: '/products/navi' },
+      { name: 'adalab focus', href: 'https://study.adalabtech.com' },
+      { name: 'adalab shield', href: '/products/adalab-shield' },
       { name: 'Games', href: '/games' },
     ],
   },
@@ -26,14 +26,12 @@ const footerLinksData = {
       { name: '作っている人', href: '/company' },
       { name: 'ブログ', href: '/blog' },
       { name: 'ニュース', href: '/news' },
-      { name: 'ロードマップ', href: '/roadmap' },
       { name: '技術スタック', href: '/tech-stack' },
     ],
     en: [
       { name: 'About Me', href: '/company' },
       { name: 'Blog', href: '/blog' },
       { name: 'News', href: '/news' },
-      { name: 'Roadmap', href: '/roadmap' },
       { name: 'Tech Stack', href: '/tech-stack' },
     ],
   },
@@ -43,14 +41,12 @@ const footerLinksData = {
       { name: 'プライバシーポリシー', href: '/privacy' },
       { name: '利用規約', href: '/terms' },
       { name: 'セキュリティ', href: '/security' },
-      { name: '更新履歴', href: '/changelog' },
     ],
     en: [
       { name: 'FAQ', href: '/faq' },
       { name: 'Privacy Policy', href: '/privacy' },
       { name: 'Terms of Service', href: '/terms' },
       { name: 'Security', href: '/security' },
-      { name: 'Changelog', href: '/changelog' },
     ],
   },
   social: [
