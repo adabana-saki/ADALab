@@ -3,7 +3,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
 import { Github, ChevronDown, Check, ArrowRight } from 'lucide-react';
-import { FaDiscord } from 'react-icons/fa';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent } from '../ui/card';
@@ -90,17 +89,6 @@ export function Projects() {
                   </div>
                   {/* Action Icons */}
                   <div className="absolute top-4 right-4 flex gap-2">
-                    {project.id === '1' && (
-                      <a
-                        href="https://discord.com/oauth2/authorize?client_id=1288117077237248072"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/40 transition-colors"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <FaDiscord size={16} className="text-white" />
-                      </a>
-                    )}
                     {project.github && (
                       <a
                         href={project.github}
