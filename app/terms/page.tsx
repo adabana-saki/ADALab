@@ -20,7 +20,7 @@ export default function TermsOfServicePage() {
         },
         {
           title: '2. 提供サービス',
-          content: 'ADA Labでは以下のサービスを提供しています：\n• Rem bot（Discord Bot）\n• adalab shield（ブラウザ拡張機能）\n• Sumio（ブラウザ拡張機能）\n• Navi（Androidアプリ）\n• QRaft（モバイルアプリ）\n\n各サービスの詳細は製品ページをご確認ください。',
+          content: 'ADA Labでは以下のサービスを提供しています：\n• adalab focus（集中管理アプリ / PWA）\n• adalab shield（ブラウザ拡張機能）\n• Rem bot（Discord Bot）\n• Sumio（ブラウザ拡張機能）\n• Navi（Androidアプリ）\n• QRaft（モバイルアプリ）\n\n各サービスの詳細は製品ページをご確認ください。',
         },
         {
           title: '3. 禁止事項',
@@ -54,7 +54,7 @@ export default function TermsOfServicePage() {
         },
         {
           title: '2. Services',
-          content: 'ADA Lab provides the following services:\n• Rem bot (Discord Bot)\n• adalab shield (Browser Extension)\n• Sumio (Browser Extension)\n• Navi (Android App)\n• QRaft (Mobile App)\n\nSee product pages for details.',
+          content: 'ADA Lab provides the following services:\n• adalab focus (Focus app / PWA)\n• adalab shield (Browser Extension)\n• Rem bot (Discord Bot)\n• Sumio (Browser Extension)\n• Navi (Android App)\n• QRaft (Mobile App)\n\nSee product pages for details.',
         },
         {
           title: '3. Prohibited Actions',

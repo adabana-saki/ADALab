@@ -8,7 +8,7 @@ export function StructuredData() {
         '@type': 'Organization',
         name: 'ADA Lab',
         description:
-          'ADA Labは、シンプルで使いやすいアプリやサービスを開発する個人開発チーム。Rem bot（Discord多機能Bot）やNavi（片手操作アプリ）など、日常の「あったらいいな」を形にしています。',
+          'ADA Labは、自分が困ったものを自分のために作っている個人開発です。集中管理アプリ「adalab focus」や連携拡張「adalab shield」など、実際に使うツールを公開しています。',
         url: 'https://adalabtech.com',
         logo: 'https://adalabtech.com/logo.png',
         foundingDate: '2025',
@@ -27,10 +27,10 @@ export function StructuredData() {
       {
         '@type': 'WebSite',
         name: 'ADA Lab',
-        alternateName: 'ADA Lab - あなたの"ほしい"を、カタチに',
+        alternateName: 'ADA Lab - 個人開発',
         url: 'https://adalabtech.com',
         description:
-          'シンプルで使いやすいアプリを開発する個人開発チーム。Discord Bot、モバイルアプリなど、使いやすさを追求したプロダクトを提供。',
+          '自分が困ったものを自分のために作っている個人開発 ADA Lab。集中管理アプリ「adalab focus」を中心にツールを公開しています。',
         inLanguage: 'ja-JP',
         publisher: {
           '@type': 'Organization',
@@ -39,9 +39,8 @@ export function StructuredData() {
       },
       {
         '@type': 'SoftwareApplication',
-        name: 'Rem bot',
-        applicationCategory: 'UtilitiesApplication',
-        applicationSubCategory: 'Discord Bot',
+        name: 'adalab focus',
+        applicationCategory: 'ProductivityApplication',
         operatingSystem: 'Web',
         offers: {
           '@type': 'Offer',
@@ -50,15 +49,16 @@ export function StructuredData() {
           availability: 'https://schema.org/InStock',
         },
         description:
-          'リマインダー、タスク管理、ロール管理、自動応答など多彩な機能を備えたDiscord多機能Bot。無料で導入でき、サーバー管理を効率化します。',
+          'TODO・ポモドーロ・学習記録・統計・試験カウントダウンを1つにまとめた集中管理 PWA。PCとスマホで自動同期、オフライン対応。無料で使えます。',
         featureList: [
-          'リマインダー機能',
-          'タスク管理',
-          'ロール管理',
-          '自動応答',
-          '繰り返し設定',
+          'TODO 管理',
+          'ポモドーロ',
+          '学習統計',
+          '試験カウントダウン',
+          'オフライン PWA',
+          'Google ログイン',
         ],
-        url: 'https://adalabtech.com/products/rem',
+        url: 'https://study.adalabtech.com',
         author: {
           '@type': 'Organization',
           name: 'ADA Lab',
@@ -66,25 +66,26 @@ export function StructuredData() {
       },
       {
         '@type': 'SoftwareApplication',
-        name: 'Navi',
+        name: 'adalab shield',
         applicationCategory: 'UtilitiesApplication',
-        applicationSubCategory: 'One-handed Operation App',
-        operatingSystem: 'Android',
+        applicationSubCategory: 'Browser Extension',
+        operatingSystem: 'Chrome, Firefox',
         offers: {
           '@type': 'Offer',
           price: '0',
           priceCurrency: 'JPY',
-          availability: 'https://schema.org/PreOrder',
+          availability: 'https://schema.org/InStock',
         },
         description:
-          'スマートフォンを片手で快適に操作するためのユーティリティアプリ。カスタムジェスチャー、クイックアクション、ウィジェットで操作効率を向上。',
+          'adalab focus と連携し、フォーカス中は誘惑サイトを自動ブロック・休憩中は解除する集中ガード拡張機能。9言語対応。',
         featureList: [
-          '片手操作最適化',
-          'カスタムジェスチャー',
-          'クイックアクション',
-          'ウィジェット',
+          'adalab focus 連携',
+          '読み込み前ブロック',
+          'ポップアップからタイマー操作',
+          'ショート動画ブロック',
+          'ブロック統計',
         ],
-        url: 'https://adalabtech.com/products/navi',
+        url: 'https://adalabtech.com/products/adalab-shield',
         author: {
           '@type': 'Organization',
           name: 'ADA Lab',

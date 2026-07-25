@@ -1,7 +1,7 @@
 export const SITE_CONFIG = {
   name: 'ADA Lab',
   description:
-    'ADA Labは、シンプルで使いやすいアプリを開発する個人開発チームです。',
+    'ADA Labは、自分が困ったものを自分のために作っている個人開発です。集中管理アプリ「adalab focus」を中心にツールを公開しています。',
   url: 'https://adalabtech.com',
   email: 'info.adalabtech@gmail.com',
 } as const;
