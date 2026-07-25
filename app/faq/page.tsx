@@ -21,69 +21,69 @@ export default function FAQPage() {
   const content = {
     ja: {
       title: 'よくある質問',
-      subtitle: 'お客様からよくいただくご質問とその回答をまとめました。',
+      subtitle: 'adalab focus をはじめ、プロダクトについてよくいただく質問をまとめました。',
       faqs: [
         {
-          question: 'ADA Labはどんな活動をしていますか？',
-          answer: '個人開発チームとして、自分たちが欲しいと思えるアプリやサービスを開発しています。現在はRem bot（Discord Bot）やNavi（モバイルアプリ）を開発中です。',
+          question: 'ADA Labはどんなことをしていますか？',
+          answer: '個人開発です。自分が困ったものを自分のために作って公開しています。今は集中管理アプリ「adalab focus」がメインで、連携する集中ガード拡張「adalab shield」も公開しています。',
         },
         {
-          question: '開発の依頼は受け付けていますか？',
-          answer: 'はい、納期に余裕がある案件であればお受けする場合があります。ただし、のんびりマイペースで開発するスタイルなので、急ぎの案件には対応できません。',
+          question: 'adalab focus は無料で使えますか？',
+          answer: 'はい、無料で使えます。ブラウザからそのまま使えるアプリ（PWA）で、study.adalabtech.com から始められます。',
         },
         {
-          question: 'デザインのみ、コーディングのみの依頼は可能ですか？',
-          answer: '申し訳ありませんが、デザインのみやコーディングのみといった部分的なご依頼は基本的にお受けしていません。企画からコーディングまで一貫して担当できる案件を優先しています。',
+          question: 'PC とスマホでデータは同期できますか？',
+          answer: 'はい。Google ログインをすると、TODO・ポモドーロ・学習記録などが PC とスマホで自動同期します。データは Cloudflare D1 に保存されます。',
         },
         {
-          question: '開発期間はどのくらいかかりますか？',
-          answer: 'プロジェクトの規模によりますが、のんびり開発するスタイルなので、一般的な開発会社より時間がかかる場合があります。スケジュールについてはご相談時にお伝えします。',
+          question: 'オフラインでも使えますか？',
+          answer: 'はい。PWA として動作するので、オフラインでも記録でき、オンラインに戻ったタイミングで自動的に同期します。',
         },
         {
-          question: 'どのような技術を使っていますか？',
-          answer: 'React、Next.js、TypeScript、Node.js、Python、PostgreSQL、Firebase、Cloudflareなどを使用しています。プロジェクトに合わせて最適な技術を選択します。',
+          question: 'アカウントやデータを削除したいときは？',
+          answer: 'アプリ内の設定から削除できます。うまくいかない場合は info.adalabtech@gmail.com までご連絡いただければ対応します。',
         },
         {
-          question: 'プロダクトのバグ報告や機能リクエストはどこに送ればいいですか？',
-          answer: 'お問い合わせフォーム、メール（info.adalabtech@gmail.com）、またはX（@ADA_Lab_tech）のDMでお気軽にご連絡ください。',
+          question: '不具合の報告や機能リクエストはどこに送ればいいですか？',
+          answer: 'メール（info.adalabtech@gmail.com）、X（@ADA_Lab_tech）、Discord でお気軽にどうぞ。もらった意見はかなりの割合でそのまま取り込んでいます。',
         },
         {
-          question: '相談は無料ですか？',
-          answer: 'はい、ご相談は無料です。お気軽にお問い合わせください。',
+          question: '開発の依頼はできますか？',
+          answer: '個人開発なので基本は自分のプロダクトが中心ですが、余裕があればご相談をお受けする場合があります。詳しくは「作っている人（About）」ページをご覧ください。',
         },
       ] as FAQItem[],
     },
     en: {
       title: 'Frequently Asked Questions',
-      subtitle: 'Common questions and answers from our clients.',
+      subtitle: 'Common questions about adalab focus and my other products.',
       faqs: [
         {
           question: 'What does ADA Lab do?',
-          answer: 'We\'re an indie development team building apps and services we genuinely want to use. Currently developing Rem bot (Discord Bot) and Navi (mobile app).',
+          answer: 'It\'s a one-person project. I build the tools I wish existed, for myself first, then ship them. Right now the main one is adalab focus, a study-focus app, along with adalab shield, a companion focus-guard extension.',
         },
         {
-          question: 'Do you accept development requests?',
-          answer: 'Yes, we may accept projects with flexible timelines. However, we work at our own relaxed pace, so we can\'t handle urgent projects.',
+          question: 'Is adalab focus free to use?',
+          answer: 'Yes, it\'s free. It\'s a web app (PWA) you can use right in your browser — just head to study.adalabtech.com.',
         },
         {
-          question: 'Can I request design-only or coding-only work?',
-          answer: 'Sorry, we generally don\'t accept partial work like design-only or coding-only requests. We prefer projects where we handle everything from planning to coding.',
+          question: 'Can I sync data between my PC and phone?',
+          answer: 'Yes. Sign in with Google and your TODOs, Pomodoro sessions, and study logs sync automatically across PC and phone. Data is stored on Cloudflare D1.',
         },
         {
-          question: 'How long does development take?',
-          answer: 'It depends on project scope, but since we work at a relaxed pace, it may take longer than typical development firms. We\'ll discuss schedules during consultation.',
+          question: 'Does it work offline?',
+          answer: 'Yes. It runs as a PWA, so you can keep logging offline and it syncs automatically once you\'re back online.',
         },
         {
-          question: 'What technologies do you use?',
-          answer: 'We use React, Next.js, TypeScript, Node.js, Python, PostgreSQL, Firebase, Cloudflare, and more. We choose the best tech for each project.',
+          question: 'How do I delete my account or data?',
+          answer: 'You can delete it from the in-app settings. If you run into trouble, email me at info.adalabtech@gmail.com and I\'ll take care of it.',
         },
         {
           question: 'Where can I send bug reports or feature requests?',
-          answer: 'Feel free to reach out via our contact form, email (info.adalabtech@gmail.com), or X (@ADA_Lab_tech) DM.',
+          answer: 'Email (info.adalabtech@gmail.com), X (@ADA_Lab_tech), or Discord — whatever\'s easiest. A good chunk of what people ask for ends up shipped as-is.',
         },
         {
-          question: 'Are consultations free?',
-          answer: 'Yes, consultations are free. Feel free to contact us.',
+          question: 'Can I commission you for development work?',
+          answer: 'As a solo developer I mostly focus on my own products, but I occasionally take requests when I have room. See the About page for details.',
         },
       ] as FAQItem[],
     },
@@ -164,8 +164,8 @@ export default function FAQPage() {
           </h2>
           <p className="text-muted-foreground mb-6">
             {language === 'ja'
-              ? 'お気軽にお問い合わせください。24時間以内にご返信いたします。'
-              : 'Feel free to contact us. We will respond within 24 hours.'}
+              ? 'お気軽にお問い合わせください。個人開発のため、返信までに数日いただくことがあります。'
+              : 'Feel free to reach out. As a solo developer, replies may take a few days.'}
           </p>
           <Link
             href="/#contact"

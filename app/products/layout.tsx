@@ -4,14 +4,14 @@ const baseUrl = 'https://adalabtech.com';
 
 export const metadata: Metadata = {
   title: 'Products',
-  description: 'ADA Labが開発するプロダクト一覧。Rem bot（Discord多機能Bot）やNavi（片手操作アプリ）など、シンプルで使いやすいアプリケーションを提供しています。',
-  keywords: ['Discord Bot', 'Rem bot', 'Navi', '片手操作アプリ', 'ADA Lab', 'プロダクト'],
+  description: 'ADA Labが開発するプロダクト一覧。集中管理PWA「adalab focus」と連携拡張「adalab shield」を中心に、個人開発のアプリを公開しています。',
+  keywords: ['adalab focus', 'adalab shield', '集中アプリ', 'ポモドーロ', 'サイトブロック', 'ADA Lab', 'プロダクト'],
   alternates: {
     canonical: `${baseUrl}/products`,
   },
   openGraph: {
     title: 'Products | ADA Lab',
-    description: 'ADA Labが開発するプロダクト一覧。Rem bot、Naviなど、シンプルで使いやすいアプリケーションを提供。',
+    description: 'ADA Labが開発するプロダクト一覧。集中管理PWA「adalab focus」と連携拡張「adalab shield」を中心に、個人開発のアプリを公開。',
     url: `${baseUrl}/products`,
     type: 'website',
     locale: 'ja_JP',
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Products | ADA Lab',
-    description: 'ADA Labが開発するプロダクト一覧。Rem bot、Naviなど、シンプルで使いやすいアプリケーション。',
+    description: 'ADA Labが開発するプロダクト一覧。adalab focus・adalab shield など個人開発のアプリ。',
   },
 };
 

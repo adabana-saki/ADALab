@@ -11,8 +11,6 @@ import {
   User,
   Briefcase,
   Mail,
-  FileText,
-  Map,
   Sun,
   Moon,
   Globe,
@@ -44,8 +42,6 @@ export function CommandPalette() {
       about: 'About',
       products: 'プロダクト',
       contact: 'お問い合わせ',
-      changelog: '更新履歴',
-      roadmap: 'ロードマップ',
       toggleTheme: 'テーマ切り替え',
       toggleLanguage: '言語切り替え',
       noResults: '結果が見つかりません',
@@ -61,8 +57,6 @@ export function CommandPalette() {
       about: 'About',
       products: 'Products',
       contact: 'Contact',
-      changelog: 'Changelog',
-      roadmap: 'Roadmap',
       toggleTheme: 'Toggle Theme',
       toggleLanguage: 'Toggle Language',
       noResults: 'No results found',
@@ -110,24 +104,6 @@ export function CommandPalette() {
       shortcut: 'C',
       action: () => {
         document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-        setIsOpen(false);
-      },
-    },
-    {
-      id: 'changelog',
-      icon: FileText,
-      label: content[language].changelog,
-      action: () => {
-        router.push('/changelog');
-        setIsOpen(false);
-      },
-    },
-    {
-      id: 'roadmap',
-      icon: Map,
-      label: content[language].roadmap,
-      action: () => {
-        router.push('/roadmap');
         setIsOpen(false);
       },
     },
